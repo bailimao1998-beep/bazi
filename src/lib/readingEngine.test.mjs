@@ -40,6 +40,104 @@ test("calculates a known four-pillar chart with correct day master and hour pill
   assert.equal(reading.natal.dayMaster, "戊");
 });
 
+test("calculates the requested Dingzhou sample with solar-term month order", () => {
+  const reading = analyzeBirth({
+    date: "1998-09-11",
+    time: "00:30",
+    birthplace: "河北定州",
+    gender: "male",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  }, {
+    locations: {
+      cities: [
+        {
+          name: "保定·定州市",
+          aliases: ["河北定州", "定州", "定州市", "河北省保定市定州市"],
+          longitude: 114.996496,
+          latitude: 38.522199,
+          timezone: "Asia/Shanghai",
+          standardMeridian: 120,
+        },
+      ],
+    },
+  });
+
+  assert.deepEqual(
+    Object.values(reading.natal.pillars).map((pillar) => pillar.label),
+    ["戊寅", "辛酉", "辛酉", "戊子"],
+  );
+});
+
+test("uses the calculated lichun moment rather than a fixed date for year and month pillars", () => {
+  const beforeLichun = analyzeBirth({
+    date: "2024-02-04",
+    time: "10:00",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+  const afterLichun = analyzeBirth({
+    date: "2024-02-04",
+    time: "17:00",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+
+  assert.equal(beforeLichun.natal.pillars.year.label, "癸卯");
+  assert.equal(beforeLichun.natal.pillars.month.label, "乙丑");
+  assert.equal(afterLichun.natal.pillars.year.label, "甲辰");
+  assert.equal(afterLichun.natal.pillars.month.label, "丙寅");
+});
+
+test("anchors the sexagenary day cycle on 1984-02-02 as bing-yin day", () => {
+  const reading = analyzeBirth({
+    date: "1984-02-02",
+    time: "12:00",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+
+  assert.equal(reading.natal.pillars.day.label, "丙寅");
+});
+
+test("applies late zi hour as the next sexagenary day for day and hour pillars", () => {
+  const reading = analyzeBirth({
+    date: "2000-01-01",
+    time: "23:30",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+
+  assert.equal(reading.natal.pillars.day.label, "己未");
+  assert.equal(reading.natal.pillars.hour.label, "甲子");
+  assert.equal(reading.natal.basicBaziDisplay.calendar.dayPillarRule, "23:00-23:59按次日计算日柱（晚子时换日）");
+  assert.equal(reading.natal.basicBaziDisplay.calendar.dayPillarDate, "2000-01-02");
+});
+
+test("recalculates hour pillar after true solar time crosses an hour branch", () => {
+  const standardTime = analyzeBirth({
+    date: "1998-09-11",
+    time: "01:05",
+    birthplace: "乌鲁木齐",
+    trueSolarTime: false,
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+  const trueSolarTime = analyzeBirth({
+    date: "1998-09-11",
+    time: "01:05",
+    birthplace: "乌鲁木齐",
+    trueSolarTime: true,
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+
+  assert.notEqual(trueSolarTime.natal.pillars.hour.label, standardTime.natal.pillars.hour.label);
+  assert.equal(standardTime.natal.basicBaziDisplay.calendar.finalHourBranch, "丑时");
+  assert.equal(trueSolarTime.natal.basicBaziDisplay.calendar.finalHourBranch, "亥时");
+  assert.equal(trueSolarTime.natal.basicBaziDisplay.calendar.finalDate, "1998-09-10");
+});
+
 test("normalizes lunar birth input to the equivalent Gregorian chart", () => {
   const solar = analyzeBirth({
     calendarType: "solar",
@@ -515,7 +613,7 @@ test("returns core chart expert metadata for rendering professional tabs", () =>
   assert.ok(reading.natal.coreChart.usefulGodCandidates.favorable.length >= 1);
   assert.ok(reading.natal.coreChart.usefulGodCandidates.caution.length >= 1);
   assert.equal(reading.natal.coreChart.calendarPrecision.lunarStatus, "已接入");
-  assert.match(reading.natal.coreChart.calendarPrecision.solarTermStatus, /近似/);
+  assert.match(reading.natal.coreChart.calendarPrecision.solarTermStatus, /太阳黄经/);
 });
 
 test("builds complete basic bazi display without mixing core chart scopes", () => {

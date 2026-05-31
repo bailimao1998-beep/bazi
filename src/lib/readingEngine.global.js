@@ -115,20 +115,24 @@ const TWELVE_STAGE_MATRIX = {
   壬: { 子: "帝旺", 丑: "衰", 寅: "病", 卯: "死", 辰: "墓", 巳: "绝", 午: "胎", 未: "养", 申: "长生", 酉: "沐浴", 戌: "冠带", 亥: "临官" },
   癸: { 子: "临官", 丑: "冠带", 寅: "沐浴", 卯: "长生", 辰: "养", 巳: "胎", 午: "绝", 未: "墓", 申: "死", 酉: "病", 戌: "衰", 亥: "帝旺" },
 };
-const SOLAR_MONTH_BOUNDARIES = [
-  { month: 2, day: 4, branch: "寅" },
-  { month: 3, day: 6, branch: "卯" },
-  { month: 4, day: 5, branch: "辰" },
-  { month: 5, day: 6, branch: "巳" },
-  { month: 6, day: 6, branch: "午" },
-  { month: 7, day: 7, branch: "未" },
-  { month: 8, day: 8, branch: "申" },
-  { month: 9, day: 8, branch: "酉" },
-  { month: 10, day: 8, branch: "戌" },
-  { month: 11, day: 7, branch: "亥" },
-  { month: 12, day: 7, branch: "子" },
-  { month: 1, day: 6, branch: "丑" },
+const LOCAL_TIMEZONE_OFFSET_MINUTES = 480;
+const DAY_PILLAR_ANCHOR = { year: 1984, month: 2, day: 2, index: 2, label: "丙寅" };
+const MONTH_BOUNDARY_TERMS = [
+  { name: "小寒", month: 1, day: 6, longitude: 285, branch: "丑" },
+  { name: "立春", month: 2, day: 4, longitude: 315, branch: "寅" },
+  { name: "惊蛰", month: 3, day: 6, longitude: 345, branch: "卯" },
+  { name: "清明", month: 4, day: 5, longitude: 15, branch: "辰" },
+  { name: "立夏", month: 5, day: 6, longitude: 45, branch: "巳" },
+  { name: "芒种", month: 6, day: 6, longitude: 75, branch: "午" },
+  { name: "小暑", month: 7, day: 7, longitude: 105, branch: "未" },
+  { name: "立秋", month: 8, day: 8, longitude: 135, branch: "申" },
+  { name: "白露", month: 9, day: 8, longitude: 165, branch: "酉" },
+  { name: "寒露", month: 10, day: 8, longitude: 195, branch: "戌" },
+  { name: "立冬", month: 11, day: 7, longitude: 225, branch: "亥" },
+  { name: "大雪", month: 12, day: 7, longitude: 255, branch: "子" },
 ];
+const APPROX_SOLAR_MONTH_BOUNDARIES = MONTH_BOUNDARY_TERMS.map(({ month, day, branch }) => ({ month, day, branch }));
+const solarTermCache = new Map();
 const TOPICS = [
   { id: "personality", label: "性格", gods: ["比肩", "劫财", "食神", "伤官", "偏印", "正印"] },
   { id: "family", label: "家庭", gods: ["正印", "偏印", "正财", "偏财", "比肩"] },
@@ -359,7 +363,7 @@ function resolveBirthLocation(birthplace, datasets) {
 function applyTrueSolarTime(rawBirth, location, enabled = false) {
   const applied = Boolean(enabled && hasUsableLocation(location));
   const correctionMinutes = applied ? calculateTrueSolarCorrection(rawBirth, location) : 0;
-  const utc = Date.UTC(rawBirth.year, rawBirth.month - 1, rawBirth.day, rawBirth.hour, rawBirth.minute + Math.round(correctionMinutes));
+  const utc = Date.UTC(rawBirth.year, rawBirth.month - 1, rawBirth.day, rawBirth.hour, rawBirth.minute) + correctionMinutes * 60000;
   const adjusted = new Date(utc);
   return {
     year: adjusted.getUTCFullYear(),
@@ -409,13 +413,15 @@ function getDayOfYear(birth) {
 function buildNatalPillars(birth) {
   const year = createPillarFromYear(adjustedSolarYear(birth), "年柱");
   const month = createBirthMonthPillar(birth, year.stem);
-  const day = createDayPillar(birth, "日柱");
+  const dayPillarBirth = getDayPillarBirth(birth);
+  const day = createDayPillar(dayPillarBirth, "日柱");
   const hour = createHourPillar(birth.hour, day.stem, "时柱");
   return { year, month, day, hour };
 }
 
 function adjustedSolarYear(birth) {
-  return birth.month === 1 || (birth.month === 2 && birth.day < 4) ? birth.year - 1 : birth.year;
+  const lichun = getSolarTermBoundary(birth.year, "立春");
+  return getLocalBirthMs(birth) < lichun.localMs ? birth.year - 1 : birth.year;
 }
 
 function createPillarFromYear(year, role) {
@@ -423,11 +429,19 @@ function createPillarFromYear(year, role) {
 }
 
 function createBirthMonthPillar(birth, yearStem, role = "月柱") {
-  const branch = getSolarMonthBranch(birth.month, birth.day);
+  const monthContext = getSolarMonthContext(birth);
+  const branch = monthContext.current.branch;
   const branchOrderFromYin = MONTH_BRANCHES.indexOf(branch);
   const yearStemIndex = STEMS.indexOf(yearStem);
   const stem = STEMS[((yearStemIndex % 5) * 2 + 2 + branchOrderFromYin) % 10];
-  return makePillar(stem, branch, role, { month: birth.month, approximation: "月柱按节令固定日期近似换月，下一版接入精确节气时刻。" });
+  return makePillar(stem, branch, role, {
+    month: birth.month,
+    solarTerm: monthContext.current.name,
+    nextSolarTerm: monthContext.next.name,
+    solarTermAt: formatLocalDateTime(monthContext.current),
+    nextSolarTermAt: formatLocalDateTime(monthContext.next),
+    method: "月柱按节气排月，以太阳黄经计算的节气时刻为月令边界。",
+  });
 }
 
 function createMonthPillar(year, month, role) {
@@ -436,10 +450,13 @@ function createMonthPillar(year, month, role) {
 }
 
 function createDayPillar(birth, role) {
-  const base = Date.UTC(1984, 1, 2);
-  const current = Date.UTC(birth.year, birth.month - 1, birth.day);
-  const diffDays = Math.floor((current - base) / 86400000);
-  return createPillarByIndex(diffDays + 2, role, { approximation: "日柱以1984-02-02丙寅日为基准推算。" });
+  const diffDays = gregorianToJdn(birth.year, birth.month, birth.day) -
+    gregorianToJdn(DAY_PILLAR_ANCHOR.year, DAY_PILLAR_ANCHOR.month, DAY_PILLAR_ANCHOR.day);
+  return createPillarByIndex(diffDays + DAY_PILLAR_ANCHOR.index, role, {
+    method: `日柱以${formatBirthDate(DAY_PILLAR_ANCHOR)}${DAY_PILLAR_ANCHOR.label}为锚点，用Gregorian JDN推算。`,
+    pillarDate: formatBirthDate(birth),
+    lateZiApplied: Boolean(birth.lateZiApplied),
+  });
 }
 
 function createHourPillar(hour, dayStem, role) {
@@ -467,14 +484,112 @@ function makePillar(stem, branch, role, meta = {}) {
   };
 }
 
-function getSolarMonthBranch(month, day) {
-  if (month === 1) return day >= 6 ? "丑" : "子";
-  let current = "子";
-  for (const boundary of SOLAR_MONTH_BOUNDARIES.filter((item) => item.month !== 1)) {
-    const crossed = month > boundary.month || (month === boundary.month && day >= boundary.day);
-    if (crossed) current = boundary.branch;
+function getDayPillarBirth(birth) {
+  if (birth.hour < 23) return { ...birth, lateZiApplied: false };
+  const shifted = shiftBirthDate(birth, 1);
+  return { ...shifted, hour: birth.hour, minute: birth.minute, lateZiApplied: true };
+}
+
+function shiftBirthDate(birth, days) {
+  const shifted = new Date(Date.UTC(birth.year, birth.month - 1, birth.day + days, birth.hour ?? 0, birth.minute ?? 0));
+  return {
+    ...birth,
+    year: shifted.getUTCFullYear(),
+    month: shifted.getUTCMonth() + 1,
+    day: shifted.getUTCDate(),
+    hour: shifted.getUTCHours(),
+    minute: shifted.getUTCMinutes(),
+  };
+}
+
+function getSolarMonthContext(birth) {
+  const localMs = getLocalBirthMs(birth);
+  const boundaries = [birth.year - 1, birth.year, birth.year + 1]
+    .flatMap((year) => MONTH_BOUNDARY_TERMS.map((term) => getSolarTermBoundary(year, term.name)))
+    .sort((a, b) => a.localMs - b.localMs);
+  const currentIndex = Math.max(0, boundaries.findLastIndex((boundary) => localMs >= boundary.localMs));
+  return {
+    current: boundaries[currentIndex],
+    next: boundaries[currentIndex + 1] ?? boundaries[currentIndex],
+  };
+}
+
+function getSolarTermBoundary(year, name) {
+  const term = MONTH_BOUNDARY_TERMS.find((item) => item.name === name);
+  if (!term) throw new Error(`Unsupported solar term: ${name}`);
+  const cacheKey = `${year}-${name}`;
+  if (solarTermCache.has(cacheKey)) return solarTermCache.get(cacheKey);
+  const utcMs = findSolarTermUtcMs(year, term);
+  const localMs = utcMs + LOCAL_TIMEZONE_OFFSET_MINUTES * 60000;
+  const local = new Date(localMs);
+  const boundary = {
+    ...term,
+    year,
+    localMs,
+    localYear: local.getUTCFullYear(),
+    localMonth: local.getUTCMonth() + 1,
+    localDay: local.getUTCDate(),
+    localHour: local.getUTCHours(),
+    localMinute: local.getUTCMinutes(),
+  };
+  solarTermCache.set(cacheKey, boundary);
+  return boundary;
+}
+
+function findSolarTermUtcMs(year, term) {
+  let low = Date.UTC(year, term.month - 1, term.day, 4) - 5 * 86400000;
+  let high = Date.UTC(year, term.month - 1, term.day, 4) + 5 * 86400000;
+  while (hasReachedSolarLongitude(low, term.longitude)) low -= 86400000;
+  while (!hasReachedSolarLongitude(high, term.longitude)) high += 86400000;
+  for (let i = 0; i < 48; i += 1) {
+    const mid = (low + high) / 2;
+    if (hasReachedSolarLongitude(mid, term.longitude)) high = mid;
+    else low = mid;
   }
-  return current;
+  return high;
+}
+
+function hasReachedSolarLongitude(utcMs, longitude) {
+  return normalizeDegrees(apparentSolarLongitude(utcMs) - longitude) < 180;
+}
+
+function apparentSolarLongitude(utcMs) {
+  const jd = utcMs / 86400000 + 2440587.5;
+  const t = (jd - 2451545.0) / 36525;
+  const l0 = normalizeDegrees(280.46646 + 36000.76983 * t + 0.0003032 * t * t);
+  const m = normalizeDegrees(357.52911 + 35999.05029 * t - 0.0001537 * t * t);
+  const c = (1.914602 - 0.004817 * t - 0.000014 * t * t) * sinDeg(m) +
+    (0.019993 - 0.000101 * t) * sinDeg(2 * m) +
+    0.000289 * sinDeg(3 * m);
+  const omega = 125.04 - 1934.136 * t;
+  return normalizeDegrees(l0 + c - 0.00569 - 0.00478 * sinDeg(omega));
+}
+
+function sinDeg(degrees) {
+  return Math.sin(degrees * Math.PI / 180);
+}
+
+function normalizeDegrees(degrees) {
+  return ((degrees % 360) + 360) % 360;
+}
+
+function getLocalBirthMs(birth) {
+  return Date.UTC(birth.year, birth.month - 1, birth.day, birth.hour ?? 0, birth.minute ?? 0);
+}
+
+function gregorianToJdn(year, month, day) {
+  const a = Math.floor((14 - month) / 12);
+  const y = year + 4800 - a;
+  const m = month + 12 * a - 3;
+  return day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+}
+
+function formatBirthDate(birth) {
+  return `${birth.year}-${String(birth.month).padStart(2, "0")}-${String(birth.day).padStart(2, "0")}`;
+}
+
+function formatLocalDateTime(boundary) {
+  return `${boundary.localYear}-${String(boundary.localMonth).padStart(2, "0")}-${String(boundary.localDay).padStart(2, "0")} ${String(boundary.localHour).padStart(2, "0")}:${String(boundary.localMinute).padStart(2, "0")}`;
 }
 
 function calculateElements(pillars, hiddenStems = []) {
@@ -524,7 +639,11 @@ function buildChartMeta(birth, pillars, pillarDetails, datasets) {
       lunarDate: birth.calendar?.lunarDate ?? "",
       inputCalendarType: birth.calendar?.inputCalendarType ?? "solar",
       trueSolarTime: birth.trueSolarTime,
-      monthNote: pillars.month.meta?.approximation ?? "",
+      monthNote: pillars.month.meta?.method ?? "",
+      solarTermRange: `${pillars.month.meta?.solarTerm ?? "节气"}之后、${pillars.month.meta?.nextSolarTerm ?? "下一节气"}之前`,
+      dayPillarDate: pillars.day.meta?.pillarDate ?? "",
+      dayPillarRule: "23:00-23:59按次日计算日柱（晚子时换日）",
+      hourPillarRule: "按最终排盘时间取时辰，晚子时使用次日日干起时柱。",
     },
     nayin: Object.fromEntries(keys.map((key) => [key, getNayin(pillars[key])])),
     twelveStages: Object.fromEntries(keys.map((key) => [key, twelveMatrix[pillars.day.stem]?.[pillars[key].branch] ?? "待查"])),
@@ -571,7 +690,7 @@ function buildCoreChartMeta(input, pillars, elements, tenGods, strengthSignals, 
     },
     calendarPrecision: {
       lunarStatus: chartMeta.calendar.lunarDate ? "已接入" : "待接入",
-      solarTermStatus: chartMeta.calendar.monthNote || "节气换月使用近似边界。",
+      solarTermStatus: chartMeta.calendar.monthNote || "节气换月使用太阳黄经近似节气时刻。",
       trueSolarStatus: chartMeta.calendar.trueSolarTime?.enabled ? "已启用" : "未启用",
     },
   };
@@ -646,7 +765,7 @@ function buildLuckPillars(input, birth, pillars) {
     direction,
     directionLabel: direction === "forward" ? "顺行" : "逆行",
     startAge,
-    startNote: "起运按出生日期距近似节令折算，精确版需接入真实节气时刻。",
+    startNote: "起运为近似：当前按出生日期距近似节令折算，尚未按精确节气时刻差折算。",
     pillars: pillarsList,
   };
 }
@@ -659,8 +778,8 @@ function selectLuckPillar(luck, selectedLuckIndex, selectedYear) {
 }
 
 function estimateLuckStartAge(birth) {
-  const currentBoundary = SOLAR_MONTH_BOUNDARIES.find((item) => item.month === birth.month);
-  const nextBoundary = SOLAR_MONTH_BOUNDARIES.find((item) => item.month === birth.month + 1) ?? SOLAR_MONTH_BOUNDARIES[0];
+  const currentBoundary = APPROX_SOLAR_MONTH_BOUNDARIES.find((item) => item.month === birth.month);
+  const nextBoundary = APPROX_SOLAR_MONTH_BOUNDARIES.find((item) => item.month === birth.month + 1) ?? APPROX_SOLAR_MONTH_BOUNDARIES[0];
   const dayDistance = currentBoundary && birth.day >= currentBoundary.day
     ? (nextBoundary.month === 1 ? 31 : nextBoundary.day + 30) - birth.day
     : Math.abs((currentBoundary?.day ?? 15) - birth.day);

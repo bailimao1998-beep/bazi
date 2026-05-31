@@ -179,7 +179,7 @@ export function getBasicBaziDisplay({ input = {}, birth = {}, pillars, datasets 
   const dayStem = pillars.day.stem;
   const enrichedPillars = Object.fromEntries(PILLAR_KEYS.map((key) => [key, buildBasicPillar(key, pillars[key], dayStem, datasets)]));
   const voidsByPillar = Object.fromEntries(PILLAR_KEYS.map((key) => [key, getKongWang(pillars[key].label)]));
-  const calendar = buildBasicCalendar(input, birth);
+  const calendar = buildBasicCalendar(input, birth, chartMeta);
   return {
     pillars: enrichedPillars,
     tenGods: {
@@ -247,16 +247,18 @@ function buildBasicPillar(key, pillar, dayStem, datasets) {
   };
 }
 
-function buildBasicCalendar(input, birth) {
+function buildBasicCalendar(input, birth, chartMeta = {}) {
   const original = birth.original ?? birth;
   const finalTime = `${String(birth.hour ?? 0).padStart(2, "0")}:${String(birth.minute ?? 0).padStart(2, "0")}`;
   const originalTime = `${String(original.hour ?? 0).padStart(2, "0")}:${String(original.minute ?? 0).padStart(2, "0")}`;
   const trueSolarTime = birth.trueSolarTime ?? {};
   const location = trueSolarTime.location ?? {};
+  const calendarMeta = chartMeta.calendar ?? {};
   return {
     inputCalendarType: input.calendarType === "lunar" ? "农历" : "公历",
     originalDate: `${original.year}-${String(original.month).padStart(2, "0")}-${String(original.day).padStart(2, "0")}`,
     originalTime,
+    lunarDate: birth.calendar?.lunarDate ?? calendarMeta.lunarDate ?? "",
     birthplace: location.name ?? input.birthplace ?? "待接入",
     longitude: location.longitude ?? null,
     latitude: location.latitude ?? null,
@@ -273,7 +275,11 @@ function buildBasicCalendar(input, birth) {
     finalTime,
     finalHourBranch: `${hourBranch(birth.hour ?? 0)}时`,
     solarTermRule: "月柱采用节气排月",
-    solarTermRange: getSolarTermRange(birth.month, birth.day),
+    solarTermRange: getSolarTermRange(birth.month, birth.day, calendarMeta),
+    solarTermBasis: "以精确节气时刻为月令边界",
+    dayPillarRule: calendarMeta.dayPillarRule ?? "23:00-23:59按次日计算日柱（晚子时换日）",
+    dayPillarDate: calendarMeta.dayPillarDate ?? `${birth.year}-${String(birth.month).padStart(2, "0")}-${String(birth.day).padStart(2, "0")}`,
+    hourPillarRule: calendarMeta.hourPillarRule ?? "按最终排盘时间取时辰，晚子时使用次日日干起时柱。",
   };
 }
 
@@ -421,7 +427,8 @@ function hourBranch(hour) {
   return hour === 23 ? "子" : BRANCHES[Math.floor((hour + 1) / 2) % 12];
 }
 
-function getSolarTermRange(month, day) {
+function getSolarTermRange(month, day, calendarMeta = {}) {
+  if (calendarMeta.solarTermRange) return calendarMeta.solarTermRange;
   const currentIndex = SOLAR_TERM_BOUNDARIES.findLastIndex((term) => month > term.month || (month === term.month && day >= term.day));
   const current = SOLAR_TERM_BOUNDARIES[currentIndex >= 0 ? currentIndex : SOLAR_TERM_BOUNDARIES.length - 1];
   const next = SOLAR_TERM_BOUNDARIES[(currentIndex + 1 + SOLAR_TERM_BOUNDARIES.length) % SOLAR_TERM_BOUNDARIES.length];

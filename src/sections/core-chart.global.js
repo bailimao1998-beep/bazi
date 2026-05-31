@@ -147,6 +147,8 @@
       <div class="core-tab-grid">
         ${renderFact("输入历法", calendar.inputCalendarType, "用户输入")}
         ${renderFact("原始输入时间", joinText([calendar.originalDate, calendar.originalTime], " "), "不启用真太阳时时保持原始时间")}
+        ${renderFact("公历日期", calendar.originalDate, "农历输入会先换算为公历")}
+        ${renderFact("农历日期", calendar.lunarDate, "用于核对阴阳历转换")}
         ${renderFact("出生地", calendar.birthplace, "用于经纬度与时区")}
         ${renderFact("经纬度", hasValue(calendar.longitude) ? `${calendar.longitude} / ${calendar.latitude ?? "待接入"}` : "待接入", calendar.timezone)}
         ${renderFact("标准经线", calendar.standardMeridian, "用于经度校正")}
@@ -155,7 +157,9 @@
         ${renderFact("均时差", solar.equationOfTimeMinutes, "当前算法未应用时显示未计算")}
         ${renderFact("最终排盘时间", joinText([calendar.finalDate, calendar.finalTime], " "), "用于生成四柱")}
         ${renderFact("最终时辰", calendar.finalHourBranch, "按最终排盘时间")}
-        ${renderFact("月柱规则", calendar.solarTermRule, calendar.solarTermRange)}
+        ${renderFact("日柱取日", calendar.dayPillarDate, calendar.dayPillarRule)}
+        ${renderFact("月柱换月依据", calendar.solarTermRule, joinText([calendar.solarTermBasis, calendar.solarTermRange], "；"))}
+        ${renderFact("时柱规则", calendar.finalHourBranch, calendar.hourPillarRule)}
       </div>
     `;
   }

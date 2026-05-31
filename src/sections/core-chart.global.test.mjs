@@ -48,6 +48,12 @@ test("renders core chart details with readable hierarchy and low-priority calend
   assert.match(html, /data-element-label="阳土"/);
   assert.doesNotMatch(html, /element-badge/);
   assert.match(html, /relation-group/);
+  assert.match(html, /农历日期/);
+  assert.match(html, /月柱换月依据/);
+  assert.match(html, /时柱规则/);
+  assert.match(html, /日柱取日/);
+  assert.match(html, /23:00-23:59按次日计算日柱/);
+  assert.match(html, /以精确节气时刻为月令边界/);
 });
 
 function buildDisplay() {
@@ -93,6 +99,7 @@ function buildDisplay() {
       inputCalendarType: "公历",
       originalDate: "1998-09-11",
       originalTime: "00:30",
+      lunarDate: "农历戊寅年七月廿一",
       birthplace: "北京",
       longitude: 116.4074,
       latitude: 39.9042,
@@ -102,8 +109,12 @@ function buildDisplay() {
       finalDate: "1998-09-11",
       finalTime: "00:30",
       finalHourBranch: "子时",
+      dayPillarRule: "23:00-23:59按次日计算日柱（晚子时换日）",
+      dayPillarDate: "1998-09-11",
       solarTermRule: "月柱采用节气排月",
       solarTermRange: "白露之后、寒露之前",
+      solarTermBasis: "以精确节气时刻为月令边界",
+      hourPillarRule: "按最终排盘时间取时辰，晚子时使用次日日干起时柱",
     },
     fetalPalaces: { note: "当前为近似算法，仅作基础展示，不参与核心判断。" },
     relations: [{ type: "地支六破", pillars: ["月柱", "时柱"], ganzhi: ["辛酉", "戊子"], members: ["酉", "子"] }],

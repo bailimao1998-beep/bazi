@@ -7,10 +7,12 @@
     el.overall.innerHTML = `
       <div class="plugin-header"><p class="eyebrow">结构报告</p><h2 id="overall-title">核心解读报告</h2></div>
       ${renderReportHeadline(report)}
-      ${renderReportNarrative(report)}
+      ${renderLearningNotice()}
+      ${renderPrioritySignals(report)}
+      ${renderTeacherSummary(report)}
       ${renderReportStructure(report)}
-      ${renderReportThemes(report)}
       ${renderReportEvidenceChain(report)}
+      ${renderReportThemes(report)}
       ${renderReportUncertainty(report)}
       ${renderReportTransitBridge(report)}
     `;
@@ -25,12 +27,48 @@
     `;
   }
 
-  function renderReportNarrative(report) {
+  function renderLearningNotice() {
     return `
       <section class="analysis-block overall-report-section">
-        <h3>命盘主线</h3>
+        <h3>统一学习提示</h3>
+        <p class="reading-lead">本报告用于结构学习：先看盘面最突出的信号，再回到柱位、旺衰、十神和岁运复核。以下内容不替代人工判断。</p>
+      </section>
+    `;
+  }
+
+  function renderPrioritySignals(report) {
+    return `
+      <section class="analysis-block priority-reading-section">
+        <h3>读盘重点排序</h3>
+        <div class="priority-signal-grid">
+          ${(report.prioritySignals ?? []).map(renderPrioritySignalCard).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderPrioritySignalCard(signal) {
+    return `
+      <article class="priority-signal-card priority-level-${safe(signal.level)}">
+        <div class="priority-signal-head">
+          <span>第${safe(signal.rank)}重点</span>
+          <b>${safe(signal.level)}</b>
+        </div>
+        <strong>${safe(signal.title)}</strong>
+        <p><b>为什么重要：</b>${safe(signal.whyImportant)}</p>
+        <p><b>盘面证据：</b>${safe(signal.evidence)}</p>
+        <p><b>怎么读：</b>${safe(signal.howToRead)}</p>
+        <p><b>下一步看什么：</b>${safe(signal.nextCheck)}</p>
+      </article>
+    `;
+  }
+
+  function renderTeacherSummary(report) {
+    return `
+      <section class="analysis-block overall-report-section">
+        <h3>老师式讲盘摘要</h3>
         <div class="report-copy">
-          ${(report.mainNarrative ?? []).map((line) => `<p>${safe(line)}</p>`).join("")}
+          ${(report.teacherSummary ?? []).map((line) => `<p>${safe(line)}</p>`).join("")}
         </div>
       </section>
     `;

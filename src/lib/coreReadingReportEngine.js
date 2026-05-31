@@ -7,15 +7,19 @@ const ELEMENT_LABELS = {
 };
 
 const FORBIDDEN_TEXT = /(一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡)/g;
-const EMPTY_TEXT = "当前没有明显命中，后续可结合更多规则继续学习。";
+const EMPTY_TEXT = "此处暂未形成突出的盘面信号，可随规则库继续补充。";
 
 export function buildCoreReadingReport(input = {}) {
   const reading = input.reading ?? input;
   const state = input.state ?? {};
   const context = collectReportContext(reading, state);
+  const prioritySignals = buildPrioritySignals(context);
   const report = {
-    headline: buildHeadline(context),
-    mainNarrative: buildMainNarrative(context),
+    headline: buildHeadline(context, prioritySignals),
+    prioritySignals,
+    teacherSummary: buildTeacherSummary(context, prioritySignals),
+    secondaryNotes: buildSecondaryNotes(context, prioritySignals),
+    mainNarrative: buildMainNarrative(context, prioritySignals),
     structureSections: buildStructureSections(context),
     themeSections: buildThemeSections(context),
     evidenceChain: buildEvidenceChain(context),
@@ -77,14 +81,166 @@ function collectReportContext(reading = {}, state = {}) {
   };
 }
 
-function buildHeadline(context) {
+function buildHeadline(context, prioritySignals = []) {
   const dayMaster = formatDayMaster(context);
   const month = formatMonthBranch(context);
-  const focus = formatElementFocus(context);
-  return `此盘以${dayMaster}日主为中心，${month}月令与${focus}共同构成读盘入口，读盘应先看五行来源、调节方向和十神结构。`;
+  const firstSignal = prioritySignals[0]?.title;
+  const focus = firstSignal && !firstSignal.includes("日主") ? firstSignal : formatElementFocus(context);
+  return `此盘以${dayMaster}日主为中心，${month}月令提供读盘入口，当前最值得先看的重点是${focus}。`;
 }
 
-function buildMainNarrative(context) {
+function buildPrioritySignals(context) {
+  const signals = [];
+  const elementProfile = getElementProfile(context.elements);
+  const tenGodProfile = getTenGodProfile(context.tenGodCounts);
+  const relationSummary = summarizeRelations(context);
+  const candidateSummary = summarizeCandidates(context);
+  const transitSummary = summarizeTransit(context);
+  const relationCount = countRelations(context);
+  const candidateCount = countCandidates(context);
+
+  signals.push({
+    title: "日主与月令入口",
+    level: "main",
+    score: 92,
+    whyImportant: "日主是参照点，月令是季节背景，两者决定后面五行和十神该从哪里入手。",
+    evidence: `日干为${context.day.stem ?? "待查"}，月支为${context.month.branch ?? "待查"}；日主五行为${elementName(context.day.stemElement, context.day.stemElementLabel)}，月令五行为${elementName(context.month.branchElement, context.month.branchElementLabel)}。`,
+    howToRead: `先把${formatDayMaster(context)}放在中心，再看${formatMonthBranch(context)}对它的承接、助力或约束。`,
+    nextCheck: "接着核对月令与五行统计是否同向。",
+  });
+
+  if (elementProfile.top && elementProfile.isHigh) {
+    signals.push({
+      title: `${elementProfile.top.label}行偏重`,
+      level: "main",
+      score: 98,
+      whyImportant: "五行偏重会改变读盘重心，报告需要先说明它从哪里来，以及是否过于集中。",
+      evidence: `${elementProfile.top.label}统计值为${formatNumber(elementProfile.top.value)}；五行统计为${formatElementSummary(context.elements)}。`,
+      howToRead: `先看${elementProfile.top.label}来自天干、地支还是藏干，再观察它和日主、月令、十神之间的关系。`,
+      nextCheck: "继续看偏少五行能否形成调节方向。",
+    });
+  } else if (elementProfile.top) {
+    signals.push({
+      title: "五行分布入口",
+      level: "support",
+      score: 82,
+      whyImportant: "五行分布能帮助判断盘面先看哪类气势，再决定十神和关系层怎么读。",
+      evidence: `五行统计为${formatElementSummary(context.elements)}。`,
+      howToRead: "先比较明面五行，再补看藏干口径，避免只凭单个字下判断。",
+      nextCheck: "继续区分天干、地支本气和藏干来源。",
+    });
+  }
+
+  if (elementProfile.low && elementProfile.isLow) {
+    signals.push({
+      title: `${elementProfile.low.label}行补足/调节`,
+      level: "watch",
+      score: 74,
+      whyImportant: "偏少五行不是结论，而是提示读盘时要留意结构的调节方向。",
+      evidence: `${elementProfile.low.label}统计值为${formatNumber(elementProfile.low.value)}；五行统计为${formatElementSummary(context.elements)}。`,
+      howToRead: `观察${elementProfile.low.label}是否在藏干、岁运或关系层中出现，并看它是否能参与全局流通。`,
+      nextCheck: "继续结合柱位、旺衰和岁运复核。",
+    });
+  }
+
+  if (tenGodProfile.top) {
+    signals.push({
+      title: "十神重心",
+      level: tenGodProfile.isConcentrated ? "main" : "support",
+      score: tenGodProfile.isConcentrated ? 90 : 80,
+      whyImportant: "十神把五行关系转成学习主题，集中出现时更适合提前说明主题方向。",
+      evidence: `十神统计：${formatTenGodSummary(context.tenGodCounts)}；当前较突出的十神为${tenGodProfile.top.name}${formatNumber(tenGodProfile.top.value)}。`,
+      howToRead: "先看它们是否透出、落在哪些柱位，再看和日主、月令之间如何配合。",
+      nextCheck: "继续核对十神所在柱位与透藏层次。",
+    });
+  }
+
+  if (relationSummary) {
+    signals.push({
+      title: "干支关系互动",
+      level: relationCount >= 3 ? "main" : "support",
+      score: relationCount >= 3 ? 88 : 76,
+      whyImportant: "关系层能说明盘内字与字如何牵动，是把静态五行读成结构互动的关键。",
+      evidence: `出现关系：${relationSummary}`,
+      howToRead: "先看参与关系的柱位，再回到十神含义和五行力量，观察它在原局中的位置。",
+      nextCheck: "继续核对关系是否被岁运再次触发。",
+    });
+  }
+
+  if (candidateSummary) {
+    signals.push({
+      title: "候选结构/规则命中",
+      level: "support",
+      score: candidateCount >= 3 ? 84 : 72,
+      whyImportant: "规则命中用于提示学习路径，适合把零散证据整理成候选结构。",
+      evidence: `命中规则：${candidateSummary}`,
+      howToRead: "把它当作候选观察，逐条核对规则条件、资料等级和盘面证据。",
+      nextCheck: "继续看候选结构是否同时得到日主、月令、五行和十神支持。",
+    });
+  }
+
+  if (transitSummary) {
+    signals.push({
+      title: "岁运触发接口",
+      level: "watch",
+      score: 68,
+      whyImportant: "岁运不是原局本身，但能提示哪些原局主题可能在年份层被再次点亮。",
+      evidence: `岁运线索：${transitSummary}`,
+      howToRead: "先回到原局主题，再看大运、流年、流月是否重复触发同类五行、十神或关系。",
+      nextCheck: "继续查看大运流年模块的触发层。",
+    });
+  }
+
+  return ensurePriorityRange(signals);
+}
+
+function buildTeacherSummary(context, prioritySignals = []) {
+  const topSignals = prioritySignals.slice(0, 3);
+  const first = topSignals[0];
+  const second = topSignals[1];
+  const third = topSignals[2];
+  const paragraphs = [];
+
+  if (first) {
+    paragraphs.push(`第一个重点是${first.title}。${first.evidence}这说明讲盘入口要先定中心和背景，${trimSentenceEnd(first.howToRead)}。`);
+  }
+  if (second) {
+    paragraphs.push(`第二个重点是${second.title}。${second.evidence}报告会围绕这个信号看来源、集中度和调节方向，而不是把它直接翻成事件。`);
+  }
+  if (third) {
+    paragraphs.push(`第三个重点是${third.title}。${third.evidence}${trimSentenceEnd(third.howToRead)}；再看它和前两个重点是否互相呼应。`);
+  }
+
+  const linkedTitles = topSignals.map((item) => item.title).join("、");
+  paragraphs.push(`把前三个重点连起来看，主线就是先抓${linkedTitles || "日主、月令和五行"}，再补十神、关系和规则命中的证据。这样读盘会更像老师带着复盘：先分主次，再看细节。`);
+
+  const secondary = prioritySignals.slice(3).map((item) => item.title).join("、");
+  if (secondary) {
+    paragraphs.push(`后面的${secondary}先放在辅助层。它们不是被忽略，而是等主线站稳后，用来检查有没有补充证据或需要修正的地方。`);
+  }
+
+  paragraphs.push("最后再接到岁运：原局负责说明结构，具体年份需要看大运、流年、流月是否再次触发这些主题。");
+  return paragraphs.slice(0, 6);
+}
+
+function buildSecondaryNotes(context, prioritySignals = []) {
+  const shown = new Set(prioritySignals.map((item) => item.title));
+  const notes = [];
+  const candidateSummary = summarizeCandidates(context);
+  const transitSummary = summarizeTransit(context);
+  if (candidateSummary && !shown.has("候选结构/规则命中")) {
+    notes.push(`候选结构可后置复核：${candidateSummary}`);
+  }
+  if (transitSummary && !shown.has("岁运触发接口")) {
+    notes.push(`岁运线索可在大运流年模块继续查看：${transitSummary}`);
+  }
+  if (!notes.length) {
+    notes.push("辅助层先保持轻量，优先把前三个读盘重点讲清楚。");
+  }
+  return notes;
+}
+
+function buildMainNarrative(context, prioritySignals = []) {
   const dayMaster = formatDayMaster(context);
   const month = formatMonthBranch(context);
   const elementSummary = formatElementSummary(context.elements);
@@ -95,18 +251,20 @@ function buildMainNarrative(context) {
   const strength = summarizeStrength(context.strengthSignals);
   const basicLine = summarizeBasicInterpretations(context.basicInterpretations);
   const overallLine = context.overallAnalysis.slice(0, 2).join("；");
+  const priorityLine = prioritySignals.slice(0, 3).map((item) => item.title).join("、");
   return [
+    priorityLine ? `本盘主线先围绕${priorityLine}展开，其他内容放在辅助层复核。` : "",
     `日干为${context.day.stem ?? "待查"}，五行属${elementName(context.day.stemElement, context.day.stemElementLabel)}，所以本报告先以${dayMaster}作为读盘中心；其他五行、十神和干支关系，都要回到这个中心观察。`,
     `月支为${context.month.branch ?? "待查"}，五行属${elementName(context.month.branchElement, context.month.branchElementLabel)}，月令代表出生月份的主气；${month}对日主和全局结构的影响，是学习旺衰和取象层次的第一入口。`,
     `五行分布显示：${elementSummary}。其中${formatElementFocus(context)}；${lowElements}。这些信息只说明结构偏重和平衡方向，不直接当作吉凶结论。`,
     `十神层面可以先看${tenGodSummary || "当前十神统计仍需补充"}。十神用于把五行生克转成学习主题，例如资源、表达、规则、财星和同类力量，但仍要看它们落在什么柱位、是否透出、是否被岁运触发。`,
-    relations ? `干支关系层面，当前可见${relations}。这些关系是盘内结构互动点，适合用来解释字与字之间如何牵连，不能脱离日主、月令和十神单独下结论。` : "干支关系层面当前暂不明显，读盘可以先回到五行分布和十神重心，再等待岁运或更多规则补充。", 
+    relations ? `干支关系层面，当前可见${relations}。这些关系是盘内结构互动点，适合用来解释字与字之间如何牵连，仍需回到日主、月令和十神复核。` : "干支关系层面暂未形成突出展示，读盘可以先回到五行分布和十神重心，再等待岁运或更多规则补充。", 
     candidates ? `格局和规则层面，${candidates}可作为候选结构观察。这里的“候选”表示值得继续核对柱位、旺衰和来源，不表示已经形成定论。` : "格局和规则层面当前没有强展示项，先把基础盘、五行、十神和干支关系讲清楚。", 
     strength || basicLine || overallLine
       ? `补充线索：${[strength, basicLine, overallLine].filter(Boolean).join("；")}。这些内容适合当作传统命理中可作为观察点，需要继续和盘面证据互相核对。`
       : "补充线索暂时较少，报告先保持结构化学习口径，后续可随着规则库和案例复盘继续丰富。",
     "原局主要回答“这张盘的结构在哪里”，具体年份还要看大运、流年、流月是否再次触发这些原局主题。",
-  ];
+  ].filter(Boolean);
 }
 
 function buildStructureSections(context) {
@@ -115,7 +273,7 @@ function buildStructureSections(context) {
       title: "日主与月令",
       evidence: `日干为${context.day.stem ?? "待查"}，月支为${context.month.branch ?? "待查"}；日主五行为${elementName(context.day.stemElement, context.day.stemElementLabel)}，月令五行为${elementName(context.month.branchElement, context.month.branchElementLabel)}。`,
       explanation: `先以${formatDayMaster(context)}为中心，再看${formatMonthBranch(context)}提供的季节背景，判断学习时应从日主承接、月令力量和全局配合入手。`,
-      needVerify: "需要结合柱位、旺衰、透干、藏干和岁运继续验证，不能单独作为结论。",
+      needVerify: "简短复核柱位、旺衰、透干、藏干和岁运。",
     },
     {
       title: "五行力量",
@@ -159,7 +317,7 @@ function buildThemeSections(context) {
       title: "学习/资源/贵人结构",
       observation: "先看印星、资源类十神和藏干来源，观察学习、吸收、支持系统是否在盘面中较容易被看见。",
       evidence: `依据来自十神统计：${tenGodSummary}。`,
-      limitation: "资源结构需要看是否透出、是否得地、是否能被日主承接，不能单独作为结论。",
+      limitation: "资源结构需要看是否透出、是否得地、是否能被日主承接。",
     },
     {
       title: "事业/规则/压力结构",
@@ -171,7 +329,7 @@ function buildThemeSections(context) {
       title: "感情/合作/关系结构",
       observation: "先看日支、财官类十神、合冲刑害破等关系层，观察互动方式和合作边界。",
       evidence: `依据来自干支关系与盘面互动：${relations}。`,
-      limitation: "感情与合作需要结合具体对象、岁运触发和现实互动，不能单独作为结论。",
+      limitation: "感情与合作需要结合具体对象、岁运触发和现实互动。",
     },
   ];
 }
@@ -261,6 +419,117 @@ function buildUncertaintyNotes(context) {
       text: "当前报告用于结构化学习，不是确定断语；所有观察点都需要结合柱位、旺衰、十神和岁运继续验证。",
     },
   ];
+}
+
+function ensurePriorityRange(signals) {
+  const uniqueSignals = [];
+  const seen = new Set();
+  for (const signal of signals) {
+    if (!signal?.title || seen.has(signal.title)) continue;
+    seen.add(signal.title);
+    uniqueSignals.push(signal);
+  }
+
+  const ordered = uniqueSignals
+    .sort((left, right) => Number(right.score ?? 0) - Number(left.score ?? 0))
+    .slice(0, 5);
+
+  const fallbacks = [
+    {
+      title: "五行分布入口",
+      level: "support",
+      score: 60,
+      whyImportant: "五行分布能帮助判断盘面先看哪类气势。",
+      evidence: "五行统计仍可作为基础学习入口。",
+      howToRead: "先比较五行数量，再看来源和柱位。",
+      nextCheck: "继续核对天干、地支和藏干。",
+    },
+    {
+      title: "十神重心",
+      level: "support",
+      score: 58,
+      whyImportant: "十神用于整理学习主题。",
+      evidence: "十神统计可作为主题观察入口。",
+      howToRead: "先看十神是否透出，再看柱位。",
+      nextCheck: "继续核对透藏层次。",
+    },
+    {
+      title: "岁运触发接口",
+      level: "watch",
+      score: 54,
+      whyImportant: "岁运用于后续触发层学习。",
+      evidence: "大运流年模块会继续提供触发线索。",
+      howToRead: "先回到原局主题，再看岁运是否重复触发。",
+      nextCheck: "继续查看大运流年。",
+    },
+  ];
+
+  for (const fallback of fallbacks) {
+    if (ordered.length >= 3) break;
+    if (ordered.some((item) => item.title === fallback.title)) continue;
+    ordered.push(fallback);
+  }
+
+  return ordered
+    .slice(0, 5)
+    .map((signal, index) => ({
+      rank: index + 1,
+      title: signal.title,
+      level: signal.level,
+      whyImportant: signal.whyImportant,
+      evidence: signal.evidence,
+      howToRead: signal.howToRead,
+      nextCheck: signal.nextCheck,
+    }));
+}
+
+function getElementProfile(counts = {}) {
+  const entries = Object.entries(ELEMENT_LABELS).map(([key, label]) => ({
+    key,
+    label,
+    value: Number(counts[key] ?? 0),
+  }));
+  const sortedHigh = [...entries].sort((left, right) => right.value - left.value);
+  const sortedLow = [...entries].sort((left, right) => left.value - right.value);
+  const top = sortedHigh[0];
+  const second = sortedHigh[1] ?? { value: 0 };
+  const low = sortedLow[0];
+  const total = entries.reduce((sum, item) => sum + item.value, 0);
+  const average = entries.length ? total / entries.length : 0;
+  return {
+    top,
+    low,
+    average,
+    isHigh: Boolean(top && top.value > 0 && (top.value - second.value >= 1 || top.value >= average * 1.25)),
+    isLow: Boolean(low && (low.value <= 0 || low.value <= average * 0.55)),
+  };
+}
+
+function getTenGodProfile(counts = {}) {
+  const entries = Object.entries(counts)
+    .map(([name, value]) => ({ name, value: Number(value ?? 0) }))
+    .filter((item) => item.value > 0)
+    .sort((left, right) => right.value - left.value);
+  const top = entries[0];
+  const second = entries[1] ?? { value: 0 };
+  return {
+    top,
+    isConcentrated: Boolean(top && (top.value >= 3 || top.value - second.value >= 2)),
+  };
+}
+
+function countRelations(context) {
+  const combinationCount = context.combinations.length;
+  const displayCount = context.displayRelations.length;
+  const pairCount = context.pairInteractions.reduce((sum, item) => sum + asArray(item.directRelations).length, 0);
+  return combinationCount + displayCount + pairCount;
+}
+
+function countCandidates(context) {
+  return context.patternCandidates.length
+    + context.matchedRules.length
+    + context.referenceKnowledgeHits.length
+    + context.learningRuleHits.length;
 }
 
 function normalizeElementCounts(primary, fallback = {}) {
@@ -409,4 +678,8 @@ function unique(items) {
 function formatNumber(value) {
   const number = Math.round((Number(value) + Number.EPSILON) * 10) / 10;
   return Number.isInteger(number) ? String(number) : String(number);
+}
+
+function trimSentenceEnd(value) {
+  return String(value ?? "").replace(/[。；;，,、\s]+$/u, "");
 }

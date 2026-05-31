@@ -30,12 +30,17 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   context.window.BaziSections.renderCaseShowcase({ state, el });
 
   assert.match(el.overall.innerHTML, /核心解读报告/);
-  assert.match(el.overall.innerHTML, /命盘主线/);
+  assert.match(el.overall.innerHTML, /统一学习提示/);
+  assert.match(el.overall.innerHTML, /读盘重点排序/);
+  assert.match(el.overall.innerHTML, /第1重点/);
+  assert.match(el.overall.innerHTML, /为什么重要/);
+  assert.match(el.overall.innerHTML, /下一步看什么/);
+  assert.match(el.overall.innerHTML, /老师式讲盘摘要/);
   assert.match(el.overall.innerHTML, /此盘以辛金日主为中心/);
-  assert.match(el.overall.innerHTML, /酉金对日主/);
+  assert.match(el.overall.innerHTML, /酉金对它/);
   assert.match(el.overall.innerHTML, /结构重点/);
   assert.match(el.overall.innerHTML, /日主与月令/);
-  assert.match(el.overall.innerHTML, /五行分布/);
+  assert.match(el.overall.innerHTML, /五行力量/);
   assert.match(el.overall.innerHTML, /十神分布/);
   assert.match(el.overall.innerHTML, /干支关系/);
   assert.match(el.overall.innerHTML, /盘面证据/);
@@ -62,6 +67,20 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   assert.doesNotMatch(el.overall.innerHTML, /证据链解读/);
   assert.match(el.overall.innerHTML, /地支六破/);
   assert.match(el.overall.innerHTML, /岁运触发证据/);
+  assert.deepEqual(
+    [
+      "报告标题",
+      "统一学习提示",
+      "读盘重点排序",
+      "老师式讲盘摘要",
+      "结构重点",
+      "证据链",
+      "主题观察",
+      "风险与不确定",
+      "下一步看岁运",
+    ].map((text) => el.overall.innerHTML.indexOf(text)).every((position, index, positions) => position >= 0 && (index === 0 || position > positions[index - 1])),
+    true,
+  );
   assert.doesNotMatch(el.overall.innerHTML, /学习型规则命中/);
   assert.doesNotMatch(el.overall.innerHTML, /大运流年判断/);
   assert.match(el.timeline.innerHTML, /岁运只作为触发层学习，需要先回到原局看主题/);

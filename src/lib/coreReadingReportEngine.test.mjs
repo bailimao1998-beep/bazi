@@ -29,6 +29,13 @@ test("builds an enriched core reading report from existing reading data", async 
   });
 
   assert.ok(report.headline);
+  assert.ok(report.prioritySignals.length >= 3);
+  assert.ok(report.prioritySignals.length <= 5);
+  assert.ok(report.prioritySignals[0].title);
+  assert.ok(report.prioritySignals[0].evidence);
+  assert.ok(report.prioritySignals[0].howToRead);
+  assert.ok(report.teacherSummary.length >= 4);
+  assert.ok(Array.isArray(report.secondaryNotes));
   assert.ok(report.mainNarrative.length >= 5);
   assert.ok(report.structureSections.length >= 5);
   assert.ok(report.themeSections.length >= 4);
@@ -57,10 +64,26 @@ test("builds an enriched core reading report from existing reading data", async 
     assert.ok(item.nextCheck);
   }
 
-  assert.doesNotMatch(JSON.stringify(report), FORBIDDEN_TEXT);
+  const teacherText = report.teacherSummary.join("\n");
+  for (const signal of report.prioritySignals.slice(0, 3)) {
+    assert.match(teacherText, new RegExp(escapeRegExp(signal.title)));
+  }
+
+  const reportText = JSON.stringify(report);
+  assert.doesNotMatch(reportText, FORBIDDEN_TEXT);
+  assert.ok(countOccurrences(reportText, "不能单独作为结论") <= 3);
+  assert.ok(countOccurrences(reportText, "当前没有明显命中") <= 2);
 });
 
 async function loadDatasets() {
   const bundle = JSON.parse(await fs.readFile(new URL("../../data/bazi-data-bundle.json", import.meta.url), "utf8"));
   return bundle.datasets ?? {};
+}
+
+function countOccurrences(text, phrase) {
+  return String(text).split(phrase).length - 1;
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

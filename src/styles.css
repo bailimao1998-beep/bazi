@@ -983,6 +983,72 @@ h3 {
   line-height: 1.55;
 }
 
+.priority-signal-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.priority-signal-card {
+  padding: 13px 14px;
+  border: 1px solid rgba(47, 111, 115, 0.22);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: #fffdf8;
+  box-shadow: 0 10px 24px rgba(76, 48, 28, 0.06);
+}
+
+.priority-level-main {
+  border-left-color: #9a4c2f;
+}
+
+.priority-level-support {
+  border-left-color: var(--accent);
+}
+
+.priority-level-watch {
+  border-left-color: #b88a3b;
+}
+
+.priority-signal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.priority-signal-head span,
+.priority-signal-head b {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(47, 111, 115, 0.1);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.priority-signal-head b {
+  background: rgba(154, 76, 47, 0.1);
+  color: #9a4c2f;
+}
+
+.priority-signal-card strong {
+  display: block;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.priority-signal-card p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .evidence-section {
   border-top: 1px solid var(--line);
   padding-top: 12px;

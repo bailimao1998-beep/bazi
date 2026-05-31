@@ -7,6 +7,7 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   const context = buildContext();
   vm.createContext(context);
   for (const file of [
+    "../lib/coreReadingReportEngine.global.js",
     "./overall-judgement.global.js",
     "./transit-luck.global.js",
     "./topic-report.global.js",
@@ -31,19 +32,20 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   assert.match(el.overall.innerHTML, /核心解读报告/);
   assert.match(el.overall.innerHTML, /命盘主线/);
   assert.match(el.overall.innerHTML, /此盘以辛金日主为中心/);
-  assert.match(el.overall.innerHTML, /先看月令酉金/);
+  assert.match(el.overall.innerHTML, /酉金对日主/);
   assert.match(el.overall.innerHTML, /结构重点/);
   assert.match(el.overall.innerHTML, /日主与月令/);
   assert.match(el.overall.innerHTML, /五行分布/);
-  assert.match(el.overall.innerHTML, /十神重心/);
+  assert.match(el.overall.innerHTML, /十神分布/);
   assert.match(el.overall.innerHTML, /干支关系/);
   assert.match(el.overall.innerHTML, /盘面证据/);
   assert.match(el.overall.innerHTML, /怎么理解/);
   assert.match(el.overall.innerHTML, /还要验证什么/);
   assert.match(el.overall.innerHTML, /主题观察/);
   assert.match(el.overall.innerHTML, /自我与性格表达/);
-  assert.match(el.overall.innerHTML, /事业与资源结构/);
-  assert.match(el.overall.innerHTML, /感情与关系结构/);
+  assert.match(el.overall.innerHTML, /学习\/资源\/贵人结构/);
+  assert.match(el.overall.innerHTML, /事业\/规则\/压力结构/);
+  assert.match(el.overall.innerHTML, /感情\/合作\/关系结构/);
   assert.match(el.overall.innerHTML, /当前观察点/);
   assert.match(el.overall.innerHTML, /依据来自哪里/);
   assert.match(el.overall.innerHTML, /暂不能下结论的原因/);
@@ -59,9 +61,9 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   assert.doesNotMatch(el.overall.innerHTML, /一句话总览/);
   assert.doesNotMatch(el.overall.innerHTML, /证据链解读/);
   assert.match(el.overall.innerHTML, /地支六破/);
+  assert.match(el.overall.innerHTML, /岁运触发证据/);
   assert.doesNotMatch(el.overall.innerHTML, /学习型规则命中/);
   assert.doesNotMatch(el.overall.innerHTML, /大运流年判断/);
-  assert.doesNotMatch(el.overall.innerHTML, /大运己酉作为十年环境/);
   assert.match(el.timeline.innerHTML, /岁运只作为触发层学习，需要先回到原局看主题/);
   assert.match(el.timeline.innerHTML, /十年环境/);
   assert.match(el.timeline.innerHTML, /大运己酉作为十年环境/);

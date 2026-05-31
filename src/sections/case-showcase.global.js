@@ -5,9 +5,10 @@
     const cases = getVisibleCases(state);
     el.cases.innerHTML = `
       <div class="plugin-header">
-        <p class="eyebrow">案例展示</p>
-        <h2 id="case-title">本地案例库</h2>
+        <p class="eyebrow">案例展示 · 实验功能</p>
+        <h2 id="case-title">本地案例库 <span class="badge muted">Beta</span></h2>
       </div>
+      <p class="quick-read-lead">该模块用于辅助学习，当前不作为主报告内容。</p>
       <p class="quick-read-lead">案例仅作结构复盘参考，不能用单个案例反推当前命盘结论。</p>
       <div class="case-grid">
         ${

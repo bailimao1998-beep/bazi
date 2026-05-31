@@ -6,10 +6,14 @@
   }
 
   function renderSimpleOverallReading(state, el) {
+    const data = collectReadingData(state);
     el.overall.innerHTML = `
-      <div class="plugin-header"><p class="eyebrow">结构学习</p><h2 id="overall-title">一句话总览</h2></div>
-      ${renderOneSentenceOverview(state)}
-      ${renderEvidenceChain(state)}
+      <div class="plugin-header"><p class="eyebrow">结构报告</p><h2 id="overall-title">核心解读报告</h2></div>
+      ${renderMainLine(data)}
+      ${renderStructureFocus(data)}
+      ${renderThemeObservation(data)}
+      ${renderUncertaintyPanel(data)}
+      ${renderTransitNextStep()}
     `;
   }
 
@@ -17,71 +21,145 @@
     return state.reading?.natal?.basicBaziDisplay ?? {};
   }
 
-  function renderOneSentenceOverview(state) {
-    const data = collectReadingData(state);
-    const overview = buildOverviewItems(data);
+  function renderMainLine(data) {
+    const lines = buildMainLine(data);
     return `
-      <section class="analysis-block quick-read-section">
-        <h3>一句话总览</h3>
-        <div class="quick-read-facts">
-          ${overview.map(([label, value, note]) => renderOverviewLine(label, value, note)).join("")}
+      <section class="analysis-block overall-report-section">
+        <h3>命盘主线</h3>
+        <div class="report-copy">
+          ${lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}
         </div>
       </section>
     `;
   }
 
-  function renderOverviewLine(label, value, note) {
-    return `
-      <article class="quick-read-fact">
-        <strong>${escapeHtml(label)}：${escapeHtml(value)}</strong>
-        <small>${escapeHtml(note)}</small>
-      </article>
-    `;
+  function buildMainLine(data) {
+    const lines = [];
+    lines.push(`此盘以${formatDayMaster(data)}日主为中心，先看月令${formatMonthBranch(data)}对日主的影响。`);
+    const elementFocus = buildElementFocus(data);
+    lines.push(`${trimSentenceEnd(elementFocus)}，因此第一步先观察五行来源、集中程度，以及其他五行如何形成调节。`);
+    const strengthText = summarizeStrength(data.strengthSignals);
+    if (strengthText) lines.push(`${strengthText}这类信息适合作为旺衰观察点，需要回到柱位和十神继续核对。`);
+    const tenGodText = summarizeTenGods(data.tenGods, data.displayTenGodStats);
+    lines.push(`十神${tenGodText ? `以${tenGodText}为主要候选信号` : "用于补充人事主题"}，干支关系用于观察结构互动，岁运只作为后续触发层。`);
+    return lines.slice(0, 5);
   }
 
-  function buildOverviewItems(data) {
-    return [
-      ["日主", formatDayMaster(data), "先确定读盘中心。"],
-      ["月令", data.monthBranch ? `${data.monthBranch}月` : "待排盘", "再看出生月份的主气。"],
-      ["五行重点", buildElementFocus(data), "作为平衡观察点。"],
-      ["十神重点", buildTenGodFocus(data), "根据透干、藏干和数量整理主要十神。"],
-      ["结构提示", "当前命盘先从日主、月令和五行分布入手学习", "再进入关系和岁运层。"],
-      ["学习提醒", "当前为学习型解读，只作结构参考，不作确定结论", "不能单独作为结论。"],
-    ];
-  }
-
-  function renderEvidenceChain(state) {
-    const data = collectReadingData(state);
-    const steps = [
-      buildDayMasterStep(data),
-      buildMonthBranchStep(data),
-      buildElementStep(data),
-      buildTenGodStep(data),
-      buildRelationStep(data),
-      buildTransitStep(data),
+  function renderStructureFocus(data) {
+    const cards = [
+      {
+        title: "日主与月令",
+        evidence: `${formatDayMaster(data)}日主，月令为${formatMonthBranch(data)}。${summarizeStrength(data.strengthSignals) || ""}`,
+        understanding: "先看日主和月令之间的关系，再判断五行和十神是否围绕这个中心展开。",
+        verify: "还要结合柱位、旺衰、透干和藏干继续验证。",
+      },
+      {
+        title: "五行分布",
+        evidence: summarizeElements(data.elements, data.displayElements) || emptyEvidence(),
+        understanding: buildElementFocus(data),
+        verify: "还要区分天干、地支本气和藏干权重，不能只看数量。",
+      },
+      {
+        title: "十神重心",
+        evidence: summarizeTenGods(data.tenGods, data.displayTenGodStats) || emptyEvidence(),
+        understanding: "十神重心用于整理资源、表达、规则、财星和同类力量的候选主题。",
+        verify: "还要看十神落在哪个柱位、是否透出，以及岁运是否再次触发。",
+      },
+      {
+        title: "干支关系",
+        evidence: summarizeRelations(data.combinations.length ? data.combinations : data.displayRelations) || emptyEvidence(),
+        understanding: "干支关系在传统命理中可作为观察点，用来提示结构互动。",
+        verify: "还要结合关系发生的柱位、十神含义和岁运层继续验证。",
+      },
     ];
     return `
       <section class="analysis-block quick-read-section">
-        <h3>证据链解读</h3>
-        <div class="quick-read-steps evidence-chain-list">
-          ${steps.map((step, index) => renderEvidenceStep(String(index + 1).padStart(2, "0"), step)).join("")}
+        <h3>结构重点</h3>
+        <div class="field-guide-grid">
+          ${cards.map(renderStructureCard).join("")}
         </div>
       </section>
     `;
   }
 
-  function renderEvidenceStep(order, step) {
+  function renderStructureCard(card) {
     return `
-      <article class="quick-read-step evidence-chain-step">
-        <span>${escapeHtml(order)}</span>
-        <div>
-          <strong>${escapeHtml(step.title)}</strong>
-          <p><b>为什么看这个：</b>${escapeHtml(step.why)}</p>
-          <p><b>命盘证据：</b>${escapeHtml(step.evidence)}</p>
-          <p><b>白话解释：</b>${escapeHtml(step.plain)}</p>
-          <p><b>还需要验证：</b>${escapeHtml(step.verify)}</p>
-        </div>
+      <article>
+        <strong>${escapeHtml(card.title)}</strong>
+        <p><b>盘面证据：</b>${escapeHtml(card.evidence)}</p>
+        <p><b>怎么理解：</b>${escapeHtml(card.understanding)}</p>
+        <p><b>还要验证什么：</b>${escapeHtml(card.verify)}</p>
       </article>
+    `;
+  }
+
+  function renderThemeObservation(data) {
+    const themes = [
+      {
+        title: "自我与性格表达",
+        point: `${formatDayMaster(data)}日主与${buildElementFocus(data)}共同构成自我表达的观察入口。`,
+        source: "依据来自日主、月令、五行统计和十神重心。",
+        limit: "性格表达会受柱位、旺衰和现实环境影响，当前只能作为候选信号。",
+      },
+      {
+        title: "事业与资源结构",
+        point: "先观察官杀、印星、财星、食伤等十神是否形成可读的资源链条。",
+        source: `依据来自十神统计：${summarizeTenGods(data.tenGods, data.displayTenGodStats) || "当前没有明显命中，后续可结合更多规则继续学习。"}`,
+        limit: "事业主题需要结合大运流年触发与现实选择，不能只凭原局下结论。",
+      },
+      {
+        title: "感情与关系结构",
+        point: "先看日支、相关十神和干支关系是否提供关系互动的观察点。",
+        source: `依据来自干支关系：${summarizeRelations(data.combinations.length ? data.combinations : data.displayRelations) || "当前没有明显命中，后续可结合更多规则继续学习。"}`,
+        limit: "感情主题需要结合具体柱位、岁运触发和现实互动，不能单独作为结论。",
+      },
+    ];
+    return `
+      <section class="analysis-block quick-read-section">
+        <h3>主题观察</h3>
+        <div class="field-guide-grid">
+          ${themes.map(renderThemeCard).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderThemeCard(theme) {
+    return `
+      <article>
+        <strong>${escapeHtml(theme.title)}</strong>
+        <p><b>当前观察点：</b>${escapeHtml(theme.point)}</p>
+        <p><b>依据来自哪里：</b>${escapeHtml(theme.source)}</p>
+        <p><b>暂不能下结论的原因：</b>${escapeHtml(theme.limit)}</p>
+      </article>
+    `;
+  }
+
+  function renderUncertaintyPanel(data) {
+    const items = [
+      ["出生时间是否准确", data.calendar.originalTime ? `当前输入时间为${data.calendar.originalTime}，分钟差异可能影响时柱。` : "当前按页面输入时间排盘，仍建议核对出生记录。"],
+      ["真太阳时是否启用", data.trueSolarTime ? "当前已启用真太阳时，需确认出生地经纬度来源。" : "当前未启用真太阳时，跨地区样本可另行复核。"],
+      ["节气边界", data.calendar.solarTermRule ? `${data.calendar.solarTermRule}，靠近节气时建议复核节气时刻。` : "月柱通常按节气切换，靠近节气时建议复核。"],
+      ["晚子时换日规则", data.calendar.dayPillarRule ? `${data.calendar.dayPillarRule}，子时附近样本需额外核对。` : "子时附近样本需核对是否涉及换日。"],
+      ["起运仍需结合具体算法复核", data.luck?.startNote ?? "当前已给出起运信息，细节仍需结合算法口径复核。"],
+      ["当前规则库还是 Beta", "报告用于结构学习，规则覆盖和资料卡仍在迭代。"],
+    ];
+    return `
+      <section class="analysis-block quick-read-section">
+        <h3>风险与不确定</h3>
+        <div class="signal-list compact">
+          ${items.map(([title, text]) => `<article class="signal"><strong>${escapeHtml(title)}</strong><p>${escapeHtml(text)}</p></article>`).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderTransitNextStep() {
+    return `
+      <section class="analysis-block quick-read-section">
+        <h3>下一步看岁运</h3>
+        <p class="reading-lead">原局只看结构，具体年份需要看大运、流年、流月是否再次触发原局主题。</p>
+      </section>
     `;
   }
 
@@ -111,72 +189,10 @@
       displayRelations: display.relations ?? [],
       transitTriggers: reading.transit?.triggers ?? [],
       transitHits: reading.transit?.hits ?? [],
-    };
-  }
-
-  function buildDayMasterStep(data) {
-    return {
-      title: "先看日主",
-      why: "日主是命盘结构的观察中心，用来对照五行、十神和岁运如何作用。",
-      evidence: data.dayStem ? `日柱天干为${data.dayStem}，五行属${formatElementName(data.dayStemElement, data.dayStemElementLabel)}。` : emptyEvidence(),
-      plain: data.dayStem ? `先以${formatDayMaster(data)}作为学习入口，再观察它在月令和全局五行中的状态。` : emptyEvidence(),
-      verify: "需要结合柱位、旺衰、十神、岁运继续验证，不能单独作为结论。",
-    };
-  }
-
-  function buildMonthBranchStep(data) {
-    return {
-      title: "再看月令",
-      why: "月令代表出生月份的主气，是观察旺衰和结构背景的入口。",
-      evidence: data.monthBranch ? `月支为${data.monthBranch}，五行属${formatElementName(data.monthBranchElement, data.monthBranchElementLabel)}。` : emptyEvidence(),
-      plain: data.monthBranch ? `${data.monthBranch}月先作为季节背景观察，再回到日主和五行分布中验证。` : emptyEvidence(),
-      verify: "需要结合透干、藏干、日主状态和岁运层继续验证，不能单独作为结论。",
-    };
-  }
-
-  function buildElementStep(data) {
-    const summary = summarizeElements(data.elements, data.displayElements);
-    return {
-      title: "再看五行",
-      why: "五行用来观察结构偏重和平衡方向，是证据链中的分布层。",
-      evidence: summary || emptyEvidence(),
-      plain: summary ? buildElementFocus(data) : emptyEvidence(),
-      verify: "需要区分透干、地支本气和藏干口径，并结合旺衰继续验证。",
-    };
-  }
-
-  function buildTenGodStep(data) {
-    const summary = summarizeTenGods(data.tenGods, data.displayTenGodStats);
-    return {
-      title: "再看十神",
-      why: "十神把五行生克转成学习主题，用来观察资源、表达、规则、财星和同类力量。",
-      evidence: summary || emptyEvidence(),
-      plain: summary ? `当前先把${summary}作为候选信号，再看它们落在哪些柱位。` : emptyEvidence(),
-      verify: "需要结合柱位、旺衰、透藏层次和岁运继续验证，不能单独作为结论。",
-    };
-  }
-
-  function buildRelationStep(data) {
-    const relations = data.combinations.length ? data.combinations : data.displayRelations;
-    const summary = summarizeRelations(relations);
-    return {
-      title: "再看干支关系",
-      why: "干支关系用于观察字与字之间的合、冲、刑、害、破等结构互动。",
-      evidence: summary || emptyEvidence(),
-      plain: summary ? "这些关系在传统命理中可作为观察点，用来提示结构互动，不直接输出事件结论。" : emptyEvidence(),
-      verify: "需要结合柱位、旺衰、十神、岁运继续验证，不能单独作为结论。",
-    };
-  }
-
-  function buildTransitStep(data) {
-    const items = data.transitTriggers.length ? data.transitTriggers : data.transitHits;
-    const summary = summarizeTransit(items);
-    return {
-      title: "最后看大运流年触发",
-      why: "大运流年是触发层，先看原局主题，再观察岁运是否把某类主题带到前台。",
-      evidence: summary || emptyEvidence(),
-      plain: summary ? "岁运只作为触发层学习，需要先回到原局看主题。" : emptyEvidence(),
-      verify: "需要结合原局、当前大运、流年和流月继续验证，不能单独作为结论。",
+      strengthSignals: natal.strengthSignals ?? [],
+      calendar: display.calendar ?? natal.chartMeta?.calendar ?? {},
+      trueSolarTime: Boolean(state.trueSolarTime ?? display.calendar?.trueSolarTime?.enabled),
+      luck: reading.luck,
     };
   }
 
@@ -195,6 +211,11 @@
     if (!data.dayStem) return "待排盘";
     const element = formatElementName(data.dayStemElement, data.dayStemElementLabel);
     return `${data.dayStem}${element}`;
+  }
+
+  function formatMonthBranch(data) {
+    if (!data.monthBranch) return "待查月令";
+    return `${data.monthBranch}${formatElementName(data.monthBranchElement, data.monthBranchElementLabel)}`;
   }
 
   function formatElementName(key, label) {
@@ -236,6 +257,15 @@
       .join("；");
   }
 
+  function summarizeStrength(strengthSignals = []) {
+    if (!Array.isArray(strengthSignals) || !strengthSignals.length) return "";
+    return strengthSignals
+      .slice(0, 2)
+      .map((item) => item.label && item.seasonalStatus ? `${item.label}气在月令为${item.seasonalStatus}` : item.interpretation ?? item.title)
+      .filter(Boolean)
+      .join("；");
+  }
+
   function strongestElementsFromCounts(elements, fallbackCounts) {
     return getStrongestElements(normalizeElementCounts(elements, fallbackCounts));
   }
@@ -251,6 +281,10 @@
 
   function emptyEvidence() {
     return "当前没有明显命中，后续可结合更多规则继续学习。";
+  }
+
+  function trimSentenceEnd(text) {
+    return String(text ?? "").replace(/[。；;，,]+$/u, "");
   }
 
   function renderQuickReadFacts(display) {

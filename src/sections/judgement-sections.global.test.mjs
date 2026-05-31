@@ -28,26 +28,36 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   context.window.BaziSections.renderTopicReport({ state, el });
   context.window.BaziSections.renderCaseShowcase({ state, el });
 
-  assert.match(el.overall.innerHTML, /一句话总览/);
-  assert.match(el.overall.innerHTML, /日主：辛金/);
-  assert.match(el.overall.innerHTML, /月令：酉月/);
-  assert.match(el.overall.innerHTML, /五行重点：金气较明显/);
-  assert.match(el.overall.innerHTML, /十神重点：/);
-  assert.match(el.overall.innerHTML, /结构提示：当前命盘先从日主、月令和五行分布入手学习/);
-  assert.match(el.overall.innerHTML, /学习提醒：当前为学习型解读，只作结构参考，不作确定结论/);
-  assert.match(el.overall.innerHTML, /证据链解读/);
-  assert.match(el.overall.innerHTML, /先看日主/);
-  assert.match(el.overall.innerHTML, /再看月令/);
-  assert.match(el.overall.innerHTML, /再看五行/);
-  assert.match(el.overall.innerHTML, /再看十神/);
-  assert.match(el.overall.innerHTML, /再看干支关系/);
-  assert.match(el.overall.innerHTML, /最后看大运流年触发/);
-  assert.match(el.overall.innerHTML, /为什么看这个：/);
-  assert.match(el.overall.innerHTML, /命盘证据：/);
-  assert.match(el.overall.innerHTML, /白话解释：/);
-  assert.match(el.overall.innerHTML, /还需要验证：/);
-  assert.match(el.overall.innerHTML, /日柱天干为辛/);
-  assert.match(el.overall.innerHTML, /月支为酉/);
+  assert.match(el.overall.innerHTML, /核心解读报告/);
+  assert.match(el.overall.innerHTML, /命盘主线/);
+  assert.match(el.overall.innerHTML, /此盘以辛金日主为中心/);
+  assert.match(el.overall.innerHTML, /先看月令酉金/);
+  assert.match(el.overall.innerHTML, /结构重点/);
+  assert.match(el.overall.innerHTML, /日主与月令/);
+  assert.match(el.overall.innerHTML, /五行分布/);
+  assert.match(el.overall.innerHTML, /十神重心/);
+  assert.match(el.overall.innerHTML, /干支关系/);
+  assert.match(el.overall.innerHTML, /盘面证据/);
+  assert.match(el.overall.innerHTML, /怎么理解/);
+  assert.match(el.overall.innerHTML, /还要验证什么/);
+  assert.match(el.overall.innerHTML, /主题观察/);
+  assert.match(el.overall.innerHTML, /自我与性格表达/);
+  assert.match(el.overall.innerHTML, /事业与资源结构/);
+  assert.match(el.overall.innerHTML, /感情与关系结构/);
+  assert.match(el.overall.innerHTML, /当前观察点/);
+  assert.match(el.overall.innerHTML, /依据来自哪里/);
+  assert.match(el.overall.innerHTML, /暂不能下结论的原因/);
+  assert.match(el.overall.innerHTML, /风险与不确定/);
+  assert.match(el.overall.innerHTML, /出生时间是否准确/);
+  assert.match(el.overall.innerHTML, /真太阳时是否启用/);
+  assert.match(el.overall.innerHTML, /节气边界/);
+  assert.match(el.overall.innerHTML, /晚子时换日规则/);
+  assert.match(el.overall.innerHTML, /起运仍需结合具体算法复核/);
+  assert.match(el.overall.innerHTML, /当前规则库还是 Beta/);
+  assert.match(el.overall.innerHTML, /下一步看岁运/);
+  assert.match(el.overall.innerHTML, /原局只看结构，具体年份需要看大运、流年、流月是否再次触发原局主题/);
+  assert.doesNotMatch(el.overall.innerHTML, /一句话总览/);
+  assert.doesNotMatch(el.overall.innerHTML, /证据链解读/);
   assert.match(el.overall.innerHTML, /地支六破/);
   assert.doesNotMatch(el.overall.innerHTML, /学习型规则命中/);
   assert.doesNotMatch(el.overall.innerHTML, /大运流年判断/);
@@ -58,6 +68,10 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   assert.match(el.timeline.innerHTML, /流年丙午触发事业/);
   assert.match(el.topics.innerHTML, /强弱取舍/);
   assert.match(el.topics.innerHTML, /日主承载不足/);
+  assert.match(el.topics.innerHTML, /实验功能/);
+  assert.match(el.topics.innerHTML, /该模块用于辅助学习，当前不作为主报告内容/);
+  assert.match(el.cases.innerHTML, /实验功能/);
+  assert.match(el.cases.innerHTML, /该模块用于辅助学习，当前不作为主报告内容/);
   assert.match(el.cases.innerHTML, /案例仅作结构复盘参考，不能用单个案例反推当前命盘结论/);
   assert.match(el.cases.innerHTML, /命中原因/);
   assert.match(el.cases.innerHTML, /命中 2026 年事件：岗位变化/);
@@ -93,9 +107,9 @@ test("renders detailed learning cards as secondary collapsed content", async () 
   const el = { learning: buildElement() };
   context.window.BaziSections.renderLearningInterpretation({ state: buildState(), el });
 
-  assert.match(el.learning.innerHTML, /详细学习卡片/);
-  assert.match(el.learning.innerHTML, /这里是更细的规则卡片，适合进一步学习。初次查看建议先看上方一句话总览和证据链。/);
-  assert.match(el.learning.innerHTML, /展开详细学习卡片/);
+  assert.match(el.learning.innerHTML, /详细规则卡片/);
+  assert.match(el.learning.innerHTML, /这里是规则明细，适合复盘学习。主线判断请以上方核心解读报告为准。/);
+  assert.match(el.learning.innerHTML, /展开详细规则卡片/);
   assert.match(el.learning.innerHTML, /data-learning-details/);
   assert.doesNotMatch(el.learning.innerHTML, /data-learning-details open/);
   assert.match(el.learning.innerHTML, /日主学习卡/);
@@ -107,8 +121,8 @@ test("keeps the main page sections in the beta learning flow order", async () =>
     "birthInputPlugin",
     "baziChartPlugin",
     "overallReadingPlugin",
-    "learningInterpretationPlugin",
     "transitTimelinePlugin",
+    "learningInterpretationPlugin",
     "topicReadingPlugin",
     "caseStudyPlugin",
     "offlineAiPlugin",

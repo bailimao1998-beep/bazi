@@ -105,8 +105,8 @@
     renderBirthSettings(context);
     renderCoreChart(context);
     renderOverallJudgement(context);
-    renderLearningInterpretation(context);
     renderTransitLuck(context);
+    renderLearningInterpretation(context);
     renderTopicReport(context);
     renderCaseShowcase(context);
     renderAiAnalysis(context);

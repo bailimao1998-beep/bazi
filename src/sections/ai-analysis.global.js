@@ -5,10 +5,11 @@
     const result = state.aiResult;
     el.offlineAi.innerHTML = `
       <div class="plugin-header">
-        <p class="eyebrow">AI 分析</p>
-        <h2 id="offline-ai-title">离线 AI 分析</h2>
+        <p class="eyebrow">AI 分析 · 实验功能</p>
+        <h2 id="offline-ai-title">离线 AI 分析 <span class="badge muted">Beta</span></h2>
       </div>
-      <p class="quick-read-lead">离线 AI 是可选功能，本周 Beta 版建议先使用基础排盘、证据链解读和学习卡片。</p>
+      <p class="quick-read-lead">该模块用于辅助学习，当前不作为主报告内容。</p>
+      <p class="quick-read-lead">离线 AI 是可选功能，本周 Beta 版建议先使用基础排盘、核心解读报告和大运流年。</p>
       <div class="offline-ai-layout">
         <section class="ai-control">
           <label>

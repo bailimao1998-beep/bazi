@@ -8,7 +8,8 @@
       return;
     }
     el.topics.innerHTML = `
-      <div class="plugin-header"><p class="eyebrow">分项报告</p><h2 id="topic-title">单项分析</h2></div>
+      <div class="plugin-header"><p class="eyebrow">分项报告 · 实验功能</p><h2 id="topic-title">单项分析 <span class="badge muted">Beta</span></h2></div>
+      <p class="quick-read-lead">该模块用于辅助学习，当前不作为主报告内容。</p>
       <div class="topic-list">
         ${state.reading.topics
           .map(
@@ -36,7 +37,8 @@
 
   function renderJudgementTopics(domains, el) {
     el.topics.innerHTML = `
-      <div class="plugin-header"><p class="eyebrow">分项报告</p><h2 id="topic-title">单项分析</h2></div>
+      <div class="plugin-header"><p class="eyebrow">分项报告 · 实验功能</p><h2 id="topic-title">单项分析 <span class="badge muted">Beta</span></h2></div>
+      <p class="quick-read-lead">该模块用于辅助学习，当前不作为主报告内容。</p>
       <div class="topic-list">
         ${domains.map(renderDomainCard).join("")}
       </div>

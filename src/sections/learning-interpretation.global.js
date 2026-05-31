@@ -17,10 +17,10 @@
     el.learning.innerHTML = `
       <div class="plugin-header">
         <p class="eyebrow">规则学习</p>
-        <h2 id="learning-title">详细学习卡片</h2>
+        <h2 id="learning-title">详细规则卡片</h2>
       </div>
-      <p class="quick-read-lead">这里是更细的规则卡片，适合进一步学习。初次查看建议先看上方一句话总览和证据链。</p>
-      <button type="button" class="core-tab learning-toggle" aria-expanded="false" aria-controls="learning-details" data-learning-toggle>展开详细学习卡片</button>
+      <p class="quick-read-lead">这里是规则明细，适合复盘学习。主线判断请以上方核心解读报告为准。</p>
+      <button type="button" class="core-tab learning-toggle" aria-expanded="false" aria-controls="learning-details" data-learning-toggle>展开详细规则卡片</button>
       <div id="learning-details" data-learning-details hidden>
         ${renderTabs(result)}
       </div>
@@ -111,7 +111,7 @@
     toggle.addEventListener("click", () => {
       const expanded = toggle.getAttribute("aria-expanded") === "true";
       toggle.setAttribute("aria-expanded", expanded ? "false" : "true");
-      toggle.textContent = expanded ? "展开详细学习卡片" : "收起详细学习卡片";
+      toggle.textContent = expanded ? "展开详细规则卡片" : "收起详细规则卡片";
       details.hidden = expanded;
     });
   }

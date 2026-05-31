@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>专业八字排盘</title>
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="panel hero-panel" aria-labelledby="app-title">
+        <div>
+          <p class="eyebrow">四柱命理 · 结构化排盘</p>
+          <h1 id="app-title">专业八字排盘</h1>
+          <p class="hero-note">输入出生信息，查看四柱、十神藏干、纳音地势、空亡胎元、格局候选、大运流年和分项分析。</p>
+        </div>
+        <div class="status-pill" id="dataStatus">数据加载中</div>
+      </section>
+
+      <section class="plugin-grid">
+        <section class="panel plugin span-3" id="birthInputPlugin" aria-labelledby="birth-input-title"></section>
+        <section class="panel plugin span-9" id="baziChartPlugin" aria-labelledby="bazi-chart-title"></section>
+        <section class="panel plugin span-12" id="overallReadingPlugin" aria-labelledby="overall-title"></section>
+        <section class="panel plugin span-12" id="transitTimelinePlugin" aria-labelledby="transit-title"></section>
+        <section class="panel plugin span-7" id="topicReadingPlugin" aria-labelledby="topic-title"></section>
+        <section class="panel plugin span-5" id="caseStudyPlugin" aria-labelledby="case-title"></section>
+        <section class="panel plugin span-12" id="offlineAiPlugin" aria-labelledby="offline-ai-title"></section>
+      </section>
+    </main>
+
+    <script src="src/lib/lunarCalendar.global.js"></script>
+    <script src="src/lib/locationData.global.js"></script>
+    <script src="src/lib/referenceKnowledge.global.js"></script>
+    <script src="src/lib/baziBasics.global.js"></script>
+    <script src="src/lib/baziBasicRules.global.js"></script>
+    <script src="src/lib/readingEngine.global.js"></script>
+    <script src="src/sections/shared.global.js"></script>
+    <script src="src/sections/birth-settings.global.js"></script>
+    <script src="src/sections/core-chart.global.js"></script>
+    <script src="src/sections/overall-judgement.global.js"></script>
+    <script src="src/sections/transit-luck.global.js"></script>
+    <script src="src/sections/topic-report.global.js"></script>
+    <script src="src/sections/ai-analysis.global.js"></script>
+    <script src="src/sections/case-showcase.global.js"></script>
+    <script src="src/main.global.js"></script>
+  </body>
+</html>

@@ -1,0 +1,122 @@
+{
+  "_meta": {
+    "file": "index.json",
+    "title": "八字数据索引",
+    "description": "现在只保留当前程序基础运行需要的数据；分析扩展、候选库、案例、AI 模板和历史归档已删除，后续需要时重新整理。",
+    "version": "3.0.0",
+    "generatedAt": "2026-05-30T23:20:10.505Z"
+  },
+  "runtimeBundle": {
+    "file": "bazi-data-bundle.json",
+    "title": "八字核心数据整合包",
+    "status": "active",
+    "purpose": "页面默认读取这个文件。当前仅包含排盘、核心命盘、基础规则和城市经纬度。",
+    "datasetCount": 8
+  },
+  "sourceDirectory": "source/",
+  "sourceRegistry": "source/00-来源-sources.json",
+  "datasets": [
+    {
+      "id": "sources",
+      "bundleKey": "sources",
+      "file": "source/00-来源-sources.json",
+      "title": "来源清单",
+      "status": "unknown",
+      "entryCount": 38
+    },
+    {
+      "id": "stems-branches",
+      "bundleKey": "stemsBranches",
+      "file": "source/01-天干地支-stems-branches.json",
+      "title": "天干地支",
+      "status": "active",
+      "entryCount": 82
+    },
+    {
+      "id": "five-elements",
+      "bundleKey": "fiveElements",
+      "file": "source/02-五行强弱-five-elements.json",
+      "title": "五行强弱",
+      "status": "active",
+      "entryCount": 65
+    },
+    {
+      "id": "ten-gods",
+      "bundleKey": "tenGods",
+      "file": "source/03-十神-ten-gods.json",
+      "title": "十神",
+      "status": "active",
+      "entryCount": 20
+    },
+    {
+      "id": "combinations-clashes",
+      "bundleKey": "combinations",
+      "file": "source/04-合冲刑害破-combinations.json",
+      "title": "合冲刑害破",
+      "status": "active",
+      "entryCount": 59
+    },
+    {
+      "id": "twelve-growth-stages",
+      "bundleKey": "twelveStages",
+      "file": "source/05-十二长生-twelve-stages.json",
+      "title": "十二长生",
+      "status": "active",
+      "entryCount": 132
+    },
+    {
+      "id": "system-rules",
+      "bundleKey": "systemRules",
+      "file": "source/06-程序规则-system-rules.json",
+      "title": "程序规则",
+      "status": "active",
+      "entryCount": 729
+    },
+    {
+      "id": "locations",
+      "bundleKey": "locations",
+      "file": "source/13-城市经纬度-locations.json",
+      "title": "城市经纬度",
+      "status": "expanded",
+      "entryCount": 3337
+    }
+  ],
+  "usageGuide": {
+    "normalUse": [
+      "只看 data/bazi-data-bundle.json",
+      "维护说明看 data/README.md"
+    ],
+    "editSource": [
+      "修改 data/source/ 下保留的核心源模块",
+      "运行 npm run data:bundle 重新生成整合包",
+      "运行 node scripts/validate-bazi-data.mjs 校验"
+    ],
+    "deletedOnPurpose": [
+      "盲派候选、力量模型、格局用神、神煞、盲派方法、输出模板、案例库、AI 模板、参考资料卡、legacy 历史目录已删除"
+    ]
+  },
+  "coverage": {
+    "keptCore": [
+      "来源清单",
+      "天干地支",
+      "五行强弱",
+      "十神",
+      "合冲刑害破",
+      "十二长生",
+      "程序规则 674 + 基础解读 55",
+      "城市经纬度"
+    ],
+    "deletedForRebuild": [
+      "07 盲派候选",
+      "08 力量模型",
+      "09 格局用神",
+      "10 神煞",
+      "11 盲派核心方法",
+      "12 输出主题模板",
+      "14 案例库",
+      "15 AI 分析模板",
+      "16 参考资料知识卡",
+      "legacy 历史归档"
+    ]
+  }
+}

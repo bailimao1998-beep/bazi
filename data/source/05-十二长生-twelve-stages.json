@@ -1,0 +1,3172 @@
+{
+  "_meta": {
+    "file": "05-十二长生-twelve-stages.json",
+    "title": "十二长生",
+    "description": "十天干在十二地支上的长生、沐浴、冠带等阶段性力量。",
+    "version": "1.0.0",
+    "sourceRegistry": "00-来源-sources.json",
+    "sourceIds": [
+      "twelve-stages"
+    ],
+    "evidenceLevel": "secondary_source",
+    "status": "active"
+  },
+  "stageOrder": [
+    "长生",
+    "沐浴",
+    "冠带",
+    "临官",
+    "帝旺",
+    "衰",
+    "病",
+    "死",
+    "墓",
+    "绝",
+    "胎",
+    "养"
+  ],
+  "matrix": {
+    "甲": {
+      "子": "沐浴",
+      "丑": "冠带",
+      "寅": "临官",
+      "卯": "帝旺",
+      "辰": "衰",
+      "巳": "病",
+      "午": "死",
+      "未": "墓",
+      "申": "绝",
+      "酉": "胎",
+      "戌": "养",
+      "亥": "长生"
+    },
+    "乙": {
+      "子": "病",
+      "丑": "衰",
+      "寅": "帝旺",
+      "卯": "临官",
+      "辰": "冠带",
+      "巳": "沐浴",
+      "午": "长生",
+      "未": "养",
+      "申": "胎",
+      "酉": "绝",
+      "戌": "墓",
+      "亥": "死"
+    },
+    "丙": {
+      "子": "胎",
+      "丑": "养",
+      "寅": "长生",
+      "卯": "沐浴",
+      "辰": "冠带",
+      "巳": "临官",
+      "午": "帝旺",
+      "未": "衰",
+      "申": "病",
+      "酉": "死",
+      "戌": "墓",
+      "亥": "绝"
+    },
+    "丁": {
+      "子": "绝",
+      "丑": "墓",
+      "寅": "死",
+      "卯": "病",
+      "辰": "衰",
+      "巳": "帝旺",
+      "午": "临官",
+      "未": "冠带",
+      "申": "沐浴",
+      "酉": "长生",
+      "戌": "养",
+      "亥": "胎"
+    },
+    "戊": {
+      "子": "胎",
+      "丑": "养",
+      "寅": "长生",
+      "卯": "沐浴",
+      "辰": "冠带",
+      "巳": "临官",
+      "午": "帝旺",
+      "未": "衰",
+      "申": "病",
+      "酉": "死",
+      "戌": "墓",
+      "亥": "绝"
+    },
+    "己": {
+      "子": "绝",
+      "丑": "墓",
+      "寅": "死",
+      "卯": "病",
+      "辰": "衰",
+      "巳": "帝旺",
+      "午": "临官",
+      "未": "冠带",
+      "申": "沐浴",
+      "酉": "长生",
+      "戌": "养",
+      "亥": "胎"
+    },
+    "庚": {
+      "子": "死",
+      "丑": "墓",
+      "寅": "绝",
+      "卯": "胎",
+      "辰": "养",
+      "巳": "长生",
+      "午": "沐浴",
+      "未": "冠带",
+      "申": "临官",
+      "酉": "帝旺",
+      "戌": "衰",
+      "亥": "病"
+    },
+    "辛": {
+      "子": "长生",
+      "丑": "养",
+      "寅": "胎",
+      "卯": "绝",
+      "辰": "墓",
+      "巳": "死",
+      "午": "病",
+      "未": "衰",
+      "申": "帝旺",
+      "酉": "临官",
+      "戌": "冠带",
+      "亥": "沐浴"
+    },
+    "壬": {
+      "子": "帝旺",
+      "丑": "衰",
+      "寅": "病",
+      "卯": "死",
+      "辰": "墓",
+      "巳": "绝",
+      "午": "胎",
+      "未": "养",
+      "申": "长生",
+      "酉": "沐浴",
+      "戌": "冠带",
+      "亥": "临官"
+    },
+    "癸": {
+      "子": "临官",
+      "丑": "冠带",
+      "寅": "沐浴",
+      "卯": "长生",
+      "辰": "养",
+      "巳": "胎",
+      "午": "绝",
+      "未": "墓",
+      "申": "死",
+      "酉": "病",
+      "戌": "衰",
+      "亥": "帝旺"
+    }
+  },
+  "rules": [
+    {
+      "id": "stage-甲-子",
+      "dayStem": "甲",
+      "branch": "子",
+      "stage": "沐浴",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "甲日主临子为沐浴，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "甲临沐浴",
+        "template": "日主落到子，像走到沐浴这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-甲-丑",
+      "dayStem": "甲",
+      "branch": "丑",
+      "stage": "冠带",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "甲日主临丑为冠带，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "甲临冠带",
+        "template": "日主落到丑，像走到冠带这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-甲-寅",
+      "dayStem": "甲",
+      "branch": "寅",
+      "stage": "临官",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "甲日主临寅为临官，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "甲临临官",
+        "template": "日主落到寅，像走到临官这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-甲-卯",
+      "dayStem": "甲",
+      "branch": "卯",
+      "stage": "帝旺",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "甲日主临卯为帝旺，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "甲临帝旺",
+        "template": "日主落到卯，像走到帝旺这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-甲-辰",
+      "dayStem": "甲",
+      "branch": "辰",
+      "stage": "衰",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "甲日主临辰为衰，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "甲临衰",
+        "template": "日主落到辰，像走到衰这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-甲-巳",
+      "dayStem": "甲",
+      "branch": "巳",
+      "stage": "病",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "甲日主临巳为病，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "甲临病",
+        "template": "日主落到巳，像走到病这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-甲-午",
+      "dayStem": "甲",
+      "branch": "午",
+      "stage": "死",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "甲日主临午为死，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "甲临死",
+        "template": "日主落到午，像走到死这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-甲-未",
+      "dayStem": "甲",
+      "branch": "未",
+      "stage": "墓",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "甲日主临未为墓，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "甲临墓",
+        "template": "日主落到未，像走到墓这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-甲-申",
+      "dayStem": "甲",
+      "branch": "申",
+      "stage": "绝",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "甲日主临申为绝，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "甲临绝",
+        "template": "日主落到申，像走到绝这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-甲-酉",
+      "dayStem": "甲",
+      "branch": "酉",
+      "stage": "胎",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "甲日主临酉为胎，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "甲临胎",
+        "template": "日主落到酉，像走到胎这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-甲-戌",
+      "dayStem": "甲",
+      "branch": "戌",
+      "stage": "养",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "甲日主临戌为养，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "甲临养",
+        "template": "日主落到戌，像走到养这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-甲-亥",
+      "dayStem": "甲",
+      "branch": "亥",
+      "stage": "长生",
+      "score": 4,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "甲日主临亥为长生，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "甲临长生",
+        "template": "日主落到亥，像走到长生这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-乙-子",
+      "dayStem": "乙",
+      "branch": "子",
+      "stage": "病",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "乙日主临子为病，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "乙临病",
+        "template": "日主落到子，像走到病这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-乙-丑",
+      "dayStem": "乙",
+      "branch": "丑",
+      "stage": "衰",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "乙日主临丑为衰，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "乙临衰",
+        "template": "日主落到丑，像走到衰这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-乙-寅",
+      "dayStem": "乙",
+      "branch": "寅",
+      "stage": "帝旺",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "乙日主临寅为帝旺，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "乙临帝旺",
+        "template": "日主落到寅，像走到帝旺这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-乙-卯",
+      "dayStem": "乙",
+      "branch": "卯",
+      "stage": "临官",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "乙日主临卯为临官，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "乙临临官",
+        "template": "日主落到卯，像走到临官这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-乙-辰",
+      "dayStem": "乙",
+      "branch": "辰",
+      "stage": "冠带",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "乙日主临辰为冠带，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "乙临冠带",
+        "template": "日主落到辰，像走到冠带这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-乙-巳",
+      "dayStem": "乙",
+      "branch": "巳",
+      "stage": "沐浴",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "乙日主临巳为沐浴，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "乙临沐浴",
+        "template": "日主落到巳，像走到沐浴这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-乙-午",
+      "dayStem": "乙",
+      "branch": "午",
+      "stage": "长生",
+      "score": 4,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "乙日主临午为长生，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "乙临长生",
+        "template": "日主落到午，像走到长生这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-乙-未",
+      "dayStem": "乙",
+      "branch": "未",
+      "stage": "养",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "乙日主临未为养，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "乙临养",
+        "template": "日主落到未，像走到养这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-乙-申",
+      "dayStem": "乙",
+      "branch": "申",
+      "stage": "胎",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "乙日主临申为胎，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "乙临胎",
+        "template": "日主落到申，像走到胎这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-乙-酉",
+      "dayStem": "乙",
+      "branch": "酉",
+      "stage": "绝",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "乙日主临酉为绝，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "乙临绝",
+        "template": "日主落到酉，像走到绝这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-乙-戌",
+      "dayStem": "乙",
+      "branch": "戌",
+      "stage": "墓",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "乙日主临戌为墓，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "乙临墓",
+        "template": "日主落到戌，像走到墓这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-乙-亥",
+      "dayStem": "乙",
+      "branch": "亥",
+      "stage": "死",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "乙日主临亥为死，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "乙临死",
+        "template": "日主落到亥，像走到死这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丙-子",
+      "dayStem": "丙",
+      "branch": "子",
+      "stage": "胎",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丙日主临子为胎，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丙临胎",
+        "template": "日主落到子，像走到胎这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丙-丑",
+      "dayStem": "丙",
+      "branch": "丑",
+      "stage": "养",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丙日主临丑为养，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丙临养",
+        "template": "日主落到丑，像走到养这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丙-寅",
+      "dayStem": "丙",
+      "branch": "寅",
+      "stage": "长生",
+      "score": 4,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丙日主临寅为长生，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丙临长生",
+        "template": "日主落到寅，像走到长生这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丙-卯",
+      "dayStem": "丙",
+      "branch": "卯",
+      "stage": "沐浴",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丙日主临卯为沐浴，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丙临沐浴",
+        "template": "日主落到卯，像走到沐浴这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丙-辰",
+      "dayStem": "丙",
+      "branch": "辰",
+      "stage": "冠带",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丙日主临辰为冠带，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丙临冠带",
+        "template": "日主落到辰，像走到冠带这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丙-巳",
+      "dayStem": "丙",
+      "branch": "巳",
+      "stage": "临官",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丙日主临巳为临官，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丙临临官",
+        "template": "日主落到巳，像走到临官这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丙-午",
+      "dayStem": "丙",
+      "branch": "午",
+      "stage": "帝旺",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丙日主临午为帝旺，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丙临帝旺",
+        "template": "日主落到午，像走到帝旺这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丙-未",
+      "dayStem": "丙",
+      "branch": "未",
+      "stage": "衰",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丙日主临未为衰，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丙临衰",
+        "template": "日主落到未，像走到衰这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丙-申",
+      "dayStem": "丙",
+      "branch": "申",
+      "stage": "病",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丙日主临申为病，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丙临病",
+        "template": "日主落到申，像走到病这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丙-酉",
+      "dayStem": "丙",
+      "branch": "酉",
+      "stage": "死",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丙日主临酉为死，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丙临死",
+        "template": "日主落到酉，像走到死这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丙-戌",
+      "dayStem": "丙",
+      "branch": "戌",
+      "stage": "墓",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丙日主临戌为墓，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丙临墓",
+        "template": "日主落到戌，像走到墓这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丙-亥",
+      "dayStem": "丙",
+      "branch": "亥",
+      "stage": "绝",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丙日主临亥为绝，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丙临绝",
+        "template": "日主落到亥，像走到绝这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丁-子",
+      "dayStem": "丁",
+      "branch": "子",
+      "stage": "绝",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丁日主临子为绝，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丁临绝",
+        "template": "日主落到子，像走到绝这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丁-丑",
+      "dayStem": "丁",
+      "branch": "丑",
+      "stage": "墓",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丁日主临丑为墓，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丁临墓",
+        "template": "日主落到丑，像走到墓这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丁-寅",
+      "dayStem": "丁",
+      "branch": "寅",
+      "stage": "死",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丁日主临寅为死，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丁临死",
+        "template": "日主落到寅，像走到死这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丁-卯",
+      "dayStem": "丁",
+      "branch": "卯",
+      "stage": "病",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丁日主临卯为病，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丁临病",
+        "template": "日主落到卯，像走到病这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丁-辰",
+      "dayStem": "丁",
+      "branch": "辰",
+      "stage": "衰",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丁日主临辰为衰，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丁临衰",
+        "template": "日主落到辰，像走到衰这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丁-巳",
+      "dayStem": "丁",
+      "branch": "巳",
+      "stage": "帝旺",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丁日主临巳为帝旺，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丁临帝旺",
+        "template": "日主落到巳，像走到帝旺这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丁-午",
+      "dayStem": "丁",
+      "branch": "午",
+      "stage": "临官",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丁日主临午为临官，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丁临临官",
+        "template": "日主落到午，像走到临官这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丁-未",
+      "dayStem": "丁",
+      "branch": "未",
+      "stage": "冠带",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丁日主临未为冠带，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丁临冠带",
+        "template": "日主落到未，像走到冠带这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丁-申",
+      "dayStem": "丁",
+      "branch": "申",
+      "stage": "沐浴",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丁日主临申为沐浴，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丁临沐浴",
+        "template": "日主落到申，像走到沐浴这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丁-酉",
+      "dayStem": "丁",
+      "branch": "酉",
+      "stage": "长生",
+      "score": 4,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丁日主临酉为长生，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丁临长生",
+        "template": "日主落到酉，像走到长生这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丁-戌",
+      "dayStem": "丁",
+      "branch": "戌",
+      "stage": "养",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丁日主临戌为养，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丁临养",
+        "template": "日主落到戌，像走到养这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-丁-亥",
+      "dayStem": "丁",
+      "branch": "亥",
+      "stage": "胎",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "丁日主临亥为胎，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "丁临胎",
+        "template": "日主落到亥，像走到胎这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-戊-子",
+      "dayStem": "戊",
+      "branch": "子",
+      "stage": "胎",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "戊日主临子为胎，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "戊临胎",
+        "template": "日主落到子，像走到胎这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-戊-丑",
+      "dayStem": "戊",
+      "branch": "丑",
+      "stage": "养",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "戊日主临丑为养，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "戊临养",
+        "template": "日主落到丑，像走到养这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-戊-寅",
+      "dayStem": "戊",
+      "branch": "寅",
+      "stage": "长生",
+      "score": 4,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "戊日主临寅为长生，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "戊临长生",
+        "template": "日主落到寅，像走到长生这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-戊-卯",
+      "dayStem": "戊",
+      "branch": "卯",
+      "stage": "沐浴",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "戊日主临卯为沐浴，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "戊临沐浴",
+        "template": "日主落到卯，像走到沐浴这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-戊-辰",
+      "dayStem": "戊",
+      "branch": "辰",
+      "stage": "冠带",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "戊日主临辰为冠带，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "戊临冠带",
+        "template": "日主落到辰，像走到冠带这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-戊-巳",
+      "dayStem": "戊",
+      "branch": "巳",
+      "stage": "临官",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "戊日主临巳为临官，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "戊临临官",
+        "template": "日主落到巳，像走到临官这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-戊-午",
+      "dayStem": "戊",
+      "branch": "午",
+      "stage": "帝旺",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "戊日主临午为帝旺，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "戊临帝旺",
+        "template": "日主落到午，像走到帝旺这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-戊-未",
+      "dayStem": "戊",
+      "branch": "未",
+      "stage": "衰",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "戊日主临未为衰，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "戊临衰",
+        "template": "日主落到未，像走到衰这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-戊-申",
+      "dayStem": "戊",
+      "branch": "申",
+      "stage": "病",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "戊日主临申为病，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "戊临病",
+        "template": "日主落到申，像走到病这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-戊-酉",
+      "dayStem": "戊",
+      "branch": "酉",
+      "stage": "死",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "戊日主临酉为死，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "戊临死",
+        "template": "日主落到酉，像走到死这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-戊-戌",
+      "dayStem": "戊",
+      "branch": "戌",
+      "stage": "墓",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "戊日主临戌为墓，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "戊临墓",
+        "template": "日主落到戌，像走到墓这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-戊-亥",
+      "dayStem": "戊",
+      "branch": "亥",
+      "stage": "绝",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "戊日主临亥为绝，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "戊临绝",
+        "template": "日主落到亥，像走到绝这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-己-子",
+      "dayStem": "己",
+      "branch": "子",
+      "stage": "绝",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "己日主临子为绝，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "己临绝",
+        "template": "日主落到子，像走到绝这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-己-丑",
+      "dayStem": "己",
+      "branch": "丑",
+      "stage": "墓",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "己日主临丑为墓，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "己临墓",
+        "template": "日主落到丑，像走到墓这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-己-寅",
+      "dayStem": "己",
+      "branch": "寅",
+      "stage": "死",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "己日主临寅为死，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "己临死",
+        "template": "日主落到寅，像走到死这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-己-卯",
+      "dayStem": "己",
+      "branch": "卯",
+      "stage": "病",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "己日主临卯为病，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "己临病",
+        "template": "日主落到卯，像走到病这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-己-辰",
+      "dayStem": "己",
+      "branch": "辰",
+      "stage": "衰",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "己日主临辰为衰，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "己临衰",
+        "template": "日主落到辰，像走到衰这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-己-巳",
+      "dayStem": "己",
+      "branch": "巳",
+      "stage": "帝旺",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "己日主临巳为帝旺，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "己临帝旺",
+        "template": "日主落到巳，像走到帝旺这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-己-午",
+      "dayStem": "己",
+      "branch": "午",
+      "stage": "临官",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "己日主临午为临官，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "己临临官",
+        "template": "日主落到午，像走到临官这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-己-未",
+      "dayStem": "己",
+      "branch": "未",
+      "stage": "冠带",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "己日主临未为冠带，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "己临冠带",
+        "template": "日主落到未，像走到冠带这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-己-申",
+      "dayStem": "己",
+      "branch": "申",
+      "stage": "沐浴",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "己日主临申为沐浴，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "己临沐浴",
+        "template": "日主落到申，像走到沐浴这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-己-酉",
+      "dayStem": "己",
+      "branch": "酉",
+      "stage": "长生",
+      "score": 4,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "己日主临酉为长生，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "己临长生",
+        "template": "日主落到酉，像走到长生这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-己-戌",
+      "dayStem": "己",
+      "branch": "戌",
+      "stage": "养",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "己日主临戌为养，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "己临养",
+        "template": "日主落到戌，像走到养这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-己-亥",
+      "dayStem": "己",
+      "branch": "亥",
+      "stage": "胎",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "己日主临亥为胎，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "己临胎",
+        "template": "日主落到亥，像走到胎这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-庚-子",
+      "dayStem": "庚",
+      "branch": "子",
+      "stage": "死",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "庚日主临子为死，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "庚临死",
+        "template": "日主落到子，像走到死这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-庚-丑",
+      "dayStem": "庚",
+      "branch": "丑",
+      "stage": "墓",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "庚日主临丑为墓，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "庚临墓",
+        "template": "日主落到丑，像走到墓这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-庚-寅",
+      "dayStem": "庚",
+      "branch": "寅",
+      "stage": "绝",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "庚日主临寅为绝，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "庚临绝",
+        "template": "日主落到寅，像走到绝这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-庚-卯",
+      "dayStem": "庚",
+      "branch": "卯",
+      "stage": "胎",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "庚日主临卯为胎，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "庚临胎",
+        "template": "日主落到卯，像走到胎这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-庚-辰",
+      "dayStem": "庚",
+      "branch": "辰",
+      "stage": "养",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "庚日主临辰为养，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "庚临养",
+        "template": "日主落到辰，像走到养这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-庚-巳",
+      "dayStem": "庚",
+      "branch": "巳",
+      "stage": "长生",
+      "score": 4,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "庚日主临巳为长生，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "庚临长生",
+        "template": "日主落到巳，像走到长生这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-庚-午",
+      "dayStem": "庚",
+      "branch": "午",
+      "stage": "沐浴",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "庚日主临午为沐浴，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "庚临沐浴",
+        "template": "日主落到午，像走到沐浴这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-庚-未",
+      "dayStem": "庚",
+      "branch": "未",
+      "stage": "冠带",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "庚日主临未为冠带，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "庚临冠带",
+        "template": "日主落到未，像走到冠带这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-庚-申",
+      "dayStem": "庚",
+      "branch": "申",
+      "stage": "临官",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "庚日主临申为临官，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "庚临临官",
+        "template": "日主落到申，像走到临官这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-庚-酉",
+      "dayStem": "庚",
+      "branch": "酉",
+      "stage": "帝旺",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "庚日主临酉为帝旺，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "庚临帝旺",
+        "template": "日主落到酉，像走到帝旺这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-庚-戌",
+      "dayStem": "庚",
+      "branch": "戌",
+      "stage": "衰",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "庚日主临戌为衰，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "庚临衰",
+        "template": "日主落到戌，像走到衰这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-庚-亥",
+      "dayStem": "庚",
+      "branch": "亥",
+      "stage": "病",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "庚日主临亥为病，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "庚临病",
+        "template": "日主落到亥，像走到病这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-辛-子",
+      "dayStem": "辛",
+      "branch": "子",
+      "stage": "长生",
+      "score": 4,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "辛日主临子为长生，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "辛临长生",
+        "template": "日主落到子，像走到长生这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-辛-丑",
+      "dayStem": "辛",
+      "branch": "丑",
+      "stage": "养",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "辛日主临丑为养，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "辛临养",
+        "template": "日主落到丑，像走到养这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-辛-寅",
+      "dayStem": "辛",
+      "branch": "寅",
+      "stage": "胎",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "辛日主临寅为胎，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "辛临胎",
+        "template": "日主落到寅，像走到胎这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-辛-卯",
+      "dayStem": "辛",
+      "branch": "卯",
+      "stage": "绝",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "辛日主临卯为绝，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "辛临绝",
+        "template": "日主落到卯，像走到绝这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-辛-辰",
+      "dayStem": "辛",
+      "branch": "辰",
+      "stage": "墓",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "辛日主临辰为墓，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "辛临墓",
+        "template": "日主落到辰，像走到墓这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-辛-巳",
+      "dayStem": "辛",
+      "branch": "巳",
+      "stage": "死",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "辛日主临巳为死，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "辛临死",
+        "template": "日主落到巳，像走到死这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-辛-午",
+      "dayStem": "辛",
+      "branch": "午",
+      "stage": "病",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "辛日主临午为病，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "辛临病",
+        "template": "日主落到午，像走到病这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-辛-未",
+      "dayStem": "辛",
+      "branch": "未",
+      "stage": "衰",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "辛日主临未为衰，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "辛临衰",
+        "template": "日主落到未，像走到衰这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-辛-申",
+      "dayStem": "辛",
+      "branch": "申",
+      "stage": "帝旺",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "辛日主临申为帝旺，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "辛临帝旺",
+        "template": "日主落到申，像走到帝旺这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-辛-酉",
+      "dayStem": "辛",
+      "branch": "酉",
+      "stage": "临官",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "辛日主临酉为临官，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "辛临临官",
+        "template": "日主落到酉，像走到临官这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-辛-戌",
+      "dayStem": "辛",
+      "branch": "戌",
+      "stage": "冠带",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "辛日主临戌为冠带，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "辛临冠带",
+        "template": "日主落到戌，像走到冠带这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-辛-亥",
+      "dayStem": "辛",
+      "branch": "亥",
+      "stage": "沐浴",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "辛日主临亥为沐浴，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "辛临沐浴",
+        "template": "日主落到亥，像走到沐浴这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-壬-子",
+      "dayStem": "壬",
+      "branch": "子",
+      "stage": "帝旺",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "壬日主临子为帝旺，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "壬临帝旺",
+        "template": "日主落到子，像走到帝旺这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-壬-丑",
+      "dayStem": "壬",
+      "branch": "丑",
+      "stage": "衰",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "壬日主临丑为衰，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "壬临衰",
+        "template": "日主落到丑，像走到衰这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-壬-寅",
+      "dayStem": "壬",
+      "branch": "寅",
+      "stage": "病",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "壬日主临寅为病，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "壬临病",
+        "template": "日主落到寅，像走到病这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-壬-卯",
+      "dayStem": "壬",
+      "branch": "卯",
+      "stage": "死",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "壬日主临卯为死，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "壬临死",
+        "template": "日主落到卯，像走到死这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-壬-辰",
+      "dayStem": "壬",
+      "branch": "辰",
+      "stage": "墓",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "壬日主临辰为墓，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "壬临墓",
+        "template": "日主落到辰，像走到墓这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-壬-巳",
+      "dayStem": "壬",
+      "branch": "巳",
+      "stage": "绝",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "壬日主临巳为绝，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "壬临绝",
+        "template": "日主落到巳，像走到绝这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-壬-午",
+      "dayStem": "壬",
+      "branch": "午",
+      "stage": "胎",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "壬日主临午为胎，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "壬临胎",
+        "template": "日主落到午，像走到胎这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-壬-未",
+      "dayStem": "壬",
+      "branch": "未",
+      "stage": "养",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "壬日主临未为养，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "壬临养",
+        "template": "日主落到未，像走到养这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-壬-申",
+      "dayStem": "壬",
+      "branch": "申",
+      "stage": "长生",
+      "score": 4,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "壬日主临申为长生，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "壬临长生",
+        "template": "日主落到申，像走到长生这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-壬-酉",
+      "dayStem": "壬",
+      "branch": "酉",
+      "stage": "沐浴",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "壬日主临酉为沐浴，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "壬临沐浴",
+        "template": "日主落到酉，像走到沐浴这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-壬-戌",
+      "dayStem": "壬",
+      "branch": "戌",
+      "stage": "冠带",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "壬日主临戌为冠带，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "壬临冠带",
+        "template": "日主落到戌，像走到冠带这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-壬-亥",
+      "dayStem": "壬",
+      "branch": "亥",
+      "stage": "临官",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "壬日主临亥为临官，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "壬临临官",
+        "template": "日主落到亥，像走到临官这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-癸-子",
+      "dayStem": "癸",
+      "branch": "子",
+      "stage": "临官",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "癸日主临子为临官，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "癸临临官",
+        "template": "日主落到子，像走到临官这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-癸-丑",
+      "dayStem": "癸",
+      "branch": "丑",
+      "stage": "冠带",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "癸日主临丑为冠带，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "癸临冠带",
+        "template": "日主落到丑，像走到冠带这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-癸-寅",
+      "dayStem": "癸",
+      "branch": "寅",
+      "stage": "沐浴",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "癸日主临寅为沐浴，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "癸临沐浴",
+        "template": "日主落到寅，像走到沐浴这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-癸-卯",
+      "dayStem": "癸",
+      "branch": "卯",
+      "stage": "长生",
+      "score": 4,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "癸日主临卯为长生，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "癸临长生",
+        "template": "日主落到卯，像走到长生这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-癸-辰",
+      "dayStem": "癸",
+      "branch": "辰",
+      "stage": "养",
+      "score": 3,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "癸日主临辰为养，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "癸临养",
+        "template": "日主落到辰，像走到养这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-癸-巳",
+      "dayStem": "癸",
+      "branch": "巳",
+      "stage": "胎",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "癸日主临巳为胎，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "癸临胎",
+        "template": "日主落到巳，像走到胎这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-癸-午",
+      "dayStem": "癸",
+      "branch": "午",
+      "stage": "绝",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "癸日主临午为绝，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "癸临绝",
+        "template": "日主落到午，像走到绝这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-癸-未",
+      "dayStem": "癸",
+      "branch": "未",
+      "stage": "墓",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "癸日主临未为墓，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "癸临墓",
+        "template": "日主落到未，像走到墓这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-癸-申",
+      "dayStem": "癸",
+      "branch": "申",
+      "stage": "死",
+      "score": 1,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "癸日主临申为死，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "癸临死",
+        "template": "日主落到申，像走到死这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-癸-酉",
+      "dayStem": "癸",
+      "branch": "酉",
+      "stage": "病",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "癸日主临酉为病，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "癸临病",
+        "template": "日主落到酉，像走到病这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-癸-戌",
+      "dayStem": "癸",
+      "branch": "戌",
+      "stage": "衰",
+      "score": 2,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "癸日主临戌为衰，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "癸临衰",
+        "template": "日主落到戌，像走到衰这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    },
+    {
+      "id": "stage-癸-亥",
+      "dayStem": "癸",
+      "branch": "亥",
+      "stage": "帝旺",
+      "score": 5,
+      "domains": [
+        "personality",
+        "career",
+        "money",
+        "health",
+        "children",
+        "marriage"
+      ],
+      "interpretation": "癸日主临亥为帝旺，用于判断日主在该支上的起落与承载力。",
+      "display": {
+        "title": "癸临帝旺",
+        "template": "日主落到亥，像走到帝旺这一站，读的是气的起落，不是字面的吉凶。"
+      },
+      "sourceIds": [
+        "twelve-stages"
+      ],
+      "evidenceLevel": "secondary_source",
+      "status": "active"
+    }
+  ]
+}

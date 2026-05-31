@@ -1,0 +1,11 @@
+{
+  "name": "bazi-reading-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "data:bundle": "node scripts/build-bazi-data-bundle.mjs",
+    "dev": "node scripts/local-ai-server.mjs",
+    "test": "node --test"
+  }
+}

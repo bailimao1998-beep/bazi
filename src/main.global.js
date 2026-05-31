@@ -108,7 +108,7 @@
     renderLearningInterpretation(context);
     renderTransitLuck(context);
     renderTopicReport(context);
-    renderAiAnalysis(context);
     renderCaseShowcase(context);
+    renderAiAnalysis(context);
   }
 })();

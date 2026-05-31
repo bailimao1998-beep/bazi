@@ -28,32 +28,94 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   context.window.BaziSections.renderTopicReport({ state, el });
   context.window.BaziSections.renderCaseShowcase({ state, el });
 
-  assert.match(el.overall.innerHTML, /命盘速读/);
+  assert.match(el.overall.innerHTML, /一句话总览/);
+  assert.match(el.overall.innerHTML, /日主：辛金/);
+  assert.match(el.overall.innerHTML, /月令：酉月/);
+  assert.match(el.overall.innerHTML, /五行重点：金气较明显/);
+  assert.match(el.overall.innerHTML, /十神重点：/);
+  assert.match(el.overall.innerHTML, /结构提示：当前命盘先从日主、月令和五行分布入手学习/);
+  assert.match(el.overall.innerHTML, /学习提醒：当前为学习型解读，只作结构参考，不作确定结论/);
+  assert.match(el.overall.innerHTML, /证据链解读/);
   assert.match(el.overall.innerHTML, /先看日主/);
   assert.match(el.overall.innerHTML, /再看月令/);
-  assert.match(el.overall.innerHTML, /五行分布/);
-  assert.match(el.overall.innerHTML, /十神关系/);
-  assert.match(el.overall.innerHTML, /干支关系/);
-  assert.match(el.overall.innerHTML, /因为日干为辛金/);
-  assert.match(el.overall.innerHTML, /金气纯而当令/);
-  assert.match(el.overall.innerHTML, /明面最明显/);
-  assert.match(el.overall.innerHTML, /这不是断语/);
-  assert.match(el.overall.innerHTML, /学习型规则命中/);
-  assert.match(el.overall.innerHTML, /命中了什么规则/);
-  assert.match(el.overall.innerHTML, /为什么命中/);
-  assert.match(el.overall.innerHTML, /这条规则怎么学/);
-  assert.match(el.overall.innerHTML, /不确定因素/);
-  assert.match(el.overall.innerHTML, /不允许说/);
+  assert.match(el.overall.innerHTML, /再看五行/);
+  assert.match(el.overall.innerHTML, /再看十神/);
+  assert.match(el.overall.innerHTML, /再看干支关系/);
+  assert.match(el.overall.innerHTML, /最后看大运流年触发/);
+  assert.match(el.overall.innerHTML, /为什么看这个：/);
+  assert.match(el.overall.innerHTML, /命盘证据：/);
+  assert.match(el.overall.innerHTML, /白话解释：/);
+  assert.match(el.overall.innerHTML, /还需要验证：/);
+  assert.match(el.overall.innerHTML, /日柱天干为辛/);
+  assert.match(el.overall.innerHTML, /月支为酉/);
+  assert.match(el.overall.innerHTML, /地支六破/);
+  assert.doesNotMatch(el.overall.innerHTML, /学习型规则命中/);
   assert.doesNotMatch(el.overall.innerHTML, /大运流年判断/);
   assert.doesNotMatch(el.overall.innerHTML, /大运己酉作为十年环境/);
-  assert.doesNotMatch(el.overall.innerHTML, /证据链/);
+  assert.match(el.timeline.innerHTML, /岁运只作为触发层学习，需要先回到原局看主题/);
   assert.match(el.timeline.innerHTML, /十年环境/);
   assert.match(el.timeline.innerHTML, /大运己酉作为十年环境/);
   assert.match(el.timeline.innerHTML, /流年丙午触发事业/);
   assert.match(el.topics.innerHTML, /强弱取舍/);
   assert.match(el.topics.innerHTML, /日主承载不足/);
+  assert.match(el.cases.innerHTML, /案例仅作结构复盘参考，不能用单个案例反推当前命盘结论/);
   assert.match(el.cases.innerHTML, /命中原因/);
   assert.match(el.cases.innerHTML, /命中 2026 年事件：岗位变化/);
+});
+
+test("renders detailed learning cards as secondary collapsed content", async () => {
+  const context = buildContext();
+  context.window.BaziLearningInterpretationEngine = {
+    buildLearningInterpretations() {
+      return {
+        grouped: {
+          structure: [
+            {
+              title: "日主学习卡",
+              status: "active",
+              category: "structure",
+              matched: true,
+              reason: "日主为辛。",
+              learningLogic: "先看日主和月令。",
+              plainExplanation: "这是学习卡片。",
+              uncertaintyFactors: ["柱位", "岁运"],
+              sourceRefs: [],
+              confidence: "medium",
+            },
+          ],
+        },
+      };
+    },
+  };
+  vm.createContext(context);
+  vm.runInContext(await fs.readFile(new URL("./learning-interpretation.global.js", import.meta.url), "utf8"), context);
+
+  const el = { learning: buildElement() };
+  context.window.BaziSections.renderLearningInterpretation({ state: buildState(), el });
+
+  assert.match(el.learning.innerHTML, /详细学习卡片/);
+  assert.match(el.learning.innerHTML, /这里是更细的规则卡片，适合进一步学习。初次查看建议先看上方一句话总览和证据链。/);
+  assert.match(el.learning.innerHTML, /展开详细学习卡片/);
+  assert.match(el.learning.innerHTML, /data-learning-details/);
+  assert.doesNotMatch(el.learning.innerHTML, /data-learning-details open/);
+  assert.match(el.learning.innerHTML, /日主学习卡/);
+});
+
+test("keeps the main page sections in the beta learning flow order", async () => {
+  const html = await fs.readFile(new URL("../../index.html", import.meta.url), "utf8");
+  const ids = [
+    "birthInputPlugin",
+    "baziChartPlugin",
+    "overallReadingPlugin",
+    "learningInterpretationPlugin",
+    "transitTimelinePlugin",
+    "topicReadingPlugin",
+    "caseStudyPlugin",
+    "offlineAiPlugin",
+  ];
+  const positions = ids.map((id) => html.indexOf(`id="${id}"`));
+  assert.deepEqual(positions.every((position) => position >= 0), true);
+  assert.deepEqual([...positions].sort((a, b) => a - b), positions);
 });
 
 function buildContext() {
@@ -218,7 +280,7 @@ function buildState() {
             howToLearn: "先学月令，再看日主和五行分布。",
             plainExplanation: "这里只解释读盘顺序，不给事件断语。",
             uncertaintyFactors: ["日主强弱", "透干组合"],
-            absoluteWarning: "不允许说必然发生，只能说这是学习提示。",
+            absoluteWarning: "不允许说成单独结论，只能说这是学习提示。",
             confidence: "medium",
             status: "draft",
           },

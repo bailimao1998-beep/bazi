@@ -17,12 +17,16 @@
     el.learning.innerHTML = `
       <div class="plugin-header">
         <p class="eyebrow">规则学习</p>
-        <h2 id="learning-title">学习解读</h2>
+        <h2 id="learning-title">详细学习卡片</h2>
       </div>
-      <p class="quick-read-lead">这里只展示命盘触发了哪些学习规则、为什么触发，以及还需要哪些条件继续验证；不能单独作为结论。</p>
-      ${renderTabs(result)}
+      <p class="quick-read-lead">这里是更细的规则卡片，适合进一步学习。初次查看建议先看上方一句话总览和证据链。</p>
+      <button type="button" class="core-tab learning-toggle" aria-expanded="false" aria-controls="learning-details" data-learning-toggle>展开详细学习卡片</button>
+      <div id="learning-details" data-learning-details hidden>
+        ${renderTabs(result)}
+      </div>
     `;
     bindLearningTabs(el.learning);
+    bindLearningToggle(el.learning);
   }
 
   function renderTabs(result) {
@@ -97,6 +101,18 @@
         activateLearningTab(next, buttons, panels);
         next.focus();
       });
+    });
+  }
+
+  function bindLearningToggle(root) {
+    const toggle = root.querySelector?.("[data-learning-toggle]");
+    const details = root.querySelector?.("[data-learning-details]");
+    if (!toggle || !details) return;
+    toggle.addEventListener("click", () => {
+      const expanded = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", expanded ? "false" : "true");
+      toggle.textContent = expanded ? "展开详细学习卡片" : "收起详细学习卡片";
+      details.hidden = expanded;
     });
   }
 

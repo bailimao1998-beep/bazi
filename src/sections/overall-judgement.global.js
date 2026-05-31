@@ -6,28 +6,251 @@
   }
 
   function renderSimpleOverallReading(state, el) {
-    const display = getBasicDisplay(state);
     el.overall.innerHTML = `
-      <div class="plugin-header"><p class="eyebrow">命盘速读</p></div>
-      <p class="quick-read-lead">这不是断语，而是告诉你读盘顺序：先看日主，再看月令，然后看五行分布、十神关系和干支关系。</p>
-      ${renderQuickReadFacts(display)}
-      <section class="analysis-block quick-read-section">
-        <h3>读盘顺序</h3>
-        <div class="quick-read-steps">
-          ${renderQuickReadStep("01", "先看日主", getInterpretationText(state, "day_master", "日主看日柱天干，代表命盘里“我”的核心。"))}
-          ${renderQuickReadStep("02", "再看月令", getInterpretationText(state, "month_order", "月令看月柱地支，代表出生月份的当令之气，是判断旺衰和整体背景的第一入口。"))}
-          ${renderQuickReadStep("03", "五行分布", buildElementReading(display))}
-          ${renderQuickReadStep("04", "十神关系", buildTenGodReading(display))}
-          ${renderQuickReadStep("05", "干支关系", buildRelationReading(display))}
-        </div>
-      </section>
-      ${renderLearningRuleHits(state)}
-      ${renderFieldGuide()}
+      <div class="plugin-header"><p class="eyebrow">结构学习</p><h2 id="overall-title">一句话总览</h2></div>
+      ${renderOneSentenceOverview(state)}
+      ${renderEvidenceChain(state)}
     `;
   }
 
   function getBasicDisplay(state) {
     return state.reading?.natal?.basicBaziDisplay ?? {};
+  }
+
+  function renderOneSentenceOverview(state) {
+    const data = collectReadingData(state);
+    const overview = buildOverviewItems(data);
+    return `
+      <section class="analysis-block quick-read-section">
+        <h3>一句话总览</h3>
+        <div class="quick-read-facts">
+          ${overview.map(([label, value, note]) => renderOverviewLine(label, value, note)).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderOverviewLine(label, value, note) {
+    return `
+      <article class="quick-read-fact">
+        <strong>${escapeHtml(label)}：${escapeHtml(value)}</strong>
+        <small>${escapeHtml(note)}</small>
+      </article>
+    `;
+  }
+
+  function buildOverviewItems(data) {
+    return [
+      ["日主", formatDayMaster(data), "先确定读盘中心。"],
+      ["月令", data.monthBranch ? `${data.monthBranch}月` : "待排盘", "再看出生月份的主气。"],
+      ["五行重点", buildElementFocus(data), "作为平衡观察点。"],
+      ["十神重点", buildTenGodFocus(data), "根据透干、藏干和数量整理主要十神。"],
+      ["结构提示", "当前命盘先从日主、月令和五行分布入手学习", "再进入关系和岁运层。"],
+      ["学习提醒", "当前为学习型解读，只作结构参考，不作确定结论", "不能单独作为结论。"],
+    ];
+  }
+
+  function renderEvidenceChain(state) {
+    const data = collectReadingData(state);
+    const steps = [
+      buildDayMasterStep(data),
+      buildMonthBranchStep(data),
+      buildElementStep(data),
+      buildTenGodStep(data),
+      buildRelationStep(data),
+      buildTransitStep(data),
+    ];
+    return `
+      <section class="analysis-block quick-read-section">
+        <h3>证据链解读</h3>
+        <div class="quick-read-steps evidence-chain-list">
+          ${steps.map((step, index) => renderEvidenceStep(String(index + 1).padStart(2, "0"), step)).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderEvidenceStep(order, step) {
+    return `
+      <article class="quick-read-step evidence-chain-step">
+        <span>${escapeHtml(order)}</span>
+        <div>
+          <strong>${escapeHtml(step.title)}</strong>
+          <p><b>为什么看这个：</b>${escapeHtml(step.why)}</p>
+          <p><b>命盘证据：</b>${escapeHtml(step.evidence)}</p>
+          <p><b>白话解释：</b>${escapeHtml(step.plain)}</p>
+          <p><b>还需要验证：</b>${escapeHtml(step.verify)}</p>
+        </div>
+      </article>
+    `;
+  }
+
+  function collectReadingData(state) {
+    const reading = state.reading ?? {};
+    const natal = reading.natal ?? {};
+    const display = getBasicDisplay(state);
+    const pillars = natal.pillars ?? display.pillars ?? {};
+    const day = pillars.day ?? display.pillars?.day ?? {};
+    const month = pillars.month ?? display.pillars?.month ?? {};
+    return {
+      reading,
+      natal,
+      display,
+      dayStem: day.stem,
+      dayStemElement: day.stemElement,
+      dayStemElementLabel: day.stemElementLabel,
+      monthBranch: month.branch,
+      monthBranchElement: month.branchElement,
+      monthBranchElementLabel: month.branchElementLabel,
+      elements: natal.elements ?? display.elementStats?.visible?.counts ?? {},
+      displayElements: display.elementStats?.visible?.counts ?? {},
+      hiddenElements: display.elementStats?.hidden?.counts ?? {},
+      tenGods: natal.tenGods,
+      displayTenGodStats: display.tenGods?.stats?.fullHidden ?? {},
+      combinations: natal.combinations ?? display.relations ?? [],
+      displayRelations: display.relations ?? [],
+      transitTriggers: reading.transit?.triggers ?? [],
+      transitHits: reading.transit?.hits ?? [],
+    };
+  }
+
+  function buildDayMasterStep(data) {
+    return {
+      title: "先看日主",
+      why: "日主是命盘结构的观察中心，用来对照五行、十神和岁运如何作用。",
+      evidence: data.dayStem ? `日柱天干为${data.dayStem}，五行属${formatElementName(data.dayStemElement, data.dayStemElementLabel)}。` : emptyEvidence(),
+      plain: data.dayStem ? `先以${formatDayMaster(data)}作为学习入口，再观察它在月令和全局五行中的状态。` : emptyEvidence(),
+      verify: "需要结合柱位、旺衰、十神、岁运继续验证，不能单独作为结论。",
+    };
+  }
+
+  function buildMonthBranchStep(data) {
+    return {
+      title: "再看月令",
+      why: "月令代表出生月份的主气，是观察旺衰和结构背景的入口。",
+      evidence: data.monthBranch ? `月支为${data.monthBranch}，五行属${formatElementName(data.monthBranchElement, data.monthBranchElementLabel)}。` : emptyEvidence(),
+      plain: data.monthBranch ? `${data.monthBranch}月先作为季节背景观察，再回到日主和五行分布中验证。` : emptyEvidence(),
+      verify: "需要结合透干、藏干、日主状态和岁运层继续验证，不能单独作为结论。",
+    };
+  }
+
+  function buildElementStep(data) {
+    const summary = summarizeElements(data.elements, data.displayElements);
+    return {
+      title: "再看五行",
+      why: "五行用来观察结构偏重和平衡方向，是证据链中的分布层。",
+      evidence: summary || emptyEvidence(),
+      plain: summary ? buildElementFocus(data) : emptyEvidence(),
+      verify: "需要区分透干、地支本气和藏干口径，并结合旺衰继续验证。",
+    };
+  }
+
+  function buildTenGodStep(data) {
+    const summary = summarizeTenGods(data.tenGods, data.displayTenGodStats);
+    return {
+      title: "再看十神",
+      why: "十神把五行生克转成学习主题，用来观察资源、表达、规则、财星和同类力量。",
+      evidence: summary || emptyEvidence(),
+      plain: summary ? `当前先把${summary}作为候选信号，再看它们落在哪些柱位。` : emptyEvidence(),
+      verify: "需要结合柱位、旺衰、透藏层次和岁运继续验证，不能单独作为结论。",
+    };
+  }
+
+  function buildRelationStep(data) {
+    const relations = data.combinations.length ? data.combinations : data.displayRelations;
+    const summary = summarizeRelations(relations);
+    return {
+      title: "再看干支关系",
+      why: "干支关系用于观察字与字之间的合、冲、刑、害、破等结构互动。",
+      evidence: summary || emptyEvidence(),
+      plain: summary ? "这些关系在传统命理中可作为观察点，用来提示结构互动，不直接输出事件结论。" : emptyEvidence(),
+      verify: "需要结合柱位、旺衰、十神、岁运继续验证，不能单独作为结论。",
+    };
+  }
+
+  function buildTransitStep(data) {
+    const items = data.transitTriggers.length ? data.transitTriggers : data.transitHits;
+    const summary = summarizeTransit(items);
+    return {
+      title: "最后看大运流年触发",
+      why: "大运流年是触发层，先看原局主题，再观察岁运是否把某类主题带到前台。",
+      evidence: summary || emptyEvidence(),
+      plain: summary ? "岁运只作为触发层学习，需要先回到原局看主题。" : emptyEvidence(),
+      verify: "需要结合原局、当前大运、流年和流月继续验证，不能单独作为结论。",
+    };
+  }
+
+  function buildElementFocus(data) {
+    const strongest = strongestElementsFromCounts(data.elements, data.displayElements);
+    if (!strongest.length) return "当前没有明显命中，后续可结合更多规则继续学习。";
+    return `${strongest.map((item) => `${elementLabel(item.key)}气`).join("、")}较明显，其他五行作为平衡观察点`;
+  }
+
+  function buildTenGodFocus(data) {
+    const summary = summarizeTenGods(data.tenGods, data.displayTenGodStats);
+    return summary || "根据透干、藏干和数量整理主要十神";
+  }
+
+  function formatDayMaster(data) {
+    if (!data.dayStem) return "待排盘";
+    const element = formatElementName(data.dayStemElement, data.dayStemElementLabel);
+    return `${data.dayStem}${element}`;
+  }
+
+  function formatElementName(key, label) {
+    if (key && elementLabel(key) !== key) return elementLabel(key);
+    const text = String(label ?? "");
+    return ["木", "火", "土", "金", "水"].find((item) => text.includes(item)) ?? "待查";
+  }
+
+  function summarizeElements(elements, fallbackCounts) {
+    const counts = normalizeElementCounts(elements, fallbackCounts);
+    const text = formatElementCounts(counts);
+    return text ? `五行统计：${text}。` : "";
+  }
+
+  function summarizeTenGods(tenGods, fallbackStats) {
+    if (Array.isArray(tenGods) && tenGods.length) {
+      const counts = tenGods.reduce((acc, item) => {
+        const name = item.name === "日主" ? "比肩" : item.name;
+        if (!name) return acc;
+        acc[name] = (acc[name] ?? 0) + 1;
+        return acc;
+      }, {});
+      return formatTenGodSummary(counts);
+    }
+    return formatTenGodSummary(fallbackStats ?? {});
+  }
+
+  function summarizeRelations(relations) {
+    if (!Array.isArray(relations) || !relations.length) return "";
+    return relations.slice(0, 4).map(formatRelationSummary).join("；");
+  }
+
+  function summarizeTransit(items) {
+    if (!Array.isArray(items) || !items.length) return "";
+    return items
+      .slice(0, 4)
+      .map((item) => item.title ?? item.relation ?? item.description ?? `${item.transit ?? ""}${item.target ? ` → ${item.target}` : ""}`.trim())
+      .filter(Boolean)
+      .join("；");
+  }
+
+  function strongestElementsFromCounts(elements, fallbackCounts) {
+    return getStrongestElements(normalizeElementCounts(elements, fallbackCounts));
+  }
+
+  function normalizeElementCounts(elements, fallbackCounts) {
+    const source = Object.keys(elements ?? {}).length ? elements : fallbackCounts ?? {};
+    return ["wood", "fire", "earth", "metal", "water"].reduce((acc, key) => {
+      const item = source[key];
+      acc[key] = typeof item === "object" && item ? Number(item.value ?? 0) : Number(item ?? 0);
+      return acc;
+    }, {});
+  }
+
+  function emptyEvidence() {
+    return "当前没有明显命中，后续可结合更多规则继续学习。";
   }
 
   function renderQuickReadFacts(display) {
@@ -188,7 +411,8 @@
   function formatRelationSummary(relation) {
     const members = (relation.ganzhi ?? relation.members ?? []).join("、");
     const pillars = (relation.pillars ?? []).join(" 与 ");
-    return `${relation.type ?? "关系"}${pillars ? `（${pillars}）` : ""}${members ? `：${members}` : ""}`;
+    const title = relation.type ?? relation.title ?? relation.effect ?? "关系";
+    return `${title}${pillars ? `（${pillars}）` : ""}${members ? `：${members}` : ""}`;
   }
 
   function renderNatalPlainReading(state) {

@@ -8,6 +8,7 @@
         <p class="eyebrow">案例展示</p>
         <h2 id="case-title">本地案例库</h2>
       </div>
+      <p class="quick-read-lead">案例仅作结构复盘参考，不能用单个案例反推当前命盘结论。</p>
       <div class="case-grid">
         ${
           cases.length

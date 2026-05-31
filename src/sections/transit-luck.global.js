@@ -7,6 +7,7 @@
     const months = getTransitMonths(state.selectedYear);
     el.timeline.innerHTML = `
       <div class="plugin-header"><p class="eyebrow">大运流年</p><h2 id="transit-title">岁运推演</h2></div>
+      <p class="quick-read-lead">岁运只作为触发层学习，需要先回到原局看主题。</p>
       ${renderLuckBoard(state)}
       <div class="transit-layout">
         <div class="flow-focus">

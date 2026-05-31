@@ -218,6 +218,17 @@ export function analyzeBirth(input, datasets = {}) {
     combinations: natalCombinations,
     transitHits,
   }, datasets?.referenceKnowledge);
+  const learningRuleHits = buildLearningRuleHits({
+    pillars,
+    elements,
+    tenGods,
+    matchedRules,
+    patternCandidates,
+    natalCombinations,
+    transitHits,
+    referenceKnowledgeHits,
+    datasets,
+  });
   const overallAnalysis = buildOverallAnalysis(pillars, elements, strengthSignals, patternCandidates, natalCombinations, pairInteractions);
   const datasetCoverage = buildDatasetCoverage(datasets, matchedRules, patternCandidates, starSignals, referenceKnowledgeHits);
   const summary = buildSummary(pillars, elements, tenGods, natalCombinations, triggers);
@@ -266,6 +277,7 @@ export function analyzeBirth(input, datasets = {}) {
       starSignals,
       pairInteractions,
       referenceKnowledgeHits,
+      learningRuleHits,
       overallAnalysis,
       basicInterpretations,
       datasetCoverage,
@@ -1567,6 +1579,110 @@ function extractRelationTags(text) {
     if (source.includes(tag)) tags.push(tag);
   }
   return tags;
+}
+
+function buildLearningRuleHits(context) {
+  const rules = collectLearningRules(context.datasets);
+  const hits = rules
+    .filter((rule) => learningConditionsMatch(rule.conditions, context))
+    .map((rule) => normalizeLearningRuleHit(rule, context))
+    .sort((left, right) => learningConfidenceRank(right.confidence) - learningConfidenceRank(left.confidence) || left.title.localeCompare(right.title, "zh-Hans-CN"));
+  return hits.slice(0, 8);
+}
+
+function collectLearningRules(datasets = {}) {
+  return [
+    ...(datasets.learningKnowledge?.rules ?? []),
+    ...(datasets.blindCases?.rules ?? []),
+    ...(datasets.strengthModel?.rules ?? []),
+    ...(datasets.patternsUsefulGods?.rules ?? []),
+    ...(datasets.blindCoreMethods?.rules ?? []),
+    ...(datasets.outputTemplates?.rules ?? []),
+    ...(datasets.caseStudies?.rules ?? []),
+    ...(datasets.aiPrompts?.rules ?? []),
+    ...(datasets.referenceKnowledge?.rules ?? []),
+  ].filter((rule) => rule && rule.status !== "archived");
+}
+
+function learningConditionsMatch(conditions = {}, context) {
+  if (conditions.always) return true;
+  const { pillars, elements, tenGods, natalCombinations, matchedRules, patternCandidates, referenceKnowledgeHits } = context;
+  if (conditions.dayStem && conditions.dayStem !== pillars.day.stem) return false;
+  if (conditions.monthBranch && conditions.monthBranch !== pillars.month.branch) return false;
+  if (conditions.yearBranch && conditions.yearBranch !== pillars.year.branch) return false;
+  if (conditions.hourBranch && conditions.hourBranch !== pillars.hour.branch) return false;
+  if (conditions.relationType) {
+    const relationHit = conditions.relationType === "any"
+      ? natalCombinations.length > 0
+      : natalCombinations.some((combo) => combo.type === conditions.relationType || combo.effect === conditions.relationType || combo.title?.includes(conditions.relationType));
+    if (!relationHit) return false;
+  }
+  if (conditions.hasPatternCandidate && !patternCandidates.length) return false;
+  if (conditions.referenceCategory && !referenceKnowledgeHits.some((hit) => hit.category === conditions.referenceCategory)) return false;
+  if (conditions.matchedRuleCategory && !matchedRules.some((rule) => rule.category === conditions.matchedRuleCategory)) return false;
+  if (conditions.tenGod && !tenGods.some((signal) => signal.name === conditions.tenGod)) return false;
+  if (conditions.elementCount && !countConditionMatches(conditions.elementCount, elements, "element")) return false;
+  if (conditions.tenGodCount && !countConditionMatches(conditions.tenGodCount, countTenGods(tenGods), "name")) return false;
+  return true;
+}
+
+function countConditionMatches(condition, counts, targetKey) {
+  const items = Array.isArray(condition) ? condition : [condition];
+  return items.every((item) => {
+    const key = item?.[targetKey];
+    if (!key) return false;
+    return compareNumber(Number(counts[key] ?? 0), item.operator ?? ">=", Number(item.value ?? 1));
+  });
+}
+
+function compareNumber(left, operator, right) {
+  if (operator === ">") return left > right;
+  if (operator === ">=") return left >= right;
+  if (operator === "<") return left < right;
+  if (operator === "<=") return left <= right;
+  if (operator === "=" || operator === "==") return left === right;
+  return false;
+}
+
+function normalizeLearningRuleHit(rule, context) {
+  const evidence = rule.evidence && typeof rule.evidence === "object" ? rule.evidence : {};
+  const whyMatched = evidence.whyMatched ?? deriveLearningMatchReason(rule.conditions, context);
+  const howToLearn = evidence.howToLearn ?? rule.logic ?? rule.plainExplanation ?? "";
+  const uncertaintyFactors = normalizeList(evidence.uncertaintyFactors).length
+    ? normalizeList(evidence.uncertaintyFactors)
+    : ["出生时间准确性", "强弱取舍", "岁运触发层次"];
+  return {
+    id: rule.id,
+    title: rule.title,
+    category: rule.category,
+    trigger: rule.trigger,
+    conditions: rule.conditions ?? {},
+    logic: rule.logic,
+    plainExplanation: rule.plainExplanation,
+    whyMatched,
+    howToLearn,
+    uncertaintyFactors,
+    sourceRefs: rule.sourceRefs ?? [],
+    outputTemplate: rule.outputTemplate,
+    confidence: rule.confidence ?? "low",
+    status: rule.status ?? "draft",
+    absoluteWarning: "不允许说必然发生；这条规则只能作为学习线索。",
+  };
+}
+
+function deriveLearningMatchReason(conditions = {}, context) {
+  const reasons = [];
+  if (conditions.always) reasons.push("该规则是通用学习规则。");
+  if (conditions.dayStem) reasons.push(`日干为${context.pillars.day.stem}。`);
+  if (conditions.monthBranch) reasons.push(`月支为${context.pillars.month.branch}。`);
+  if (conditions.relationType) reasons.push(`原局关系命中${conditions.relationType === "any" ? "基础干支关系" : conditions.relationType}。`);
+  if (conditions.elementCount) reasons.push("五行数量满足规则条件。");
+  if (conditions.tenGodCount) reasons.push("十神数量满足规则条件。");
+  return reasons.join(" ") || "当前命盘满足规则条件。";
+}
+
+function learningConfidenceRank(confidence) {
+  return { high: 3, medium: 2, low: 1 }[confidence] ?? 0;
 }
 
 function buildTransitHits(pillars, selectedYear, selectedMonth, datasets) {

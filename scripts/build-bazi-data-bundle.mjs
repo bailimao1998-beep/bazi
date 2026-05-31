@@ -14,7 +14,15 @@ const DATASETS = [
   ["combinations", "04-合冲刑害破-combinations.json", "合冲刑害破"],
   ["twelveStages", "05-十二长生-twelve-stages.json", "十二长生"],
   ["systemRules", "06-程序规则-system-rules.json", "程序规则"],
+  ["blindCases", "07-盲派候选-blind-cases.json", "盲派候选"],
+  ["strengthModel", "08-力量模型-strength-model.json", "力量模型"],
+  ["patternsUsefulGods", "09-格局用神-patterns-useful-gods.json", "格局用神"],
+  ["blindCoreMethods", "11-盲派核心方法-blind-core-methods.json", "盲派核心方法"],
+  ["outputTemplates", "12-输出主题模板-output-templates.json", "输出主题模板"],
   ["locations", "13-城市经纬度-locations.json", "城市经纬度"],
+  ["caseStudies", "14-案例库-case-studies.json", "案例库"],
+  ["aiPrompts", "15-AI分析模板-ai-prompts.json", "AI分析模板"],
+  ["referenceKnowledge", "16-参考资料知识卡-reference-cards.json", "参考资料知识卡"],
 ];
 
 async function readJson(fileName) {

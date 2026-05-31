@@ -4,9 +4,9 @@
     "title": "八字数据整合包",
     "purpose": "single_runtime_bundle",
     "description": "页面和本地 AI 优先读取这个整合包；data/source/ 保留可维护的分模块源数据。",
-    "generatedAt": "2026-05-30T23:48:03.368Z",
+    "generatedAt": "2026-05-31T10:24:11.791Z",
     "sourceDirectory": "source/",
-    "datasetCount": 8
+    "datasetCount": 16
   },
   "manifest": [
     {
@@ -14,7 +14,7 @@
       "file": "source/00-来源-sources.json",
       "title": "来源清单",
       "status": "unknown",
-      "entryCount": 38
+      "entryCount": 41
     },
     {
       "bundleKey": "stemsBranches",
@@ -59,11 +59,67 @@
       "entryCount": 729
     },
     {
+      "bundleKey": "blindCases",
+      "file": "source/07-盲派候选-blind-cases.json",
+      "title": "盲派候选",
+      "status": "draft",
+      "entryCount": 1
+    },
+    {
+      "bundleKey": "strengthModel",
+      "file": "source/08-力量模型-strength-model.json",
+      "title": "力量模型",
+      "status": "draft",
+      "entryCount": 1
+    },
+    {
+      "bundleKey": "patternsUsefulGods",
+      "file": "source/09-格局用神-patterns-useful-gods.json",
+      "title": "格局用神",
+      "status": "draft",
+      "entryCount": 1
+    },
+    {
+      "bundleKey": "blindCoreMethods",
+      "file": "source/11-盲派核心方法-blind-core-methods.json",
+      "title": "盲派核心方法",
+      "status": "draft",
+      "entryCount": 1
+    },
+    {
+      "bundleKey": "outputTemplates",
+      "file": "source/12-输出主题模板-output-templates.json",
+      "title": "输出主题模板",
+      "status": "draft",
+      "entryCount": 2
+    },
+    {
       "bundleKey": "locations",
       "file": "source/13-城市经纬度-locations.json",
       "title": "城市经纬度",
       "status": "expanded",
       "entryCount": 3337
+    },
+    {
+      "bundleKey": "caseStudies",
+      "file": "source/14-案例库-case-studies.json",
+      "title": "案例库",
+      "status": "draft",
+      "entryCount": 1
+    },
+    {
+      "bundleKey": "aiPrompts",
+      "file": "source/15-AI分析模板-ai-prompts.json",
+      "title": "AI分析模板",
+      "status": "draft",
+      "entryCount": 2
+    },
+    {
+      "bundleKey": "referenceKnowledge",
+      "file": "source/16-参考资料知识卡-reference-cards.json",
+      "title": "参考资料知识卡",
+      "status": "draft",
+      "entryCount": 1
     }
   ],
   "datasets": {
@@ -364,6 +420,33 @@
           "evidenceLevel": "needs_review",
           "status": "needs_source",
           "notes": "该来源只用于候选库溯源，不代表已完成严格校勘。"
+        },
+        {
+          "id": "case-study-internal-policy",
+          "title": "案例库复盘内部规范",
+          "url": null,
+          "scope": "案例库只做结构相似和证据复盘，不用单例推出结论。",
+          "type": "internal_policy",
+          "evidenceLevel": "derived",
+          "status": "draft"
+        },
+        {
+          "id": "offline-ai-internal-policy",
+          "title": "离线 AI 学习型输出内部规范",
+          "url": null,
+          "scope": "AI 输出必须先列规则、证据和不确定因素，避免绝对化表达。",
+          "type": "internal_policy",
+          "evidenceLevel": "derived",
+          "status": "draft"
+        },
+        {
+          "id": "cui-blind-notes-5000",
+          "title": "崔老师盲派八字笔记",
+          "url": null,
+          "scope": "参考资料卡占位来源，第一阶段只保留结构，待人工校勘。",
+          "type": "reference_card_placeholder",
+          "evidenceLevel": "needs_review",
+          "status": "needs_source"
         }
       ]
     },
@@ -29975,6 +30058,229 @@
           "status": "active"
         }
       ]
+    },
+    "blindCases": {
+      "_meta": {
+        "file": "07-盲派候选-blind-cases.json",
+        "title": "盲派候选学习规则",
+        "description": "第一阶段只保留可学习、可复核的结构化候选规则，不作为断语。",
+        "version": "1.0.0",
+        "status": "draft"
+      },
+      "rules": [
+        {
+          "id": "blind-case-relation-first",
+          "title": "盲派候选：先看字与字的关系",
+          "category": "blind_case_learning",
+          "trigger": "原局出现合冲刑害破等基础关系",
+          "conditions": {
+            "relationType": "any"
+          },
+          "logic": "盲派候选法常先记录字与字的组合关系，再回到柱位、十神、强弱和岁运验证。",
+          "plainExplanation": "命中关系只说明这里值得学习和复盘，不直接推出事件。",
+          "evidence": {
+            "whyMatched": "当前命盘存在可枚举的干支关系。",
+            "howToLearn": "先标出关系，再看它落在哪些柱位、牵动哪些十神，最后用案例复盘。",
+            "uncertaintyFactors": [
+              "柱位语境",
+              "日主强弱",
+              "岁运是否再次触发"
+            ]
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "blind-bazitalk-11381",
+              "note": "候选方法论，待复核"
+            }
+          ],
+          "outputTemplate": "learning-rule-card-v1",
+          "confidence": "low",
+          "status": "draft"
+        }
+      ]
+    },
+    "strengthModel": {
+      "_meta": {
+        "file": "08-力量模型-strength-model.json",
+        "title": "力量模型学习规则",
+        "description": "第一阶段只定义强弱学习入口，不输出吉凶判断。",
+        "version": "1.0.0",
+        "status": "draft"
+      },
+      "rules": [
+        {
+          "id": "strength-month-order-first",
+          "title": "力量模型：月令是强弱学习入口",
+          "category": "strength_learning",
+          "trigger": "任意命盘完成月柱排盘",
+          "conditions": {
+            "always": true
+          },
+          "logic": "判断强弱先看月令，再看天干透出、地支根气、藏干和组合是否改变力量流向。",
+          "plainExplanation": "这条规则教读盘顺序：先问月令给了什么季节力量，再继续核对其他证据。",
+          "evidence": {
+            "whyMatched": "所有命盘都有月令，适合作为强弱学习的第一入口。",
+            "howToLearn": "按月令、透干、根气、组合四步逐层记录。",
+            "uncertaintyFactors": [
+              "节气边界",
+              "藏干权重",
+              "组合是否成化"
+            ]
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "seasonal-strength",
+              "note": "旺相休囚死基础"
+            }
+          ],
+          "outputTemplate": "learning-rule-card-v1",
+          "confidence": "medium",
+          "status": "draft"
+        }
+      ]
+    },
+    "patternsUsefulGods": {
+      "_meta": {
+        "file": "09-格局用神-patterns-useful-gods.json",
+        "title": "格局用神学习规则",
+        "description": "第一阶段只保留格局和用神的学习入口，不定格、不定喜忌。",
+        "version": "1.0.0",
+        "status": "draft"
+      },
+      "rules": [
+        {
+          "id": "pattern-useful-god-candidate-only",
+          "title": "格局用神：候选不等于定论",
+          "category": "pattern_learning",
+          "trigger": "出现格局候选或月令十神线索",
+          "conditions": {
+            "always": true
+          },
+          "logic": "格局和用神需要月令、透干、清浊、强弱、调候共同确认，第一阶段只展示候选学习路径。",
+          "plainExplanation": "看到候选格局时，先学习它为什么被列入候选，再列出还缺哪些证据。",
+          "evidence": {
+            "whyMatched": "命盘已完成月令和十神基础排盘，可进入候选学习。",
+            "howToLearn": "按月令取格、透干成格、强弱取舍、调候通关四步核对。",
+            "uncertaintyFactors": [
+              "透干是否有力",
+              "格局是否清纯",
+              "调候是否优先"
+            ]
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "pattern-geju-howzan",
+              "note": "格局分类参考"
+            }
+          ],
+          "outputTemplate": "learning-rule-card-v1",
+          "confidence": "low",
+          "status": "draft"
+        }
+      ],
+      "normalPatterns": []
+    },
+    "blindCoreMethods": {
+      "_meta": {
+        "file": "11-盲派核心方法-blind-core-methods.json",
+        "title": "盲派核心方法学习规则",
+        "description": "第一阶段只记录方法步骤，避免输出强断语。",
+        "version": "1.0.0",
+        "status": "draft"
+      },
+      "rules": [
+        {
+          "id": "blind-method-position-then-relation",
+          "title": "盲派方法：先柱位后关系",
+          "category": "blind_method_learning",
+          "trigger": "命盘四柱已完成",
+          "conditions": {
+            "always": true
+          },
+          "logic": "先确认年、月、日、时各自代表的观察层，再把干支关系放回柱位语境中学习。",
+          "plainExplanation": "同一个关系落在不同柱位，学习重点不同，所以先定位再解释。",
+          "evidence": {
+            "whyMatched": "四柱均已生成，可进入柱位学习。",
+            "howToLearn": "先写柱位，再写关系，再写十神，最后写不确定因素。",
+            "uncertaintyFactors": [
+              "柱位取象差异",
+              "男女命语境",
+              "案例样本不足"
+            ]
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "blind-bazitalk-11381",
+              "note": "盲派候选方法论"
+            }
+          ],
+          "outputTemplate": "learning-rule-card-v1",
+          "confidence": "low",
+          "status": "draft"
+        }
+      ]
+    },
+    "outputTemplates": {
+      "_meta": {
+        "file": "12-输出主题模板-output-templates.json",
+        "title": "输出主题模板",
+        "description": "第一阶段只定义解释卡片结构，所有输出都必须避免绝对化。",
+        "version": "1.0.0",
+        "status": "draft"
+      },
+      "templates": [
+        {
+          "id": "learning-rule-card-v1",
+          "title": "学习型规则卡",
+          "fields": [
+            "命中了什么规则",
+            "为什么命中",
+            "这条规则怎么学",
+            "不确定因素",
+            "禁止绝对化"
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "id": "output-template-learning-card",
+          "title": "输出模板：学习型规则卡",
+          "category": "output_template_learning",
+          "trigger": "存在学习规则命中",
+          "conditions": {
+            "always": true
+          },
+          "logic": "学习型规则卡只展示命中依据、学习路径和不确定因素，不生成事件断语。",
+          "plainExplanation": "用户看到的是规则如何工作，而不是结论先行的断语。",
+          "evidence": {
+            "whyMatched": "页面需要统一展示学习规则。",
+            "howToLearn": "按五个字段阅读每条规则。",
+            "uncertaintyFactors": [
+              "规则等级",
+              "资料来源",
+              "案例复核状态"
+            ]
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "positional-combination-policy",
+              "note": "内部输出策略"
+            }
+          ],
+          "outputTemplate": "learning-rule-card-v1",
+          "confidence": "medium",
+          "status": "draft"
+        }
+      ],
+      "priorityPolicy": {
+        "order": [
+          "active traditional_consensus",
+          "active secondary_source",
+          "derived",
+          "draft",
+          "needs_review"
+        ]
+      }
     },
     "locations": {
       "_meta": {
@@ -83034,6 +83340,136 @@
           "standardMeridian": 120
         }
       ]
+    },
+    "caseStudies": {
+      "_meta": {
+        "file": "14-案例库-case-studies.json",
+        "title": "案例库",
+        "description": "第一阶段只保留案例复盘结构，不填充批量案例。",
+        "version": "1.0.0",
+        "status": "draft"
+      },
+      "rules": [
+        {
+          "id": "case-study-compare-structure",
+          "title": "案例库：只比较结构相似",
+          "category": "case_study_learning",
+          "trigger": "存在可比较的标签或证据",
+          "conditions": {
+            "always": true
+          },
+          "logic": "案例库用于学习相似结构如何被复盘，不用单个案例反推出个人结论。",
+          "plainExplanation": "案例只能说明某种结构曾怎样被分析，不能替代当前命盘的完整判断。",
+          "evidence": {
+            "whyMatched": "当前系统有结构化证据，可作为案例标签入口。",
+            "howToLearn": "比较标签、关系、十神和岁运层次，不比较单一事件。",
+            "uncertaintyFactors": [
+              "案例数量",
+              "出生时间可靠性",
+              "事件记录完整度"
+            ]
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "case-study-internal-policy",
+              "note": "内部案例复盘规范"
+            }
+          ],
+          "outputTemplate": "learning-rule-card-v1",
+          "confidence": "low",
+          "status": "draft"
+        }
+      ],
+      "cases": []
+    },
+    "aiPrompts": {
+      "_meta": {
+        "file": "15-AI分析模板-ai-prompts.json",
+        "title": "AI分析模板",
+        "description": "第一阶段只约束 AI 使用规则解释，不生成强断语。",
+        "version": "1.0.0",
+        "status": "draft"
+      },
+      "rules": [
+        {
+          "id": "ai-prompt-learning-boundary",
+          "title": "AI模板：先解释规则再输出",
+          "category": "ai_prompt_learning",
+          "trigger": "离线 AI 获取命盘摘要",
+          "conditions": {
+            "always": true
+          },
+          "logic": "AI 必须先列出规则来源、命中原因和不确定因素，再给出学习型总结。",
+          "plainExplanation": "AI 的任务是帮用户学习规则链路，不是替用户下断语。",
+          "evidence": {
+            "whyMatched": "离线 AI 模块已存在，需要规则边界。",
+            "howToLearn": "按规则、证据、不确定因素、复核建议四段输出。",
+            "uncertaintyFactors": [
+              "本地资料覆盖",
+              "模型表达偏差",
+              "用户输入准确性"
+            ]
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "offline-ai-internal-policy",
+              "note": "内部 AI 输出边界"
+            }
+          ],
+          "outputTemplate": "learning-rule-card-v1",
+          "confidence": "medium",
+          "status": "draft"
+        }
+      ],
+      "prompts": [
+        {
+          "id": "learning-explanation-v1",
+          "title": "学习型解释提示词",
+          "instruction": "先列规则命中和不确定因素，再输出学习总结；不要使用绝对化事件判断。"
+        }
+      ]
+    },
+    "referenceKnowledge": {
+      "_meta": {
+        "file": "16-参考资料知识卡-reference-cards.json",
+        "title": "参考资料知识卡",
+        "description": "第一阶段只保留资料卡结构和少量学习卡。",
+        "version": "1.0.0",
+        "status": "draft"
+      },
+      "rules": [
+        {
+          "id": "reference-card-source-first",
+          "title": "参考资料卡：先看来源再看解释",
+          "category": "reference_card_learning",
+          "trigger": "资料卡被规则命中",
+          "conditions": {
+            "always": true
+          },
+          "logic": "资料卡必须保留来源、命中理由和适用边界，不能脱离来源直接输出判断。",
+          "plainExplanation": "先知道这条知识来自哪里，再看它为什么能用于当前命盘。",
+          "evidence": {
+            "whyMatched": "参考资料卡模块已接入。",
+            "howToLearn": "从 sourceRefs、match、plainExplanation 三处核对。",
+            "uncertaintyFactors": [
+              "来源等级",
+              "摘录完整度",
+              "是否经过人工校勘"
+            ]
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "cui-blind-notes-5000",
+              "note": "资料卡来源占位，待逐条校勘"
+            }
+          ],
+          "outputTemplate": "learning-rule-card-v1",
+          "confidence": "low",
+          "status": "draft"
+        }
+      ],
+      "sources": [],
+      "cards": []
     }
   }
 }

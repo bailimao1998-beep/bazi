@@ -1,0 +1,46 @@
+{
+  "_meta": {
+    "file": "12-输出主题模板-output-templates.json",
+    "title": "输出主题模板",
+    "description": "第一阶段只定义解释卡片结构，所有输出都必须避免绝对化。",
+    "version": "1.0.0",
+    "status": "draft"
+  },
+  "templates": [
+    {
+      "id": "learning-rule-card-v1",
+      "title": "学习型规则卡",
+      "fields": ["命中了什么规则", "为什么命中", "这条规则怎么学", "不确定因素", "禁止绝对化"]
+    }
+  ],
+  "rules": [
+    {
+      "id": "output-template-learning-card",
+      "title": "输出模板：学习型规则卡",
+      "category": "output_template_learning",
+      "trigger": "存在学习规则命中",
+      "conditions": {
+        "always": true
+      },
+      "logic": "学习型规则卡只展示命中依据、学习路径和不确定因素，不生成事件断语。",
+      "plainExplanation": "用户看到的是规则如何工作，而不是结论先行的断语。",
+      "evidence": {
+        "whyMatched": "页面需要统一展示学习规则。",
+        "howToLearn": "按五个字段阅读每条规则。",
+        "uncertaintyFactors": ["规则等级", "资料来源", "案例复核状态"]
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "positional-combination-policy",
+          "note": "内部输出策略"
+        }
+      ],
+      "outputTemplate": "learning-rule-card-v1",
+      "confidence": "medium",
+      "status": "draft"
+    }
+  ],
+  "priorityPolicy": {
+    "order": ["active traditional_consensus", "active secondary_source", "derived", "draft", "needs_review"]
+  }
+}

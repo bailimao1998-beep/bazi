@@ -18,7 +18,15 @@ const FILES = {
   combinations: "04-合冲刑害破-combinations.json",
   twelveStages: "05-十二长生-twelve-stages.json",
   systemRules: "06-程序规则-system-rules.json",
+  blindCases: "07-盲派候选-blind-cases.json",
+  strengthModel: "08-力量模型-strength-model.json",
+  patternsUsefulGods: "09-格局用神-patterns-useful-gods.json",
+  blindCoreMethods: "11-盲派核心方法-blind-core-methods.json",
+  outputTemplates: "12-输出主题模板-output-templates.json",
   locations: "13-城市经纬度-locations.json",
+  caseStudies: "14-案例库-case-studies.json",
+  aiPrompts: "15-AI分析模板-ai-prompts.json",
+  referenceKnowledge: "16-参考资料知识卡-reference-cards.json",
   index: "index.json",
 };
 
@@ -97,15 +105,32 @@ const deletedInactiveFiles = [
 ];
 
 const deletedSourceFiles = [
-  "07-盲派候选-blind-cases.json",
-  "08-力量模型-strength-model.json",
-  "09-格局用神-patterns-useful-gods.json",
   "10-神煞-stars-spirits.json",
-  "11-盲派核心方法-blind-core-methods.json",
-  "12-输出主题模板-output-templates.json",
-  "14-案例库-case-studies.json",
-  "15-AI分析模板-ai-prompts.json",
-  "16-参考资料知识卡-reference-cards.json",
+];
+
+const learningRuleFiles = [
+  FILES.blindCases,
+  FILES.strengthModel,
+  FILES.patternsUsefulGods,
+  FILES.blindCoreMethods,
+  FILES.outputTemplates,
+  FILES.caseStudies,
+  FILES.aiPrompts,
+  FILES.referenceKnowledge,
+];
+const learningRuleFields = [
+  "id",
+  "title",
+  "category",
+  "trigger",
+  "conditions",
+  "logic",
+  "plainExplanation",
+  "evidence",
+  "sourceRefs",
+  "outputTemplate",
+  "confidence",
+  "status",
 ];
 
 async function exists(filePath) {
@@ -221,6 +246,42 @@ function validateSourceIds(fileName, data, sourceIds, errors) {
   }
 }
 
+function validateLearningRules(fileName, data, sourceIds, errors) {
+  const rules = data?.rules;
+  if (!Array.isArray(rules) || rules.length === 0) {
+    fail(errors, `${fileName} missing learning rules[]`);
+    return;
+  }
+  const seen = new Set();
+  for (const rule of rules) {
+    for (const field of learningRuleFields) {
+      if (rule[field] === undefined) fail(errors, `${fileName} rule ${rule.id ?? "(missing id)"} missing ${field}`);
+    }
+    if (seen.has(rule.id)) fail(errors, `${fileName} duplicate learning rule id ${rule.id}`);
+    seen.add(rule.id);
+    if (!rule.conditions || typeof rule.conditions !== "object" || Array.isArray(rule.conditions)) {
+      fail(errors, `${fileName} rule ${rule.id} conditions must be an object`);
+    }
+    if (!rule.evidence || typeof rule.evidence !== "object" || Array.isArray(rule.evidence)) {
+      fail(errors, `${fileName} rule ${rule.id} evidence must be an object`);
+    }
+    if (!Array.isArray(rule.sourceRefs)) {
+      fail(errors, `${fileName} rule ${rule.id} sourceRefs must be an array`);
+    } else {
+      for (const ref of rule.sourceRefs) {
+        if (!ref?.sourceId) fail(errors, `${fileName} rule ${rule.id} sourceRefs item missing sourceId`);
+        if (ref?.sourceId && !sourceIds.has(ref.sourceId)) fail(errors, `${fileName} rule ${rule.id} unknown sourceRef ${ref.sourceId}`);
+      }
+    }
+    if (typeof rule.outputTemplate !== "string" || !rule.outputTemplate) {
+      fail(errors, `${fileName} rule ${rule.id} outputTemplate must be a non-empty string`);
+    }
+    if (JSON.stringify(rule).includes("一定发生")) {
+      fail(errors, `${fileName} rule ${rule.id} uses absolute-event wording`);
+    }
+  }
+}
+
 async function main() {
   const errors = [];
   const jsonFiles = (await fs.readdir(sourceDir))
@@ -264,7 +325,7 @@ async function main() {
     for (const dataset of index?.datasets ?? []) {
       if (!bundleKeys.has(dataset.bundleKey)) fail(errors, `${bundleFile} missing bundle key ${dataset.bundleKey}`);
     }
-    if (Object.keys(bundle.datasets).length !== 8) fail(errors, `${bundleFile} should contain only 8 core datasets`);
+    if (Object.keys(bundle.datasets).length !== 16) fail(errors, `${bundleFile} should contain 16 datasets after restoring learning modules`);
     if (bundle.datasets.systemRules?.rules?.length !== 674) fail(errors, `${bundleFile} systemRules should contain 674 rules`);
     if ((bundle.datasets.locations?.cities?.length ?? 0) < 1000) fail(errors, `${bundleFile} locations should contain full city list`);
   }
@@ -276,6 +337,7 @@ async function main() {
   for (const [fileName, data] of Object.entries(parsed)) {
     if (fileName === FILES.sources || fileName === FILES.index) continue;
     validateSourceIds(fileName, data, sourceIds, errors);
+    if (learningRuleFiles.includes(fileName)) validateLearningRules(fileName, data, sourceIds, errors);
   }
 
   const basics = parsed[FILES.stemsBranches];

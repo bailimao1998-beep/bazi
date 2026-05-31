@@ -389,6 +389,48 @@ test("matches enabled reference knowledge cards against the chart without touchi
   assert.ok(reading.topics.some((topic) => topic.id === "marriage" && topic.evidence.some((item) => item.includes("资料卡：子午冲"))));
 });
 
+test("returns learning rule hits as explainable rules rather than direct predictions", () => {
+  const datasets = {
+    learningKnowledge: {
+      rules: [
+        {
+          id: "learn-month-zi",
+          title: "学习规则：子月先看水气",
+          category: "month_order_learning",
+          trigger: "月支为子",
+          conditions: { monthBranch: "子" },
+          logic: "月令是季节入口，命中子月时先学习水气与寒湿背景，再看日主是否承接。",
+          plainExplanation: "这条规则只说明读盘顺序：先看月令，再看它和日主、五行分布的关系。",
+          evidence: {
+            whyMatched: "当前月支为子。",
+            howToLearn: "从月令、日主、五行强弱三个层次复盘。",
+            uncertaintyFactors: ["日主强弱", "透干组合", "岁运是否触发"],
+          },
+          sourceRefs: [{ sourceId: "seasonal-strength", note: "月令强弱教学来源" }],
+          outputTemplate: "learning-rule-card-v1",
+          confidence: "medium",
+          status: "draft",
+        },
+      ],
+    },
+  };
+
+  const reading = analyzeBirth({
+    date: "2000-01-01",
+    time: "14:30",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  }, datasets);
+
+  assert.equal(reading.natal.learningRuleHits.length, 1);
+  assert.equal(reading.natal.learningRuleHits[0].title, "学习规则：子月先看水气");
+  assert.equal(reading.natal.learningRuleHits[0].whyMatched, "当前月支为子。");
+  assert.match(reading.natal.learningRuleHits[0].howToLearn, /月令/);
+  assert.deepEqual(reading.natal.learningRuleHits[0].uncertaintyFactors, ["日主强弱", "透干组合", "岁运是否触发"]);
+  assert.match(reading.natal.learningRuleHits[0].absoluteWarning, /不允许说/);
+  assert.doesNotMatch(JSON.stringify(reading.natal.learningRuleHits), /一定发生/);
+});
+
 test("shows day stem as day master but keeps same stems in other pillars as ten gods", () => {
   const reading = analyzeBirth({
     date: "2000-01-01",

@@ -21,6 +21,7 @@
           ${renderQuickReadStep("05", "干支关系", buildRelationReading(display))}
         </div>
       </section>
+      ${renderLearningRuleHits(state)}
       ${renderFieldGuide()}
     `;
   }
@@ -63,6 +64,33 @@
           <strong>${escapeHtml(title)}</strong>
           <p>${escapeHtml(text)}</p>
         </div>
+      </article>
+    `;
+  }
+
+  function renderLearningRuleHits(state) {
+    const hits = state.reading?.natal?.learningRuleHits ?? [];
+    if (!hits.length) return "";
+    return `
+      <section class="analysis-block quick-read-guide">
+        <h3>学习型规则命中</h3>
+        <div class="field-guide-grid">
+          ${hits.slice(0, 4).map(renderLearningRuleCard).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderLearningRuleCard(hit) {
+    const uncertainty = (hit.uncertaintyFactors ?? []).join("、") || "资料等级、案例复核、岁运触发";
+    return `
+      <article>
+        <strong>${escapeHtml(hit.title)}</strong>
+        <p><b>命中了什么规则</b>：${escapeHtml(hit.trigger ?? hit.category)}</p>
+        <p><b>为什么命中</b>：${escapeHtml(hit.whyMatched)}</p>
+        <p><b>这条规则怎么学</b>：${escapeHtml(hit.howToLearn ?? hit.plainExplanation)}</p>
+        <p><b>不确定因素</b>：${escapeHtml(uncertainty)}</p>
+        <p><b>不允许说“一定发生”</b>：${escapeHtml(hit.absoluteWarning ?? "只能作为学习线索。")}</p>
       </article>
     `;
   }

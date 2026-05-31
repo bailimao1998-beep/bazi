@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "file": "14-案例库-case-studies.json",
+    "title": "案例库",
+    "description": "第一阶段只保留案例复盘结构，不填充批量案例。",
+    "version": "1.0.0",
+    "status": "draft"
+  },
+  "rules": [
+    {
+      "id": "case-study-compare-structure",
+      "title": "案例库：只比较结构相似",
+      "category": "case_study_learning",
+      "trigger": "存在可比较的标签或证据",
+      "conditions": {
+        "always": true
+      },
+      "logic": "案例库用于学习相似结构如何被复盘，不用单个案例反推出个人结论。",
+      "plainExplanation": "案例只能说明某种结构曾怎样被分析，不能替代当前命盘的完整判断。",
+      "evidence": {
+        "whyMatched": "当前系统有结构化证据，可作为案例标签入口。",
+        "howToLearn": "比较标签、关系、十神和岁运层次，不比较单一事件。",
+        "uncertaintyFactors": ["案例数量", "出生时间可靠性", "事件记录完整度"]
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "case-study-internal-policy",
+          "note": "内部案例复盘规范"
+        }
+      ],
+      "outputTemplate": "learning-rule-card-v1",
+      "confidence": "low",
+      "status": "draft"
+    }
+  ],
+  "cases": []
+}

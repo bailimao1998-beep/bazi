@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "file": "16-参考资料知识卡-reference-cards.json",
+    "title": "参考资料知识卡",
+    "description": "第一阶段只保留资料卡结构和少量学习卡。",
+    "version": "1.0.0",
+    "status": "draft"
+  },
+  "rules": [
+    {
+      "id": "reference-card-source-first",
+      "title": "参考资料卡：先看来源再看解释",
+      "category": "reference_card_learning",
+      "trigger": "资料卡被规则命中",
+      "conditions": {
+        "always": true
+      },
+      "logic": "资料卡必须保留来源、命中理由和适用边界，不能脱离来源直接输出判断。",
+      "plainExplanation": "先知道这条知识来自哪里，再看它为什么能用于当前命盘。",
+      "evidence": {
+        "whyMatched": "参考资料卡模块已接入。",
+        "howToLearn": "从 sourceRefs、match、plainExplanation 三处核对。",
+        "uncertaintyFactors": ["来源等级", "摘录完整度", "是否经过人工校勘"]
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "cui-blind-notes-5000",
+          "note": "资料卡来源占位，待逐条校勘"
+        }
+      ],
+      "outputTemplate": "learning-rule-card-v1",
+      "confidence": "low",
+      "status": "draft"
+    }
+  ],
+  "sources": [],
+  "cards": []
+}

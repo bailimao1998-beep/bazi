@@ -38,10 +38,15 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   assert.match(el.overall.innerHTML, /金气纯而当令/);
   assert.match(el.overall.innerHTML, /明面最明显/);
   assert.match(el.overall.innerHTML, /这不是断语/);
+  assert.match(el.overall.innerHTML, /学习型规则命中/);
+  assert.match(el.overall.innerHTML, /命中了什么规则/);
+  assert.match(el.overall.innerHTML, /为什么命中/);
+  assert.match(el.overall.innerHTML, /这条规则怎么学/);
+  assert.match(el.overall.innerHTML, /不确定因素/);
+  assert.match(el.overall.innerHTML, /不允许说/);
   assert.doesNotMatch(el.overall.innerHTML, /大运流年判断/);
   assert.doesNotMatch(el.overall.innerHTML, /大运己酉作为十年环境/);
   assert.doesNotMatch(el.overall.innerHTML, /证据链/);
-  assert.doesNotMatch(el.overall.innerHTML, /规则命中/);
   assert.match(el.timeline.innerHTML, /十年环境/);
   assert.match(el.timeline.innerHTML, /大运己酉作为十年环境/);
   assert.match(el.timeline.innerHTML, /流年丙午触发事业/);
@@ -203,6 +208,21 @@ function buildState() {
         combinations: [],
         matchedRules: [],
         referenceKnowledgeHits: [],
+        learningRuleHits: [
+          {
+            id: "learn-test",
+            title: "学习规则：酉月先看金气",
+            category: "month_order_learning",
+            trigger: "月支为酉",
+            whyMatched: "当前月支为酉，且明面金出现较多。",
+            howToLearn: "先学月令，再看日主和五行分布。",
+            plainExplanation: "这里只解释读盘顺序，不给事件断语。",
+            uncertaintyFactors: ["日主强弱", "透干组合"],
+            absoluteWarning: "不允许说必然发生，只能说这是学习提示。",
+            confidence: "medium",
+            status: "draft",
+          },
+        ],
         pairInteractions: [],
         starSignals: [],
         datasetCoverage: [],

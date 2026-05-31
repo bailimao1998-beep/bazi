@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "file": "15-AI分析模板-ai-prompts.json",
+    "title": "AI分析模板",
+    "description": "第一阶段只约束 AI 使用规则解释，不生成强断语。",
+    "version": "1.0.0",
+    "status": "draft"
+  },
+  "rules": [
+    {
+      "id": "ai-prompt-learning-boundary",
+      "title": "AI模板：先解释规则再输出",
+      "category": "ai_prompt_learning",
+      "trigger": "离线 AI 获取命盘摘要",
+      "conditions": {
+        "always": true
+      },
+      "logic": "AI 必须先列出规则来源、命中原因和不确定因素，再给出学习型总结。",
+      "plainExplanation": "AI 的任务是帮用户学习规则链路，不是替用户下断语。",
+      "evidence": {
+        "whyMatched": "离线 AI 模块已存在，需要规则边界。",
+        "howToLearn": "按规则、证据、不确定因素、复核建议四段输出。",
+        "uncertaintyFactors": ["本地资料覆盖", "模型表达偏差", "用户输入准确性"]
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "offline-ai-internal-policy",
+          "note": "内部 AI 输出边界"
+        }
+      ],
+      "outputTemplate": "learning-rule-card-v1",
+      "confidence": "medium",
+      "status": "draft"
+    }
+  ],
+  "prompts": [
+    {
+      "id": "learning-explanation-v1",
+      "title": "学习型解释提示词",
+      "instruction": "先列规则命中和不确定因素，再输出学习总结；不要使用绝对化事件判断。"
+    }
+  ]
+}

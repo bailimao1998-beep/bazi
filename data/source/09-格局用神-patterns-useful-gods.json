@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "file": "09-格局用神-patterns-useful-gods.json",
+    "title": "格局用神学习规则",
+    "description": "第一阶段只保留格局和用神的学习入口，不定格、不定喜忌。",
+    "version": "1.0.0",
+    "status": "draft"
+  },
+  "rules": [
+    {
+      "id": "pattern-useful-god-candidate-only",
+      "title": "格局用神：候选不等于定论",
+      "category": "pattern_learning",
+      "trigger": "出现格局候选或月令十神线索",
+      "conditions": {
+        "always": true
+      },
+      "logic": "格局和用神需要月令、透干、清浊、强弱、调候共同确认，第一阶段只展示候选学习路径。",
+      "plainExplanation": "看到候选格局时，先学习它为什么被列入候选，再列出还缺哪些证据。",
+      "evidence": {
+        "whyMatched": "命盘已完成月令和十神基础排盘，可进入候选学习。",
+        "howToLearn": "按月令取格、透干成格、强弱取舍、调候通关四步核对。",
+        "uncertaintyFactors": ["透干是否有力", "格局是否清纯", "调候是否优先"]
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "pattern-geju-howzan",
+          "note": "格局分类参考"
+        }
+      ],
+      "outputTemplate": "learning-rule-card-v1",
+      "confidence": "low",
+      "status": "draft"
+    }
+  ],
+  "normalPatterns": []
+}

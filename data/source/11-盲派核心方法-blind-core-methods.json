@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "file": "11-盲派核心方法-blind-core-methods.json",
+    "title": "盲派核心方法学习规则",
+    "description": "第一阶段只记录方法步骤，避免输出强断语。",
+    "version": "1.0.0",
+    "status": "draft"
+  },
+  "rules": [
+    {
+      "id": "blind-method-position-then-relation",
+      "title": "盲派方法：先柱位后关系",
+      "category": "blind_method_learning",
+      "trigger": "命盘四柱已完成",
+      "conditions": {
+        "always": true
+      },
+      "logic": "先确认年、月、日、时各自代表的观察层，再把干支关系放回柱位语境中学习。",
+      "plainExplanation": "同一个关系落在不同柱位，学习重点不同，所以先定位再解释。",
+      "evidence": {
+        "whyMatched": "四柱均已生成，可进入柱位学习。",
+        "howToLearn": "先写柱位，再写关系，再写十神，最后写不确定因素。",
+        "uncertaintyFactors": ["柱位取象差异", "男女命语境", "案例样本不足"]
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "blind-bazitalk-11381",
+          "note": "盲派候选方法论"
+        }
+      ],
+      "outputTemplate": "learning-rule-card-v1",
+      "confidence": "low",
+      "status": "draft"
+    }
+  ]
+}

@@ -5,6 +5,7 @@
     renderBirthSettings,
     renderCaseShowcase,
     renderCoreChart,
+    renderLearningInterpretation,
     renderOverallJudgement,
     renderTopicReport,
     renderTransitLuck,
@@ -40,6 +41,7 @@
     birth: document.querySelector("#birthInputPlugin"),
     chart: document.querySelector("#baziChartPlugin"),
     overall: document.querySelector("#overallReadingPlugin"),
+    learning: document.querySelector("#learningInterpretationPlugin"),
     timeline: document.querySelector("#transitTimelinePlugin"),
     topics: document.querySelector("#topicReadingPlugin"),
     offlineAi: document.querySelector("#offlineAiPlugin"),
@@ -103,6 +105,7 @@
     renderBirthSettings(context);
     renderCoreChart(context);
     renderOverallJudgement(context);
+    renderLearningInterpretation(context);
     renderTransitLuck(context);
     renderTopicReport(context);
     renderAiAnalysis(context);

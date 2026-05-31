@@ -90,7 +90,7 @@
         <p><b>为什么命中</b>：${escapeHtml(hit.whyMatched)}</p>
         <p><b>这条规则怎么学</b>：${escapeHtml(hit.howToLearn ?? hit.plainExplanation)}</p>
         <p><b>不确定因素</b>：${escapeHtml(uncertainty)}</p>
-        <p><b>不允许说“一定发生”</b>：${escapeHtml(hit.absoluteWarning ?? "只能作为学习线索。")}</p>
+        <p><b>不允许说成结论</b>：${escapeHtml(hit.absoluteWarning ?? "只能作为学习线索。")}</p>
       </article>
     `;
   }
@@ -237,7 +237,7 @@
     return `
       <section class="analysis-block overall-report-section">
         <h3>大致人生主题</h3>
-        <p class="reading-lead">这一段只做大方向判断，先看性格底色、事业财运和关系中的反复主题，不把单一规则当成绝对结论。</p>
+        <p class="reading-lead">这一段只做大方向判断，先看性格底色、事业财运和关系中的反复主题，不把单一规则当成固定结论。</p>
         <div class="signal-list compact">
           ${visible.map(renderPlainPoint).join("")}
         </div>

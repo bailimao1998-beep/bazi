@@ -1480,7 +1480,7 @@ function buildJudgementDomains({ evidence, topics }) {
 }
 
 function buildDomainAdvice(topic, primary) {
-  if (!primary) return `${topic.label}暂无强证据时，不做绝对断语，等待岁运或案例证据补强。`;
+  if (!primary) return `${topic.label}暂无强证据时，不做固定断语，等待岁运或案例证据补强。`;
   if (primary.status !== "active") return `${topic.label}当前以候选证据为主，适合提示方向，不宜直接定论。`;
   return `${topic.label}已有可用证据，先看触发到哪个柱位、十神和现实场景。`;
 }
@@ -1666,7 +1666,7 @@ function normalizeLearningRuleHit(rule, context) {
     outputTemplate: rule.outputTemplate,
     confidence: rule.confidence ?? "low",
     status: rule.status ?? "draft",
-    absoluteWarning: "不允许说必然发生；这条规则只能作为学习线索。",
+    absoluteWarning: "不允许说成结论；这条规则只能作为学习线索。",
   };
 }
 

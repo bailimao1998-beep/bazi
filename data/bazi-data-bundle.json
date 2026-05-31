@@ -4,7 +4,7 @@
     "title": "八字数据整合包",
     "purpose": "single_runtime_bundle",
     "description": "页面和本地 AI 优先读取这个整合包；data/source/ 保留可维护的分模块源数据。",
-    "generatedAt": "2026-05-31T10:24:11.791Z",
+    "generatedAt": "2026-05-31T11:18:20.785Z",
     "sourceDirectory": "source/",
     "datasetCount": 16
   },

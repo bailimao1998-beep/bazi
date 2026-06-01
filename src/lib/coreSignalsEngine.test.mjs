@@ -117,6 +117,20 @@ test("accepts natal and explicit basic display without requiring the full readin
   assert.ok(coreSignals.relationSignals.length > 0);
 });
 
+test("coreSignals exposes the acceptance JSON contract", () => {
+  const coreSignals = buildCoreSignals(makeReading(), loadBundleDatasets());
+
+  assert.ok(coreSignals, "coreSignals should exist");
+  assert.deepEqual(Object.keys(coreSignals.tenGodSignals.groups), ["resource", "output", "wealth", "authority", "peer"]);
+  assert.ok(Array.isArray(coreSignals.elementSignals.strong));
+  assert.ok(Array.isArray(coreSignals.elementSignals.weak));
+  assert.ok(Array.isArray(coreSignals.elementSignals.missingVisible));
+  assert.ok(coreSignals.relationSignals.length <= 5);
+  assert.ok(Array.isArray(coreSignals.topicTags));
+  assert.ok(Array.isArray(coreSignals.cautions));
+  assertAllSignalsHaveMeta(coreSignals);
+});
+
 test("all data-driven core signal rules expose the required schema", async () => {
   for (const file of signalRuleFiles) {
     const data = JSON.parse(await fs.readFile(path.join(repoRoot, "data/source", file), "utf8"));

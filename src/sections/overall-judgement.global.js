@@ -13,6 +13,7 @@
           </div>
         </div>
         ${renderCompactCoreReport(report, state)}
+        ${renderCoreSignalsDebug(state)}
       </div>
     `;
   }
@@ -789,8 +790,71 @@
     `;
   }
 
+  function renderCoreSignalsDebug(state) {
+    const coreSignals = getCoreSignals(state);
+    if (!coreSignals) return "";
+    const validation = validateCoreSignals(coreSignals);
+    return `
+      <details class="core-signals-debug" data-core-signals-valid="${validation.valid ? "true" : "false"}">
+        <summary>核心取象 JSON 调试区</summary>
+        ${validation.valid ? "" : `<p class="debug-warning">${safe(validation.issues.join("；"))}</p>`}
+        <pre>${safe(JSON.stringify(coreSignals, null, 2))}</pre>
+      </details>
+    `;
+  }
+
+  function getCoreSignals(state) {
+    const reading = state.reading;
+    if (!reading) return null;
+    if (reading.coreSignals) return reading.coreSignals;
+    const builder = window.BaziCoreSignals?.buildCoreSignals;
+    if (!builder) return null;
+    const coreSignals = builder(reading, state.datasets ?? {});
+    reading.coreSignals = coreSignals;
+    return coreSignals;
+  }
+
+  function validateCoreSignals(coreSignals) {
+    const issues = [];
+    const required = ["dayMaster", "monthCommand", "elementSignals", "tenGodSignals", "relationSignals", "palaceSignals", "topicTags", "transitHooks", "cautions"];
+    for (const key of required) {
+      if (coreSignals[key] === undefined) issues.push(`缺少 ${key}`);
+    }
+    const signals = collectSignalObjects(coreSignals);
+    for (const [index, signal] of signals.entries()) {
+      if (!Array.isArray(signal.evidence) || signal.evidence.length === 0) issues.push(`signal ${index} 缺少 evidence`);
+      if (!signal.confidence) issues.push(`signal ${index} 缺少 confidence`);
+      if (!Array.isArray(signal.needVerify) || signal.needVerify.length === 0) issues.push(`signal ${index} 缺少 needVerify`);
+    }
+    return { valid: issues.length === 0, issues };
+  }
+
+  function collectSignalObjects(coreSignals) {
+    return [
+      coreSignals.dayMaster,
+      coreSignals.monthCommand,
+      coreSignals.elementSignals,
+      ...asArray(coreSignals.elementSignals?.strong),
+      ...asArray(coreSignals.elementSignals?.weak),
+      ...asArray(coreSignals.elementSignals?.missingVisible),
+      coreSignals.tenGodSignals,
+      ...asArray(coreSignals.tenGodSignals?.strong),
+      ...asArray(coreSignals.tenGodSignals?.weak),
+      ...Object.values(coreSignals.tenGodSignals?.groups ?? {}),
+      ...asArray(coreSignals.relationSignals),
+      ...asArray(coreSignals.palaceSignals),
+      ...asArray(coreSignals.topicTags),
+      ...asArray(coreSignals.transitHooks),
+      ...asArray(coreSignals.cautions),
+    ].filter(Boolean);
+  }
+
   function safe(value) {
     return escapeHtml(value ?? "");
+  }
+
+  function asArray(value) {
+    return Array.isArray(value) ? value : [];
   }
 
   window.BaziSections = window.BaziSections ?? {};

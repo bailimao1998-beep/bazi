@@ -212,6 +212,37 @@ h3 {
   color: var(--ink);
 }
 
+.core-signals-debug {
+  padding: 12px 14px;
+  border: 1px dashed rgba(47, 111, 115, 0.34);
+  border-radius: 8px;
+  background: rgba(232, 241, 238, 0.45);
+}
+
+.core-signals-debug summary {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.core-signals-debug pre {
+  max-height: 360px;
+  margin: 12px 0 0;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #2b2925;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.debug-warning {
+  margin: 10px 0 0;
+  color: var(--warning);
+  font-size: 13px;
+}
+
 .core-relation-list {
   display: grid;
   gap: 10px;

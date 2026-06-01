@@ -7,6 +7,7 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   const context = buildContext();
   vm.createContext(context);
   for (const file of [
+    "../lib/coreSignalsEngine.global.js",
     "../lib/coreReadingReportEngine.global.js",
     "./overall-judgement.global.js",
     "./transit-luck.global.js",
@@ -30,6 +31,11 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   context.window.BaziSections.renderCaseShowcase({ state, el });
 
   assert.match(el.overall.innerHTML, /核心解读报告/);
+  assert.match(el.overall.innerHTML, /核心取象 JSON 调试区/);
+  assert.match(el.overall.innerHTML, /core-signals-debug/);
+  assert.match(el.overall.innerHTML, /&quot;dayMaster&quot;/);
+  assert.match(el.overall.innerHTML, /&quot;tenGodSignals&quot;/);
+  assert.doesNotMatch(el.overall.innerHTML, /<details class="core-signals-debug" open>/);
   assert.match(el.overall.innerHTML, /core-report-shell/);
   assert.match(el.overall.innerHTML, /core-report-grid/);
   assert.match(el.overall.innerHTML, /整体画像/);

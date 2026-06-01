@@ -30,12 +30,16 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   context.window.BaziSections.renderTopicReport({ state, el });
   context.window.BaziSections.renderCaseShowcase({ state, el });
 
-  assert.match(el.overall.innerHTML, /核心解读报告/);
+  assert.match(el.overall.innerHTML, /本地取象摘要/);
+  assert.match(el.overall.innerHTML, /已提取日主、月令、五行信号、十神信号、关系信号、主题标签、岁运触发点/);
   assert.match(el.overall.innerHTML, /核心取象 JSON 调试区/);
   assert.match(el.overall.innerHTML, /core-signals-debug/);
   assert.match(el.overall.innerHTML, /&quot;dayMaster&quot;/);
   assert.match(el.overall.innerHTML, /&quot;tenGodSignals&quot;/);
   assert.doesNotMatch(el.overall.innerHTML, /<details class="core-signals-debug" open>/);
+  assert.match(el.overall.innerHTML, /旧版报告\/学习报告/);
+  assert.match(el.overall.innerHTML, /<details class="legacy-report-debug">/);
+  assert.doesNotMatch(el.overall.innerHTML, /<details class="legacy-report-debug" open>/);
   assert.match(el.overall.innerHTML, /core-report-shell/);
   assert.match(el.overall.innerHTML, /core-report-grid/);
   assert.match(el.overall.innerHTML, /整体画像/);
@@ -135,7 +139,7 @@ test("renders judgement overview, transit layers, domains, and case signals", as
     ].map((text) => el.overall.innerHTML.indexOf(text)).every((position, index, positions) => position >= 0 && (index === 0 || position > positions[index - 1])),
     true,
   );
-  assert.equal(countOccurrences(el.overall.innerHTML, "<h3>"), 8);
+  assert.equal(countOccurrences(el.overall.innerHTML, "<h3>"), 9);
   assert.doesNotMatch(el.overall.innerHTML, /学习型规则命中/);
   assert.doesNotMatch(el.overall.innerHTML, /大运流年判断/);
   assert.match(el.timeline.innerHTML, /岁运只作为触发层学习，需要先回到原局看主题/);
@@ -153,41 +157,49 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   assert.match(el.cases.innerHTML, /命中 2026 年事件：岗位变化/);
 });
 
-test("uses natural 印星 wording in the core reading report", async () => {
+test("renders AI explanation input from coreSignals only", async () => {
   const context = buildContext();
   vm.createContext(context);
-  for (const file of ["../lib/coreReadingReportEngine.global.js", "./overall-judgement.global.js"]) {
+  for (const file of ["../lib/coreSignalsEngine.global.js", "./ai-analysis.global.js"]) {
     vm.runInContext(await fs.readFile(new URL(file, import.meta.url), "utf8"), context);
   }
 
-  const el = { overall: buildElement() };
+  const el = { offlineAi: buildElement() };
   const state = buildState();
-  state.reading.natal.basicBaziDisplay.tenGods.stats.fullHidden = { 正印: 4, 比肩: 1, 正财: 1 };
 
-  context.window.BaziSections.renderOverallJudgement({ state, el });
+  context.window.BaziSections.renderAiAnalysis({ state, el });
 
-  assert.match(el.overall.innerHTML, /当前十神中，印星较突出/);
-  assert.match(el.overall.innerHTML, /正印出现在年柱和时柱/);
-  assert.match(el.overall.innerHTML, /早期环境与后期发展都可能带来资源线索/);
-  assert.match(el.overall.innerHTML, /学习、资源、长辈支持、证书、保护系统/);
-  assert.match(el.overall.innerHTML, /学习、证书、长辈支持和平台资源/);
-  assert.match(el.overall.innerHTML, /整体画像/);
-  assert.match(el.overall.innerHTML, /学习与资源/);
-  assert.doesNotMatch(el.overall.innerHTML, /印象/);
-  assert.doesNotMatch(el.overall.innerHTML, /十神分组显示/);
-  assert.doesNotMatch(el.overall.innerHTML, /观察入口/);
-  assert.doesNotMatch(el.overall.innerHTML, /不直接等同现实事件/);
+  assert.match(el.offlineAi.innerHTML, /AI 解读报告/);
+  assert.match(el.offlineAi.innerHTML, /生成简版解读/);
+  assert.match(el.offlineAi.innerHTML, /生成详细解读/);
+  assert.match(el.offlineAi.innerHTML, /生成直播口播稿/);
+  assert.match(el.offlineAi.innerHTML, /aiExplanationInput/);
+  assert.match(el.offlineAi.innerHTML, /整体画像/);
+  assert.match(el.offlineAi.innerHTML, /需要大运流年验证的地方/);
+  assert.ok(state.aiExplanationInput, "aiExplanationInput should be stored on state");
+  assert.deepEqual(Object.keys(state.aiExplanationInput.coreSignals), [
+    "dayMaster",
+    "monthCommand",
+    "elementSignals",
+    "tenGodSignals",
+    "relationSignals",
+    "palaceSignals",
+    "topicTags",
+    "transitHooks",
+    "cautions",
+  ]);
+  assert.doesNotMatch(JSON.stringify(state.aiExplanationInput), /basicBaziDisplay|pairInteractions|combinations|matchedRules/);
 });
 
-test("styles the core reading report as a centered card report", async () => {
+test("styles local signal summary, debug JSON, and folded legacy report", async () => {
   const css = await fs.readFile(new URL("../styles.css", import.meta.url), "utf8");
 
   assert.match(css, /#overallReadingPlugin\s*{[^}]*max-width:\s*1000px/s);
   assert.match(css, /#overallReadingPlugin\s*{[^}]*margin-left:\s*auto/s);
   assert.match(css, /#overallReadingPlugin\s*{[^}]*margin-right:\s*auto/s);
-  assert.match(css, /\.core-report-header\s*{[^}]*justify-content:\s*flex-start/s);
-  assert.match(css, /\.core-report-grid\s*{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/s);
-  assert.match(css, /\.core-report-card\s*{[^}]*border:\s*1px solid/s);
+  assert.match(css, /\.local-signals-summary\s*{[^}]*border:\s*1px solid/s);
+  assert.match(css, /\.core-signals-debug\s*{[^}]*border:\s*1px dashed/s);
+  assert.match(css, /\.legacy-report-debug\s*{[^}]*border:\s*1px solid/s);
 });
 
 test("renders detailed learning cards as secondary collapsed content", async () => {
@@ -221,7 +233,7 @@ test("renders detailed learning cards as secondary collapsed content", async () 
   context.window.BaziSections.renderLearningInterpretation({ state: buildState(), el });
 
   assert.match(el.learning.innerHTML, /详细规则卡片/);
-  assert.match(el.learning.innerHTML, /这里是规则明细，适合复盘学习。主线判断请以上方核心解读报告为准。/);
+  assert.match(el.learning.innerHTML, /这里是规则明细，适合复盘学习。主线请以上方基础排盘和本地取象摘要为准。/);
   assert.match(el.learning.innerHTML, /展开详细规则卡片/);
   assert.match(el.learning.innerHTML, /data-learning-details/);
   assert.doesNotMatch(el.learning.innerHTML, /data-learning-details open/);

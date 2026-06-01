@@ -1,20 +1,57 @@
 (function () {
   const { escapeHtml } = window.BaziShared;
-  const { buildCoreReadingReport } = window.BaziCoreReadingReportEngine;
+  const buildCoreReadingReport = window.BaziCoreReadingReportEngine?.buildCoreReadingReport;
 
   function renderOverallJudgement({ state, el }) {
-    const report = buildCoreReadingReport({ reading: state.reading, state });
+    const coreSignals = getCoreSignals(state);
+    const report = buildCoreReadingReport ? buildCoreReadingReport({ reading: state.reading, state }) : null;
     el.overall.innerHTML = `
       <div class="core-report-shell">
         <div class="plugin-header core-report-header">
           <div>
-            <p class="eyebrow">结构报告</p>
-            <h2 id="overall-title">核心解读报告</h2>
+            <p class="eyebrow">本地取象</p>
+            <h2 id="overall-title">本地取象摘要</h2>
           </div>
         </div>
-        ${renderCompactCoreReport(report, state)}
-        ${renderCoreSignalsDebug(state)}
+        ${renderLocalSignalsSummary(coreSignals)}
+        ${renderCoreSignalsDebug(coreSignals)}
+        ${renderLegacyReport(report, state)}
       </div>
+    `;
+  }
+
+  function renderLocalSignalsSummary(coreSignals) {
+    if (!coreSignals) {
+      return `
+        <section class="local-signals-summary">
+          <h3>本地取象摘要</h3>
+          <p>coreSignals 暂未生成，请先确认基础排盘数据。</p>
+        </section>
+      `;
+    }
+    const counts = [
+      `五行 ${asArray(coreSignals.elementSignals?.strong).length + asArray(coreSignals.elementSignals?.weak).length}`,
+      `十神 ${asArray(coreSignals.tenGodSignals?.strong).length}`,
+      `关系 ${asArray(coreSignals.relationSignals).length}`,
+      `标签 ${asArray(coreSignals.topicTags).length}`,
+      `触发点 ${asArray(coreSignals.transitHooks).length}`,
+    ];
+    return `
+      <section class="local-signals-summary">
+        <h3>本地取象摘要</h3>
+        <p>已提取日主、月令、五行信号、十神信号、关系信号、主题标签、岁运触发点。</p>
+        <div class="local-signal-chip-row">${counts.map((item) => `<span>${safe(item)}</span>`).join("")}</div>
+      </section>
+    `;
+  }
+
+  function renderLegacyReport(report, state) {
+    if (!report) return "";
+    return `
+      <details class="legacy-report-debug">
+        <summary>旧版报告/学习报告</summary>
+        ${renderCompactCoreReport(report, state)}
+      </details>
     `;
   }
 
@@ -790,8 +827,7 @@
     `;
   }
 
-  function renderCoreSignalsDebug(state) {
-    const coreSignals = getCoreSignals(state);
+  function renderCoreSignalsDebug(coreSignals) {
     if (!coreSignals) return "";
     const validation = validateCoreSignals(coreSignals);
     return `

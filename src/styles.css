@@ -212,6 +212,41 @@ h3 {
   color: var(--ink);
 }
 
+.local-signals-summary {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdf8;
+}
+
+.local-signals-summary h3 {
+  margin: 0 0 8px;
+  color: var(--ink);
+}
+
+.local-signals-summary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.local-signal-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.local-signal-chip-row span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: var(--soft);
+  color: #1f5558;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .core-signals-debug {
   padding: 12px 14px;
   border: 1px dashed rgba(47, 111, 115, 0.34);
@@ -241,6 +276,25 @@ h3 {
   margin: 10px 0 0;
   color: var(--warning);
   font-size: 13px;
+}
+
+.legacy-report-debug {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.72);
+}
+
+.legacy-report-debug summary,
+.ai-input-debug summary {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.legacy-report-debug .core-report-grid {
+  margin-top: 12px;
 }
 
 .core-relation-list {
@@ -1751,6 +1805,53 @@ h3 {
 .ai-control button:disabled {
   cursor: wait;
   opacity: 0.72;
+}
+
+.ai-mode-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ai-mode-row button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  background: var(--accent);
+  font-weight: 800;
+}
+
+.ai-target-structure {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ai-target-structure h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.ai-input-debug {
+  padding: 12px 14px;
+  border: 1px dashed rgba(47, 111, 115, 0.34);
+  border-radius: 8px;
+  background: rgba(232, 241, 238, 0.45);
+}
+
+.ai-input-debug pre {
+  max-height: 320px;
+  margin: 12px 0 0;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #2b2925;
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 .ai-output {

@@ -1,80 +1,79 @@
 (function () {
-  const { escapeHtml, renderMarkdownLite } = window.BaziShared;
+  const { escapeHtml } = window.BaziShared;
+
+  const TARGET_SECTIONS = [
+    "整体画像",
+    "性格与思维",
+    "学习资源与事业方向",
+    "财富与现实模式",
+    "感情人际与合作",
+    "优势与短板",
+    "需要大运流年验证的地方",
+  ];
 
   function renderAiAnalysis({ state, el }) {
-    const result = state.aiResult;
+    const aiExplanationInput = buildAiExplanationInput(state);
+    state.aiExplanationInput = aiExplanationInput;
     el.offlineAi.innerHTML = `
       <div class="plugin-header">
-        <p class="eyebrow">AI 分析 · 实验功能</p>
-        <h2 id="offline-ai-title">离线 AI 分析 <span class="badge muted">Beta</span></h2>
+        <p class="eyebrow">AI 解读</p>
+        <h2 id="offline-ai-title">AI 解读报告 <span class="badge muted">待生成</span></h2>
       </div>
-      <p class="quick-read-lead">该模块用于辅助学习，当前不作为主报告内容。</p>
-      <p class="quick-read-lead">离线 AI 是可选功能，本周 Beta 版建议先使用基础排盘、核心解读报告和大运流年。</p>
-      <div class="offline-ai-layout">
-        <section class="ai-control">
-          <label>
-            <span>Ollama 模型</span>
-            <input type="text" id="aiModelInput" value="${escapeHtml(state.aiModel)}" placeholder="qwen2.5:7b" />
-          </label>
-          <button id="runOfflineAi" type="button" ${state.aiLoading ? "disabled" : ""}>
-            ${state.aiLoading ? "分析中..." : "生成离线分析"}
-          </button>
-          <p class="fine-print">完全离线：页面只请求本机服务 <code>/api/offline-analysis</code>，由本机 Ollama 生成，不上传出生信息。</p>
-          ${
-            state.aiError
-              ? `<article class="signal"><strong>本地模型未就绪</strong><p>${escapeHtml(state.aiError)}</p><small>先运行：ollama run ${escapeHtml(state.aiModel)}</small></article>`
-              : ""
-          }
-        </section>
-        <section class="ai-output">
-          ${
-            result?.analysis
-              ? `<article class="ai-report">${renderMarkdownLite(result.analysis)}</article>`
-              : `<article class="signal"><strong>等待生成</strong><p>点击按钮后，会把当前命盘结构、本地规则命中和相似案例送入本机模型。</p></article>`
-          }
-        </section>
+      <p class="quick-read-lead">本地只负责取象；AI 解读区负责把 coreSignals 组织成可读报告。当前先生成输入 JSON，不调用模型。</p>
+      <div class="ai-mode-row">
+        <button type="button" data-ai-mode="brief">生成简版解读</button>
+        <button type="button" data-ai-mode="detailed">生成详细解读</button>
+        <button type="button" data-ai-mode="live-script">生成直播口播稿</button>
       </div>
+      <section class="ai-target-structure">
+        <h3>目标结构</h3>
+        <div class="tag-row">${TARGET_SECTIONS.map((item) => `<span>${safe(item)}</span>`).join("")}</div>
+      </section>
+      <details class="ai-input-debug">
+        <summary>aiExplanationInput JSON</summary>
+        <pre>${safe(JSON.stringify(aiExplanationInput, null, 2))}</pre>
+      </details>
     `;
-    el.offlineAi.querySelector("#runOfflineAi").addEventListener("click", () => runOfflineAi({ state, el }));
-    el.offlineAi.querySelector("#aiModelInput").addEventListener("change", (event) => {
-      state.aiModel = event.currentTarget.value.trim() || "qwen2.5:7b";
-    });
   }
 
-  async function runOfflineAi({ state, el }) {
-    state.aiLoading = true;
-    state.aiError = "";
-    state.aiResult = null;
-    renderAiAnalysis({ state, el });
-    try {
-      const response = await fetch("/api/offline-analysis", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          model: state.aiModel,
-          birth: {
-            date: state.date,
-            time: state.time,
-            gender: state.gender,
-            birthplace: state.birthplace,
-            trueSolarTime: state.trueSolarTime,
-            selectedYear: state.selectedYear,
-            selectedMonth: state.selectedMonth,
-          },
-        }),
-      });
-      const payload = await response.json();
-      state.aiResult = payload;
-      if (!payload.ok) state.aiError = payload.error || "本地 AI 服务暂不可用。";
-    } catch (error) {
-      state.aiError = "无法连接本地离线 AI 服务，请使用 node scripts/local-ai-server.mjs 启动页面。";
-    } finally {
-      state.aiLoading = false;
-      renderAiAnalysis({ state, el });
-      window.BaziSections.renderCaseShowcase?.({ state, el });
-    }
+  function buildAiExplanationInput(state) {
+    const coreSignals = getCoreSignals(state);
+    return {
+      source: "coreSignals",
+      modes: ["brief", "detailed", "live-script"],
+      targetSections: [...TARGET_SECTIONS],
+      coreSignals: pickCoreSignals(coreSignals),
+    };
+  }
+
+  function getCoreSignals(state) {
+    if (state.reading?.coreSignals) return state.reading.coreSignals;
+    const builder = window.BaziCoreSignals?.buildCoreSignals;
+    if (!builder || !state.reading) return {};
+    const coreSignals = builder(state.reading, state.datasets ?? {});
+    state.reading.coreSignals = coreSignals;
+    return coreSignals;
+  }
+
+  function pickCoreSignals(coreSignals = {}) {
+    return {
+      dayMaster: coreSignals.dayMaster,
+      monthCommand: coreSignals.monthCommand,
+      elementSignals: coreSignals.elementSignals,
+      tenGodSignals: coreSignals.tenGodSignals,
+      relationSignals: coreSignals.relationSignals,
+      palaceSignals: coreSignals.palaceSignals,
+      topicTags: coreSignals.topicTags,
+      transitHooks: coreSignals.transitHooks,
+      cautions: coreSignals.cautions,
+    };
+  }
+
+  function safe(value) {
+    return escapeHtml(value ?? "");
   }
 
   window.BaziSections = window.BaziSections ?? {};
   window.BaziSections.renderAiAnalysis = renderAiAnalysis;
+  window.BaziSections.buildAiExplanationInput = buildAiExplanationInput;
 })();

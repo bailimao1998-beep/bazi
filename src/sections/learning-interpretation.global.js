@@ -19,7 +19,7 @@
         <p class="eyebrow">规则学习</p>
         <h2 id="learning-title">详细规则卡片</h2>
       </div>
-      <p class="quick-read-lead">这里是规则明细，适合复盘学习。主线判断请以上方核心解读报告为准。</p>
+      <p class="quick-read-lead">这里是规则明细，适合复盘学习。主线请以上方基础排盘和本地取象摘要为准。</p>
       <button type="button" class="core-tab learning-toggle" aria-expanded="false" aria-controls="learning-details" data-learning-toggle>展开详细规则卡片</button>
       <div id="learning-details" data-learning-details hidden>
         ${renderTabs(result)}

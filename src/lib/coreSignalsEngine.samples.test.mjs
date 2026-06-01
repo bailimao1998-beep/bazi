@@ -14,6 +14,8 @@ const requiredSections = [
   "tenGodSignals",
   "relationSignals",
   "palaceSignals",
+  "strengthSignals",
+  "rootingSignals",
   "topicTags",
   "cautions",
 ];
@@ -27,6 +29,8 @@ for (const sample of coreSignalSampleCases) {
     }
     assert.ok(Array.isArray(coreSignals.relationSignals), `${sample.id} relationSignals should be an array`);
     assert.equal(coreSignals.palaceSignals.length, 4, `${sample.id} should include four palace signals`);
+    assert.ok(Array.isArray(coreSignals.strengthSignals), `${sample.id} strengthSignals should be an array`);
+    assert.ok(Array.isArray(coreSignals.rootingSignals), `${sample.id} rootingSignals should be an array`);
     assert.ok(Array.isArray(coreSignals.topicTags), `${sample.id} topicTags should be an array`);
     assert.ok(Array.isArray(coreSignals.cautions), `${sample.id} cautions should be an array`);
     assertAllSignalsHaveMeta(coreSignals, sample.id);
@@ -58,6 +62,8 @@ function assertAllSignalsHaveMeta(coreSignals, sampleId) {
     ...Object.values(coreSignals.tenGodSignals.groups),
     ...coreSignals.relationSignals,
     ...coreSignals.palaceSignals,
+    ...coreSignals.strengthSignals,
+    ...coreSignals.rootingSignals,
     ...coreSignals.topicTags,
     ...(coreSignals.transitHooks ?? []),
     ...coreSignals.cautions,

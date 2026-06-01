@@ -53,6 +53,8 @@ test("builds structured core signals from natal chart and basic display", () => 
     "tenGodSignals",
     "relationSignals",
     "palaceSignals",
+    "strengthSignals",
+    "rootingSignals",
     "topicTags",
     "transitHooks",
     "cautions",
@@ -92,6 +94,25 @@ test("builds structured core signals from natal chart and basic display", () => 
   );
   assert.ok(coreSignals.palaceSignals.some((item) => item.stemTenGod === "正印" && item.pillarLabel === "年柱"));
 
+  assert.ok(coreSignals.strengthSignals.some((item) => item.type === "得令" && item.target === "日主"));
+  assert.ok(coreSignals.strengthSignals.some((item) => item.type === "得生" && item.target === "日主"));
+  assert.ok(coreSignals.strengthSignals.some((item) => item.type === "得助" && item.target === "日主"));
+  assert.ok(coreSignals.strengthSignals.some((item) => item.type === "有根" && item.target === "日主"));
+  assert.ok(coreSignals.strengthSignals.some((item) => item.type === "被泄" && item.target === "日主"));
+  assert.ok(coreSignals.strengthSignals.some((item) => item.type === "被耗" && item.target === "日主"));
+  assert.ok(coreSignals.strengthSignals.some((item) => item.type === "透干" && item.target === "正印"));
+  assert.ok(coreSignals.strengthSignals.some((item) => item.type === "藏支" && item.target === "正官"));
+  assert.ok(coreSignals.strengthSignals.some((item) => item.type === "受关系影响" && item.target === "比肩"));
+
+  assert.ok(coreSignals.rootingSignals.some((item) => item.type === "天干透出" && item.target === "正印"));
+  assert.ok(coreSignals.rootingSignals.some((item) => item.type === "地支主气" && item.target === "食神"));
+  assert.ok(coreSignals.rootingSignals.some((item) => item.type === "藏干" && item.target === "正官"));
+  assert.ok(coreSignals.rootingSignals.some((item) => item.type === "有根" && item.target === "比肩"));
+  assert.ok(coreSignals.rootingSignals.some((item) => item.type === "藏而不透" && item.target === "食神"));
+  assert.ok(coreSignals.rootingSignals.some((item) => item.type === "透而无根"));
+  assertCoreSignalRows(coreSignals.strengthSignals);
+  assertCoreSignalRows(coreSignals.rootingSignals);
+
   assert.ok(coreSignals.topicTags.some((item) => item.name === "学习资源明显"));
   assert.ok(coreSignals.topicTags.some((item) => item.name === "关系有破"));
   assert.ok(coreSignals.topicTags.some((item) => item.name === "需要结合大运验证"));
@@ -125,6 +146,8 @@ test("coreSignals exposes the acceptance JSON contract", () => {
   assert.ok(Array.isArray(coreSignals.elementSignals.strong));
   assert.ok(Array.isArray(coreSignals.elementSignals.weak));
   assert.ok(Array.isArray(coreSignals.elementSignals.missingVisible));
+  assert.ok(Array.isArray(coreSignals.strengthSignals));
+  assert.ok(Array.isArray(coreSignals.rootingSignals));
   assert.ok(coreSignals.relationSignals.length <= 5);
   assert.ok(Array.isArray(coreSignals.topicTags));
   assert.ok(Array.isArray(coreSignals.cautions));
@@ -213,6 +236,8 @@ function assertAllSignalsHaveMeta(coreSignals) {
     ...Object.values(coreSignals.tenGodSignals.groups),
     ...coreSignals.relationSignals,
     ...coreSignals.palaceSignals,
+    ...coreSignals.strengthSignals,
+    ...coreSignals.rootingSignals,
     ...coreSignals.topicTags,
     ...coreSignals.transitHooks,
     ...coreSignals.cautions,
@@ -224,6 +249,22 @@ function assertAllSignalsHaveMeta(coreSignals) {
     assert.ok(["high", "medium", "low"].includes(signal.confidence), `signal ${index} should include confidence`);
     assert.ok(Array.isArray(signal.needVerify), `signal ${index} should include needVerify array`);
     assert.ok(signal.needVerify.length > 0, `signal ${index} should include non-empty needVerify`);
+  }
+}
+
+function assertCoreSignalRows(signals) {
+  for (const signal of signals) {
+    assert.equal(typeof signal.name, "string");
+    assert.ok(signal.name.length > 0);
+    assert.equal(typeof signal.type, "string");
+    assert.ok(signal.type.length > 0);
+    assert.equal(typeof signal.target, "string");
+    assert.ok(signal.target.length > 0);
+    assert.ok(Array.isArray(signal.evidence));
+    assert.ok(signal.evidence.length > 0);
+    assert.ok(["high", "medium", "low"].includes(signal.confidence));
+    assert.ok(Array.isArray(signal.needVerify));
+    assert.ok(signal.needVerify.length > 0);
   }
 }
 

@@ -33,6 +33,8 @@
       `五行 ${asArray(coreSignals.elementSignals?.strong).length + asArray(coreSignals.elementSignals?.weak).length}`,
       `十神 ${asArray(coreSignals.tenGodSignals?.strong).length}`,
       `关系 ${asArray(coreSignals.relationSignals).length}`,
+      `强弱 ${asArray(coreSignals.strengthSignals).length}`,
+      `根气 ${asArray(coreSignals.rootingSignals).length}`,
       `标签 ${asArray(coreSignals.topicTags).length}`,
       `触发点 ${asArray(coreSignals.transitHooks).length}`,
     ];
@@ -852,7 +854,7 @@
 
   function validateCoreSignals(coreSignals) {
     const issues = [];
-    const required = ["dayMaster", "monthCommand", "elementSignals", "tenGodSignals", "relationSignals", "palaceSignals", "topicTags", "transitHooks", "cautions"];
+    const required = ["dayMaster", "monthCommand", "elementSignals", "tenGodSignals", "relationSignals", "palaceSignals", "strengthSignals", "rootingSignals", "topicTags", "transitHooks", "cautions"];
     for (const key of required) {
       if (coreSignals[key] === undefined) issues.push(`缺少 ${key}`);
     }
@@ -879,6 +881,8 @@
       ...Object.values(coreSignals.tenGodSignals?.groups ?? {}),
       ...asArray(coreSignals.relationSignals),
       ...asArray(coreSignals.palaceSignals),
+      ...asArray(coreSignals.strengthSignals),
+      ...asArray(coreSignals.rootingSignals),
       ...asArray(coreSignals.topicTags),
       ...asArray(coreSignals.transitHooks),
       ...asArray(coreSignals.cautions),

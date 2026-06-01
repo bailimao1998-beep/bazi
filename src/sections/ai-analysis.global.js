@@ -63,6 +63,8 @@
       tenGodSignals: coreSignals.tenGodSignals,
       relationSignals: coreSignals.relationSignals,
       palaceSignals: coreSignals.palaceSignals,
+      strengthSignals: coreSignals.strengthSignals,
+      rootingSignals: coreSignals.rootingSignals,
       topicTags: coreSignals.topicTags,
       transitHooks: coreSignals.transitHooks,
       cautions: coreSignals.cautions,

@@ -184,6 +184,8 @@ test("renders AI explanation input from coreSignals only", async () => {
     "tenGodSignals",
     "relationSignals",
     "palaceSignals",
+    "strengthSignals",
+    "rootingSignals",
     "topicTags",
     "transitHooks",
     "cautions",

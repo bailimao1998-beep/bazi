@@ -4,6 +4,8 @@ const ELEMENT_KEYS = ["wood", "fire", "earth", "metal", "water"];
 const STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
 const BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
 const TEN_GOD_NAMES = ["比肩", "劫财", "食神", "伤官", "正财", "偏财", "正官", "七杀", "正印", "偏印"];
+const GENERATES = { wood: "fire", fire: "earth", earth: "metal", metal: "water", water: "wood" };
+const CONTROLS = { wood: "earth", earth: "water", water: "fire", fire: "metal", metal: "wood" };
 
 const FALLBACK_TEN_GOD_GROUP_RULES = [
   groupRule("resource", "印星", ["正印", "偏印"]),
@@ -41,11 +43,13 @@ function buildCoreSignals(input = {}, displayOrDatasets, maybeDatasets) {
   const tenGodSignals = buildTenGodSignals(context);
   const relationSignals = buildRelationSignals(context);
   const palaceSignals = buildPalaceSignals(context);
+  const strengthSignals = buildStrengthSignals(context, relationSignals);
+  const rootingSignals = buildRootingSignals(context);
   const topicTags = buildTopicTags({ elementSignals, tenGodSignals, relationSignals, rules });
   const transitHooks = buildTransitHooks({ tenGodSignals, relationSignals });
   const cautions = buildCautions(context);
 
-  return { dayMaster, monthCommand, elementSignals, tenGodSignals, relationSignals, palaceSignals, topicTags, transitHooks, cautions };
+  return { dayMaster, monthCommand, elementSignals, tenGodSignals, relationSignals, palaceSignals, strengthSignals, rootingSignals, topicTags, transitHooks, cautions };
 }
 
 function buildContext(natal, display, rules) {
@@ -293,6 +297,199 @@ function buildPalaceSignals(context) {
       needVerify: rule?.needVerify ?? ["柱位含义只做基础取象，需要结合整体结构和岁运"],
     });
   });
+}
+
+function buildStrengthSignals(context, relationSignals) {
+  const dayElement = context.pillars.day?.stemElement ?? context.display.pillars?.day?.stemElement;
+  const month = context.pillars.month ?? context.display.pillars?.month ?? {};
+  const records = collectTenGodRecords(context.display);
+  const hiddenRecords = records.filter((item) => item.layer === "hidden");
+  const branchRecords = records.filter((item) => item.layer === "branchMain");
+  const stemRecords = records.filter((item) => item.layer === "stem" && item.tenGod !== "日主");
+  const signals = [];
+
+  if (dayElement && month.branchElement === dayElement) {
+    signals.push(coreSignal("日主得令", "得令", "日主", [`月令${month.branch ?? "待查"}属${ELEMENT_LABELS[dayElement] ?? dayElement}`, "月支与日主五行同类"], "high"));
+  }
+  const producingElement = producerOf(dayElement);
+  if (producingElement && hasElementEvidence(context, producingElement)) {
+    signals.push(coreSignal("日主得生", "得生", "日主", [`${ELEMENT_LABELS[producingElement]}生${ELEMENT_LABELS[dayElement]}`, elementEvidence(context, producingElement)], "medium"));
+  }
+  if (dayElement && hasElementEvidence(context, dayElement)) {
+    signals.push(coreSignal("日主得助", "得助", "日主", [`同类${ELEMENT_LABELS[dayElement]}可助日主`, elementEvidence(context, dayElement)], "medium"));
+  }
+  const rootRecords = [...hiddenRecords, ...branchRecords].filter((item) => item.element === dayElement || ["比肩", "劫财"].includes(item.tenGod));
+  if (rootRecords.length) {
+    signals.push(coreSignal("日主有根", "有根", "日主", rootRecords.map(formatTenGodRecord), "high"));
+  }
+  const controllingElement = controllerOf(dayElement);
+  if (controllingElement && hasElementEvidence(context, controllingElement)) {
+    signals.push(coreSignal("日主被克", "被克", "日主", [`${ELEMENT_LABELS[controllingElement]}克${ELEMENT_LABELS[dayElement]}`, elementEvidence(context, controllingElement)], "medium"));
+  }
+  const leakingElement = GENERATES[dayElement];
+  if (leakingElement && hasElementEvidence(context, leakingElement)) {
+    signals.push(coreSignal("日主被泄", "被泄", "日主", [`${ELEMENT_LABELS[dayElement]}生${ELEMENT_LABELS[leakingElement]}`, elementEvidence(context, leakingElement)], "medium"));
+  }
+  const consumingElement = CONTROLS[dayElement];
+  if (consumingElement && hasElementEvidence(context, consumingElement)) {
+    signals.push(coreSignal("日主被耗", "被耗", "日主", [`${ELEMENT_LABELS[dayElement]}克${ELEMENT_LABELS[consumingElement]}`, elementEvidence(context, consumingElement)], "medium"));
+  }
+
+  for (const [tenGod, items] of groupRecords(stemRecords)) {
+    signals.push(coreSignal(`${tenGod}透干`, "透干", tenGod, items.map(formatTenGodRecord), "high"));
+  }
+  for (const [tenGod, items] of groupRecords(hiddenRecords)) {
+    signals.push(coreSignal(`${tenGod}藏支`, "藏支", tenGod, items.map(formatTenGodRecord), "medium"));
+  }
+  for (const signal of relationAffectedTenGodSignals(relationSignals, [...branchRecords, ...hiddenRecords])) {
+    signals.push(signal);
+  }
+
+  return dedupeSignals(signals);
+}
+
+function buildRootingSignals(context) {
+  const records = collectTenGodRecords(context.display);
+  const stems = records.filter((item) => item.layer === "stem" && item.tenGod !== "日主");
+  const branchMain = records.filter((item) => item.layer === "branchMain");
+  const hidden = records.filter((item) => item.layer === "hidden");
+  const branchAndHidden = [...branchMain, ...hidden];
+  const signals = [];
+
+  for (const [tenGod, items] of groupRecords(stems)) {
+    signals.push(coreSignal(`${tenGod}天干透出`, "天干透出", tenGod, items.map(formatTenGodRecord), "high"));
+  }
+  for (const [tenGod, items] of groupRecords(branchMain)) {
+    signals.push(coreSignal(`${tenGod}地支主气`, "地支主气", tenGod, items.map(formatTenGodRecord), "high"));
+  }
+  for (const [tenGod, items] of groupRecords(hidden)) {
+    signals.push(coreSignal(`${tenGod}藏干`, "藏干", tenGod, items.map(formatTenGodRecord), "medium"));
+  }
+
+  const stemNames = new Set(stems.map((item) => item.tenGod));
+  const rootedNames = new Set(branchAndHidden.map((item) => item.tenGod));
+  for (const tenGod of uniqueList([...stemNames].filter((name) => rootedNames.has(name)))) {
+    const evidence = branchAndHidden.filter((item) => item.tenGod === tenGod).map(formatTenGodRecord);
+    signals.push(coreSignal(`${tenGod}有根`, "有根", tenGod, evidence, "high"));
+  }
+  for (const tenGod of uniqueList([...rootedNames].filter((name) => !stemNames.has(name)))) {
+    const evidence = branchAndHidden.filter((item) => item.tenGod === tenGod).map(formatTenGodRecord);
+    signals.push(coreSignal(`${tenGod}藏而不透`, "藏而不透", tenGod, evidence, "medium"));
+  }
+  const noRootNames = uniqueList([...stemNames].filter((name) => !rootedNames.has(name)));
+  if (noRootNames.length) {
+    for (const tenGod of noRootNames) {
+      const evidence = stems.filter((item) => item.tenGod === tenGod).map(formatTenGodRecord);
+      signals.push(coreSignal(`${tenGod}透而无根`, "透而无根", tenGod, evidence, "medium"));
+    }
+  } else {
+    signals.push(coreSignal("未见透而无根", "透而无根", "未见", ["当前透干十神在地支主气或藏干中均有对应线索"], "low"));
+  }
+
+  return dedupeSignals(signals);
+}
+
+function coreSignal(name, type, target, evidence, confidence = "medium", needVerify = ["需要结合月令、柱位、透藏和岁运触发复核"]) {
+  return withMeta({ name, type, target, evidence, confidence, needVerify });
+}
+
+function collectTenGodRecords(display = {}) {
+  const pillars = display.pillars ?? {};
+  const stemRows = asArray(display.tenGods?.heavenlyStems).length
+    ? asArray(display.tenGods.heavenlyStems)
+    : Object.entries(pillars).map(([pillarKey, pillar]) => ({ pillarKey, pillarLabel: pillar.label, stem: pillar.stem, branch: pillar.branch, tenGod: pillar.stemTenGod }));
+  const branchRows = asArray(display.tenGods?.branchMain).length
+    ? asArray(display.tenGods.branchMain)
+    : Object.entries(pillars).map(([pillarKey, pillar]) => ({ pillarKey, pillarLabel: pillar.label, stem: pillar.stem, branch: pillar.branch, tenGod: pillar.branchMainTenGod }));
+  const hiddenRows = asArray(display.tenGods?.hiddenStems).length
+    ? asArray(display.tenGods.hiddenStems)
+    : Object.entries(pillars).flatMap(([pillarKey, pillar]) => asArray(pillar.hiddenStems).map((item) => ({ ...item, pillarKey, pillarLabel: pillar.label, branch: pillar.branch })));
+
+  return [
+    ...stemRows.map((item) => tenGodRecord(item, "stem")),
+    ...branchRows.map((item) => tenGodRecord(item, "branchMain")),
+    ...hiddenRows.map((item) => tenGodRecord(item, "hidden")),
+  ].filter((item) => item.tenGod);
+}
+
+function tenGodRecord(item, layer) {
+  return {
+    layer,
+    pillarKey: item.pillarKey,
+    pillarLabel: item.pillarLabel ?? pillarKeyLabel(item.pillarKey),
+    stem: item.stem,
+    branch: item.branch,
+    role: item.role,
+    element: item.element,
+    tenGod: item.tenGod,
+  };
+}
+
+function formatTenGodRecord(record) {
+  const layer = record.layer === "stem" ? "天干" : record.layer === "branchMain" ? "地支主气" : `藏干${record.role ? `/${record.role}` : ""}`;
+  const stem = record.stem ? `${record.stem}` : "";
+  const branch = record.branch ? `${record.branch}` : "";
+  return `${record.pillarLabel ?? "未知柱"}${layer}${stem || branch}：${record.tenGod}`;
+}
+
+function groupRecords(records) {
+  const groups = new Map();
+  for (const record of records) {
+    if (!record.tenGod || record.tenGod === "日主") continue;
+    const items = groups.get(record.tenGod) ?? [];
+    items.push(record);
+    groups.set(record.tenGod, items);
+  }
+  return groups;
+}
+
+function relationAffectedTenGodSignals(relationSignals, records) {
+  const signals = [];
+  for (const relation of relationSignals) {
+    if (!relation.members.length && !relation.pillars.length) continue;
+    const affected = records.filter((record) => {
+      const ganzhi = record.stem && record.branch ? `${record.stem}${record.branch}` : "";
+      return relation.members.includes(record.branch)
+        || relation.members.includes(ganzhi)
+        || relation.pillars.includes(record.pillarLabel);
+    });
+    for (const [tenGod, items] of groupRecords(affected)) {
+      signals.push(coreSignal(`${tenGod}受${relation.type}影响`, "受关系影响", tenGod, uniqueList([...relation.evidence, ...items.map(formatTenGodRecord)]), relation.confidence ?? "medium"));
+    }
+  }
+  return signals;
+}
+
+function dedupeSignals(signals) {
+  const seen = new Set();
+  return signals.filter((signal) => {
+    const key = `${signal.name}-${signal.type}-${signal.target}-${signal.evidence.join("|")}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function producerOf(element) {
+  return Object.entries(GENERATES).find(([, target]) => target === element)?.[0];
+}
+
+function controllerOf(element) {
+  return Object.entries(CONTROLS).find(([, target]) => target === element)?.[0];
+}
+
+function hasElementEvidence(context, element) {
+  return Number(context.elementCounts?.[element] ?? 0) > 0
+    || Number(context.visibleElementCounts?.[element] ?? 0) > 0
+    || Number(context.hiddenElementCounts?.[element] ?? 0) > 0;
+}
+
+function elementEvidence(context, element) {
+  return `${ELEMENT_LABELS[element] ?? element}：总数${formatNumber(context.elementCounts?.[element])}，明面${formatNumber(context.visibleElementCounts?.[element])}，藏干${formatNumber(context.hiddenElementCounts?.[element])}`;
+}
+
+function pillarKeyLabel(key) {
+  return { year: "年柱", month: "月柱", day: "日柱", hour: "时柱" }[key] ?? key ?? "未知柱";
 }
 
 function buildTopicTags({ elementSignals, tenGodSignals, relationSignals, rules }) {

@@ -27,6 +27,11 @@ const FILES = {
   caseStudies: "14-案例库-case-studies.json",
   aiPrompts: "15-AI分析模板-ai-prompts.json",
   referenceKnowledge: "16-参考资料知识卡-reference-cards.json",
+  tenGodSignalRules: "ten-god-signal-rules.json",
+  elementSignalRules: "element-signal-rules.json",
+  relationSignalRules: "relation-signal-rules.json",
+  palaceSignalRules: "palace-signal-rules.json",
+  topicTagRules: "topic-tag-rules.json",
   index: "index.json",
 };
 
@@ -130,6 +135,26 @@ const learningRuleFields = [
   "sourceRefs",
   "outputTemplate",
   "confidence",
+  "status",
+];
+
+const signalRuleFiles = [
+  FILES.tenGodSignalRules,
+  FILES.elementSignalRules,
+  FILES.relationSignalRules,
+  FILES.palaceSignalRules,
+  FILES.topicTagRules,
+];
+const signalRuleFields = [
+  "id",
+  "category",
+  "name",
+  "conditions",
+  "outputs",
+  "evidenceTemplate",
+  "confidence",
+  "needVerify",
+  "sourceRefs",
   "status",
 ];
 
@@ -282,6 +307,45 @@ function validateLearningRules(fileName, data, sourceIds, errors) {
   }
 }
 
+function validateSignalRules(fileName, data, sourceIds, errors) {
+  const rules = data?.rules;
+  if (!Array.isArray(rules) || rules.length === 0) {
+    fail(errors, `${fileName} missing signal rules[]`);
+    return;
+  }
+  const seen = new Set();
+  for (const rule of rules) {
+    for (const field of signalRuleFields) {
+      if (rule[field] === undefined) fail(errors, `${fileName} rule ${rule.id ?? "(missing id)"} missing ${field}`);
+    }
+    if (seen.has(rule.id)) fail(errors, `${fileName} duplicate signal rule id ${rule.id}`);
+    seen.add(rule.id);
+    if (!rule.conditions || typeof rule.conditions !== "object" || Array.isArray(rule.conditions)) {
+      fail(errors, `${fileName} rule ${rule.id} conditions must be an object`);
+    }
+    if (!rule.outputs || typeof rule.outputs !== "object" || Array.isArray(rule.outputs)) {
+      fail(errors, `${fileName} rule ${rule.id} outputs must be an object`);
+    }
+    if (typeof rule.evidenceTemplate !== "string" || !rule.evidenceTemplate) {
+      fail(errors, `${fileName} rule ${rule.id} evidenceTemplate must be a non-empty string`);
+    }
+    if (!Array.isArray(rule.needVerify) || rule.needVerify.length === 0) {
+      fail(errors, `${fileName} rule ${rule.id} needVerify must be a non-empty array`);
+    }
+    if (!Array.isArray(rule.sourceRefs)) {
+      fail(errors, `${fileName} rule ${rule.id} sourceRefs must be an array`);
+    } else {
+      for (const ref of rule.sourceRefs) {
+        if (!ref?.sourceId) fail(errors, `${fileName} rule ${rule.id} sourceRefs item missing sourceId`);
+        if (ref?.sourceId && !sourceIds.has(ref.sourceId)) fail(errors, `${fileName} rule ${rule.id} unknown sourceRef ${ref.sourceId}`);
+      }
+    }
+    if (JSON.stringify(rule).match(/一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/)) {
+      fail(errors, `${fileName} rule ${rule.id} uses forbidden absolute wording`);
+    }
+  }
+}
+
 async function main() {
   const errors = [];
   const jsonFiles = (await fs.readdir(sourceDir))
@@ -325,7 +389,7 @@ async function main() {
     for (const dataset of index?.datasets ?? []) {
       if (!bundleKeys.has(dataset.bundleKey)) fail(errors, `${bundleFile} missing bundle key ${dataset.bundleKey}`);
     }
-    if (Object.keys(bundle.datasets).length !== 16) fail(errors, `${bundleFile} should contain 16 datasets after restoring learning modules`);
+    if (Object.keys(bundle.datasets).length !== 21) fail(errors, `${bundleFile} should contain 21 datasets after adding core signal rules`);
     if (bundle.datasets.systemRules?.rules?.length !== 674) fail(errors, `${bundleFile} systemRules should contain 674 rules`);
     if ((bundle.datasets.locations?.cities?.length ?? 0) < 1000) fail(errors, `${bundleFile} locations should contain full city list`);
   }
@@ -338,6 +402,7 @@ async function main() {
     if (fileName === FILES.sources || fileName === FILES.index) continue;
     validateSourceIds(fileName, data, sourceIds, errors);
     if (learningRuleFiles.includes(fileName)) validateLearningRules(fileName, data, sourceIds, errors);
+    if (signalRuleFiles.includes(fileName)) validateSignalRules(fileName, data, sourceIds, errors);
   }
 
   const basics = parsed[FILES.stemsBranches];

@@ -16,6 +16,7 @@ export function buildCoreReadingReport(input = {}) {
   const prioritySignals = buildPrioritySignals(context);
   const report = {
     headline: buildHeadline(context, prioritySignals),
+    coreTakeaways: buildCoreTakeaways(context, prioritySignals),
     prioritySignals,
     teacherSummary: buildTeacherSummary(context, prioritySignals),
     secondaryNotes: buildSecondaryNotes(context, prioritySignals),
@@ -106,6 +107,9 @@ function buildPrioritySignals(context) {
     whyImportant: "日主是参照点，月令是季节背景，两者决定后面五行和十神该从哪里入手。",
     evidence: `日干为${context.day.stem ?? "待查"}，月支为${context.month.branch ?? "待查"}；日主五行为${elementName(context.day.stemElement, context.day.stemElementLabel)}，月令五行为${elementName(context.month.branchElement, context.month.branchElementLabel)}。`,
     howToRead: `先把${formatDayMaster(context)}放在中心，再看${formatMonthBranch(context)}对它的承接、助力或约束。`,
+    contentReading: `这个盘的日主是${formatDayMaster(context)}，月令是${formatMonthBranch(context)}，日主和月令五行同气时，盘面内容会更集中在日主如何承接月令气势这一点上。`,
+    themeMeaning: "这类入口容易把主题带到自我标准、边界感、承接力和外部环境之间的关系。",
+    limitation: "日主和月令只能说明结构入口，仍要看十神、柱位和岁运。",
     nextCheck: "接着核对月令与五行统计是否同向。",
   });
 
@@ -117,6 +121,9 @@ function buildPrioritySignals(context) {
       whyImportant: "五行偏重会改变读盘重心，报告需要先说明它从哪里来，以及是否过于集中。",
       evidence: `${elementProfile.top.label}统计值为${formatNumber(elementProfile.top.value)}；五行统计为${formatElementSummary(context.elements)}。`,
       howToRead: `先看${elementProfile.top.label}来自天干、地支还是藏干，再观察它和日主、月令、十神之间的关系。`,
+      contentReading: `这个盘里${elementProfile.top.label}的存在感较强，五行统计显示${elementProfile.top.label}${formatNumber(elementProfile.top.value)}，说明盘面内容会优先围绕${elementProfile.top.label}的来源、集中度和调节方向展开。`,
+      themeMeaning: `${elementProfile.top.label}行偏重时，容易让命盘主题集中到${elementTheme(elementProfile.top.key)}等方向。`,
+      limitation: "五行强弱不是生活事件，需要看它落在天干、地支、藏干和十神中的位置。",
       nextCheck: "继续看偏少五行能否形成调节方向。",
     });
   } else if (elementProfile.top) {
@@ -127,6 +134,9 @@ function buildPrioritySignals(context) {
       whyImportant: "五行分布能帮助判断盘面先看哪类气势，再决定十神和关系层怎么读。",
       evidence: `五行统计为${formatElementSummary(context.elements)}。`,
       howToRead: "先比较明面五行，再补看藏干口径，避免只凭单个字下判断。",
+      contentReading: `这个盘的五行统计为${formatElementSummary(context.elements)}，盘面没有只靠一个字形成判断，而是呈现出多种五行共同参与的结构。`,
+      themeMeaning: "五行分布会影响表达、资源、规则和行动主题的轻重。",
+      limitation: "五行数量需要配合柱位和十神，不宜直接推成事件。",
       nextCheck: "继续区分天干、地支本气和藏干来源。",
     });
   }
@@ -139,6 +149,9 @@ function buildPrioritySignals(context) {
       whyImportant: "偏少五行不是结论，而是提示读盘时要留意结构的调节方向。",
       evidence: `${elementProfile.low.label}统计值为${formatNumber(elementProfile.low.value)}；五行统计为${formatElementSummary(context.elements)}。`,
       howToRead: `观察${elementProfile.low.label}是否在藏干、岁运或关系层中出现，并看它是否能参与全局流通。`,
+      contentReading: `这个盘里${elementProfile.low.label}相对少，五行统计为${elementProfile.low.label}${formatNumber(elementProfile.low.value)}，因此${elementProfile.low.label}更像调节点，而不是当前盘面最抢眼的内容。`,
+      themeMeaning: `${elementProfile.low.label}行偏少时，相关的${elementTheme(elementProfile.low.key)}可以作为补充观察主题。`,
+      limitation: "偏少不等于缺失影响，藏干和岁运中仍可能出现相关线索。",
       nextCheck: "继续结合柱位、旺衰和岁运复核。",
     });
   }
@@ -151,6 +164,9 @@ function buildPrioritySignals(context) {
       whyImportant: "十神把五行关系转成学习主题，集中出现时更适合提前说明主题方向。",
       evidence: `十神统计：${formatTenGodSummary(context.tenGodCounts)}；当前较突出的十神为${tenGodProfile.top.name}${formatNumber(tenGodProfile.top.value)}。`,
       howToRead: "先看它们是否透出、落在哪些柱位，再看和日主、月令之间如何配合。",
+      contentReading: `十神统计中${tenGodProfile.top.name}较突出，说明这个盘的主题不只停在五行强弱，还会落到${tenGodMeaning(tenGodProfile.top.name)}这一类内容上。`,
+      themeMeaning: `十神重心对应${tenGodMeaning(tenGodProfile.top.name)}，适合用来理解盘面主题的表达方向。`,
+      limitation: "十神要看透干、藏干和柱位，不能只用数量决定结论。",
       nextCheck: "继续核对十神所在柱位与透藏层次。",
     });
   }
@@ -163,6 +179,9 @@ function buildPrioritySignals(context) {
       whyImportant: "关系层能说明盘内字与字如何牵动，是把静态五行读成结构互动的关键。",
       evidence: `出现关系：${relationSummary}`,
       howToRead: "先看参与关系的柱位，再回到十神含义和五行力量，观察它在原局中的位置。",
+      contentReading: `这个盘出现${relationSummary}，说明干支之间存在互动点，盘面内容不是孤立五行，而有字与字之间的牵动。`,
+      themeMeaning: "关系层常对应互动方式、边界变化、连接或张力，适合作为结构复盘线索。",
+      limitation: "关系要看参与柱位和十神含义，不能把单个关系直接翻成事件。",
       nextCheck: "继续核对关系是否被岁运再次触发。",
     });
   }
@@ -175,6 +194,9 @@ function buildPrioritySignals(context) {
       whyImportant: "规则命中用于提示学习路径，适合把零散证据整理成候选结构。",
       evidence: `命中规则：${candidateSummary}`,
       howToRead: "把它当作候选观察，逐条核对规则条件、资料等级和盘面证据。",
+      contentReading: `规则层面命中${candidateSummary}，说明当前盘面已有可被规则库识别的结构线索，可以作为辅助内容纳入主线。`,
+      themeMeaning: "候选结构能帮助整理日主、月令、五行、十神之间的组合关系。",
+      limitation: "候选规则只是参考框架，不代表格局已经完整成立。",
       nextCheck: "继续看候选结构是否同时得到日主、月令、五行和十神支持。",
     });
   }
@@ -187,6 +209,9 @@ function buildPrioritySignals(context) {
       whyImportant: "岁运不是原局本身，但能提示哪些原局主题可能在年份层被再次点亮。",
       evidence: `岁运线索：${transitSummary}`,
       howToRead: "先回到原局主题，再看大运、流年、流月是否重复触发同类五行、十神或关系。",
+      contentReading: `岁运层面出现${transitSummary}，说明当前选择的年份和月份会把部分原局主题带到触发层观察。`,
+      themeMeaning: "岁运线索用于看原局内容在时间层的重复、加强或转向。",
+      limitation: "岁运只说明触发层，需要回到原局主题一起看。",
       nextCheck: "继续查看大运流年模块的触发层。",
     });
   }
@@ -195,32 +220,20 @@ function buildPrioritySignals(context) {
 }
 
 function buildTeacherSummary(context, prioritySignals = []) {
-  const topSignals = prioritySignals.slice(0, 3);
-  const first = topSignals[0];
-  const second = topSignals[1];
-  const third = topSignals[2];
-  const paragraphs = [];
-
-  if (first) {
-    paragraphs.push(`第一个重点是${first.title}。${first.evidence}这说明讲盘入口要先定中心和背景，${trimSentenceEnd(first.howToRead)}。`);
-  }
-  if (second) {
-    paragraphs.push(`第二个重点是${second.title}。${second.evidence}报告会围绕这个信号看来源、集中度和调节方向，而不是把它直接翻成事件。`);
-  }
-  if (third) {
-    paragraphs.push(`第三个重点是${third.title}。${third.evidence}${trimSentenceEnd(third.howToRead)}；再看它和前两个重点是否互相呼应。`);
-  }
-
-  const linkedTitles = topSignals.map((item) => item.title).join("、");
-  paragraphs.push(`把前三个重点连起来看，主线就是先抓${linkedTitles || "日主、月令和五行"}，再补十神、关系和规则命中的证据。这样读盘会更像老师带着复盘：先分主次，再看细节。`);
-
-  const secondary = prioritySignals.slice(3).map((item) => item.title).join("、");
-  if (secondary) {
-    paragraphs.push(`后面的${secondary}先放在辅助层。它们不是被忽略，而是等主线站稳后，用来检查有没有补充证据或需要修正的地方。`);
-  }
-
-  paragraphs.push("最后再接到岁运：原局负责说明结构，具体年份需要看大运、流年、流月是否再次触发这些主题。");
-  return paragraphs.slice(0, 6);
+  const elementProfile = getElementProfile(context.elements);
+  const tenGodProfile = getTenGodProfile(context.tenGodCounts);
+  const relations = summarizeRelations(context);
+  const candidates = summarizeCandidates(context);
+  const transit = summarizeTransit(context);
+  const topSignalTitles = prioritySignals.slice(0, 3).map((item) => item.title).join("、");
+  return [
+    `日主与月令是这个盘的核心入口：日主为${formatDayMaster(context)}，月令为${formatMonthBranch(context)}，前三个读盘重点落在${topSignalTitles || "日主、月令、五行"}。这表示报告先抓盘面最集中的气势，再看它如何进入十神和干支关系。`,
+    `五行呈现上，当前五行统计为${formatElementSummary(context.elements)}，其中${elementProfile.top?.label ?? "五行"}较突出，${elementProfile.low?.label ?? "部分五行"}相对偏少。这个盘的内容会自然聚焦在${elementProfile.top ? elementTheme(elementProfile.top.key) : "五行流通"}，同时留意${elementProfile.low ? elementTheme(elementProfile.low.key) : "平衡方向"}如何补入。`,
+    `十神呈现上，统计为${formatTenGodSummary(context.tenGodCounts) || "十神资料暂少"}，较突出的是${tenGodProfile.top?.name ?? "待补十神"}。这让主题更容易落到${tenGodProfile.top ? tenGodMeaning(tenGodProfile.top.name) : "资源、表达、规则或行动"}，而不是只停留在五行数量。`,
+    `干支关系呈现上，${relations ? `当前出现${relations}` : `当前干支关系未形成强展示项，仍可先看日主${formatDayMaster(context)}、月令${formatMonthBranch(context)}和五行${formatElementSummary(context.elements)}`}。关系层的意义在于看盘中字与字如何牵动，尤其是参与关系的柱位和十神含义。`,
+    `规则和候选结构上，${candidates ? `当前命中${candidates}` : `当前规则命中不多，已有盘面信息仍以日主${formatDayMaster(context)}、月令${formatMonthBranch(context)}、五行${formatElementSummary(context.elements)}为主`}。这些规则可以帮助整理盘面内容，但更适合当作结构参考。`,
+    `岁运衔接上，${transit ? `当前大运流年线索为${transit}` : `当前岁运触发线索较少，可先保留原局主题`}。也就是说，原局先说明这个盘呈现出的结构，流年和大运再看哪些主题被重复点到。`,
+  ];
 }
 
 function buildSecondaryNotes(context, prioritySignals = []) {
@@ -238,6 +251,81 @@ function buildSecondaryNotes(context, prioritySignals = []) {
     notes.push("辅助层先保持轻量，优先把前三个读盘重点讲清楚。");
   }
   return notes;
+}
+
+function buildCoreTakeaways(context, prioritySignals = []) {
+  const elementProfile = getElementProfile(context.elements);
+  const tenGodProfile = getTenGodProfile(context.tenGodCounts);
+  const relations = summarizeRelations(context);
+  const candidates = summarizeCandidates(context);
+  const transit = summarizeTransit(context);
+  const takeaways = [
+    {
+      title: "日主月令同看",
+      conclusion: `当前命盘以${formatDayMaster(context)}日主为中心，月令为${formatMonthBranch(context)}，读盘内容先落在日主如何承接出生月份气势。`,
+      evidence: `日干为${context.day.stem ?? "待查"}，月支为${context.month.branch ?? "待查"}。`,
+      meaning: "这会把盘面主题带向自我承接、季节背景、外部环境和个人表达之间的关系。",
+      caution: "日主月令只是原局入口，还要配合十神和柱位。",
+    },
+    {
+      title: `${elementProfile.top?.label ?? "五"}行存在感`,
+      conclusion: `${elementProfile.top?.label ?? "五行"}在当前五行统计中较突出，盘面内容会优先呈现${elementProfile.top ? elementTheme(elementProfile.top.key) : "五行分布"}相关主题。`,
+      evidence: `五行统计：${formatElementSummary(context.elements)}；${elementProfile.top ? `${elementProfile.top.label}为${formatNumber(elementProfile.top.value)}` : "五行统计已列出"}。`,
+      meaning: `这类结构容易让注意力放在${elementProfile.top ? elementTheme(elementProfile.top.key) : "五行流通和结构平衡"}。`,
+      caution: "五行数量不是事件判断，还要看来源和十神转换。",
+    },
+    {
+      title: "十神主题浮现",
+      conclusion: tenGodProfile.top
+        ? `十神中${tenGodProfile.top.name}较突出，盘面内容会带出${tenGodMeaning(tenGodProfile.top.name)}。`
+        : "十神统计暂不集中，盘面主题需要从日主、月令和五行继续合看。",
+      evidence: `十神统计：${formatTenGodSummary(context.tenGodCounts) || EMPTY_TEXT}`,
+      meaning: tenGodProfile.top ? `这会让报告更关注${tenGodMeaning(tenGodProfile.top.name)}在柱位中的呈现。` : "十神不集中时，主题判断更依赖整体结构。",
+      caution: "十神要看透出、藏干和柱位，不能只看数量。",
+    },
+  ];
+
+  if (relations) {
+    takeaways.push({
+      title: "干支互动可见",
+      conclusion: `干支关系中出现${relations}，说明盘内有互动点，适合放入主线理解。`,
+      evidence: `关系证据：${relations}`,
+      meaning: "这类互动常提示连接、牵动、边界变化或局部张力。",
+      caution: "关系层需要回到参与柱位和十神含义。",
+    });
+  }
+
+  if (candidates) {
+    takeaways.push({
+      title: "候选结构可参考",
+      conclusion: `规则层面命中${candidates}，说明当前盘面已有可被规则库识别的结构内容。`,
+      evidence: `规则命中：${candidates}`,
+      meaning: "这些规则有助于把日主、月令、五行和十神组织成候选结构。",
+      caution: "候选结构不等于完整定格，仍需看条件是否齐全。",
+    });
+  }
+
+  if (transit) {
+    takeaways.push({
+      title: "岁运已有触发线索",
+      conclusion: `大运流年层面出现${transit}，可以用来观察原局主题在时间层的呈现。`,
+      evidence: `岁运证据：${transit}`,
+      meaning: "岁运会把原局中的五行、十神或关系主题带到具体阶段。",
+      caution: "岁运只看触发，不替代原局结构。",
+    });
+  }
+
+  if (takeaways.length < 4 && elementProfile.low) {
+    takeaways.push({
+      title: `${elementProfile.low.label}行调节点`,
+      conclusion: `${elementProfile.low.label}在五行统计中相对偏少，盘面内容上更像调节方向。`,
+      evidence: `${elementProfile.low.label}统计值为${formatNumber(elementProfile.low.value)}；五行统计：${formatElementSummary(context.elements)}。`,
+      meaning: `${elementProfile.low.label}对应的${elementTheme(elementProfile.low.key)}可以作为补充观察点。`,
+      caution: "偏少不等于现实缺失，仍要看藏干和岁运是否补入。",
+    });
+  }
+
+  return takeaways.slice(0, 6);
 }
 
 function buildMainNarrative(context, prioritySignals = []) {
@@ -268,7 +356,8 @@ function buildMainNarrative(context, prioritySignals = []) {
 }
 
 function buildStructureSections(context) {
-  return [
+  const relationItems = buildRelationStructureItems(context);
+  const sections = [
     {
       title: "日主与月令",
       evidence: `日干为${context.day.stem ?? "待查"}，月支为${context.month.branch ?? "待查"}；日主五行为${elementName(context.day.stemElement, context.day.stemElementLabel)}，月令五行为${elementName(context.month.branchElement, context.month.branchElementLabel)}。`,
@@ -282,16 +371,11 @@ function buildStructureSections(context) {
       needVerify: "还要区分天干、地支本气和藏干权重，数量只是结构入口。",
     },
     {
-      title: "十神分布",
-      evidence: `十神统计：${formatTenGodSummary(context.tenGodCounts) || EMPTY_TEXT}`,
-      explanation: "十神分布用来整理学习主题，例如资源、表达、规则、财星、同类力量等，不直接推出生活事件。",
-      needVerify: "还要看十神所在柱位、透藏层次、旺衰承接和岁运触发。",
-    },
-    {
-      title: "干支关系",
-      evidence: summarizeRelations(context) ? `出现关系：${summarizeRelations(context)}` : EMPTY_TEXT,
-      explanation: "干支关系说明盘内字与字之间的结构互动，传统命理中可作为观察点。",
-      needVerify: "还要回到参与关系的柱位、十神和原局强弱继续核对。",
+      title: "十神结构",
+      currentFocus: formatTenGodFocus(context.tenGodCounts),
+      evidence: `十神统计：${formatTenGodSummary(context.tenGodCounts) || EMPTY_TEXT}；十神分组：${formatTenGodGroupSummary(context.tenGodCounts)}。`,
+      explanation: "财、官杀、印、食伤、比劫在学习中分别对应资源对象与交换主题、规则压力与责任框架、学习吸收与支持系统、表达输出与技能呈现、同类力量与协作边界。这里用于整理主题入口，不把十神直接断成现实事件。",
+      needVerify: "还要看较突出的十神是否透出、落在哪些柱位、藏干层次、旺衰承接，以及是否和干支关系互相呼应。",
     },
     {
       title: "候选格局/规则命中",
@@ -300,36 +384,146 @@ function buildStructureSections(context) {
       needVerify: "还要核对规则来源、资料等级、柱位条件和岁运是否配合。",
     },
   ];
+  if (relationItems.length) {
+    sections.splice(3, 0, {
+      title: "干支关系与原局结构",
+      evidence: relationItems.map((item) => item.evidence).join("；"),
+      explanation: "只列出当前命盘实际出现的干支关系，用来观察原局内部哪些字有互动。",
+      needVerify: "还需要回到参与柱位、旺衰、十神、透藏层次和现实样本继续核对。",
+      relationItems,
+    });
+  }
+  return sections;
+}
+
+function buildRelationStructureItems(context) {
+  const items = [
+    ...context.combinations.map(relationFromCombination),
+    ...context.displayRelations.map(relationFromDisplay),
+    ...context.pairInteractions.flatMap(relationFromPairInteraction),
+  ].filter((item) => item.name && item.involvedGanzhi);
+  const seen = new Set();
+  return items.filter((item) => {
+    const key = `${item.name}|${item.involvedGanzhi}|${item.evidence}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function relationFromCombination(item = {}) {
+  const name = item.type ?? item.relation ?? relationNameFromTitle(item.title) ?? item.effect ?? "干支关系";
+  const involvedGanzhi = formatRelationMembers(item.ganzhi ?? item.members ?? item.pillars);
+  const evidence = `natal.combinations 命中${item.title ?? name}${involvedGanzhi ? `，涉及${involvedGanzhi}` : ""}`;
+  return {
+    name,
+    involvedGanzhi,
+    evidence,
+    plainExplanation: item.note ?? item.description ?? item.interpretation ?? `这组干支在原局中形成${item.effect ?? "互动"}，适合作为结构观察点。`,
+    needVerify: "还需要核对参与柱位、五行强弱、十神含义和透藏层次。",
+  };
+}
+
+function relationNameFromTitle(title) {
+  if (!title) return "";
+  const parts = String(title).split(/[：:]/).map((item) => item.trim()).filter(Boolean);
+  return parts.length > 1 ? parts[parts.length - 1] : title;
+}
+
+function relationFromDisplay(item = {}) {
+  const name = item.type ?? item.title ?? "干支关系";
+  const involvedGanzhi = formatRelationMembers(item.ganzhi ?? item.members);
+  const pillars = formatRelationMembers(item.pillars);
+  return {
+    name,
+    involvedGanzhi,
+    evidence: `display.relations 命中${name}${pillars ? `，参与柱位为${pillars}` : ""}${involvedGanzhi ? `，涉及${involvedGanzhi}` : ""}`,
+    plainExplanation: item.note ?? item.description ?? "这表示原局中有字与字之间的牵动，可作为观察互动方式和结构张力的入口。",
+    needVerify: "还需要核对参与柱位、对应十神、原局强弱和是否有其他关系共同参与。",
+  };
+}
+
+function relationFromPairInteraction(item = {}) {
+  return asArray(item.directRelations).map((rule) => {
+    const name = rule.title ?? rule.type ?? rule.effect ?? "干支关系";
+    const involvedGanzhi = item.title ?? formatRelationMembers(rule.ganzhi ?? rule.members);
+    return {
+      name,
+      involvedGanzhi,
+      evidence: `pairInteractions 显示${item.title ?? "柱位互动"}命中${name}`,
+      plainExplanation: rule.note ?? item.impact ?? `这组柱位存在${name}，适合观察两个柱位之间的牵动方式。`,
+      needVerify: "还需要核对两个柱位各自代表的主题、十神含义、旺衰承接和原局整体配合。",
+    };
+  });
+}
+
+function formatRelationMembers(value) {
+  return asArray(value).filter(Boolean).join("、");
+}
+
+function formatTenGodFocus(counts = {}) {
+  const entries = Object.entries(counts)
+    .filter(([, count]) => Number(count) > 0)
+    .sort((left, right) => Number(right[1]) - Number(left[1]));
+  if (!entries.length) return "当前十神资料暂少，先保留为待观察。";
+  const max = Number(entries[0][1]);
+  const focused = entries.filter(([, count]) => Number(count) === max).map(([name, count]) => `${name}${formatNumber(count)}`);
+  return `${focused.join("、")}较突出，可作为当前十神重点继续观察。`;
+}
+
+function formatTenGodGroupSummary(counts = {}) {
+  return [
+    ["财", ["正财", "偏财"]],
+    ["官杀", ["正官", "七杀", "偏官"]],
+    ["印", ["正印", "偏印"]],
+    ["食伤", ["食神", "伤官"]],
+    ["比劫", ["比肩", "劫财"]],
+  ].map(([label, names]) => `${label}${formatNumber(tenGodGroupCount(counts, names))}`).join("、");
 }
 
 function buildThemeSections(context) {
   const tenGodSummary = formatTenGodSummary(context.tenGodCounts) || EMPTY_TEXT;
   const relations = summarizeRelations(context) || EMPTY_TEXT;
   const evidenceBase = `日主${formatDayMaster(context)}、月令${formatMonthBranch(context)}、五行${formatElementSummary(context.elements)}`;
+  const tenGodProfile = getTenGodProfile(context.tenGodCounts);
+  const wealthCount = tenGodGroupCount(context.tenGodCounts, ["正财", "偏财"]);
+  const resourceCount = tenGodGroupCount(context.tenGodCounts, ["正印", "偏印"]);
+  const pressureCount = tenGodGroupCount(context.tenGodCounts, ["正官", "七杀", "偏官"]);
   return [
     {
-      title: "自我与性格表达",
-      observation: `先观察${formatDayMaster(context)}如何承接月令与五行分布，表达方式可以从日主、比劫、食伤和五行偏重处学习。`,
+      title: "性格与表达方式",
+      reading: `${formatDayMaster(context)}日主在${formatMonthBranch(context)}月令下，五行统计为${formatElementSummary(context.elements)}，自我表达更适合从日主承接月令、同类力量和食伤线索一起看。`,
       evidence: `依据来自${evidenceBase}。`,
-      limitation: "性格表达还受柱位、家庭环境和现实选择影响，当前只是候选信号。",
+      likelyExpression: "可能表现为更重视标准、边界、表达节奏或做事手感，具体方向取决于十神落点。",
+      caution: "性格表达还受现实环境和选择影响，不能单独作为结论。",
     },
     {
-      title: "学习/资源/贵人结构",
-      observation: "先看印星、资源类十神和藏干来源，观察学习、吸收、支持系统是否在盘面中较容易被看见。",
-      evidence: `依据来自十神统计：${tenGodSummary}。`,
-      limitation: "资源结构需要看是否透出、是否得地、是否能被日主承接。",
+      title: "学习资源与支持系统",
+      reading: `资源类十神合计为${formatNumber(resourceCount)}，十神统计为${tenGodSummary}，这个主题会落在学习吸收、资质支持、长辈或系统资源如何承接日主。`,
+      evidence: `依据来自十神统计和藏干口径：${tenGodSummary}；藏干五行为${formatElementSummary(context.hiddenElements)}。`,
+      likelyExpression: "可能表现为重视方法、证据、训练路径或外部支持系统。",
+      caution: "资源是否能用上，还要看透干、柱位和现实条件。",
     },
     {
-      title: "事业/规则/压力结构",
-      observation: "先看官杀、印星、食伤和财星之间是否形成可解释的规则、责任、表达与资源链条。",
-      evidence: `依据来自十神统计和规则命中：${[tenGodSummary, summarizeCandidates(context)].filter(Boolean).join("；") || EMPTY_TEXT}。`,
-      limitation: "事业相关主题需要结合大运流年和现实阶段，只能先作为结构观察。",
+      title: "事业规则与压力结构",
+      reading: `规则压力类十神合计为${formatNumber(pressureCount)}，当前十神重心为${tenGodProfile.top?.name ?? "待补"}，事业主题更适合观察责任、规则、要求和资源承接之间的关系。`,
+      evidence: `依据来自十神统计：${tenGodSummary}；规则命中：${summarizeCandidates(context) || EMPTY_TEXT}。`,
+      likelyExpression: "可能表现为容易把注意力放在标准、流程、资格、责任分配或组织规则上。",
+      caution: "事业方向需要结合阶段、行业和大运流年，不直接推出好坏。",
     },
     {
-      title: "感情/合作/关系结构",
-      observation: "先看日支、财官类十神、合冲刑害破等关系层，观察互动方式和合作边界。",
+      title: "财务资源与行动方式",
+      reading: `财星类十神合计为${formatNumber(wealthCount)}，在这个盘中财务资源主题更适合看资源对象、行动选择和日主能否承接。`,
+      evidence: `依据来自十神统计：${tenGodSummary}；五行统计：${formatElementSummary(context.elements)}。`,
+      likelyExpression: "可能表现为关注现实资源、客户对象、投入产出或可执行的行动路径。",
+      caution: "财务主题不等于收入结论，需要结合岁运和现实选择继续判断。",
+    },
+    {
+      title: "感情合作与关系结构",
+      reading: `关系主题会先看日支、财官类十神和干支互动；当前可见${relations}，说明合作与互动更适合从边界、牵动和参与柱位来读。`,
       evidence: `依据来自干支关系与盘面互动：${relations}。`,
-      limitation: "感情与合作需要结合具体对象、岁运触发和现实互动。",
+      likelyExpression: "可能表现为在合作或关系中重视规则感、互动边界、沟通节奏或双方位置。",
+      caution: "感情合作需要结合具体对象、岁运触发和现实互动，不直接下关系结论。",
     },
   ];
 }
@@ -442,6 +636,9 @@ function ensurePriorityRange(signals) {
       whyImportant: "五行分布能帮助判断盘面先看哪类气势。",
       evidence: "五行统计仍可作为基础学习入口。",
       howToRead: "先比较五行数量，再看来源和柱位。",
+      contentReading: "当前盘面仍可从五行统计读出结构轻重，先看哪一类五行更有存在感。",
+      themeMeaning: "五行分布对应盘面气势、表达方式和调节方向。",
+      limitation: "五行统计需要配合日主、月令和十神。",
       nextCheck: "继续核对天干、地支和藏干。",
     },
     {
@@ -449,8 +646,11 @@ function ensurePriorityRange(signals) {
       level: "support",
       score: 58,
       whyImportant: "十神用于整理学习主题。",
-      evidence: "十神统计可作为主题观察入口。",
+      evidence: "十神统计可作为主题线索。",
       howToRead: "先看十神是否透出，再看柱位。",
+      contentReading: "当前盘面可从十神统计观察资源、表达、规则、财星和同类力量的分布。",
+      themeMeaning: "十神分布对应具体学习主题的轻重。",
+      limitation: "十神需要看透干、藏干和柱位。",
       nextCheck: "继续核对透藏层次。",
     },
     {
@@ -460,6 +660,9 @@ function ensurePriorityRange(signals) {
       whyImportant: "岁运用于后续触发层学习。",
       evidence: "大运流年模块会继续提供触发线索。",
       howToRead: "先回到原局主题，再看岁运是否重复触发。",
+      contentReading: "大运流年会把原局五行、十神或关系主题带到时间层观察。",
+      themeMeaning: "岁运对应阶段性触发和主题重复。",
+      limitation: "岁运需要回到原局一起看。",
       nextCheck: "继续查看大运流年。",
     },
   ];
@@ -479,6 +682,9 @@ function ensurePriorityRange(signals) {
       whyImportant: signal.whyImportant,
       evidence: signal.evidence,
       howToRead: signal.howToRead,
+      contentReading: signal.contentReading,
+      themeMeaning: signal.themeMeaning,
+      limitation: signal.limitation,
       nextCheck: signal.nextCheck,
     }));
 }
@@ -530,6 +736,29 @@ function countCandidates(context) {
     + context.matchedRules.length
     + context.referenceKnowledgeHits.length
     + context.learningRuleHits.length;
+}
+
+function tenGodGroupCount(counts = {}, names = []) {
+  return names.reduce((sum, name) => sum + Number(counts[name] ?? 0), 0);
+}
+
+function elementTheme(key) {
+  return {
+    wood: "生发、规划、资源开拓和成长弹性",
+    fire: "表达、可见度、热度、礼法和推动力",
+    earth: "承载、稳定、整合、信任和现实落点",
+    metal: "规则、边界、执行、精细化和判断标准",
+    water: "流动、学习、沟通、信息和适应能力",
+  }[key] ?? "五行主题";
+}
+
+function tenGodMeaning(name) {
+  if (["正印", "偏印"].includes(name)) return "学习吸收、资质支持、保护系统和方法来源";
+  if (["食神", "伤官"].includes(name)) return "表达输出、技能呈现、创造方式和反馈机制";
+  if (["正官", "七杀", "偏官"].includes(name)) return "规则压力、责任结构、约束要求和执行标准";
+  if (["正财", "偏财"].includes(name)) return "现实资源、经营对象、投入产出和行动选择";
+  if (["比肩", "劫财"].includes(name)) return "自我力量、同类关系、边界竞争和协作分工";
+  return "十神主题";
 }
 
 function normalizeElementCounts(primary, fallback = {}) {

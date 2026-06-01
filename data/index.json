@@ -11,7 +11,7 @@
     "title": "八字核心数据整合包",
     "status": "active",
     "purpose": "页面默认读取这个文件。包含排盘核心数据、基础规则、城市经纬度和学习型解释知识库结构。",
-    "datasetCount": 16
+    "datasetCount": 21
   },
   "sourceDirectory": "source/",
   "sourceRegistry": "source/00-来源-sources.json",
@@ -143,6 +143,46 @@
       "title": "参考资料知识卡",
       "status": "draft",
       "entryCount": 1
+    },
+    {
+      "id": "ten-god-signal-rules",
+      "bundleKey": "tenGodSignalRules",
+      "file": "source/ten-god-signal-rules.json",
+      "title": "核心取象十神规则",
+      "status": "active",
+      "entryCount": 7
+    },
+    {
+      "id": "element-signal-rules",
+      "bundleKey": "elementSignalRules",
+      "file": "source/element-signal-rules.json",
+      "title": "核心取象五行规则",
+      "status": "active",
+      "entryCount": 3
+    },
+    {
+      "id": "relation-signal-rules",
+      "bundleKey": "relationSignalRules",
+      "file": "source/relation-signal-rules.json",
+      "title": "核心取象关系规则",
+      "status": "active",
+      "entryCount": 7
+    },
+    {
+      "id": "palace-signal-rules",
+      "bundleKey": "palaceSignalRules",
+      "file": "source/palace-signal-rules.json",
+      "title": "核心取象柱位规则",
+      "status": "active",
+      "entryCount": 4
+    },
+    {
+      "id": "topic-tag-rules",
+      "bundleKey": "topicTagRules",
+      "file": "source/topic-tag-rules.json",
+      "title": "核心取象主题标签规则",
+      "status": "active",
+      "entryCount": 9
     }
   ],
   "usageGuide": {

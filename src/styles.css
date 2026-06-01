@@ -161,6 +161,92 @@ h3 {
   margin-bottom: 16px;
 }
 
+#overallReadingPlugin {
+  width: 100%;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.core-report-shell {
+  display: grid;
+  gap: 16px;
+}
+
+.core-report-header {
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin-bottom: 0;
+}
+
+.core-report-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.core-report-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdf8;
+  box-shadow: 0 10px 28px rgba(50, 42, 28, 0.06);
+}
+
+.core-report-card h3 {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.core-report-card p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.core-report-card b {
+  color: var(--ink);
+}
+
+.core-relation-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.core-relation-item,
+.core-relation-detail-item {
+  padding: 10px 12px;
+  border: 1px solid rgba(47, 111, 115, 0.18);
+  border-radius: 8px;
+  background: #fffaf1;
+}
+
+.core-relation-item p,
+.core-relation-detail-item p {
+  margin-top: 6px;
+}
+
+.core-relation-item p:first-child,
+.core-relation-detail-item p:first-child {
+  margin-top: 0;
+}
+
+.core-relation-more {
+  margin-top: 10px;
+}
+
+.core-relation-more summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .birth-form {
   display: grid;
   gap: 14px;
@@ -1737,6 +1823,7 @@ h3 {
   .pillar-grid,
   .selected-flow,
   .transit-layout,
+  .core-report-grid,
   .topic-body,
   .energy-row,
   .mini-energy,

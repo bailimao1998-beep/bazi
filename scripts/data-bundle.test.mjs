@@ -25,6 +25,11 @@ const requiredBundleKeys = [
   "caseStudies",
   "aiPrompts",
   "referenceKnowledge",
+  "tenGodSignalRules",
+  "elementSignalRules",
+  "relationSignalRules",
+  "palaceSignalRules",
+  "topicTagRules",
 ];
 
 const restoredSourceFiles = [

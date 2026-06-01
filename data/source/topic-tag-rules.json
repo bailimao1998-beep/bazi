@@ -1,0 +1,269 @@
+{
+  "_meta": {
+    "file": "topic-tag-rules.json",
+    "title": "核心取象：主题标签规则",
+    "description": "供 coreSignalsEngine 使用的结构化主题标签规则。",
+    "version": "1.0.0",
+    "sourceRegistry": "00-来源-sources.json",
+    "sourceIds": [
+      "ten-gods",
+      "branch-relations",
+      "branch-six-breaks-bazitalk"
+    ],
+    "status": "active"
+  },
+  "rules": [
+    {
+      "id": "topic-resource-visible",
+      "category": "topicTags",
+      "name": "学习资源明显",
+      "conditions": {
+        "tenGodGroupCount": {
+          "group": "resource",
+          "operator": ">=",
+          "value": 2
+        }
+      },
+      "outputs": {
+        "name": "学习资源明显"
+      },
+      "evidenceTemplate": "印星计数：{count}",
+      "confidence": "medium",
+      "needVerify": [
+        "标签只是索引，后续仍需结合柱位、旺衰和大运流年"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "ten-gods"
+        }
+      ],
+      "sourceIds": [
+        "ten-gods"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "topic-output-weak",
+      "category": "topicTags",
+      "name": "表达输出偏弱",
+      "conditions": {
+        "tenGodGroupCount": {
+          "group": "output",
+          "operator": "<=",
+          "value": 1
+        }
+      },
+      "outputs": {
+        "name": "表达输出偏弱"
+      },
+      "evidenceTemplate": "食伤计数：{count}",
+      "confidence": "low",
+      "needVerify": [
+        "需要结合食伤是否透干、藏干是否有根复核"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "ten-gods"
+        }
+      ],
+      "sourceIds": [
+        "ten-gods"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "topic-authority-present",
+      "category": "topicTags",
+      "name": "规则压力存在",
+      "conditions": {
+        "tenGodGroupCount": {
+          "group": "authority",
+          "operator": ">",
+          "value": 0
+        }
+      },
+      "outputs": {
+        "name": "规则压力存在"
+      },
+      "evidenceTemplate": "官杀计数：{count}",
+      "confidence": "medium",
+      "needVerify": [
+        "需要结合官杀所在柱位、强弱和岁运触发复核"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "ten-gods"
+        }
+      ],
+      "sourceIds": [
+        "ten-gods"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "topic-wealth-present",
+      "category": "topicTags",
+      "name": "财星有线索",
+      "conditions": {
+        "tenGodGroupCount": {
+          "group": "wealth",
+          "operator": ">",
+          "value": 0
+        }
+      },
+      "outputs": {
+        "name": "财星有线索"
+      },
+      "evidenceTemplate": "财星计数：{count}",
+      "confidence": "medium",
+      "needVerify": [
+        "需要结合财星来源、柱位和日主承接能力复核"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "ten-gods"
+        }
+      ],
+      "sourceIds": [
+        "ten-gods"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "topic-relation-combination",
+      "category": "topicTags",
+      "name": "关系有合",
+      "conditions": {
+        "relationTypeIncludes": "合"
+      },
+      "outputs": {
+        "name": "关系有合"
+      },
+      "evidenceTemplate": "关系类型：{relationType}",
+      "confidence": "medium",
+      "needVerify": [
+        "合类关系需要复核是否具备合化条件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "branch-relations"
+        }
+      ],
+      "sourceIds": [
+        "branch-relations"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "topic-relation-break",
+      "category": "topicTags",
+      "name": "关系有破",
+      "conditions": {
+        "relationTypeIncludes": "破"
+      },
+      "outputs": {
+        "name": "关系有破"
+      },
+      "evidenceTemplate": "关系类型：{relationType}",
+      "confidence": "medium",
+      "needVerify": [
+        "破类关系需要结合柱位和岁运触发复核"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "branch-six-breaks-bazitalk"
+        }
+      ],
+      "sourceIds": [
+        "branch-six-breaks-bazitalk"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "topic-relation-clash",
+      "category": "topicTags",
+      "name": "关系有冲",
+      "conditions": {
+        "relationTypeIncludes": "冲"
+      },
+      "outputs": {
+        "name": "关系有冲"
+      },
+      "evidenceTemplate": "关系类型：{relationType}",
+      "confidence": "medium",
+      "needVerify": [
+        "冲类关系需要结合柱位和岁运触发复核"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "branch-relations"
+        }
+      ],
+      "sourceIds": [
+        "branch-relations"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "topic-professional-accumulation",
+      "category": "topicTags",
+      "name": "适合看专业积累",
+      "conditions": {
+        "anyTenGodGroupCount": [
+          {
+            "group": "resource",
+            "operator": ">",
+            "value": 0
+          },
+          {
+            "group": "authority",
+            "operator": ">",
+            "value": 0
+          }
+        ]
+      },
+      "outputs": {
+        "name": "适合看专业积累"
+      },
+      "evidenceTemplate": "印星{resourceCount}，官杀{authorityCount}",
+      "confidence": "low",
+      "needVerify": [
+        "需要结合印星、官杀的柱位与岁运触发复核"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "ten-gods"
+        }
+      ],
+      "sourceIds": [
+        "ten-gods"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "topic-transit-needed",
+      "category": "topicTags",
+      "name": "需要结合大运验证",
+      "conditions": {
+        "anyRelation": true
+      },
+      "outputs": {
+        "name": "需要结合大运验证"
+      },
+      "evidenceTemplate": "原局关系数：{relationCount}",
+      "confidence": "medium",
+      "needVerify": [
+        "原局信号需要岁运触发层复核"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "branch-relations"
+        }
+      ],
+      "sourceIds": [
+        "branch-relations"
+      ],
+      "status": "active"
+    }
+  ]
+}

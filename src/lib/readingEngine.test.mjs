@@ -89,6 +89,26 @@ test("uses the calculated lichun moment rather than a fixed date for year and mo
   assert.equal(afterLichun.natal.pillars.month.label, "丙寅");
 });
 
+test("switches the birth month pillar at the calculated solar-term moment", () => {
+  const beforeJingzhe = analyzeBirth({
+    date: "2024-03-05",
+    time: "09:00",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+  const afterJingzhe = analyzeBirth({
+    date: "2024-03-05",
+    time: "11:00",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+
+  assert.equal(beforeJingzhe.natal.pillars.month.label, "丙寅");
+  assert.equal(beforeJingzhe.natal.pillars.month.meta.nextSolarTerm, "惊蛰");
+  assert.equal(afterJingzhe.natal.pillars.month.label, "丁卯");
+  assert.equal(afterJingzhe.natal.pillars.month.meta.solarTerm, "惊蛰");
+});
+
 test("anchors the sexagenary day cycle on 1984-02-02 as bing-yin day", () => {
   const reading = analyzeBirth({
     date: "1984-02-02",
@@ -98,6 +118,28 @@ test("anchors the sexagenary day cycle on 1984-02-02 as bing-yin day", () => {
   });
 
   assert.equal(reading.natal.pillars.day.label, "丙寅");
+});
+
+test("keeps 22:59 on the same day and applies late zi from 23:00", () => {
+  const beforeLateZi = analyzeBirth({
+    date: "2000-01-01",
+    time: "22:59",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+  const atLateZi = analyzeBirth({
+    date: "2000-01-01",
+    time: "23:00",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+
+  assert.equal(beforeLateZi.natal.pillars.day.label, "戊午");
+  assert.equal(beforeLateZi.natal.pillars.hour.label, "癸亥");
+  assert.equal(beforeLateZi.natal.chartMeta.calendar.dayPillarDate, "2000-01-01");
+  assert.equal(atLateZi.natal.pillars.day.label, "己未");
+  assert.equal(atLateZi.natal.pillars.hour.label, "甲子");
+  assert.equal(atLateZi.natal.chartMeta.calendar.dayPillarDate, "2000-01-02");
 });
 
 test("applies late zi hour as the next sexagenary day for day and hour pillars", () => {
@@ -138,6 +180,44 @@ test("recalculates hour pillar after true solar time crosses an hour branch", ()
   assert.equal(trueSolarTime.natal.basicBaziDisplay.calendar.finalDate, "1998-09-10");
 });
 
+test("true solar time can change final date, day pillar, and hour pillar", () => {
+  const datasets = {
+    locations: {
+      cities: [
+        {
+          name: "乌鲁木齐",
+          longitude: 87.62,
+          latitude: 43.82,
+          timezone: "Asia/Shanghai",
+          standardMeridian: 120,
+        },
+      ],
+    },
+  };
+  const standard = analyzeBirth({
+    date: "1992-08-18",
+    time: "00:30",
+    birthplace: "乌鲁木齐",
+    trueSolarTime: false,
+    selectedYear: 2026,
+    selectedMonth: 5,
+  }, datasets);
+  const trueSolar = analyzeBirth({
+    date: "1992-08-18",
+    time: "00:30",
+    birthplace: "乌鲁木齐",
+    trueSolarTime: true,
+    selectedYear: 2026,
+    selectedMonth: 5,
+  }, datasets);
+
+  assert.equal(standard.natal.pillars.day.label, "丙寅");
+  assert.equal(standard.natal.pillars.hour.label, "戊子");
+  assert.equal(trueSolar.natal.chartMeta.calendar.solarDate, "1992-08-17");
+  assert.equal(trueSolar.natal.pillars.day.label, "乙丑");
+  assert.equal(trueSolar.natal.pillars.hour.label, "丁亥");
+});
+
 test("normalizes lunar birth input to the equivalent Gregorian chart", () => {
   const solar = analyzeBirth({
     calendarType: "solar",
@@ -160,6 +240,30 @@ test("normalizes lunar birth input to the equivalent Gregorian chart", () => {
   assert.deepEqual(lunar.natal.pillars, solar.natal.pillars);
   assert.equal(lunar.natal.chartMeta.calendar.originalSolarDate, "1992-08-18");
   assert.equal(lunar.natal.chartMeta.calendar.lunarDate, "农历壬申年七月二十");
+  assert.equal(lunar.natal.chartMeta.calendar.inputCalendarType, "lunar");
+});
+
+test("normalizes leap lunar birth input to the same chart as its Gregorian date", () => {
+  const solar = analyzeBirth({
+    calendarType: "solar",
+    date: "2012-05-21",
+    time: "09:15",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+  const lunar = analyzeBirth({
+    calendarType: "lunar",
+    lunarYear: 2012,
+    lunarMonth: 4,
+    lunarDay: 1,
+    lunarLeapMonth: true,
+    time: "09:15",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+
+  assert.deepEqual(lunar.natal.pillars, solar.natal.pillars);
+  assert.equal(lunar.natal.chartMeta.calendar.originalSolarDate, "2012-05-21");
   assert.equal(lunar.natal.chartMeta.calendar.inputCalendarType, "lunar");
 });
 
@@ -623,6 +727,56 @@ test("adds professional chart metadata and luck pillars", () => {
   assert.equal(reading.luck.pillars.length, 10);
   assert.equal(reading.luck.pillars[0].label, "己酉");
   assert.equal(reading.luck.pillars[0].startAge, 7);
+});
+
+test("calculates major-luck direction and start age from the correct solar-term side", () => {
+  const maleYangYear = analyzeBirth({
+    date: "1992-08-18",
+    time: "14:30",
+    gender: "male",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+  const femaleYangYear = analyzeBirth({
+    date: "1992-08-18",
+    time: "14:30",
+    gender: "female",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+  const maleYinYear = analyzeBirth({
+    date: "1991-08-18",
+    time: "14:30",
+    gender: "male",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+  const femaleYinYear = analyzeBirth({
+    date: "1991-08-18",
+    time: "14:30",
+    gender: "female",
+    selectedYear: 2026,
+    selectedMonth: 5,
+  });
+
+  assert.equal(maleYangYear.luck.direction, "forward");
+  assert.equal(maleYangYear.luck.startCalculation.boundaryName, "白露");
+  assert.equal(maleYangYear.luck.startAge, 7);
+  assert.equal(maleYangYear.luck.pillars[0].label, "己酉");
+
+  assert.equal(femaleYangYear.luck.direction, "reverse");
+  assert.equal(femaleYangYear.luck.startCalculation.boundaryName, "立秋");
+  assert.equal(femaleYangYear.luck.startAge, 4);
+  assert.equal(femaleYangYear.luck.startCalculation.ageText, "3年8个月");
+  assert.equal(femaleYangYear.luck.pillars[0].label, "丁未");
+
+  assert.equal(maleYinYear.luck.direction, "reverse");
+  assert.equal(maleYinYear.luck.startCalculation.boundaryName, "立秋");
+  assert.equal(maleYinYear.luck.startAge, 3);
+
+  assert.equal(femaleYinYear.luck.direction, "forward");
+  assert.equal(femaleYinYear.luck.startCalculation.boundaryName, "白露");
+  assert.equal(femaleYinYear.luck.startAge, 7);
 });
 
 test("returns core chart expert metadata for rendering professional tabs", () => {

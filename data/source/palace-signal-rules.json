@@ -1,0 +1,140 @@
+{
+  "_meta": {
+    "file": "palace-signal-rules.json",
+    "title": "核心取象：柱位信号规则",
+    "description": "供 coreSignalsEngine 使用的年、月、日、时柱基础柱位规则。",
+    "version": "1.0.0",
+    "sourceRegistry": "00-来源-sources.json",
+    "sourceIds": [
+      "core-stems-branches",
+      "ten-gods"
+    ],
+    "status": "active"
+  },
+  "rules": [
+    {
+      "id": "palace-year",
+      "category": "palaceSignals",
+      "name": "年柱",
+      "conditions": {
+        "pillarKey": "year"
+      },
+      "outputs": {
+        "pillarKey": "year",
+        "basicMeaningKeywords": [
+          "来源",
+          "早年",
+          "外缘"
+        ]
+      },
+      "evidenceTemplate": "年柱：{ganzhi}",
+      "confidence": "medium",
+      "needVerify": [
+        "柱位含义只做基础取象，需要结合整体结构和岁运"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "core-stems-branches"
+        }
+      ],
+      "sourceIds": [
+        "core-stems-branches"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "palace-month",
+      "category": "palaceSignals",
+      "name": "月柱",
+      "conditions": {
+        "pillarKey": "month"
+      },
+      "outputs": {
+        "pillarKey": "month",
+        "basicMeaningKeywords": [
+          "月令",
+          "环境",
+          "秩序"
+        ]
+      },
+      "evidenceTemplate": "月柱：{ganzhi}",
+      "confidence": "medium",
+      "needVerify": [
+        "月柱取象需要结合节气月令和十神落点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "core-stems-branches"
+        },
+        {
+          "sourceId": "ten-gods"
+        }
+      ],
+      "sourceIds": [
+        "core-stems-branches",
+        "ten-gods"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "palace-day",
+      "category": "palaceSignals",
+      "name": "日柱",
+      "conditions": {
+        "pillarKey": "day"
+      },
+      "outputs": {
+        "pillarKey": "day",
+        "basicMeaningKeywords": [
+          "日主",
+          "日支",
+          "自身参照"
+        ]
+      },
+      "evidenceTemplate": "日柱：{ganzhi}",
+      "confidence": "medium",
+      "needVerify": [
+        "日柱取象需要结合日主、日支和全局结构"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "core-stems-branches"
+        }
+      ],
+      "sourceIds": [
+        "core-stems-branches"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "palace-hour",
+      "category": "palaceSignals",
+      "name": "时柱",
+      "conditions": {
+        "pillarKey": "hour"
+      },
+      "outputs": {
+        "pillarKey": "hour",
+        "basicMeaningKeywords": [
+          "后续",
+          "子女",
+          "长期计划"
+        ]
+      },
+      "evidenceTemplate": "时柱：{ganzhi}",
+      "confidence": "medium",
+      "needVerify": [
+        "时柱取象需要先复核出生时间和时柱稳定性"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "core-stems-branches"
+        }
+      ],
+      "sourceIds": [
+        "core-stems-branches"
+      ],
+      "status": "active"
+    }
+  ]
+}

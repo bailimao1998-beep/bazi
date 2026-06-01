@@ -30,57 +30,106 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   context.window.BaziSections.renderCaseShowcase({ state, el });
 
   assert.match(el.overall.innerHTML, /核心解读报告/);
-  assert.match(el.overall.innerHTML, /统一学习提示/);
-  assert.match(el.overall.innerHTML, /读盘重点排序/);
-  assert.match(el.overall.innerHTML, /第1重点/);
-  assert.match(el.overall.innerHTML, /为什么重要/);
-  assert.match(el.overall.innerHTML, /下一步看什么/);
-  assert.match(el.overall.innerHTML, /老师式讲盘摘要/);
-  assert.match(el.overall.innerHTML, /此盘以辛金日主为中心/);
-  assert.match(el.overall.innerHTML, /酉金对它/);
-  assert.match(el.overall.innerHTML, /结构重点/);
-  assert.match(el.overall.innerHTML, /日主与月令/);
-  assert.match(el.overall.innerHTML, /五行力量/);
-  assert.match(el.overall.innerHTML, /十神分布/);
-  assert.match(el.overall.innerHTML, /干支关系/);
-  assert.match(el.overall.innerHTML, /盘面证据/);
-  assert.match(el.overall.innerHTML, /怎么理解/);
-  assert.match(el.overall.innerHTML, /还要验证什么/);
-  assert.match(el.overall.innerHTML, /主题观察/);
-  assert.match(el.overall.innerHTML, /自我与性格表达/);
-  assert.match(el.overall.innerHTML, /学习\/资源\/贵人结构/);
-  assert.match(el.overall.innerHTML, /事业\/规则\/压力结构/);
-  assert.match(el.overall.innerHTML, /感情\/合作\/关系结构/);
-  assert.match(el.overall.innerHTML, /当前观察点/);
-  assert.match(el.overall.innerHTML, /依据来自哪里/);
-  assert.match(el.overall.innerHTML, /暂不能下结论的原因/);
-  assert.match(el.overall.innerHTML, /风险与不确定/);
-  assert.match(el.overall.innerHTML, /出生时间是否准确/);
-  assert.match(el.overall.innerHTML, /真太阳时是否启用/);
-  assert.match(el.overall.innerHTML, /节气边界/);
-  assert.match(el.overall.innerHTML, /晚子时换日规则/);
-  assert.match(el.overall.innerHTML, /起运仍需结合具体算法复核/);
-  assert.match(el.overall.innerHTML, /当前规则库还是 Beta/);
-  assert.match(el.overall.innerHTML, /下一步看岁运/);
-  assert.match(el.overall.innerHTML, /原局只看结构，具体年份需要看大运、流年、流月是否再次触发原局主题/);
+  assert.match(el.overall.innerHTML, /core-report-shell/);
+  assert.match(el.overall.innerHTML, /core-report-grid/);
+  assert.match(el.overall.innerHTML, /整体画像/);
+  assert.match(el.overall.innerHTML, /性格与思维/);
+  assert.match(el.overall.innerHTML, /学习与资源/);
+  assert.match(el.overall.innerHTML, /事业方向/);
+  assert.match(el.overall.innerHTML, /财富与现实/);
+  assert.match(el.overall.innerHTML, /感情与合作/);
+  assert.match(el.overall.innerHTML, /优势与短板/);
+  assert.match(el.overall.innerHTML, /证据链/);
+  assert.match(el.overall.innerHTML, /盘面依据/);
+  assert.match(el.overall.innerHTML, /白话解释/);
+  assert.match(el.overall.innerHTML, /辛金/);
+  assert.match(el.overall.innerHTML, /比劫/);
+  assert.match(el.overall.innerHTML, /精细、重标准、讲边界/);
+  assert.match(el.overall.innerHTML, /整体更偏自我标准清楚、边界感较强/);
+  assert.match(el.overall.innerHTML, /思维上容易先看规则、质感和可控性/);
+  assert.match(el.overall.innerHTML, /表达和行动不算完全外放/);
+  assert.match(el.overall.innerHTML, /学习、证书、长辈支持和平台资源/);
+  assert.match(el.overall.innerHTML, /规则型、专业型、证书型、平台型工作/);
+  assert.match(el.overall.innerHTML, /财富线索来自年柱正财/);
+  assert.match(el.overall.innerHTML, /赚钱方式更适合围绕稳定资源、客户需求和专业服务/);
+  assert.match(el.overall.innerHTML, /日支为酉，日支主气为比肩/);
+  assert.match(el.overall.innerHTML, /亲密关系和合作里，容易先强调平等、边界和同频/);
+  assert.match(el.overall.innerHTML, /优势：标准感强/);
+  assert.match(el.overall.innerHTML, /优势：有印星承接/);
+  assert.match(el.overall.innerHTML, /短板：火在明面不见/);
+  assert.match(el.overall.innerHTML, /短板：比劫较突出/);
+  assert.match(el.overall.innerHTML, /依据：日主辛金/);
+  assert.match(el.overall.innerHTML, /地支六破/);
+  assert.match(el.overall.innerHTML, /当前十神中，比劫较突出/);
+  assert.match(el.overall.innerHTML, /比劫主要落在月柱和日支/);
+  assert.match(el.overall.innerHTML, /正印出现在年柱和时柱/);
+  assert.match(el.overall.innerHTML, /五行中金、土较明显，火在明面不见；藏干里金、木较有来源。/);
+  assert.match(el.overall.innerHTML, /天干相生/);
+  assert.match(el.overall.innerHTML, /戊、辛/);
+  assert.match(el.overall.innerHTML, /酉、子/);
+  assert.match(el.overall.innerHTML, /酉子破/);
+  assert.equal(countOccurrences(el.overall.innerHTML, "core-report-card"), 8);
+  assert.equal(countOccurrences(el.overall.innerHTML, "盘面依据"), 8);
+  assert.equal(countOccurrences(el.overall.innerHTML, "白话解释"), 8);
+  assert.doesNotMatch(el.overall.innerHTML, /十神分组显示/);
+  assert.doesNotMatch(el.overall.innerHTML, /印象/);
+  assert.doesNotMatch(el.overall.innerHTML, /日主是谁/);
+  assert.doesNotMatch(el.overall.innerHTML, /日主是中心/);
+  assert.doesNotMatch(el.overall.innerHTML, /十神是观察入口/);
+  assert.doesNotMatch(el.overall.innerHTML, /我是谁：日主/);
+  assert.doesNotMatch(el.overall.innerHTML, /环境在哪：月令/);
+  assert.doesNotMatch(el.overall.innerHTML, /最明显的象/);
+  assert.doesNotMatch(el.overall.innerHTML, /这个象有没有力量/);
+  assert.doesNotMatch(el.overall.innerHTML, /这个象和谁发生关系/);
+  assert.doesNotMatch(el.overall.innerHTML, /这个象落到什么人事/);
+  assert.doesNotMatch(el.overall.innerHTML, /natal\.combinations/);
+  assert.doesNotMatch(el.overall.innerHTML, /display\.relations/);
+  assert.doesNotMatch(el.overall.innerHTML, /pairInteractions/);
+  assert.doesNotMatch(el.overall.innerHTML, /关系牵动：/);
+  assert.doesNotMatch(el.overall.innerHTML, /命盘主线/);
+  assert.doesNotMatch(el.overall.innerHTML, /盘面重点/);
+  assert.doesNotMatch(el.overall.innerHTML, /五行与十神简析/);
+  assert.doesNotMatch(el.overall.innerHTML, /<h3>五行状态<\/h3>/);
+  assert.doesNotMatch(el.overall.innerHTML, /<h3>十神主题<\/h3>/);
+  assert.doesNotMatch(el.overall.innerHTML, /干支关系简析/);
+  assert.doesNotMatch(el.overall.innerHTML, /下一步看大运流年/);
+  assert.doesNotMatch(el.overall.innerHTML, /观察入口/);
+  assert.doesNotMatch(el.overall.innerHTML, /不直接等同现实事件/);
+  assert.doesNotMatch(el.overall.innerHTML, /不直接断成现实事件/);
+  assert.doesNotMatch(el.overall.innerHTML, /核心内容结论/);
+  assert.doesNotMatch(el.overall.innerHTML, /宫位与六亲/);
+  assert.doesNotMatch(el.overall.innerHTML, /本盘先怎么看/);
+  assert.doesNotMatch(el.overall.innerHTML, /下一步怎么看/);
+  assert.doesNotMatch(el.overall.innerHTML, /读盘重点排序/);
+  assert.doesNotMatch(el.overall.innerHTML, /老师式讲盘摘要/);
+  assert.doesNotMatch(el.overall.innerHTML, /prioritySignals/);
+  assert.doesNotMatch(el.overall.innerHTML, /teacherSummary/);
+  assert.doesNotMatch(el.overall.innerHTML, /secondaryNotes/);
+  assert.doesNotMatch(el.overall.innerHTML, /主题观察/);
+  assert.doesNotMatch(el.overall.innerHTML, /结构重点/);
+  assert.doesNotMatch(el.overall.innerHTML, /风险与不确定/);
+  assert.doesNotMatch(el.overall.innerHTML, /下一步看岁运/);
+  assert.doesNotMatch(el.overall.innerHTML, /还要验证什么/);
+  assert.doesNotMatch(el.overall.innerHTML, /还需要验证/);
   assert.doesNotMatch(el.overall.innerHTML, /一句话总览/);
   assert.doesNotMatch(el.overall.innerHTML, /证据链解读/);
-  assert.match(el.overall.innerHTML, /地支六破/);
-  assert.match(el.overall.innerHTML, /岁运触发证据/);
+  assert.doesNotMatch(el.overall.innerHTML, /学习规则：酉月先看金气/);
+  assert.doesNotMatch(el.overall.innerHTML, /候选格局\/规则命中/);
+  assert.doesNotMatch(el.overall.innerHTML, /五行统计：木1、火0、土2、金4、水1；藏干口径：木1、火1、土1、金2、水1/);
   assert.deepEqual(
     [
-      "报告标题",
-      "统一学习提示",
-      "读盘重点排序",
-      "老师式讲盘摘要",
-      "结构重点",
+      "整体画像",
+      "性格与思维",
+      "学习与资源",
+      "事业方向",
+      "财富与现实",
+      "感情与合作",
+      "优势与短板",
       "证据链",
-      "主题观察",
-      "风险与不确定",
-      "下一步看岁运",
     ].map((text) => el.overall.innerHTML.indexOf(text)).every((position, index, positions) => position >= 0 && (index === 0 || position > positions[index - 1])),
     true,
   );
+  assert.equal(countOccurrences(el.overall.innerHTML, "<h3>"), 8);
   assert.doesNotMatch(el.overall.innerHTML, /学习型规则命中/);
   assert.doesNotMatch(el.overall.innerHTML, /大运流年判断/);
   assert.match(el.timeline.innerHTML, /岁运只作为触发层学习，需要先回到原局看主题/);
@@ -96,6 +145,43 @@ test("renders judgement overview, transit layers, domains, and case signals", as
   assert.match(el.cases.innerHTML, /案例仅作结构复盘参考，不能用单个案例反推当前命盘结论/);
   assert.match(el.cases.innerHTML, /命中原因/);
   assert.match(el.cases.innerHTML, /命中 2026 年事件：岗位变化/);
+});
+
+test("uses natural 印星 wording in the core reading report", async () => {
+  const context = buildContext();
+  vm.createContext(context);
+  for (const file of ["../lib/coreReadingReportEngine.global.js", "./overall-judgement.global.js"]) {
+    vm.runInContext(await fs.readFile(new URL(file, import.meta.url), "utf8"), context);
+  }
+
+  const el = { overall: buildElement() };
+  const state = buildState();
+  state.reading.natal.basicBaziDisplay.tenGods.stats.fullHidden = { 正印: 4, 比肩: 1, 正财: 1 };
+
+  context.window.BaziSections.renderOverallJudgement({ state, el });
+
+  assert.match(el.overall.innerHTML, /当前十神中，印星较突出/);
+  assert.match(el.overall.innerHTML, /正印出现在年柱和时柱/);
+  assert.match(el.overall.innerHTML, /早期环境与后期发展都可能带来资源线索/);
+  assert.match(el.overall.innerHTML, /学习、资源、长辈支持、证书、保护系统/);
+  assert.match(el.overall.innerHTML, /学习、证书、长辈支持和平台资源/);
+  assert.match(el.overall.innerHTML, /整体画像/);
+  assert.match(el.overall.innerHTML, /学习与资源/);
+  assert.doesNotMatch(el.overall.innerHTML, /印象/);
+  assert.doesNotMatch(el.overall.innerHTML, /十神分组显示/);
+  assert.doesNotMatch(el.overall.innerHTML, /观察入口/);
+  assert.doesNotMatch(el.overall.innerHTML, /不直接等同现实事件/);
+});
+
+test("styles the core reading report as a centered card report", async () => {
+  const css = await fs.readFile(new URL("../styles.css", import.meta.url), "utf8");
+
+  assert.match(css, /#overallReadingPlugin\s*{[^}]*max-width:\s*1000px/s);
+  assert.match(css, /#overallReadingPlugin\s*{[^}]*margin-left:\s*auto/s);
+  assert.match(css, /#overallReadingPlugin\s*{[^}]*margin-right:\s*auto/s);
+  assert.match(css, /\.core-report-header\s*{[^}]*justify-content:\s*flex-start/s);
+  assert.match(css, /\.core-report-grid\s*{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/s);
+  assert.match(css, /\.core-report-card\s*{[^}]*border:\s*1px solid/s);
 });
 
 test("renders detailed learning cards as secondary collapsed content", async () => {
@@ -302,7 +388,11 @@ function buildState() {
         ],
         overallAnalysis: ["旧总论"],
         patternCandidates: [],
-        combinations: [],
+        combinations: [
+          { title: "年柱戊寅 与 月柱辛酉：天干相生", effect: "相生", members: ["戊", "辛"], pillars: ["年柱", "月柱"] },
+          { title: "月柱辛酉 与 时柱戊子：天干相生", effect: "相生", members: ["辛", "戊"], pillars: ["月柱", "时柱"] },
+          { title: "年柱戊寅 与 日柱辛酉：地支相克", effect: "相克", members: ["寅", "酉"], pillars: ["年柱", "日柱"] },
+        ],
         matchedRules: [],
         referenceKnowledgeHits: [],
         learningRuleHits: [
@@ -320,7 +410,18 @@ function buildState() {
             status: "draft",
           },
         ],
-        pairInteractions: [],
+        pairInteractions: [
+          {
+            title: "日柱辛酉 ↔ 时柱戊子",
+            directRelations: [{ title: "酉子破", effect: "破", note: "酉子之间存在地支六破，可作为互动观察点。" }],
+            impact: "日柱与时柱命中酉子破，适合观察两个柱位之间的牵动。",
+          },
+          {
+            title: "月柱辛酉 ↔ 时柱戊子",
+            directRelations: [{ title: "地支六破", effect: "破", members: ["酉", "子"], note: "重复关系用于测试主报告去重。" }],
+            impact: "重复关系用于测试主报告去重。",
+          },
+        ],
         starSignals: [],
         datasetCoverage: [],
       },
@@ -382,4 +483,8 @@ function buildState() {
       },
     },
   };
+}
+
+function countOccurrences(text, phrase) {
+  return String(text).split(phrase).length - 1;
 }

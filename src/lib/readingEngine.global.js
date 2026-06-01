@@ -131,7 +131,6 @@ const MONTH_BOUNDARY_TERMS = [
   { name: "立冬", month: 11, day: 7, longitude: 225, branch: "亥" },
   { name: "大雪", month: 12, day: 7, longitude: 255, branch: "子" },
 ];
-const APPROX_SOLAR_MONTH_BOUNDARIES = MONTH_BOUNDARY_TERMS.map(({ month, day, branch }) => ({ month, day, branch }));
 const solarTermCache = new Map();
 const TOPICS = [
   { id: "personality", label: "性格", gods: ["比肩", "劫财", "食神", "伤官", "偏印", "正印"] },
@@ -754,7 +753,8 @@ function buildLuckPillars(input, birth, pillars) {
   const yearIsYang = STEM_YIN_YANG[pillars.year.stem] === "yang";
   const direction = (gender === "male" && yearIsYang) || (gender === "female" && !yearIsYang) ? "forward" : "reverse";
   const monthIndex = getGanzhiIndex(pillars.month.stem, pillars.month.branch);
-  const startAge = estimateLuckStartAge(birth);
+  const startCalculation = calculateLuckStart(birth, direction);
+  const startAge = startCalculation.startAge;
   const pillarsList = Array.from({ length: 10 }, (_, index) => {
     const offset = direction === "forward" ? index + 1 : -(index + 1);
     const luckPillar = createPillarByIndex(monthIndex + offset, "大运");
@@ -777,7 +777,9 @@ function buildLuckPillars(input, birth, pillars) {
     direction,
     directionLabel: direction === "forward" ? "顺行" : "逆行",
     startAge,
-    startNote: "起运为近似：当前按出生日期距近似节令折算，尚未按精确节气时刻差折算。",
+    startAgeText: startCalculation.ageText,
+    startCalculation,
+    startNote: `起运按${direction === "forward" ? "出生后下一节气" : "出生前上一节气"}折算，采用三天折一岁的规则；当前约${startCalculation.ageText}起运。`,
     pillars: pillarsList,
   };
 }
@@ -789,13 +791,41 @@ function selectLuckPillar(luck, selectedLuckIndex, selectedYear) {
   return byYear ?? luck.pillars[0];
 }
 
-function estimateLuckStartAge(birth) {
-  const currentBoundary = APPROX_SOLAR_MONTH_BOUNDARIES.find((item) => item.month === birth.month);
-  const nextBoundary = APPROX_SOLAR_MONTH_BOUNDARIES.find((item) => item.month === birth.month + 1) ?? APPROX_SOLAR_MONTH_BOUNDARIES[0];
-  const dayDistance = currentBoundary && birth.day >= currentBoundary.day
-    ? (nextBoundary.month === 1 ? 31 : nextBoundary.day + 30) - birth.day
-    : Math.abs((currentBoundary?.day ?? 15) - birth.day);
-  return Math.max(1, Math.round(dayDistance / 3));
+function calculateLuckStart(birth, direction) {
+  const monthContext = getSolarMonthContext(birth);
+  const boundary = direction === "forward" ? monthContext.next : monthContext.current;
+  const offsetMinutes = Math.abs(boundary.localMs - getLocalBirthMs(birth)) / 60000;
+  const offsetDays = offsetMinutes / 1440;
+  const ageInYears = offsetDays / 3;
+  const totalMonths = Math.max(1, Math.round(ageInYears * 12));
+  const ageYears = Math.floor(totalMonths / 12);
+  const ageMonths = totalMonths % 12;
+  return {
+    direction,
+    boundaryName: boundary.name,
+    boundaryAt: formatLocalDateTime(boundary),
+    offsetDays: roundTo(offsetDays, 2),
+    offsetHours: roundTo(offsetMinutes / 60, 1),
+    ageYears,
+    ageMonths,
+    ageText: formatLuckAgeText(ageYears, ageMonths),
+    startAge: Math.max(1, Math.round(ageInYears)),
+    method: direction === "forward"
+      ? "顺行取出生后下一节气，按三天折一岁。"
+      : "逆行取出生前上一节气，按三天折一岁。",
+  };
+}
+
+function formatLuckAgeText(years, months) {
+  const parts = [];
+  if (years) parts.push(`${years}年`);
+  if (months) parts.push(`${months}个月`);
+  return parts.join("") || "1个月";
+}
+
+function roundTo(value, digits) {
+  const factor = 10 ** digits;
+  return Math.round((Number(value) + Number.EPSILON) * factor) / factor;
 }
 
 function collectHiddenStemSignals(pillars, datasets) {

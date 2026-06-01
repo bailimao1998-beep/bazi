@@ -23,6 +23,11 @@ const DATASETS = [
   ["caseStudies", "14-案例库-case-studies.json", "案例库"],
   ["aiPrompts", "15-AI分析模板-ai-prompts.json", "AI分析模板"],
   ["referenceKnowledge", "16-参考资料知识卡-reference-cards.json", "参考资料知识卡"],
+  ["tenGodSignalRules", "ten-god-signal-rules.json", "核心取象十神规则"],
+  ["elementSignalRules", "element-signal-rules.json", "核心取象五行规则"],
+  ["relationSignalRules", "relation-signal-rules.json", "核心取象关系规则"],
+  ["palaceSignalRules", "palace-signal-rules.json", "核心取象柱位规则"],
+  ["topicTagRules", "topic-tag-rules.json", "核心取象主题标签规则"],
 ];
 
 async function readJson(fileName) {

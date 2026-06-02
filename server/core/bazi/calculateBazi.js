@@ -38,17 +38,17 @@ const twelveStageMatrix = {
   癸: { 子: "临官", 丑: "冠带", 寅: "沐浴", 卯: "长生", 辰: "养", 巳: "胎", 午: "绝", 未: "墓", 申: "死", 酉: "病", 戌: "衰", 亥: "帝旺" },
 };
 const comboRules = [
-  ["天干五合", ["甲", "己"], "合化土"],
-  ["天干五合", ["乙", "庚"], "合化金"],
-  ["天干五合", ["丙", "辛"], "合化水"],
-  ["天干五合", ["丁", "壬"], "合化木"],
-  ["天干五合", ["戊", "癸"], "合化火"],
-  ["地支六合", ["子", "丑"], "合土"],
-  ["地支六合", ["寅", "亥"], "合木"],
-  ["地支六合", ["卯", "戌"], "合火"],
-  ["地支六合", ["辰", "酉"], "合金"],
-  ["地支六合", ["巳", "申"], "合水"],
-  ["地支六合", ["午", "未"], "合土"],
+  ["天干五合", ["甲", "己"], "土象牵连"],
+  ["天干五合", ["乙", "庚"], "金象牵连"],
+  ["天干五合", ["丙", "辛"], "水象牵连"],
+  ["天干五合", ["丁", "壬"], "木象牵连"],
+  ["天干五合", ["戊", "癸"], "火象牵连"],
+  ["地支六合", ["子", "丑"], "土象牵连"],
+  ["地支六合", ["寅", "亥"], "木象牵连"],
+  ["地支六合", ["卯", "戌"], "火象牵连"],
+  ["地支六合", ["辰", "酉"], "金象牵连"],
+  ["地支六合", ["巳", "申"], "水象牵连"],
+  ["地支六合", ["午", "未"], "土象牵连"],
   ["地支六冲", ["子", "午"], "冲"],
   ["地支六冲", ["丑", "未"], "冲"],
   ["地支六冲", ["寅", "申"], "冲"],
@@ -215,15 +215,30 @@ function findRelations(pillars) {
             pillars: [left.role, right.role],
             members,
             ganzhi: [left.label, right.label],
-            evidence: `${left.role}${left.label} 与 ${right.role}${right.label}：${type}${effect}`,
+            evidence: relationEvidence(left, right, type, members, effect),
             confidence: "medium",
-            needVerify: ["干支关系为结构观察点，需要结合柱位与岁运继续验证。"],
+            needVerify: ["干支关系只作为结构观察点，具体作用需要结合柱位、月令、透干、根气与岁运验证。"],
           });
         }
       }
     }
   }
   return relations;
+}
+
+function relationEvidence(left, right, type, members, effect) {
+  const pair = members.join("");
+  const prefix = `${left.role}${left.label} 与 ${right.role}${right.label}`;
+  if (type.includes("合")) {
+    return `${prefix}：命局见${pair}${type}，有合象、牵连、合绊之象，偏向${effect}；是否成化需要结合月令、透干、根气和整体力量判断。`;
+  }
+  if (type.includes("冲")) {
+    return `${prefix}：命局见${pair}${type}，有冲动、变化、拉扯之象；作用轻重需要结合柱位、月令和岁运触发观察。`;
+  }
+  if (type.includes("害")) {
+    return `${prefix}：命局见${pair}${type}，有牵连、合绊、互动不顺之象；具体表现需要结合柱位、月令和岁运触发观察。`;
+  }
+  return `${prefix}：命局见${pair}${type}${effect}，作为结构观察点。`;
 }
 
 function samePair(left, right) {

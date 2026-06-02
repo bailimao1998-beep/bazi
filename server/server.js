@@ -8,7 +8,7 @@ import { calculateMonthInfluence } from "./core/liunian/calculateMonthInfluence.
 import { createMonthPillar, createPillarFromYear } from "./core/bazi/pillarMath.js";
 import { ruleEngine } from "./core/rules/ruleEngine.js";
 import { generateStoryTags } from "./core/story/generateStoryTags.js";
-import { buildNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
+import { buildFlowNarrativePrompt, buildNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
 import { createAiProvider } from "./core/ai/aiProvider.js";
 import { logError, logInfo } from "./utils/logger.js";
 import { sendError, sendJson } from "./utils/response.js";
@@ -35,6 +35,7 @@ const server = createServer(async (request, response) => {
 export async function buildNarrative(input = {}) {
   const targetYear = Number(input.targetYear ?? new Date().getFullYear());
   const selectedMonth = Number(input.selectedMonth ?? new Date().getMonth() + 1);
+  const aiMode = ["luck", "year", "month"].includes(input.mode) ? input.mode : "default";
   const chart = calculateBazi(input);
   const ziwei = calculateZiwei(input, chart);
   const yearInfluence = calculateYearInfluence({ chart, targetYear });
@@ -53,9 +54,21 @@ export async function buildNarrative(input = {}) {
   });
   const matchedRules = ruleEngine({ chart, ziwei, yearInfluence, monthInfluences });
   const storyTags = generateStoryTags({ chart, yearInfluence, monthInfluences, matchedRules });
-  const prompt = buildNarrativePrompt({ chart, yearInfluence, monthInfluences, storyTags });
+  const prompt = aiMode === "default"
+    ? buildNarrativePrompt({ chart, yearInfluence, monthInfluences, storyTags })
+    : buildFlowNarrativePrompt({
+      mode: aiMode,
+      chart,
+      coreSignals: input.coreSignals,
+      transitSignals: input.transitSignals,
+      monthSignals: input.monthSignals,
+      selectedLuck,
+      yearInfluence,
+      selectedMonthInfluence,
+    });
   const narrative = await createAiProvider().generate({ prompt, storyTags });
   return {
+    aiMode,
     chart,
     ziwei,
     yearInfluence,

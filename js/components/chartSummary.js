@@ -1,5 +1,12 @@
 const pillarKeys = ["year", "month", "day", "hour"];
 const elementLabels = { wood: "木", fire: "火", earth: "土", metal: "金", water: "水" };
+const elementAttributes = {
+  wood: "生发、条达、规划",
+  fire: "表达、热度、显化",
+  earth: "承载、稳定、转化",
+  metal: "规则、收敛、执行",
+  water: "流动、信息、应变",
+};
 const polarityLabels = { yang: "阳", yin: "阴" };
 
 export function renderChartSummary(root, data) {
@@ -66,7 +73,7 @@ function renderCoreTabs(chart) {
 function renderElementStats(chart) {
   const visible = chart.elementStats?.visible ?? {};
   const hidden = chart.elementStats?.hidden ?? {};
-  return `<div class="stats-two-col">${renderElementBox(visible)}${renderElementBox(hidden)}</div>`;
+  return `<div class="stats-two-col element-stats-layout">${renderElementBox(visible)}${renderElementBox(hidden)}</div>`;
 }
 
 function renderElementBox(stat) {
@@ -76,6 +83,8 @@ function renderElementBox(stat) {
     <article class="stats-box">
       <span>${safe(stat.label)}</span>
       <strong>${safe(stat.note)}</strong>
+      <p class="element-summary">${safe(elementSummaryText(counts))}</p>
+      <p class="element-attribute">${safe(elementAttributeText(counts, stat.label))}</p>
       <div class="element-count-grid">
         ${Object.entries(elementLabels).map(([key, label]) => {
           const value = Number(counts[key] ?? 0);
@@ -91,6 +100,44 @@ function renderElementBox(stat) {
       </div>
     </article>
   `;
+}
+
+function elementSummaryText(counts = {}) {
+  const summary = Object.entries(elementLabels)
+    .map(([key, label]) => `${label}${formatNumber(Number(counts[key] ?? 0))}`)
+    .join("、");
+  return `统计：${summary}。`;
+}
+
+function elementAttributeText(counts = {}, label = "") {
+  const entries = Object.entries(elementLabels).map(([key, elementLabel]) => ({
+    key,
+    label: elementLabel,
+    value: Number(counts[key] ?? 0),
+    attributes: elementAttributes[key],
+  }));
+  const max = Math.max(...entries.map((item) => item.value));
+  const min = Math.min(...entries.map((item) => item.value));
+  const prominent = entries.filter((item) => item.value === max && item.value > 0).slice(0, 2);
+  const zeroItems = entries.filter((item) => item.value === 0);
+  const weak = zeroItems.length ? zeroItems.slice(0, 2) : entries.filter((item) => item.value === min && item.value < max).slice(0, 2);
+  const lens = String(label).includes("藏干") ? "藏干层面" : "明面层面";
+  const role = String(label).includes("藏干") ? "内在根气、来源支撑" : "外显结构、表层呈现";
+  const prominentText = prominent.length
+    ? `${formatElementNames(prominent)}相对突出，可作为${formatElementAttributes(prominent)}相关属性的候选信号`
+    : "五行数量暂无明显突出项";
+  const weakText = weak.length
+    ? `${formatElementNames(weak)}在${lens}${zeroItems.length ? "暂未出现" : "相对偏弱"}，${formatElementAttributes(weak)}相关属性需要结合柱位、旺衰、十神和岁运继续观察`
+    : "五行数量接近，属性差异需要结合柱位、旺衰、十神和岁运继续观察";
+  return `属性倾向：从${role}看，${prominentText}；${weakText}。`;
+}
+
+function formatElementNames(items) {
+  return items.map((item) => item.label).join("、");
+}
+
+function formatElementAttributes(items) {
+  return items.map((item) => `${item.label}的${item.attributes}`).join("、");
 }
 
 function renderTenGodStats(chart) {

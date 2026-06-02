@@ -8,6 +8,8 @@ import { calculateMonthInfluence } from "./core/liunian/calculateMonthInfluence.
 import { ruleEngine } from "./core/rules/ruleEngine.js";
 import { generateStoryTags } from "./core/story/generateStoryTags.js";
 import { buildNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
+import { buildFlowNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
+import { buildNarrative } from "./server.js";
 import { createAiProvider } from "./core/ai/aiProvider.js";
 import { loadJson } from "./utils/jsonLoader.js";
 import { formatLunarDate, lunarToSolar, solarToLunar } from "./utils/lunarCalendar.js";
@@ -112,6 +114,50 @@ test("local engines build chart, rules, story tags, prompt, and mock narrative w
   assert.ok(narrative.text.includes("年度主线"));
   assert.doesNotMatch(narrative.text, /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
   assert.doesNotMatch(JSON.stringify({ chart, matchedRules, storyTags }), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
+});
+
+test("flow AI modes build structured prompts and mock reports without model-side divination", async () => {
+  const input = {
+    name: "测试用户",
+    birthDate: "1992-08-18",
+    birthTime: "14:30",
+    gender: "female",
+    targetYear: 2030,
+    selectedMonth: 6,
+  };
+  for (const mode of ["luck", "year", "month"]) {
+    const result = await buildNarrative({ ...input, mode });
+    assert.equal(result.aiMode, mode);
+    assert.equal(result.narrative.provider, "deepseek");
+    assert.equal(typeof result.narrative.report.summary, "string");
+    assert.ok(Array.isArray(result.narrative.report.keySignals));
+    assert.ok(Array.isArray(result.narrative.report.likelyThemes));
+    assert.ok(Array.isArray(result.narrative.report.cautions));
+    assert.ok(Array.isArray(result.narrative.report.verificationLimits));
+    assert.doesNotMatch(JSON.stringify(result.narrative.report), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
+  }
+
+  const chart = calculateBazi(input);
+  const yearInfluence = calculateYearInfluence({ chart, targetYear: 2030 });
+  const monthInfluences = Array.from({ length: 12 }, (_, index) =>
+    calculateMonthInfluence({ chart, targetYear: 2030, month: index + 1 }),
+  );
+  const prompt = buildFlowNarrativePrompt({
+    mode: "year",
+    chart,
+    coreSignals: { groups: [] },
+    transitSignals: { groups: [] },
+    monthSignals: { groups: [] },
+    selectedLuck: chart.luckCycles.pillars[0],
+    yearInfluence,
+    selectedMonthInfluence: monthInfluences[5],
+  });
+  assert.match(prompt.system, /不能重新排盘/);
+  assert.match(prompt.system, /不能补充不存在的干支关系/);
+  assert.match(prompt.system, /禁止确定性断语/);
+  assert.match(prompt.system, /不能单独作为结论/);
+  assert.match(prompt.user, /"mode": "year"/);
+  assert.match(prompt.user, /transitSignals/);
 });
 
 test("bazi engine keeps migrated chart behavior from the previous page", () => {
@@ -282,8 +328,9 @@ test("relation extraction includes six-harm observations in the local chart engi
   assert.ok(sixHarmHit);
   assert.equal(sixHarmHit.effect, "害");
   assert.match(sixHarmHit.evidence, /月柱丙子 与 时柱己未/);
+  assert.match(sixHarmHit.evidence, /牵连|合绊|互动/);
   assert.equal(sixHarmHit.confidence, "medium");
-  assert.deepEqual(sixHarmHit.needVerify, ["干支关系为结构观察点，需要结合柱位与岁运继续验证。"]);
+  assert.deepEqual(sixHarmHit.needVerify, ["干支关系只作为结构观察点，具体作用需要结合柱位、月令、透干、根气与岁运验证。"]);
 });
 
 test("local chart, transit, and story outputs keep evidence confidence and verification fields", () => {
@@ -404,24 +451,125 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /engine: "coreSignalsEngine"/);
   assert.match(bundle, /function buildTransitSignals/);
   assert.match(bundle, /function buildMonthSignals/);
+  assert.match(bundle, /function renderFlowSignalMatrix/);
+  assert.match(bundle, /function renderFlowSignalRow/);
+  assert.match(bundle, /function generateLuckReading/);
+  assert.match(bundle, /function generateYearReading/);
+  assert.match(bundle, /function generateTransitTenGodReadings/);
+  assert.match(bundle, /function generateTransitElementReadings/);
+  assert.match(bundle, /function generateTransitRelationReadings/);
+  assert.match(bundle, /function generateTransitCoreHitReadings/);
+  assert.match(bundle, /function generateMonthWindowReading/);
+  assert.match(bundle, /function generateMonthLayerReading/);
+  assert.match(bundle, /function generateMonthTenGodReading/);
+  assert.match(bundle, /function generateMonthElementReading/);
+  assert.match(bundle, /function generateMonthRelationReadings/);
+  assert.match(bundle, /function generateMonthCoreHitReadings/);
+  assert.match(bundle, /function requestFlowAiReport/);
+  assert.match(bundle, /function renderFlowAiControls/);
+  assert.match(bundle, /function renderFlowAiReport/);
+  assert.match(bundle, /data-ai-mode="luck"/);
+  assert.match(bundle, /data-ai-mode="year"/);
+  assert.match(bundle, /data-ai-mode="month"/);
+  assert.match(bundle, /AI解读大运/);
+  assert.match(bundle, /AI解读流年/);
+  assert.match(bundle, /AI解读流月/);
+  assert.match(bundle, /ai-report-panel/);
+  assert.match(bundle, /function createLocalFlowAiReport/);
+  assert.match(bundle, /location\.protocol === "file:"/);
+  assert.match(bundle, /文件模式：使用本地占位 AI 辅助取象/);
   assert.match(bundle, /engine: "transitSignalEngine"/);
   assert.match(bundle, /流年关系触发为观察信号/);
   assert.match(bundle, /renderTransitSignals\(data\.transitSignals\)/);
   assert.match(bundle, /renderMonthSignals\(data\.monthSignals\)/);
   assert.match(bundle, /renderCoreSignals\(data\)/);
   assert.match(bundle, /evidence/);
-  assert.match(bundle, /needVerify/);
+  assert.match(bundle, /plainReading/);
+  assert.match(bundle, /realLifeMeaning/);
+  assert.match(bundle, /caution/);
   assert.equal(index.includes("AI"), false);
   assert.equal(bundle.includes("AI 叙事层"), false);
   assert.equal(bundle.includes("调试 JSON"), false);
   assert.equal(bundle.includes("可直接打开 index.html"), false);
-  assert.match(bundle, /function confidenceLabel/);
   assert.match(bundle, /function providerLabel/);
-  assert.match(bundle, /confidenceLabel\(signal\.confidence\)/);
+  assert.match(bundle, /function generateDayMasterReading/);
+  assert.match(bundle, /function generateMonthCommandReading/);
+  assert.match(bundle, /function generateElementReading/);
+  assert.match(bundle, /function generateTenGodReading/);
+  assert.match(bundle, /function generateStemBranchRelationReading/);
+  assert.match(bundle, /function generateRootingReadings/);
+  assert.match(bundle, /function generateVoidReadings/);
+  assert.match(bundle, /function generateNayinReadings/);
+  assert.match(bundle, /function generateGrowthReadings/);
+  assert.match(bundle, /function generateAuxiliaryReadings/);
+  assert.match(bundle, /function generateOverallReading/);
+  assert.match(bundle, /一句话总览/);
+  assert.match(bundle, /专业速览/);
+  assert.match(bundle, /core-signal-matrix/);
+  assert.match(bundle, /core-signal-row/);
+  assert.match(bundle, /取象关键词/);
+  assert.match(bundle, /展开解释/);
+  assert.match(bundle, /岁运专业速览/);
+  assert.match(bundle, /流月专业速览/);
+  assert.match(bundle, /flow-signal-matrix/);
+  assert.match(bundle, /flow-signal-row/);
+  assert.match(bundle, /大运阶段背景/);
+  assert.match(bundle, /流年年度触发/);
+  assert.match(bundle, /流月短期窗口/);
+  assert.match(bundle, /白话取象/);
+  assert.match(bundle, /专业依据/);
+  assert.match(bundle, /基础依据/);
+  assert.match(bundle, /可取象/);
+  assert.match(bundle, /关键结构/);
+  assert.match(bundle, /需验证/);
+  assert.match(bundle, /不能单断/);
+  assert.match(bundle, /辅助取象/);
+  assert.match(bundle, /藏干根气/);
+  assert.match(bundle, /旬空/);
+  assert.match(bundle, /纳音/);
+  assert.match(bundle, /十二长生/);
+  assert.match(bundle, /胎元/);
+  assert.match(bundle, /命宫/);
+  assert.match(bundle, /身宫/);
+  assert.match(bundle, /取象边界/);
+  assert.match(bundle, /月令代表出生环境、季节力量、命局大气候/);
+  assert.match(bundle, /五行数量不等于喜忌/);
+  assert.match(bundle, /是否成化/);
+  assert.doesNotMatch(bundle, /中等/);
+  assert.doesNotMatch(bundle, /合化土|合化金|合化水|合化木|合化火/);
   assert.doesNotMatch(bundle, /renderDebug[\s\S]*JSON\.stringify/);
   assert.match(bundle, /完整藏干十神/);
   assert.match(bundle, /最终排盘时间/);
   assert.match(bundle, /经度校正/);
+  assert.doesNotMatch(bundle, /有观察点|暂未显出/);
+  assert.match(bundle, /element-summary/);
+  assert.match(bundle, /element-attribute/);
+  assert.match(bundle, /属性倾向/);
+  assert.match(bundle, /相对突出/);
+  assert.match(bundle, /暂未出现|相对偏弱/);
+  assert.match(bundle, /生发、条达、规划/);
+  assert.match(bundle, /表达、热度、显化/);
+  assert.match(bundle, /承载、稳定、转化/);
+  assert.match(bundle, /规则、收敛、执行/);
+  assert.match(bundle, /流动、信息、应变/);
+  const chartSummary = readFileSync("js/components/chartSummary.js", "utf8");
+  assert.match(chartSummary, /element-summary/);
+  assert.match(chartSummary, /element-attribute/);
+  assert.match(chartSummary, /属性倾向/);
+  const openaiProvider = readFileSync("server/core/ai/openaiProvider.js", "utf8");
+  assert.match(openaiProvider, /\/v1\/responses/);
+  assert.match(openaiProvider, /json_schema/);
+  assert.match(openaiProvider, /structured_bazi_flow_report/);
+  assert.match(openaiProvider, /OPENAI_API_KEY/);
+  const deepseekProvider = readFileSync("server/core/ai/deepseekProvider.js", "utf8");
+  assert.match(deepseekProvider, /DEEPSEEK_API_KEY/);
+  assert.match(deepseekProvider, /response_format/);
+  assert.match(deepseekProvider, /json_object/);
+  assert.match(deepseekProvider, /parseFlowReport/);
+  assert.match(deepseekProvider, /deepseek-v4-flash/);
+  const aiConfig = readFileSync("config/ai-config.json", "utf8");
+  assert.match(aiConfig, /"provider": "deepseek"/);
+  assert.match(aiConfig, /"model": "deepseek-v4-flash"/);
   assert.match(bundle, /地支六害/);
   assert.match(bundle, /\["子", "未"\]/);
   assert.match(bundle, /\["丑", "午"\]/);

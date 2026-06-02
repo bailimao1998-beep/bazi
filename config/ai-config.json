@@ -1,5 +1,5 @@
 {
-  "provider": "mock",
+  "provider": "deepseek",
   "mock": {},
   "ollama": {
     "endpoint": "http://localhost:11434/api/generate",
@@ -7,10 +7,10 @@
   },
   "deepseek": {
     "endpoint": "https://api.deepseek.com/chat/completions",
-    "model": "deepseek-chat"
+    "model": "deepseek-v4-flash"
   },
   "openai": {
-    "endpoint": "https://api.openai.com/v1/chat/completions",
+    "endpoint": "https://api.openai.com/v1/responses",
     "model": "gpt-4o-mini"
   },
   "gemini": {

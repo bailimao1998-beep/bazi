@@ -1,0 +1,12 @@
+{
+  "tags": [
+    {
+      "period": "year",
+      "topic": "career",
+      "tag": "角色责任上升",
+      "evidence": ["本地规则命中 career-officer"],
+      "confidence": "medium",
+      "needVerify": ["mock 标签只用于调试。"]
+    }
+  ]
+}

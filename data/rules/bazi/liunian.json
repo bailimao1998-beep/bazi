@@ -1,0 +1,22 @@
+{
+  "rules": [
+    {
+      "id": "liunian-resource",
+      "topic": "year",
+      "tag": "学习与资源进入年度主线",
+      "title": "流年印星观察",
+      "when": { "yearTenGod": "正印" },
+      "confidence": "medium",
+      "needVerify": ["年度主线需要结合大运和具体月份复核。"]
+    },
+    {
+      "id": "liunian-output",
+      "topic": "year",
+      "tag": "表达与作品被推到前台",
+      "title": "流年食伤观察",
+      "when": { "yearTenGod": "食神" },
+      "confidence": "medium",
+      "needVerify": ["表达主题需结合现实任务和流月窗口。"]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "rules": [
+    {
+      "id": "liuyue-visible",
+      "topic": "month",
+      "tag": "显化期适合观察结果",
+      "title": "流月显化期",
+      "when": { "monthRole": "显化期" },
+      "confidence": "medium",
+      "needVerify": ["显化期只代表时间线角色。"]
+    },
+    {
+      "id": "liuyue-closing",
+      "topic": "month",
+      "tag": "收束期适合复盘",
+      "title": "流月收束期",
+      "when": { "monthRole": "收束期" },
+      "confidence": "medium",
+      "needVerify": ["收束期需要结合年度主线理解。"]
+    }
+  ]
+}

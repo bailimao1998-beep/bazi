@@ -1,0 +1,9 @@
+{
+  "templates": [
+    {
+      "id": "wealth-resource",
+      "topic": "wealth",
+      "pattern": "财富叙事先写资源如何流动，再写选择和边界。"
+    }
+  ]
+}

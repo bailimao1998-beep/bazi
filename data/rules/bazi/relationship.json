@@ -1,0 +1,22 @@
+{
+  "rules": [
+    {
+      "id": "relationship-officer-year",
+      "topic": "relationship",
+      "tag": "关系规则被看见",
+      "title": "流年官杀作为关系观察点",
+      "when": { "yearTenGod": "正官" },
+      "confidence": "medium",
+      "needVerify": ["关系主题不能只看单一十神，需要结合日支和互动证据。"]
+    },
+    {
+      "id": "relationship-peer-year",
+      "topic": "relationship",
+      "tag": "边界与同频议题",
+      "title": "流年比劫作为关系观察点",
+      "when": { "yearTenGod": "比肩" },
+      "confidence": "low",
+      "needVerify": ["比劫只提供互动风格观察点。"]
+    }
+  ]
+}

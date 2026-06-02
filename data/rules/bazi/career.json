@@ -1,0 +1,22 @@
+{
+  "rules": [
+    {
+      "id": "career-officer",
+      "topic": "career",
+      "tag": "角色责任上升",
+      "title": "官杀引动事业角色",
+      "when": { "yearTenGod": "正官" },
+      "confidence": "medium",
+      "needVerify": ["事业变化需要结合现实岗位、行业和个人选择验证。"]
+    },
+    {
+      "id": "career-month-push",
+      "topic": "career-month",
+      "tag": "推进期适合交付",
+      "title": "流月推进期",
+      "when": { "monthRole": "推进期" },
+      "confidence": "medium",
+      "needVerify": ["月份角色只描述节奏，不单独对应事件。"]
+    }
+  ]
+}

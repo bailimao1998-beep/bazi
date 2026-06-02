@@ -1,0 +1,22 @@
+{
+  "rules": [
+    {
+      "id": "personality-metal",
+      "topic": "personality",
+      "tag": "边界感与标准感",
+      "title": "金日主结构观察",
+      "when": { "dayElement": "metal" },
+      "confidence": "medium",
+      "needVerify": ["需要结合月令、十神和岁运继续验证。"]
+    },
+    {
+      "id": "personality-wood",
+      "topic": "personality",
+      "tag": "生长感与规划线",
+      "title": "木日主结构观察",
+      "when": { "dayElement": "wood" },
+      "confidence": "medium",
+      "needVerify": ["需要结合柱位和流年触发继续验证。"]
+    }
+  ]
+}

@@ -3,50 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>专业八字排盘</title>
-    <link rel="stylesheet" href="src/styles.css" />
+    <title>命理剧情解读系统</title>
+    <link rel="stylesheet" href="styles/main.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <section class="panel hero-panel" aria-labelledby="app-title">
-        <div>
-          <p class="eyebrow">四柱命理 · 结构化排盘</p>
-          <h1 id="app-title">专业八字排盘</h1>
-          <p class="hero-note">输入出生信息，先看基础排盘，再看本地取象摘要；AI 解读用于后续组织报告。</p>
-        </div>
-        <div class="status-pill" id="dataStatus">数据加载中</div>
+    <main class="app">
+      <section class="hero">
+        <h1>命理剧情解读系统</h1>
+        <p>本地先完成排盘、规则匹配和剧情标签，模型只负责讲述这些标签。</p>
+        <strong id="status">等待输入。</strong>
       </section>
 
-      <section class="plugin-grid">
-        <section class="panel plugin span-3" id="birthInputPlugin" aria-labelledby="birth-input-title"></section>
-        <section class="panel plugin span-9" id="baziChartPlugin" aria-labelledby="bazi-chart-title"></section>
-        <section class="panel plugin span-12" id="overallReadingPlugin" aria-labelledby="overall-title"></section>
-        <section class="panel plugin span-12" id="transitTimelinePlugin" aria-labelledby="transit-title"></section>
-        <section class="panel plugin span-12" id="learningInterpretationPlugin" aria-labelledby="learning-title"></section>
-        <section class="panel plugin span-7" id="topicReadingPlugin" aria-labelledby="topic-title"></section>
-        <section class="panel plugin span-5" id="caseStudyPlugin" aria-labelledby="case-title"></section>
-        <section class="panel plugin span-12" id="offlineAiPlugin" aria-labelledby="offline-ai-title"></section>
+      <section class="grid">
+        <section class="panel span-4" id="birthForm"></section>
+        <section class="panel span-8" id="chartSummary"></section>
+        <section class="panel span-12" id="coreSignals"></section>
+        <section class="panel span-12" id="monthTimeline"></section>
+        <section class="panel span-12" id="yearStory" hidden></section>
+        <section class="panel span-6" id="aiNarrative"></section>
+        <section class="panel span-12" id="debugPanel"></section>
       </section>
     </main>
-
-    <script src="src/lib/lunarCalendar.global.js"></script>
-    <script src="src/lib/locationData.global.js"></script>
-    <script src="src/lib/referenceKnowledge.global.js"></script>
-    <script src="src/lib/baziBasics.global.js"></script>
-    <script src="src/lib/baziBasicRules.global.js"></script>
-    <script src="src/lib/readingEngine.global.js"></script>
-    <script src="src/lib/learningInterpretationEngine.global.js"></script>
-    <script src="src/lib/coreReadingReportEngine.global.js"></script>
-    <script src="src/lib/coreSignalsEngine.global.js"></script>
-    <script src="src/sections/shared.global.js"></script>
-    <script src="src/sections/birth-settings.global.js"></script>
-    <script src="src/sections/core-chart.global.js"></script>
-    <script src="src/sections/overall-judgement.global.js"></script>
-    <script src="src/sections/learning-interpretation.global.js"></script>
-    <script src="src/sections/transit-luck.global.js"></script>
-    <script src="src/sections/topic-report.global.js"></script>
-    <script src="src/sections/ai-analysis.global.js"></script>
-    <script src="src/sections/case-showcase.global.js"></script>
-    <script src="src/main.global.js"></script>
+    <script src="js/locationData.js?v=20260602c"></script>
+    <script src="js/app.bundle.js?v=20260602c"></script>
   </body>
 </html>

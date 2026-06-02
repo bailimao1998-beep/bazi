@@ -1,0 +1,13 @@
+{
+  "pillars": {
+    "year": { "role": "年柱", "label": "壬申", "stem": "壬", "branch": "申" },
+    "month": { "role": "月柱", "label": "戊申", "stem": "戊", "branch": "申" },
+    "day": { "role": "日柱", "label": "丙寅", "stem": "丙", "branch": "寅" },
+    "hour": { "role": "时柱", "label": "乙未", "stem": "乙", "branch": "未" }
+  },
+  "meta": {
+    "engine": "birth-chart-engine",
+    "confidence": "medium",
+    "needVerify": ["mock 数据只用于开发调试。"]
+  }
+}

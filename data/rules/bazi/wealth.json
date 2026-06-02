@@ -1,0 +1,13 @@
+{
+  "rules": [
+    {
+      "id": "wealth-earth-dominant",
+      "topic": "wealth",
+      "tag": "资源承载议题",
+      "title": "土气突出时看资源承载",
+      "when": { "dominantElement": "earth" },
+      "confidence": "low",
+      "needVerify": ["财富主题需要结合财星、日主承载和现实收支。"]
+    }
+  ]
+}

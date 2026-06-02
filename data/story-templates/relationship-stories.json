@@ -1,0 +1,9 @@
+{
+  "templates": [
+    {
+      "id": "relationship-boundary",
+      "topic": "relationship",
+      "pattern": "关系叙事先写边界，再写互动感受，最后写需要继续观察的证据。"
+    }
+  ]
+}

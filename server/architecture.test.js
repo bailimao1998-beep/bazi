@@ -9,7 +9,7 @@ import { ruleEngine } from "./core/rules/ruleEngine.js";
 import { generateStoryTags } from "./core/story/generateStoryTags.js";
 import { buildNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
 import { buildFlowNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
-import { buildNarrative } from "./server.js";
+import { buildChatPrompt, buildChatResponse, buildNarrative, sanitizeChatText } from "./server.js";
 import { createAiProvider } from "./core/ai/aiProvider.js";
 import { loadJson } from "./utils/jsonLoader.js";
 import { formatLunarDate, lunarToSolar, solarToLunar } from "./utils/lunarCalendar.js";
@@ -158,6 +158,45 @@ test("flow AI modes build structured prompts and mock reports without model-side
   assert.match(prompt.system, /不能单独作为结论/);
   assert.match(prompt.user, /"mode": "year"/);
   assert.match(prompt.user, /transitSignals/);
+});
+
+test("chat prompt and fallback keep AI answers learning-oriented without leaking keys", async () => {
+  const context = {
+    chart: { pillars: { day: { label: "甲子" } } },
+    coreSignals: { groups: [{ title: "核心", signals: [{ title: "日主观察" }] }] },
+    transitSignals: { groups: [] },
+    monthSignals: { groups: [] },
+    selectedLuck: { label: "乙丑" },
+    yearInfluence: { year: 2026, pillar: { label: "丙午" } },
+    selectedMonthInfluence: { month: 6, pillar: { label: "甲午" } },
+    storyTags: [{ tag: "年度主线" }],
+  };
+  const prompt = buildChatPrompt({
+    question: "这个月适合观察什么？",
+    history: [{ role: "user", content: "上一问" }],
+    state: { targetYear: 2026, selectedMonth: 6, deepseekApiKey: "sk-test-should-not-leak" },
+    context,
+  });
+
+  assert.match(prompt.system, /结构化学习/);
+  assert.match(prompt.system, /不能重新排盘/);
+  assert.match(prompt.system, /不能单独作为结论/);
+  assert.match(prompt.user, /这个月适合观察什么/);
+  assert.match(prompt.user, /selectedLuck/);
+  assert.doesNotMatch(prompt.user, /sk-test-should-not-leak/);
+
+  const sanitized = sanitizeChatText("这件事一定会发生，必发财。");
+  assert.equal(sanitized.filtered, true);
+  assert.doesNotMatch(sanitized.text, /一定|必发财/);
+
+  const response = await buildChatResponse(
+    { question: "流年怎么看？", context },
+    { provider: "openai", openai: { apiKey: "" } },
+  );
+  assert.equal(response.provider, "local-chat");
+  assert.match(response.text, /候选信号/);
+  assert.match(response.text, /不能单独作为结论/);
+  assert.doesNotMatch(response.text, /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
 });
 
 test("bazi engine keeps migrated chart behavior from the previous page", () => {
@@ -429,6 +468,7 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   const index = readFileSync("index.html", "utf8");
   const bundle = readFileSync("js/app.bundle.js", "utf8");
   const styles = readFileSync("styles/main.css", "utf8");
+  const serverSource = readFileSync("server/server.js", "utf8");
 
   assert.equal(global.window.FortuneLocationData.cities.length, 3337);
   assert.ok(index.indexOf('id="coreSignals"') < index.indexOf('id="monthTimeline"'));
@@ -476,6 +516,30 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /AI解读流月/);
   assert.match(bundle, /ai-report-panel/);
   assert.match(bundle, /function createLocalFlowAiReport/);
+  assert.match(bundle, /function renderChatWidget/);
+  assert.match(bundle, /function sendChatQuestion/);
+  assert.match(bundle, /function requestChatAnswer/);
+  assert.match(bundle, /function requestBrowserDeepseekChat/);
+  assert.match(bundle, /function buildBrowserChatPrompt/);
+  assert.match(bundle, /function typeChatAnswer/);
+  assert.match(bundle, /function sanitizeChatAnswer/);
+  assert.match(bundle, /function createLocalChatAnswer/);
+  assert.match(bundle, /id="aiChatWidget"/);
+  assert.match(bundle, /AI问答/);
+  assert.match(bundle, /chatForbiddenWords/);
+  assert.match(bundle, /\/api\/chat/);
+  assert.match(styles, /chat-widget/);
+  assert.match(styles, /typing-caret/);
+  assert.match(index, /js\/local-deepseek-config\.local\.js/);
+  assert.match(serverSource, /local-deepseek-config\.local\.js/);
+  assert.match(serverSource, /response\.writeHead\(404\)/);
+  assert.match(bundle, /function getBrowserDeepseekConfig/);
+  assert.match(bundle, /function requestBrowserDeepseekReport/);
+  assert.match(bundle, /function buildBrowserFlowAiPrompt/);
+  assert.match(bundle, /DEEPSEEK_BROWSER_DIRECT/);
+  assert.match(bundle, /response_format/);
+  assert.match(bundle, /json_object/);
+  assert.match(bundle, /window\.FortuneLocalAiConfig/);
   assert.match(bundle, /location\.protocol === "file:"/);
   assert.match(bundle, /文件模式：使用本地占位 AI 辅助取象/);
   assert.match(bundle, /engine: "transitSignalEngine"/);

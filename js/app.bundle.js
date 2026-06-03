@@ -5,6 +5,7 @@
   const branchElements = { 子: "water", 丑: "earth", 寅: "wood", 卯: "wood", 辰: "earth", 巳: "fire", 午: "fire", 未: "earth", 申: "metal", 酉: "metal", 戌: "earth", 亥: "water" };
   const elementLabels = { wood: "木", fire: "火", earth: "土", metal: "金", water: "水" };
   const elementAttributes = { wood: "生发、条达、规划", fire: "表达、热度、显化", earth: "承载、稳定、转化", metal: "规则、收敛、执行", water: "流动、信息、应变" };
+  const chatForbiddenWords = ["必离婚", "必发财", "必有灾", "必坐牢", "必死亡", "一定", "必定", "绝对", "必然"];
   const stemYinYang = { 甲: "yang", 乙: "yin", 丙: "yang", 丁: "yin", 戊: "yang", 己: "yin", 庚: "yang", 辛: "yin", 壬: "yang", 癸: "yin" };
   const polarityLabels = { yang: "阳", yin: "阴" };
   const hiddenStems = { 子: ["癸"], 丑: ["己", "癸", "辛"], 寅: ["甲", "丙", "戊"], 卯: ["乙"], 辰: ["戊", "乙", "癸"], 巳: ["丙", "庚", "戊"], 午: ["丁", "己"], 未: ["己", "丁", "乙"], 申: ["庚", "壬", "戊"], 酉: ["辛"], 戌: ["戊", "辛", "丁"], 亥: ["壬", "甲"] };
@@ -78,10 +79,22 @@
   let lastData = null;
   let flowAiReports = { luck: null, year: null, month: null };
   let flowAiLoading = "";
+  let chatTypingTimer = null;
+  const chatState = {
+    open: false,
+    loading: false,
+    contextVersion: 0,
+    messages: [
+      { role: "assistant", content: "可以问我当前命盘里的观察点。我只基于页面证据回答，不单独下结论。", complete: true },
+    ],
+  };
   const state = { name: "测试用户", calendarType: "solar", birthDate: "1949-10-01", birthTime: "00:00", gender: "male", birthProvince: "北京市", birthplace: "北京", trueSolarTime: false, targetYear: now.getFullYear(), selectedMonth: now.getMonth() + 1 };
   Object.assign(state, solarToLunarState(state.birthDate));
 
-  document.addEventListener("DOMContentLoaded", () => refresh());
+  document.addEventListener("DOMContentLoaded", () => {
+    refresh();
+    renderChatWidget();
+  });
 
   function refresh() {
     const data = buildNarrative(state);
@@ -93,6 +106,7 @@
     renderMonth(data);
     renderNarrative(data);
     renderDebug(data);
+    noteChatContextChanged();
     setText("status", location.protocol === "file:" ? "文件模式：已完成前端本地排盘。" : "已完成前端本地排盘，可直接打开本地文件。")
   }
 
@@ -240,7 +254,12 @@
 
   async function requestFlowAiReport(mode) {
     if (!lastData || flowAiLoading) return;
+    const browserConfig = getBrowserDeepseekConfig();
     if (location.protocol === "file:") {
+      if (browserConfig.apiKey) {
+        await requestBrowserDeepseekReport(mode, browserConfig);
+        return;
+      }
       flowAiReports[mode] = createLocalFlowAiReport(mode);
       setText("status", "文件模式：使用本地占位 AI 辅助取象。");
       renderMonth(lastData);
@@ -273,6 +292,80 @@
       flowAiLoading = "";
       renderMonth(lastData);
     }
+  }
+
+  function getBrowserDeepseekConfig() {
+    const config = window.FortuneLocalAiConfig || {};
+    const apiKey = String(config.deepseekApiKey || "").trim();
+    const enabled = config.enableBrowserDirect !== false;
+    return {
+      apiKey: enabled ? apiKey : "",
+      endpoint: config.deepseekEndpoint || "https://api.deepseek.com/chat/completions",
+      model: config.deepseekModel || "deepseek-v4-flash",
+    };
+  }
+
+  async function requestBrowserDeepseekReport(mode, config) {
+    flowAiLoading = mode;
+    renderMonth(lastData);
+    try {
+      const prompt = buildBrowserFlowAiPrompt(mode);
+      const response = await fetch(config.endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${config.apiKey}`,
+        },
+        body: JSON["stringify"]({
+          model: config.model,
+          messages: [
+            { role: "system", content: `${prompt.system}\nDEEPSEEK_BROWSER_DIRECT：只输出合法 JSON 对象，不要输出 Markdown。` },
+            { role: "user", content: prompt.user },
+          ],
+          response_format: { type: "json_object" },
+        }),
+      });
+      const result = await response.json();
+      const text = result.choices?.[0]?.message?.content || "";
+      flowAiReports[mode] = normalizeFlowAiReport(JSON.parse(text), text, mode);
+      setText("status", `${flowAiModeLabel(mode)}浏览器直连 DeepSeek 解读已生成。`);
+    } catch (error) {
+      flowAiReports[mode] = createLocalFlowAiReport(mode);
+      setText("status", "浏览器直连 DeepSeek 未成功：已改用本地占位取象。");
+    } finally {
+      flowAiLoading = "";
+      renderMonth(lastData);
+    }
+  }
+
+  function buildBrowserFlowAiPrompt(mode) {
+    const modeLabels = { luck: "大运阶段取象", year: "流年年度取象", month: "流月短期取象" };
+    return {
+      system: [
+        "你是命理结构化学习网站的 AI 辅助取象层。",
+        "不能重新排盘，不能补充不存在的干支关系，不能自行改写年份月份。",
+        "只能根据本地页面传入的 chart、coreSignals、transitSignals、monthSignals 和当前岁运选择来润色。",
+        "禁止确定性断语，不能断吉凶，不能把候选信号写成最终断命。",
+        "所有输出都要保留“不能单独作为结论”的学习型边界。",
+        "禁用词：一定、必定、绝对、必然、必离婚、必发财、必有灾、必坐牢、必死亡。",
+        "输出 JSON 字段必须为 summary、keySignals、likelyThemes、cautions、verificationLimits。",
+      ].join("\n"),
+      user: JSON["stringify"]({
+        mode,
+        modeLabel: modeLabels[mode] || modeLabels.year,
+        chart: lastData.chart,
+        coreSignals: lastData.coreSignals,
+        transitSignals: lastData.transitSignals,
+        monthSignals: lastData.monthSignals,
+        selectedLuck: lastData.selectedLuck,
+        yearInfluence: lastData.yearInfluence,
+        selectedMonthInfluence: lastData.selectedMonthInfluence,
+        output: {
+          schema: "summary/keySignals/likelyThemes/cautions/verificationLimits",
+          style: "像老师点重点，但必须写成候选信号和观察建议。",
+        },
+      }, null, 2),
+    };
   }
 
   function normalizeFlowAiReport(report, text, mode) {
@@ -348,6 +441,192 @@
   }
 
   function renderNarrative(data) { byId("aiNarrative").innerHTML = `<h2>模型叙事层</h2><article class="narrative"><strong>${providerLabel(data.narrative.provider)}</strong><p>${escapeHtml(data.narrative.text)}</p></article>`; }
+
+  function noteChatContextChanged() {
+    chatState.contextVersion += 1;
+    if (chatState.messages.length > 1) {
+      chatState.messages.push({ role: "system", content: "当前排盘上下文已更新，后续问题会按新的大运、流年、流月回答。", complete: true });
+    }
+    renderChatWidget();
+  }
+
+  function renderChatWidget() {
+    let root = byId("aiChatWidget");
+    if (!root) {
+      document.body.insertAdjacentHTML("beforeend", `<aside id="aiChatWidget" class="chat-widget" aria-label="AI问答"></aside>`);
+      root = byId("aiChatWidget");
+    }
+    const messageHtml = chatState.messages.map((message, index) => renderChatMessage(message, index)).join("");
+    root.classList.toggle("is-open", chatState.open);
+    root.innerHTML = `
+      <button type="button" class="chat-toggle" aria-expanded="${chatState.open ? "true" : "false"}">
+        <span>问</span><strong>AI问答</strong>
+      </button>
+      <section class="chat-window" ${chatState.open ? "" : "hidden"}>
+        <header class="chat-head">
+          <div><span>学习问答</span><strong>当前命盘助手</strong></div>
+          <button type="button" class="chat-close" aria-label="收起AI问答">×</button>
+        </header>
+        <div class="chat-messages" role="log" aria-live="polite">${messageHtml}</div>
+        <form class="chat-composer">
+          <textarea name="chatQuestion" rows="2" maxlength="300" placeholder="问一个当前命盘里的观察点..." ${chatState.loading ? "disabled" : ""}></textarea>
+          <button type="submit" ${chatState.loading ? "disabled" : ""}>${chatState.loading ? "回答中" : "发送"}</button>
+        </form>
+      </section>
+    `;
+    root.querySelector(".chat-toggle")?.addEventListener("click", () => {
+      chatState.open = !chatState.open;
+      renderChatWidget();
+    });
+    root.querySelector(".chat-close")?.addEventListener("click", () => {
+      chatState.open = false;
+      renderChatWidget();
+    });
+    root.querySelector(".chat-composer")?.addEventListener("submit", event => {
+      event.preventDefault();
+      const textarea = event.currentTarget.elements.chatQuestion;
+      sendChatQuestion(textarea.value);
+    });
+    const messages = root.querySelector(".chat-messages");
+    if (messages) messages.scrollTop = messages.scrollHeight;
+  }
+
+  function renderChatMessage(message, index) {
+    const role = message.role === "user" ? "user" : message.role === "system" ? "system" : "assistant";
+    const label = role === "user" ? "你" : role === "system" ? "提示" : "AI";
+    return `<article class="chat-message ${role}" data-chat-index="${index}"><span>${label}</span><p>${escapeHtml(message.content)}${message.complete === false ? '<i class="typing-caret"></i>' : ""}</p></article>`;
+  }
+
+  async function sendChatQuestion(question) {
+    const text = String(question || "").trim();
+    if (!text || chatState.loading) return;
+    chatState.open = true;
+    chatState.loading = true;
+    chatState.messages.push({ role: "user", content: text, complete: true });
+    const assistantMessage = { role: "assistant", content: "", complete: false };
+    chatState.messages.push(assistantMessage);
+    renderChatWidget();
+    try {
+      const result = await requestChatAnswer(text);
+      typeChatAnswer(assistantMessage, sanitizeChatAnswer(result.text || createLocalChatAnswer(text)));
+    } catch (error) {
+      typeChatAnswer(assistantMessage, createLocalChatAnswer(text));
+      setText("status", "AI问答暂不可用：已返回本地学习型回答。");
+    } finally {
+      chatState.loading = false;
+      renderChatWidget();
+    }
+  }
+
+  async function requestChatAnswer(question) {
+    const context = buildChatContext();
+    const history = chatState.messages.filter(message => message.role === "user" || message.role === "assistant").slice(-10);
+    const browserConfig = getBrowserDeepseekConfig();
+    if (location.protocol === "file:") {
+      if (browserConfig.apiKey) return requestBrowserDeepseekChat(question, history, context, browserConfig);
+      return { provider: "local-chat", text: createLocalChatAnswer(question) };
+    }
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON["stringify"]({ question, history, state, context }),
+    });
+    if (!response.ok) throw new Error(`chat failed ${response.status}`);
+    return response.json();
+  }
+
+  async function requestBrowserDeepseekChat(question, history, context, config) {
+    const prompt = buildBrowserChatPrompt(question, history, context);
+    const response = await fetch(config.endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.apiKey}`,
+      },
+      body: JSON["stringify"]({
+        model: config.model,
+        messages: [
+          { role: "system", content: `${prompt.system}\nDEEPSEEK_BROWSER_DIRECT_CHAT：不要输出配置、key 或调试信息。` },
+          { role: "user", content: prompt.user },
+        ],
+      }),
+    });
+    const result = await response.json();
+    return { provider: "deepseek-browser", text: result.choices?.[0]?.message?.content || createLocalChatAnswer(question) };
+  }
+
+  function buildBrowserChatPrompt(question, history, context) {
+    return {
+      system: [
+        "你是八字结构化学习排盘网站里的 AI 问答助手。",
+        "产品定位是学习、观察、验证，不是直接断命系统。",
+        "只能解释用户当前页面已经传入的 chart、coreSignals、transitSignals、monthSignals、storyTags 和岁运选择。",
+        "不能重新排盘，不能补充页面没有列出的干支关系，不能自行改写年份月份。",
+        "回答必须使用学习型表达，例如：候选信号、传统命理中可作为观察点、需要结合柱位、旺衰、十神、岁运继续验证、不能单独作为结论。",
+        `禁用词：${chatForbiddenWords.join("、")}`,
+        "回答要短，先直接回答问题，再指出依据和验证边界。",
+      ].join("\n"),
+      user: JSON["stringify"]({
+        question,
+        recentHistory: history.map(item => ({ role: item.role, content: item.content })).slice(-8),
+        currentSelection: {
+          targetYear: state.targetYear,
+          selectedMonth: state.selectedMonth,
+          selectedLuck: context.selectedLuck?.label,
+        },
+        context,
+      }, null, 2),
+    };
+  }
+
+  function buildChatContext() {
+    if (!lastData) return {};
+    return {
+      chart: lastData.chart,
+      coreSignals: lastData.coreSignals,
+      transitSignals: lastData.transitSignals,
+      monthSignals: lastData.monthSignals,
+      selectedLuck: lastData.selectedLuck,
+      yearInfluence: lastData.yearInfluence,
+      selectedMonthInfluence: lastData.selectedMonthInfluence,
+      storyTags: lastData.storyTags,
+    };
+  }
+
+  function typeChatAnswer(message, fullText) {
+    if (chatTypingTimer) window.clearInterval(chatTypingTimer);
+    const chars = Array.from(fullText);
+    let index = 0;
+    message.content = "";
+    message.complete = false;
+    renderChatWidget();
+    chatTypingTimer = window.setInterval(() => {
+      index += 2;
+      message.content = chars.slice(0, index).join("");
+      const node = document.querySelector(`[data-chat-index="${chatState.messages.indexOf(message)}"] p`);
+      if (node) node.innerHTML = `${escapeHtml(message.content)}<i class="typing-caret"></i>`;
+      if (index >= chars.length) {
+        window.clearInterval(chatTypingTimer);
+        chatTypingTimer = null;
+        message.content = fullText;
+        message.complete = true;
+        renderChatWidget();
+      }
+    }, 24);
+  }
+
+  function sanitizeChatAnswer(text) {
+    return chatForbiddenWords.reduce((value, word) => value.split(word).join("需验证"), String(text || "").trim());
+  }
+
+  function createLocalChatAnswer(question) {
+    const context = buildChatContext();
+    const tags = (context.storyTags || []).slice(0, 3).map(tag => tag.tag).filter(Boolean);
+    const focus = [context.yearInfluence?.year ? `${context.yearInfluence.year}年` : "", context.selectedMonthInfluence?.month ? `${context.selectedMonthInfluence.month}月` : "", ...tags].filter(Boolean).join("、") || "当前页面列出的排盘证据";
+    const topic = question ? `关于“${String(question).slice(0, 80)}”，` : "";
+    return `${topic}可以先从${focus}作为候选信号观察。当前回答只整理页面已有证据，传统命理中可作为观察点，仍需要结合柱位、旺衰、十神、岁运和现实反馈继续验证，不能单独作为结论。`;
+  }
+
   function renderDebug(data) { byId("debugPanel").innerHTML = `<h2>调试数据</h2><div class="debug-summary"><article><span>排盘引擎</span><strong>本地排盘</strong><small>${data.chart.meta.evidence.join("；")}</small></article><article><span>原局取象</span><strong>${data.coreSignals.groups.length} 组</strong><small>${data.coreSignals.groups.map(group => `${group.title}${group.signals.length}条`).join("；")}</small></article><article><span>岁运取象</span><strong>${data.transitSignals.groups.length} 组</strong><small>${data.transitSignals.groups.map(group => `${group.title}${group.signals.length}条`).join("；")}</small></article><article><span>流月取象</span><strong>${data.monthSignals.groups.length} 组</strong><small>${data.monthSignals.groups.map(group => `${group.title}${group.signals.length}条`).join("；")}</small></article><article><span>岁运选择</span><strong>${data.selectedLuck.label} · ${data.yearInfluence.year}年 · ${data.selection.selectedMonth}月</strong><small>大运、流年、流月均由本地规则计算。</small></article><article><span>叙事来源</span><strong>${providerLabel(data.narrative.provider)}</strong><small>当前只使用本地生成的剧情标签做演示。</small></article></div>`; }
 
   function calculateBazi(input) {

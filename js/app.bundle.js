@@ -337,17 +337,51 @@
 
   function renderReadableFlowAiReport(mode, report) {
     const placeholder = report.isPlaceholder ? `<span class="ai-placeholder-badge">本地占位报告</span>` : "";
+    const titles = readableReportSectionTitles(mode);
+    const backgroundBlock = mode === "luck" ? renderAiReportBlock(titles.background, report.luckBackground) : "";
+    const triggerBlock = mode === "luck" ? renderAiReportBlock(titles.trigger, report.yearTrigger) : renderAiReportBlock(titles.trigger, report.yearTrigger);
+    const monthBlock = mode === "month" && Array.isArray(report.monthlyHighlights) && report.monthlyHighlights.length
+      ? `<section class="ai-report-section"><h4>${titles.months}</h4><div class="ai-month-list">${report.monthlyHighlights.map(renderAiMonth).join("")}</div></section>`
+      : "";
     return `<article class="ai-report-panel ai-readable-report">
       <div class="ai-report-head"><span>AI白话解读${placeholder}</span><strong>${escapeHtml(report.title || `${flowAiModeLabel(mode)}解读`)}</strong></div>
       <section class="ai-report-section"><h4>核心结论</h4><p>${escapeHtml(report.coreConclusion)}</p></section>
-      ${renderAiReportBlock("大运背景", report.luckBackground)}
-      ${renderAiReportBlock("流年触发", report.yearTrigger)}
-      <section class="ai-report-section"><h4>今年更像发生的事</h4><div class="ai-focus-list">${(report.likelyEvents || []).map(renderAiLikelyEvent).join("")}</div></section>
-      <section class="ai-report-section"><h4>重点领域</h4><div class="ai-focus-list">${(report.eventFocus || []).map(renderAiEventFocus).join("")}</div></section>
-      <section class="ai-report-section"><h4>重点月份</h4><div class="ai-month-list">${(report.monthlyHighlights || []).map(renderAiMonth).join("")}</div></section>
+      ${backgroundBlock}
+      ${triggerBlock}
+      <section class="ai-report-section"><h4>${titles.events}</h4><div class="ai-focus-list">${(report.likelyEvents || []).map(renderAiLikelyEvent).join("")}</div></section>
+      <details class="ai-report-section"><summary>${titles.focus}</summary><div class="ai-focus-list">${(report.eventFocus || []).map(renderAiEventFocus).join("")}</div></details>
+      ${monthBlock}
       <section class="ai-report-section"><h4>建议</h4>${renderScenarioItems(report.overallAdvice || [])}</section>
       <p class="ai-boundary">${escapeHtml(report.boundary || "以上为学习型观察边界，请结合现实反馈复核。")}</p>
     </article>`;
+  }
+
+  function readableReportSectionTitles(mode) {
+    if (mode === "luck") {
+      return {
+        background: "大运取象",
+        trigger: "大运依据",
+        events: "大运候选事象",
+        focus: "大运领域依据",
+        months: "",
+      };
+    }
+    if (mode === "month") {
+      return {
+        background: "",
+        trigger: "流月触发",
+        events: "流月候选事象",
+        focus: "本月领域依据",
+        months: "本月应期",
+      };
+    }
+    return {
+      background: "",
+      trigger: "流年触发",
+      events: "流年候选事象",
+      focus: "流年领域依据",
+      months: "",
+    };
   }
 
   function renderAiReportBlock(title, block = {}) {
@@ -359,7 +393,7 @@
   }
 
   function renderAiLikelyEvent(item = {}) {
-    return `<article class="ai-focus-card"><div><strong>${escapeHtml(item.event || "候选事件")}</strong><span>${levelLabel(item.probabilityLevel)}</span></div><p>${escapeHtml(item.timeWindow || "等待重点月份反馈")}</p><dl><dt>依据</dt><dd>${renderScenarioItems(item.evidence || [])}</dd><dt>现实表现</dt><dd>${escapeHtml(item.reality || "")}</dd><dt>怎么验证</dt><dd>${renderScenarioItems(item.verifyBy || [])}</dd></dl></article>`;
+    return `<article class="ai-focus-card"><div><strong>${escapeHtml(item.event || "候选事件")}</strong><span>${levelLabel(item.probabilityLevel)}</span></div><p>${escapeHtml(item.timeWindow || "等待现实反馈")}</p><dl><dt>依据</dt><dd>${renderScenarioItems(item.evidence || [])}</dd><dt>现实表现</dt><dd>${escapeHtml(item.reality || "")}</dd><dt>怎么验证</dt><dd>${renderScenarioItems(item.verifyBy || [])}</dd></dl></article>`;
   }
 
   function renderAiMonth(item = {}) {
@@ -494,6 +528,8 @@
 
   function buildBrowserFlowAiPrompt(mode) {
     const modeLabels = { luck: "大运阶段取象", year: "流年年度取象", month: "流月短期取象" };
+    const pickedFortuneAnalysis = pickBrowserFortuneAnalysis(lastData.fortuneAnalysis);
+    const modeInstruction = flowModeInstruction(mode);
     return {
       system: [
         "你是命理网站的白话解读层，不是排盘层。",
@@ -502,10 +538,13 @@
         "你只能根据 fortuneAnalysis、triggerChains、eventScores、monthlyHighlights 和 evidencePackage 写解读。",
         "你的任务是把本地取象证据组合成一个人现实中更像会遇到的具体候选事件。",
         "每条 likelyEvents 都必须包含具体会发生什么、依据、现实表现、时间窗口、验证点。",
-        "输出顺序：先给结论，也就是先讲今年更像发生的事，再讲依据，再讲现实表现，再讲强弱，再讲重点月份，最后给建议。",
+        "输出顺序：先给结论，也就是先讲当前模式对应层级更像发生的事，再讲依据，再讲现实表现，再讲强弱，最后给建议。",
         "禁止确定性断语，禁止使用：一定、必定、绝对、必然、必发财、必离婚、必有灾、必坐牢、必死亡。",
         "禁止编造输入里没有的干支关系。",
-        "禁止平均解释 12 个月，只能写 fortuneAnalysis.monthlyHighlights 中的重点月份。",
+        "禁止平均解释 12 个月；只有流月模式才写选中月份，其他模式不要展开月份。",
+        "大运模式：只讲十年背景如何承载原局，不要把它写成某一年或某个月的完整报告。",
+        "流年模式：只讲当年被大运和原局引动的事件链条，不要复述十二个月流水账。",
+        "流月模式：只讲选中月份的短期应期，候选事件和 timeWindow 都要聚焦该月。",
         "禁止只说“事业、关系、情绪、注意沟通、保持积极、谨慎行事”这种空话。",
         "不要每句话都重复边界提醒，把学习边界集中放到 boundary 字段，一句话即可。",
         "禁用词：一定、必定、绝对、必然、必离婚、必发财、必有灾、必坐牢、必死亡。",
@@ -514,8 +553,9 @@
       user: JSON["stringify"]({
         mode,
         modeLabel: modeLabels[mode] || modeLabels.year,
-        fortuneAnalysis: pickBrowserFortuneAnalysis(lastData.fortuneAnalysis),
-        evidencePackage: buildBrowserEvidencePackage(pickBrowserFortuneAnalysis(lastData.fortuneAnalysis)),
+        modeInstruction,
+        fortuneAnalysis: pickedFortuneAnalysis,
+        evidencePackage: buildBrowserEvidencePackage(pickedFortuneAnalysis, { mode, selectedMonthInfluence: lastData.selectedMonthInfluence }),
         referenceOnly: {
           chart: lastData.chart,
           coreSignals: lastData.coreSignals,
@@ -527,8 +567,9 @@
         },
         output: {
           schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
-          order: ["今年更像发生的事", "依据", "现实表现", "强弱", "重点月份", "建议"],
+          order: ["对应时间层级的候选事象", "依据", "现实表现", "强弱", "建议"],
           style: "先取象，再解释；AI 负责从 evidencePackage 生成具体候选事象，边界提醒只放 boundary。",
+          modeInstruction,
         },
       }, null, 2),
     };
@@ -550,7 +591,7 @@
     };
   }
 
-  function buildBrowserEvidencePackage(fortuneAnalysis = {}) {
+  function buildBrowserEvidencePackage(fortuneAnalysis = {}, { mode = "year", selectedMonthInfluence } = {}) {
     const topEventScores = Object.entries(fortuneAnalysis.eventScores || {})
       .sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0))
       .slice(0, 5)
@@ -561,24 +602,73 @@
       }));
     const triggerChains = Array.isArray(fortuneAnalysis.triggerChains) ? fortuneAnalysis.triggerChains.slice(0, 8) : [];
     const monthlyHighlights = Array.isArray(fortuneAnalysis.monthlyHighlights) ? fortuneAnalysis.monthlyHighlights.slice(0, 5) : [];
+    const selectedMonth = Number(selectedMonthInfluence?.month || 0);
+    const pickedMonthlyHighlights = mode === "month" && selectedMonth
+      ? monthlyHighlights.filter(month => Number(month.month) === selectedMonth)
+      : mode === "luck" || mode === "year" ? [] : monthlyHighlights;
+    const modeTriggerChains = mode === "luck" || mode === "month" ? [] : triggerChains;
+    const modeEventScores = mode === "luck"
+      ? inferBrowserScoresFromEvidence(fortuneAnalysis.luckBackground?.evidence, fortuneAnalysis.decadeRiskTags, fortuneAnalysis.decadeSupportScore)
+      : mode === "month"
+        ? inferBrowserScoresFromEvidence(pickedMonthlyHighlights.flatMap(month => month.reasons || selectedMonthInfluence?.evidence || []), [], pickedMonthlyHighlights[0]?.score)
+        : topEventScores;
     return {
       role: "本地证据包，只允许 AI 基于这些内容生成候选事象，不允许补充不存在的干支关系。",
+      mode,
+      modeInstruction: flowModeInstruction(mode),
       luckBackground: fortuneAnalysis.luckBackground,
-      triggerChains: triggerChains.map(chain => ({
+      triggerChains: modeTriggerChains.map(chain => ({
         reason: chain.reason,
         tags: chain.tags,
         weight: chain.weight,
         evidence: chain.evidence,
         realityMapping: chain.realityMapping,
       })),
-      topEventScores,
-      timeWindows: monthlyHighlights.map(month => ({
+      topEventScores: modeEventScores,
+      selectedMonth: mode === "month" ? {
+        month: selectedMonth || selectedMonthInfluence?.month,
+        pillar: selectedMonthInfluence?.pillar?.label || selectedMonthInfluence?.pillar,
+        evidence: selectedMonthInfluence?.evidence,
+      } : null,
+      timeWindows: pickedMonthlyHighlights.map(month => ({
         month: month.month,
         pillar: month.pillar,
         intensity: month.intensity,
         reasons: month.reasons,
       })),
     };
+  }
+
+  function inferBrowserScoresFromEvidence(evidence = [], tags = [], score = 55) {
+    const evidenceList = Array.isArray(evidence) ? evidence : [String(evidence || "")].filter(Boolean);
+    const topics = uniqueText([
+      ...(Array.isArray(tags) ? tags : []).filter(tag => ["career", "wealth", "relationship", "study", "health", "movement", "social"].includes(tag)),
+      ...topicHintsFromText(evidenceList.join(" ")),
+    ]);
+    const picked = topics.length ? topics : ["career", "study", "social"];
+    return picked.slice(0, 5).map((topic, index) => ({
+      topic,
+      score: Math.max(35, Math.min(100, Number(score || 55) - index * 5)),
+      evidence: evidenceList.length ? evidenceList.slice(0, 4) : ["当前模式只使用本层级证据。"],
+    }));
+  }
+
+  function topicHintsFromText(text = "") {
+    const topics = [];
+    if (/官|杀|规则|职责|流程|事业|任务/.test(text)) topics.push("career");
+    if (/财|资源|收支|付款|报价|预算/.test(text)) topics.push("wealth");
+    if (/关系|合作|夫妻|亲密/.test(text)) topics.push("relationship");
+    if (/印|食神|伤官|学习|表达|文书|作品|证照/.test(text)) topics.push("study");
+    if (/害|刑|穿|压力|作息|体感|安全/.test(text)) topics.push("health");
+    if (/冲|迁移|搬动|出行|地点|通勤/.test(text)) topics.push("movement");
+    if (/比肩|劫财|同辈|团队|朋友|人际/.test(text)) topics.push("social");
+    return topics;
+  }
+
+  function flowModeInstruction(mode = "year") {
+    if (mode === "luck") return "大运报告只回答：这步大运给原局带来什么十年背景、哪些领域被长期放大、阶段里反复出现什么候选事象。";
+    if (mode === "month") return "流月报告只回答：选中月份发生什么短期应期，本月哪些事变明显，不平均解释其他月份。";
+    return "流年报告只回答：这一年自身触发了什么候选事件、依据是什么、现实中可能表现成什么。";
   }
 
   function normalizeFlowAiReport(report, text, mode, isPlaceholder = false) {
@@ -691,45 +781,43 @@
   function buildLocalReadableAiReport(mode, isPlaceholder = true) {
     const fortune = lastData?.fortuneAnalysis || {};
     const eventScores = fortune.eventScores || {};
-    const topEvents = Object.entries(eventScores).sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0)).slice(0, 4);
+    const annualTopEvents = Object.entries(eventScores).sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0)).slice(0, 4);
     const triggerChains = Array.isArray(fortune.triggerChains) ? fortune.triggerChains : [];
     const months = Array.isArray(fortune.monthlyHighlights) ? fortune.monthlyHighlights.slice(0, 5) : [];
+    const context = selectLocalReportContext(mode, { fortune, topEvents: annualTopEvents, triggerChains, months });
+    const likelyEvents = buildLocalLikelyEvents(context.topEvents, context.triggerChains, context.months, mode, context.selectedMonth);
     const legacy = buildLocalEventCandidateReport(mode);
     const report = {
-      title: `${flowAiModeLabel(mode)}结构化解读`,
-      coreConclusion: firstSentence(fortune.overallSummary) || `今年重点看${topEvents.map(([key]) => fortuneScoreLabel(key)).join("、") || "年度触发主题"}。`,
+      title: context.title,
+      coreConclusion: context.coreConclusion(likelyEvents),
       luckBackground: {
-        conclusion: fortune.luckBackground?.conclusion || `${lastData?.selectedLuck?.label || "当前"}大运作为十年背景影响这一年。`,
+        conclusion: context.luckConclusion,
         evidence: normalizeTextList(fortune.luckBackground?.evidence, fortune.decadeEvidence || []).slice(0, 4),
-        reality: fortune.luckBackground?.reality || "现实中可观察阶段环境、资源条件、职责压力和关系节奏如何承接年度触发。",
+        reality: context.luckReality,
       },
       yearTrigger: {
-        conclusion: triggerChains[0]?.reason || "流年把原局与大运中的重点主题推到当年。",
-        evidence: triggerChains.flatMap(chain => normalizeTextList(chain.evidence, chain.reason ? [chain.reason] : [])).slice(0, 5),
-        reality: triggerChains.map(chain => chain.realityMapping).filter(Boolean).slice(0, 3).join("；") || "现实中可观察职责、资源、关系、迁动和状态节奏的具体反馈。",
+        conclusion: context.yearTriggerConclusion,
+        evidence: context.triggerChains.flatMap(chain => normalizeTextList(chain.evidence, chain.reason ? [chain.reason] : [])).slice(0, 5),
+        reality: context.triggerReality(likelyEvents),
       },
-      likelyEvents: buildLocalLikelyEvents(topEvents, triggerChains, months),
-      eventFocus: topEvents.map(([topic, score]) => ({
+      likelyEvents,
+      eventFocus: context.topEvents.map(([topic, score]) => ({
         topic,
         level: scoreLevel(score?.score),
-        conclusion: `${fortuneScoreLabel(topic)}为${levelLabel(scoreLevel(score?.score))}关注项。`,
+        conclusion: `${fortuneScoreLabel(topic)}：${context.focusPrefix}${levelLabel(scoreLevel(score?.score))}证据，作为候选事件来源参考。`,
         evidence: normalizeTextList(score?.evidence, ["当前本地规则没有给出更高权重触发链。"]).slice(0, 4),
-        reality: score?.realityMapping || eventReality(topic),
+        reality: eventReality(topic),
         advice: eventAdvice(topic),
       })),
-      monthlyHighlights: months.map(month => ({
+      monthlyHighlights: context.months.map(month => ({
         month: Number(month.month),
         level: month.intensity || scoreLevel(month.score),
         theme: `${month.pillar || ""}${month.intensity || ""}触发窗口`,
         evidence: normalizeTextList(month.reasons, ["本月作为规则引擎挑出的观察窗口。"]).slice(0, 4),
-        reality: "现实中可观察事情落地、反馈出现、计划改动或关系资源变化。",
-        advice: "把本月作为复盘窗口，记录具体发生的职责、资源、关系或迁动反馈。",
+        reality: "本月重点盯职责变化、合同流程、付款资源、关系协作或出行改期。",
+        advice: "只记录本月实际出现的事，不把没有发生的主题硬套进去。",
       })),
-      overallAdvice: normalizeTextList(fortune.advice, [
-        "先按本地规则列出的高分领域做现实复盘。",
-        "重点月份只观察实际反馈，不平均解释十二个月。",
-        "涉及状态、合规、出行时按现实规则复核。",
-      ]).slice(0, 3),
+      overallAdvice: context.overallAdvice,
       boundary: "以上为本地规则取象后的白话整理，请结合现实反馈复核。",
       isPlaceholder,
       summary: legacy.summary,
@@ -740,6 +828,111 @@
       scenarios: legacy.scenarios,
     };
     return sanitizeLocalAiReport(ensureLocalReadableReport(report));
+  }
+
+  function selectLocalReportContext(mode, { fortune, topEvents, triggerChains, months }) {
+    const selectedMonth = Number(lastData?.selectedMonthInfluence?.month || state.selectedMonth || months[0]?.month || 1);
+    const selectedMonthHighlight = months.find(month => Number(month.month) === selectedMonth) || {
+      month: selectedMonth,
+      pillar: lastData?.selectedMonthInfluence?.pillar?.label || "",
+      intensity: "medium",
+      reasons: ["当前流月由页面选中月份进入短期应期判断。"],
+    };
+    const luckEvidence = normalizeTextList(fortune.luckBackground?.evidence, fortune.decadeEvidence || []);
+    const luckEvents = buildLocalEventEntriesFromEvidence({
+      evidence: luckEvidence,
+      fallbackTopics: fortune.decadeRiskTags || [],
+      fallbackEntries: topEvents,
+      score: Number(fortune.decadeSupportScore || 55),
+    }).slice(0, 4);
+    const monthEvents = buildLocalEventEntriesFromEvidence({
+      evidence: normalizeTextList(selectedMonthHighlight.reasons, []),
+      fallbackEntries: topEvents,
+      score: scoreFromIntensity(selectedMonthHighlight.intensity),
+    }).slice(0, 3);
+    if (mode === "luck") {
+      return {
+        selectedMonth,
+        topEvents: luckEvents,
+        triggerChains: [{
+          reason: fortune.luckBackground?.conclusion || "当前大运形成十年阶段背景。",
+          tags: luckEvents.map(([topic]) => topic),
+          weight: Math.max(3, Math.round(Number(fortune.decadeSupportScore || 55) / 18)),
+          evidence: luckEvidence,
+        }],
+        months: [],
+        title: `${flowAiModeLabel(mode)}十年背景解读`,
+        coreConclusion: events => events.length
+          ? `这步大运先看十年背景：${events.slice(0, 3).map(item => item.event).join("；")}。`
+          : "这步大运先看十年内职责、资源、关系和迁动承接方式的变化。",
+        luckConclusion: fortune.luckBackground?.conclusion || "当前大运形成十年阶段背景。",
+        luckReality: conciseText(fortune.luckBackground?.reality) || "十年背景主要影响资源条件、职责压力、合作节奏和阶段性承接方式。",
+        yearTriggerConclusion: "本段只分析大运本身：看这十年背景提供、放大或消耗哪些原局主题。",
+        triggerReality: events => events.length
+          ? `现实中先看这些事是否在十年阶段里反复出现：${events.slice(0, 3).map(item => item.event).join("、")}。`
+          : "现实中先看资源条件、职责压力、合作节奏和迁动承接方式。",
+        focusPrefix: "大运背景下的",
+        overallAdvice: ["只看这步大运反复放大的阶段主题。", "把十年阶段里的职责、资源、关系和迁动变化做长期记录。", "不在大运报告里展开某一年或某一个月。"],
+      };
+    }
+    if (mode === "month") {
+      return {
+        selectedMonth,
+        topEvents: monthEvents,
+        triggerChains: [{
+          reason: `${selectedMonth}月流月信号进入短期应期。`,
+          tags: monthEvents.map(([topic]) => topic),
+          weight: Math.max(2, Math.round(scoreFromIntensity(selectedMonthHighlight.intensity) / 18)),
+          evidence: normalizeTextList(selectedMonthHighlight.reasons, []),
+        }],
+        months: [selectedMonthHighlight],
+        title: `${selectedMonth}月${flowAiModeLabel(mode)}应期解读`,
+        coreConclusion: events => events.length
+          ? `${selectedMonth}月优先看：${events.slice(0, 3).map(item => item.event).join("；")}。`
+          : `${selectedMonth}月先看当月是否出现职责、资源、关系或出行安排的短期变化。`,
+        luckConclusion: "流月报告不展开大运背景，只保留当前月份的短期触发。",
+        luckReality: "本段看本月日程、沟通、流程、资源和地点安排是否变明显。",
+        yearTriggerConclusion: `${selectedMonth}月流月信号进入短期应期，只看本月变明显的事。`,
+        triggerReality: events => events.length
+          ? `本月现实中先盯${events.slice(0, 3).map(item => item.event).join("、")}。`
+          : "本月只看短期日程、流程、沟通和地点安排是否变明显。",
+        focusPrefix: "流月应期里的",
+        overallAdvice: [`只记录${selectedMonth}月实际出现的事。`, "把本月流程、沟通、资源和地点安排单独复盘。", "不把其他月份的信号套到本月。"],
+      };
+    }
+    return {
+      selectedMonth,
+      topEvents,
+      triggerChains,
+      months: [],
+      title: `${fortune.annualTheme || flowAiModeLabel(mode)}结构化解读`,
+      coreConclusion: events => events.length
+        ? `今年优先看：${events.slice(0, 3).map(item => item.event).join("；")}。`
+        : firstSentence(fortune.overallSummary) || "今年先看职责、资源、关系和时间表是否出现具体调整。",
+      yearTriggerConclusion: triggerChains[0]?.reason || "流年把原局与大运中的重点主题推到当年。",
+      luckConclusion: "流年报告不展开大运，只分析当年触发本身。",
+      luckReality: "本段看年度干支、十神和原局关系把哪些现实主题推到当年。",
+      triggerReality: conciseTriggerReality,
+      focusPrefix: "流年触发后的",
+      overallAdvice: ["只看这一年自身被触发的候选事项。", "把今年出现的职责、资源、关系和迁动变化记录成清单。", "流月应期留到流月报告单独判断。"],
+    };
+  }
+
+  function buildLocalEventEntriesFromEvidence({ evidence = [], fallbackTopics = [], fallbackEntries = [], score = 55 } = {}) {
+    const topics = uniqueText([
+      ...normalizeTextList(fallbackTopics, []).filter(topic => ["career", "wealth", "relationship", "study", "health", "movement", "social"].includes(topic)),
+      ...topicHintsFromText(normalizeTextList(evidence, []).join(" ")),
+    ]);
+    const pickedTopics = topics.length ? topics : fallbackEntries.map(([topic]) => topic).slice(0, 3);
+    const entries = pickedTopics.map((topic, index) => [topic, {
+      score: Math.max(35, Math.min(100, Number(score) - index * 5)),
+      evidence: normalizeTextList(evidence, []).length ? normalizeTextList(evidence, []).slice(0, 4) : normalizeTextList(fallbackEntries[index]?.[1]?.evidence, []).slice(0, 3),
+    }]);
+    return entries.length ? entries : [["career", { score, evidence: normalizeTextList(evidence, ["当前层级只保留低强度观察。"]) }]];
+  }
+
+  function scoreFromIntensity(intensity) {
+    return { high: 78, medium: 56, low: 36 }[intensity] || 50;
   }
 
   function ensureLocalReadableReport(report) {
@@ -761,42 +954,35 @@
         reality: eventReality("career"),
         advice: eventAdvice("career"),
       }],
-      monthlyHighlights: report.monthlyHighlights.length ? report.monthlyHighlights : [{
-        month: state.selectedMonth,
-        level: "low",
-        theme: "低强度观察窗口",
-        evidence: ["当前本地规则没有给出重点月份。"],
-        reality: "现实中只做普通复盘，不扩大解读。",
-        advice: "记录现实反馈，等待更明确的岁运触发。",
-      }],
+      monthlyHighlights: Array.isArray(report.monthlyHighlights) ? report.monthlyHighlights : [],
     };
   }
 
-  function buildLocalLikelyEvents(topEvents = [], triggerChains = [], monthlyHighlights = []) {
+  function buildLocalLikelyEvents(topEvents = [], triggerChains = [], monthlyHighlights = [], mode = "year", selectedMonth) {
     return topEvents.slice(0, 5).map(([topic, score], index) => {
       const chains = triggerChains.filter(chain => Array.isArray(chain.tags) && chain.tags.includes(topic));
       const chain = chains[0] || triggerChains[index] || {};
       const month = monthlyHighlights[index % Math.max(monthlyHighlights.length, 1)] || {};
-      const template = likelyEventTemplate(topic);
+      const template = normalizeTemplateForMode(likelyEventTemplate(topic, mode), mode);
       const probabilityLevel = scoreLevel(score?.score || chain.weight * 18);
       return {
         event: template.event,
         probabilityLevel,
-        timeWindow: eventTimeWindow(month, probabilityLevel),
+        timeWindow: eventTimeWindow(month, probabilityLevel, mode, selectedMonth),
         evidence: uniqueText([
           ...normalizeTextList(score?.evidence, []).slice(0, 2),
           ...normalizeTextList(chain.evidence, []).slice(0, 2),
           chain.reason,
           month.month ? `${month.month}月${month.pillar || ""}${month.intensity || ""}触发窗口` : "",
         ].filter(Boolean)).slice(0, 5),
-        reality: chain.realityMapping || template.reality,
+        reality: template.reality,
         verifyBy: template.verifyBy,
       };
     });
   }
 
-  function likelyEventTemplate(topic) {
-    return {
+  function likelyEventTemplate(topic, mode = "year") {
+    const yearlyTemplates = {
       career: {
         event: "工作职责、项目分工或审批流程出现调整",
         reality: "可能表现为换负责人、任务边界重划、流程审核变多、交付节奏被重新安排。",
@@ -832,16 +1018,68 @@
         reality: "可能表现为资源归属要说清、合作节奏不一致、同辈比较或团队分工重新协调。",
         verifyBy: ["是否出现团队分工争议", "是否有资源归属讨论", "是否出现同辈竞争或协作摩擦"],
       },
-    }[topic] || {
+    };
+    const yearly = yearlyTemplates[topic] || {
       event: "现实事务出现需要重新安排的节点",
       reality: "可能表现为计划调整、沟通增加、流程复核或资源重新分配。",
       verifyBy: ["是否出现计划变化", "是否需要流程复核", "是否有资源或关系重新安排"],
     };
+    const luck = {
+      career: { ...yearlyTemplates.career, event: "十年阶段内职责权限、项目角色或流程标准逐步调整" },
+      wealth: { ...yearlyTemplates.wealth, event: "十年阶段内收支结构、报价方式或资源配置逐步重算" },
+      relationship: { ...yearlyTemplates.relationship, event: "十年阶段内亲密关系或合作边界反复重谈" },
+      study: { ...yearlyTemplates.study, event: "十年阶段内学习证照、专业训练或文书能力逐步加重" },
+      health: { ...yearlyTemplates.health, event: "十年阶段内作息体感、压力负荷和安全操作需要持续复核" },
+      movement: { ...yearlyTemplates.movement, event: "十年阶段内出行、搬动、通勤或项目地点逐步变化" },
+      social: { ...yearlyTemplates.social, event: "十年阶段内同辈协作、团队分工或资源归属反复协调" },
+    }[topic];
+    const month = {
+      career: { ...yearlyTemplates.career, event: "本月工作职责、项目分工或审批流程出现短期调整" },
+      wealth: { ...yearlyTemplates.wealth, event: "本月收支安排、报价付款或资源分配需要当月核算" },
+      relationship: { ...yearlyTemplates.relationship, event: "本月亲密关系或合作关系边界被集中讨论" },
+      study: { ...yearlyTemplates.study, event: "本月学习证照、材料文书或表达交付被催动" },
+      health: { ...yearlyTemplates.health, event: "本月作息体感、压力负荷和安全操作需要复核" },
+      movement: { ...yearlyTemplates.movement, event: "本月出行、搬动、通勤或地点安排出现变化" },
+      social: { ...yearlyTemplates.social, event: "本月同事同辈、朋友或团队协作出现分工摩擦" },
+    }[topic];
+    if (mode === "luck" && luck) return luck;
+    if (mode === "month" && month) return month;
+    return yearly;
   }
 
-  function eventTimeWindow(month, probabilityLevel) {
+  function normalizeTemplateForMode(template, mode = "year") {
+    if (mode === "month") {
+      return {
+        ...template,
+        verifyBy: normalizeTextList(template.verifyBy, []).map(item => item.replaceAll("重点月份", "本月")),
+      };
+    }
+    return {
+      ...template,
+      verifyBy: normalizeTextList(template.verifyBy, []).map(item => item
+        .replaceAll("重点月份", mode === "luck" ? "大运阶段" : "流年层级")
+        .replaceAll("在大运阶段出现", "在大运阶段反复出现")),
+    };
+  }
+
+  function eventTimeWindow(month, probabilityLevel, mode = "year", selectedMonth) {
+    if (mode === "luck") return "当前大运十年阶段反复观察";
+    if (mode === "month") {
+      const monthNumber = Number(selectedMonth || month?.month || 1);
+      return `${monthNumber}月${month?.pillar ? ` ${month.pillar}` : ""}，当前流月应期`;
+    }
     if (month?.month) return `${month.month}月${month.pillar ? ` ${month.pillar}` : ""}，${month.intensity || probabilityLevel}触发窗口`;
+    if (mode === "year") return "全年层面的流年触发，不展开流月应期";
     return probabilityLevel === "high" ? "全年偏高触发，重点看高强度月份" : "全年观察，等重点月份反馈";
+  }
+
+  function conciseText(value = "") {
+    return String(value || "").replaceAll("现实中可观察", "").replaceAll("是否被触发", "").replaceAll("反馈", "变化").trim();
+  }
+
+  function conciseTriggerReality(likelyEvents = []) {
+    if (!likelyEvents.length) return "流年触发后，优先看职责、资源、关系、迁动或作息里有没有具体变更。";
+    return `流年触发后，先盯${likelyEvents.slice(0, 3).map(item => item.event).join("、")}。`;
   }
 
   function uniqueText(items = []) {
@@ -1069,22 +1307,6 @@
     return `<tr class="flow-signal-row"><td data-label="分组">${signal.group || groupTitle}</td><td data-label="观察点"><strong>${signal.title}</strong></td><td data-label="类型"><span class="badge">${signal.tag}</span></td><td data-label="原始依据">${signal.evidence}</td><td data-label="取象关键词">${signal.keywords}</td><td data-label="展开解释"><details class="inline-reading"><summary>展开</summary><dl><dt>怎么取的</dt><dd>${signal.evidence}</dd>${renderSignalEventCandidates(signal)}<dt>解释</dt><dd>${signal.plainReading} ${signal.realLifeMeaning} ${signal.caution}</dd></dl></details></td></tr>`;
   }
 
-  function renderFortuneAnalysis(data) {
-    const analysis = data.fortuneAnalysis;
-    if (!analysis) return "";
-    const scores = analysis.eventScores || {};
-    const scoreCards = Object.entries(scores).map(([key, value]) => `<article><span>${fortuneScoreLabel(key)}</span><strong>${value.score}</strong><small>${(value.evidence || []).slice(0, 2).join("；")}</small></article>`).join("");
-    return `<section class="data-board fortune-analysis-board">
-      <div class="plugin-header"><p class="eyebrow">fortune-engine</p><h2>年度总论</h2></div>
-      <section class="reading-overview"><span>${analysis.year} · ${analysis.annualTheme}</span><p>${analysis.overallSummary}</p></section>
-      <div class="fortune-score-grid">${scoreCards}</div>
-      <article class="analysis-block"><h3>大运如何影响这一年</h3><p>${analysis.decadeTheme}，支持分 ${analysis.decadeSupportScore}。</p><small>依据：${analysis.decadeEvidence?.join("；") || analysis.decadeTheme}</small></article>
-      <article class="analysis-block"><h3>这一年被什么触发</h3>${(analysis.triggerChains || []).slice(0, 5).map(chain => `<p>${chain.reason}</p><small>依据：${(chain.evidence || []).join("；")}</small>`).join("")}</article>
-      <article class="analysis-block"><h3>重点月份</h3>${(analysis.monthlyHighlights || []).map(month => `<p>${month.month}月 ${month.pillar} · ${month.intensity}</p><small>依据：${(month.reasons || []).join("；")}</small>`).join("")}</article>
-      <article class="analysis-block"><h3>现实建议</h3><ul>${(analysis.advice || []).map(item => `<li>${item}</li>`).join("")}</ul></article>
-    </section>`;
-  }
-
   function buildLocalFortuneAnalysis({ chart, selectedLuck, yearInfluence, monthInfluences, transitSignals, monthSignals }) {
     const triggerRows = flattenSignalGroups(transitSignals).filter(signal => !String(signal.title || "").includes("未命中"));
     const monthRows = flattenSignalGroups(monthSignals).filter(signal => !String(signal.title || "").includes("未命中"));
@@ -1134,7 +1356,7 @@
       luckBackground: {
         conclusion: `${selectedLuck.label}大运${decadeTheme}`,
         evidence: decadeEvidence,
-        reality: "大运是十年背景层，决定这一年事件更容易以资源承接、规则压力、关系互动或迁动变化的方式被看见。",
+        reality: "大运是十年背景层，主要看阶段里的资源承接、规则压力、关系互动或迁动变化。",
       },
       annualTheme: top,
       overallSummary: `结论：${yearInfluence.year}年先看${top}这些候选主题。\n命理依据：原局${chart.pillars.day.label}接大运${selectedLuck.label}，再由流年${yearInfluence.pillar.label}触发，当前形成${triggerChains.length}条引动链。\n现实表现：重点观察职责资源、关系合作、迁动变化和作息体感是否在重点月份出现反馈。\n注意事项：本地引擎只做结构化取象，需要结合现实反馈继续验证，不能单独作为结论。`,
@@ -1183,7 +1405,7 @@
 
   function renderMonth(data) {
     const luck = data.chart.luckCycles;
-    byId("monthTimeline").innerHTML = `<div class="plugin-header"><p class="eyebrow">大运 · 流年 · 流月</p><h2>岁运推演</h2></div>${renderFortuneAnalysis(data)}${renderNatalMiniChart(data.chart)}<section class="data-board luck-board"><div class="board-title"><h3>1. 先选大运</h3><span>${luck.directionLabel} · ${luck.startAgeText} · 当前 ${data.selectedLuck.label}</span></div><div class="luck-table">${luck.pillars.map((p, i) => `<button class="luck-cell ${p.index === data.selectedLuck.index ? "is-active" : ""}" data-luck-index="${i}"><span>${p.startAge}-${p.endAge}岁</span><strong>${p.label}</strong><small>${p.startYear}-${p.endYear}</small></button>`).join("")}</div><p class="fine-print">${luck.startNote}</p>${renderFlowAiStage("luck", "大运 AI 解读", data.selectedLuck.label)}</section><section class="data-board year-board"><div class="board-title"><h3>2. 再看该大运内的流年</h3><span>${data.selectedLuck.startYear}-${data.selectedLuck.endYear} · 当前 ${data.yearInfluence.year} ${data.yearInfluence.pillar.label}</span></div><div class="year-strip decade-strip">${data.transitYears.map(({ year, pillar }) => `<button class="flow-chip ${year === data.yearInfluence.year ? "is-active" : ""}" data-year="${year}"><span>${year}</span><strong>${pillar.label}</strong></button>`).join("")}</div>${renderFlowAiStage("year", "流年 AI 解读", `${data.yearInfluence.year} ${data.yearInfluence.pillar.label}`)}</section>${renderTransitSignals(data.transitSignals, data)}<section class="data-board month-flow-board"><div class="board-title"><h3>4. 最后细看流月</h3><span>${data.yearInfluence.year} 年 · 当前 ${state.selectedMonth}月 ${data.selectedMonthInfluence.pillar.label}</span></div><div class="transit-layout"><div class="flow-focus">${renderPillarCard(data.yearInfluence.pillar, `${data.yearInfluence.year} 流年`)}${renderPillarCard(data.selectedMonthInfluence.pillar, `${state.selectedMonth}月流月`)}</div><div><div class="month-board">${data.monthInfluences.map(m => `<button class="flow-chip month ${m.month === state.selectedMonth ? "is-active" : ""}" data-month="${m.month}"><span>${m.month}月 · ${m.role}</span><strong>${m.pillar.label}</strong></button>`).join("")}</div></div></div>${renderFlowAiStage("month", "流月 AI 解读", `${state.selectedMonth}月 ${data.selectedMonthInfluence.pillar.label}`)}</section>${renderMonthSignals(data.monthSignals, data)}`;
+    byId("monthTimeline").innerHTML = `<div class="plugin-header"><p class="eyebrow">大运 · 流年 · 流月</p><h2>岁运推演</h2></div>${renderNatalMiniChart(data.chart)}<section class="data-board luck-board"><div class="board-title"><h3>1. 先选大运</h3><span>${luck.directionLabel} · ${luck.startAgeText} · 当前 ${data.selectedLuck.label}</span></div><div class="luck-table">${luck.pillars.map((p, i) => `<button class="luck-cell ${p.index === data.selectedLuck.index ? "is-active" : ""}" data-luck-index="${i}"><span>${p.startAge}-${p.endAge}岁</span><strong>${p.label}</strong><small>${p.startYear}-${p.endYear}</small></button>`).join("")}</div><p class="fine-print">${luck.startNote}</p>${renderFlowAiStage("luck", "大运 AI 解读", data.selectedLuck.label)}</section><section class="data-board year-board"><div class="board-title"><h3>2. 再看该大运内的流年</h3><span>${data.selectedLuck.startYear}-${data.selectedLuck.endYear} · 当前 ${data.yearInfluence.year} ${data.yearInfluence.pillar.label}</span></div><div class="year-strip decade-strip">${data.transitYears.map(({ year, pillar }) => `<button class="flow-chip ${year === data.yearInfluence.year ? "is-active" : ""}" data-year="${year}"><span>${year}</span><strong>${pillar.label}</strong></button>`).join("")}</div>${renderFlowAiStage("year", "流年 AI 解读", `${data.yearInfluence.year} ${data.yearInfluence.pillar.label}`)}</section>${renderTransitSignals(data.transitSignals, data)}<section class="data-board month-flow-board"><div class="board-title"><h3>4. 最后细看流月</h3><span>${data.yearInfluence.year} 年 · 当前 ${state.selectedMonth}月 ${data.selectedMonthInfluence.pillar.label}</span></div><div class="transit-layout"><div class="flow-focus">${renderPillarCard(data.yearInfluence.pillar, `${data.yearInfluence.year} 流年`)}${renderPillarCard(data.selectedMonthInfluence.pillar, `${state.selectedMonth}月流月`)}</div><div><div class="month-board">${data.monthInfluences.map(m => `<button class="flow-chip month ${m.month === state.selectedMonth ? "is-active" : ""}" data-month="${m.month}"><span>${m.month}月 · ${m.role}</span><strong>${m.pillar.label}</strong></button>`).join("")}</div></div></div>${renderFlowAiStage("month", "流月 AI 解读", `${state.selectedMonth}月 ${data.selectedMonthInfluence.pillar.label}`)}</section>${renderMonthSignals(data.monthSignals, data)}`;
     document.querySelectorAll("[data-year]").forEach(b => b.addEventListener("click", () => { resetFlowAiReports(); state.targetYear = Number(b.dataset.year); state.selectedMonth = 1; refresh(); }));
     document.querySelectorAll("[data-month]").forEach(b => b.addEventListener("click", () => { resetFlowAiReports(); state.selectedMonth = Number(b.dataset.month); refresh(); }));
     document.querySelectorAll("[data-luck-index]").forEach(b => b.addEventListener("click", () => { resetFlowAiReports(); const p = luck.pillars[Number(b.dataset.luckIndex)]; state.selectedLuckIndex = p.index - 1; state.targetYear = p.startYear; state.selectedMonth = 1; refresh(); }));

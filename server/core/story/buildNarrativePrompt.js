@@ -13,7 +13,7 @@ export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [
     ].join("\n"),
     user: JSON.stringify({
       fortuneAnalysis: pickedFortuneAnalysis,
-      evidencePackage: buildEvidencePackage(pickedFortuneAnalysis),
+      evidencePackage: buildEvidencePackage(pickedFortuneAnalysis, { mode: "year" }),
       referenceOnly: {
         chartJson: chart,
         yearInfluence,
@@ -23,8 +23,9 @@ export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [
       yearInfluence,
       output: {
         schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
-        order: ["今年更像发生的事", "依据", "现实表现", "强弱", "重点月份", "建议"],
+        order: ["对应时间层级的候选事象", "依据", "现实表现", "强弱", "建议"],
         style: "先取象，再解释；根据 evidencePackage 生成具体候选事象，每件事都要说明证据和验证点。",
+        modeInstruction: flowModeInstruction("year"),
       },
     }, null, 2),
   };
@@ -124,6 +125,7 @@ export function buildFlowNarrativePrompt({
 } = {}) {
   const modeLabels = { luck: "大运阶段取象", year: "流年年度取象", month: "流月短期取象" };
   const pickedFortuneAnalysis = pickFortuneAnalysis(fortuneAnalysis);
+  const modeInstruction = flowModeInstruction(mode);
   return {
     mode,
     schema: flowReportSchema,
@@ -136,8 +138,9 @@ export function buildFlowNarrativePrompt({
     user: JSON.stringify({
       mode,
       modeLabel: modeLabels[mode] ?? modeLabels.year,
+      modeInstruction,
       fortuneAnalysis: pickedFortuneAnalysis,
-      evidencePackage: buildEvidencePackage(pickedFortuneAnalysis),
+      evidencePackage: buildEvidencePackage(pickedFortuneAnalysis, { mode, selectedMonthInfluence }),
       referenceOnly: {
         chart,
         coreSignals,
@@ -149,8 +152,9 @@ export function buildFlowNarrativePrompt({
       },
       output: {
         schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
-        order: ["今年更像发生的事", "依据", "现实表现", "强弱", "重点月份", "建议"],
+        order: ["对应时间层级的候选事象", "依据", "现实表现", "强弱", "建议"],
         style: "先取象，再解释；AI 负责从 evidencePackage 生成具体候选事象，边界提醒只放 boundary。",
+        modeInstruction,
       },
     }, null, 2),
   };
@@ -164,10 +168,15 @@ function baseNarrativeSystemLines() {
     "你只能根据 fortuneAnalysis、triggerChains、eventScores、monthlyHighlights 和 evidencePackage 写解读。",
     "你的任务是把本地取象证据组合成一个人现实中更像会遇到的具体候选事件。",
     "每条 likelyEvents 都必须包含具体会发生什么、依据、现实表现、时间窗口、验证点。",
-    "输出顺序：先给结论，也就是先讲今年更像发生的事，再讲依据，再讲现实表现，再讲强弱，再讲重点月份，最后给建议。",
+    "少废话，避免重复；同一条依据不要在多个段落换词复述。",
+    "事件标题必须像现实里的动作或节点，例如职责调整、合同复核、付款重算、合作重谈、材料补交、出行改期。",
+    "输出顺序：先给结论，也就是先讲当前模式对应层级更像发生的事，再讲依据，再讲现实表现，再讲强弱，最后给建议。",
     "禁止确定性断语，禁止使用：一定、必定、绝对、必然、必发财、必离婚、必有灾、必坐牢、必死亡。",
     "禁止编造输入里没有的干支关系。",
-    "禁止平均解释 12 个月，只能写 fortuneAnalysis.monthlyHighlights 中的重点月份。",
+    "禁止平均解释 12 个月；只有流月模式才写选中月份，其他模式不要展开月份。",
+    "大运模式：只讲十年背景如何承载原局，不要把它写成某一年或某个月的完整报告。",
+    "流年模式：只讲当年被大运和原局引动的事件链条，不要复述十二个月流水账。",
+    "流月模式：只讲选中月份的短期应期，候选事件和 timeWindow 都要聚焦该月。",
     "禁止只说“事业、关系、情绪、注意沟通、保持积极、谨慎行事”这种空话。",
     "不要每句话都重复边界提醒，把学习边界集中放到 boundary 字段，一句话即可。",
   ];
@@ -189,7 +198,7 @@ function pickFortuneAnalysis(fortuneAnalysis = {}) {
   };
 }
 
-function buildEvidencePackage(fortuneAnalysis = {}) {
+function buildEvidencePackage(fortuneAnalysis = {}, { mode = "year", selectedMonthInfluence } = {}) {
   const eventScores = Object.entries(fortuneAnalysis.eventScores ?? {})
     .sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0))
     .slice(0, 5)
@@ -200,22 +209,73 @@ function buildEvidencePackage(fortuneAnalysis = {}) {
     }));
   const triggerChains = Array.isArray(fortuneAnalysis.triggerChains) ? fortuneAnalysis.triggerChains.slice(0, 8) : [];
   const monthlyHighlights = Array.isArray(fortuneAnalysis.monthlyHighlights) ? fortuneAnalysis.monthlyHighlights.slice(0, 5) : [];
+  const selectedMonth = Number(selectedMonthInfluence?.month || 0);
+  const pickedMonthlyHighlights = mode === "month" && selectedMonth
+    ? monthlyHighlights.filter((month) => Number(month.month) === selectedMonth)
+    : mode === "luck" || mode === "year" ? [] : monthlyHighlights;
+  const modeTriggerChains = mode === "luck" || mode === "month" ? [] : triggerChains;
+  const modeEventScores = mode === "luck"
+    ? inferPromptScoresFromEvidence(fortuneAnalysis.luckBackground?.evidence, fortuneAnalysis.decadeRiskTags, fortuneAnalysis.decadeSupportScore)
+    : mode === "month"
+      ? inferPromptScoresFromEvidence(pickedMonthlyHighlights.flatMap((month) => month.reasons || selectedMonthInfluence?.evidence || []), [], pickedMonthlyHighlights[0]?.score)
+      : eventScores;
   return {
     role: "本地证据包，只允许 AI 基于这些内容生成候选事象，不允许补充不存在的干支关系。",
+    mode,
+    modeInstruction: flowModeInstruction(mode),
     luckBackground: fortuneAnalysis.luckBackground,
-    triggerChains: triggerChains.map((chain) => ({
+    triggerChains: modeTriggerChains.map((chain) => ({
       reason: chain.reason,
       tags: chain.tags,
       weight: chain.weight,
       evidence: chain.evidence,
       realityMapping: chain.realityMapping,
     })),
-    topEventScores: eventScores,
-    timeWindows: monthlyHighlights.map((month) => ({
+    topEventScores: modeEventScores,
+    selectedMonth: mode === "month" ? {
+      month: selectedMonth || selectedMonthInfluence?.month,
+      pillar: selectedMonthInfluence?.pillar?.label || selectedMonthInfluence?.pillar,
+      evidence: selectedMonthInfluence?.evidence,
+    } : null,
+    timeWindows: pickedMonthlyHighlights.map((month) => ({
       month: month.month,
       pillar: month.pillar,
       intensity: month.intensity,
       reasons: month.reasons,
     })),
   };
+}
+
+function inferPromptScoresFromEvidence(evidence = [], tags = [], score = 55) {
+  const evidenceText = Array.isArray(evidence) ? evidence.join(" ") : String(evidence || "");
+  const topics = [
+    ...new Set([
+      ...(Array.isArray(tags) ? tags : []).filter((tag) => ["career", "wealth", "relationship", "study", "health", "movement", "social"].includes(tag)),
+      ...topicHintsFromText(evidenceText),
+    ]),
+  ];
+  const picked = topics.length ? topics : ["career", "study", "social"];
+  return picked.slice(0, 5).map((topic, index) => ({
+    topic,
+    score: Math.max(35, Math.min(100, Number(score || 55) - index * 5)),
+    evidence: Array.isArray(evidence) && evidence.length ? evidence.slice(0, 4) : ["当前模式只使用本层级证据。"],
+  }));
+}
+
+function topicHintsFromText(text = "") {
+  const topics = [];
+  if (/官|杀|规则|职责|流程|事业|任务/.test(text)) topics.push("career");
+  if (/财|资源|收支|付款|报价|预算/.test(text)) topics.push("wealth");
+  if (/关系|合作|夫妻|亲密/.test(text)) topics.push("relationship");
+  if (/印|食神|伤官|学习|表达|文书|作品|证照/.test(text)) topics.push("study");
+  if (/害|刑|穿|压力|作息|体感|安全/.test(text)) topics.push("health");
+  if (/冲|迁移|搬动|出行|地点|通勤/.test(text)) topics.push("movement");
+  if (/比肩|劫财|同辈|团队|朋友|人际/.test(text)) topics.push("social");
+  return topics;
+}
+
+function flowModeInstruction(mode = "year") {
+  if (mode === "luck") return "大运报告只回答：这步大运给原局带来什么十年背景、哪些领域被长期放大、阶段里反复出现什么候选事象。";
+  if (mode === "month") return "流月报告只回答：选中月份发生什么短期应期，本月哪些事变明显，不平均解释其他月份。";
+  return "流年报告只回答：这一年自身触发了什么候选事件、依据是什么、现实中可能表现成什么。";
 }

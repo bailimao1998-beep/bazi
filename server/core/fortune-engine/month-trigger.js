@@ -28,7 +28,7 @@ function scoreMonth({ chart, selectedLuck, yearInfluence, month, triggerChains, 
   const tenGodHits = triggerChains.filter((chain) => [month?.tenGods?.stem, month?.tenGods?.branch].some((tenGod) => chain.reason?.includes(tenGod)));
   if (tenGodHits.length) {
     score += 3;
-    reasons.push(`流月十神${month?.tenGods?.stem}、${month?.tenGods?.branch}呼应年度触发链`);
+    reasons.push(`流月十神${month?.tenGods?.stem}、${month?.tenGods?.branch}在本月形成短期应期`);
   }
   const sameBranch = targets.filter((target) => target.pillar?.branch === month?.pillar?.branch);
   if (sameBranch.length) {

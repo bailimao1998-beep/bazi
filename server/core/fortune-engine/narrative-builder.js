@@ -20,11 +20,11 @@ export function buildFortuneNarrative({ year, natalSignature, decadeAnalysis, tr
     "注意事项：以上只按本地规则串联取象，需要结合现实反馈、柱位、旺衰和流月继续验证，不能单独作为结论。"
   ].join("\n");
   const sections = [
-    section("年度总论", overallSummary),
+    section("岁运综合推演", overallSummary),
     section("大运如何影响这一年", [
       `结论：当前大运属于${decadeAnalysis.decadeTheme}，支持分${decadeAnalysis.decadeSupportScore}。`,
       `命理依据：${decadeAnalysis.evidence.join("；")}`,
-      `现实表现：十年背景会影响这一年事件的承接方式，尤其看${decadeAnalysis.decadeRiskTags.join("、") || "阶段主题"}。`,
+      `现实表现：十年背景会影响阶段事务的承接方式，尤其看${decadeAnalysis.decadeRiskTags.join("、") || "阶段主题"}。`,
       "注意事项：大运是背景层，仍要看流年和流月如何触发。"
     ].join("\n")),
     section("这一年被什么触发", [

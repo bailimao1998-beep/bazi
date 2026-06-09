@@ -28,7 +28,7 @@ export function analyzeFortuneYear({ chart, selectedLuck, yearInfluence, monthIn
     luckBackground: {
       conclusion: `${selectedLuck?.label ?? "当前"}大运${decadeAnalysis.decadeTheme}`,
       evidence: decadeAnalysis.evidence,
-      reality: "大运是十年背景层，决定这一年事件更容易以资源承接、规则压力、关系互动或迁动变化的方式被看见。",
+      reality: "大运是十年背景层，主要看阶段里的资源承接、规则压力、关系互动或迁动变化。",
     },
     decadeTheme: decadeAnalysis.decadeTheme,
     decadeSupportScore: decadeAnalysis.decadeSupportScore,

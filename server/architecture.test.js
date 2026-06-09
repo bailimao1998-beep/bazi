@@ -150,8 +150,10 @@ test("flow AI modes build structured prompts and mock reports without model-side
     targetYear: 2030,
     selectedMonth: 6,
   };
+  const modeReports = {};
   for (const mode of ["luck", "year", "month"]) {
     const result = await buildNarrative({ ...input, mode });
+    modeReports[mode] = result.narrative.report;
     assert.equal(result.aiMode, mode);
     assert.equal(result.narrative.provider, "deepseek");
     assert.equal(result.narrative.isPlaceholder, true);
@@ -164,7 +166,14 @@ test("flow AI modes build structured prompts and mock reports without model-side
     assert.ok(Array.isArray(result.narrative.report.monthlyHighlights));
     assert.ok(result.narrative.report.eventFocus.length > 0);
     assert.ok(result.narrative.report.likelyEvents.length > 0);
-    assert.ok(result.narrative.report.monthlyHighlights.length > 0);
+    if (mode === "month") {
+      assert.ok(result.narrative.report.monthlyHighlights.length > 0);
+    } else {
+      assert.equal(result.narrative.report.monthlyHighlights.length, 0);
+    }
+    const reportText = JSON.stringify(result.narrative.report);
+    assert.ok((reportText.match(/现实中可观察/g) || []).length <= 1);
+    assert.doesNotMatch(reportText, /年度触发主题|现实事务出现|事情落地、反馈出现/);
     for (const event of result.narrative.report.likelyEvents) {
       assert.equal(typeof event.event, "string");
       assert.match(event.probabilityLevel, /^(high|medium|low)$/);
@@ -175,6 +184,8 @@ test("flow AI modes build structured prompts and mock reports without model-side
       assert.ok(Array.isArray(event.verifyBy));
       assert.ok(event.verifyBy.length > 0);
       assert.doesNotMatch(event.event, /事业为|财运为|感情为|学业为|健康为|迁移为|人际为/);
+      assert.doesNotMatch(event.event, /主题|窗口|反馈|节点|现实事务/);
+      assert.match(event.event, /调整|复核|核算|讨论|重谈|报名|整理|交付|出行|搬动|协作|分工|审批|合同|付款|文书|作息/);
     }
     for (const item of result.narrative.report.eventFocus) {
       assert.match(item.topic, /^(career|wealth|relationship|study|health|movement|social)$/);
@@ -183,6 +194,27 @@ test("flow AI modes build structured prompts and mock reports without model-side
     }
     assert.doesNotMatch(JSON.stringify(result.narrative.report), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
   }
+  assert.match(modeReports.luck.title + modeReports.luck.coreConclusion, /大运|十年|阶段/);
+  assert.match(modeReports.year.title + modeReports.year.coreConclusion, /流年|今年|年度/);
+  assert.match(modeReports.month.title + modeReports.month.coreConclusion, new RegExp(`${input.selectedMonth}月`));
+  assert.doesNotMatch(modeReports.luck.coreConclusion, /今年|本月|流月|重点月份/);
+  assert.doesNotMatch(modeReports.year.coreConclusion, /本月|流月/);
+  assert.doesNotMatch(JSON.stringify(modeReports.luck.monthlyHighlights), /月/);
+  assert.doesNotMatch(JSON.stringify(modeReports.year.monthlyHighlights), /月/);
+  assert.ok(
+    modeReports.month.likelyEvents.every((event) => event.timeWindow.includes(`${input.selectedMonth}月`)),
+    "流月报告的候选事件时间窗口应聚焦选中月份",
+  );
+  assert.notDeepEqual(
+    modeReports.luck.likelyEvents.map((event) => event.event),
+    modeReports.year.likelyEvents.map((event) => event.event),
+    "大运候选事件不能复用流年候选事件列表",
+  );
+  assert.notDeepEqual(
+    modeReports.year.likelyEvents.map((event) => event.timeWindow),
+    modeReports.month.likelyEvents.map((event) => event.timeWindow),
+    "流年与流月不能共用同一套时间窗口",
+  );
 
   const chart = calculateBazi(input);
   const yearInfluence = calculateYearInfluence({ chart, targetYear: 2030 });
@@ -212,9 +244,15 @@ test("flow AI modes build structured prompts and mock reports without model-side
   assert.match(prompt.system, /本地只提供证据包/);
   assert.match(prompt.system, /AI 负责生成候选事象/);
   assert.match(prompt.system, /每条 likelyEvents/);
+  assert.match(prompt.system, /少废话/);
+  assert.match(prompt.system, /避免重复/);
   assert.match(prompt.system, /先给结论/);
-  assert.match(prompt.system, /重点月份/);
+  assert.match(prompt.system, /对应层级/);
   assert.match(prompt.system, /禁止平均解释 12 个月/);
+  assert.match(prompt.system, /只有流月模式才写选中月份/);
+  assert.match(prompt.system, /大运模式/);
+  assert.match(prompt.system, /流年模式/);
+  assert.match(prompt.system, /流月模式/);
   assert.match(JSON.stringify(prompt.schema), /coreConclusion/);
   assert.match(JSON.stringify(prompt.schema), /likelyEvents/);
   assert.match(JSON.stringify(prompt.schema), /eventFocus/);
@@ -223,6 +261,7 @@ test("flow AI modes build structured prompts and mock reports without model-side
   assert.match(prompt.user, /"mode": "year"/);
   assert.match(prompt.user, /fortuneAnalysis/);
   assert.match(prompt.user, /evidencePackage/);
+  assert.match(prompt.user, /modeInstruction/);
   assert.match(prompt.user, /triggerChains/);
   assert.match(prompt.user, /eventScores/);
   assert.match(prompt.user, /monthlyHighlights/);
@@ -759,12 +798,16 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /function renderFlowAiControls/);
   assert.match(bundle, /function renderFlowAiReport/);
   assert.match(bundle, /function renderReadableFlowAiReport/);
-  assert.match(bundle, /今年更像发生的事/);
+  assert.doesNotMatch(bundle, /今年更像发生的事/);
+  assert.doesNotMatch(bundle, /这一年更像发生的事/);
+  assert.match(bundle, /流年候选事象/);
   assert.match(bundle, /function renderAiLikelyEvent/);
   assert.match(bundle, /核心结论/);
   assert.match(bundle, /大运背景/);
   assert.match(bundle, /流年触发/);
-  assert.match(bundle, /重点领域/);
+  assert.match(bundle, /大运领域依据/);
+  assert.match(bundle, /流年领域依据/);
+  assert.match(bundle, /本月领域依据/);
   assert.match(bundle, /重点月份/);
   assert.match(bundle, /本地占位报告/);
   assert.match(bundle, /fortuneAnalysis: lastData\.fortuneAnalysis/);
@@ -820,13 +863,24 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /renderTransitSignals\(data\.transitSignals, data\)/);
   assert.match(bundle, /renderMonthSignals\(data\.monthSignals, data\)/);
   assert.match(bundle, /renderCoreSignals\(data\)/);
-  assert.match(bundle, /function renderFortuneAnalysis/);
+  assert.doesNotMatch(bundle, /function renderFortuneAnalysis/);
+  assert.doesNotMatch(bundle, /function renderFortuneLikelyEvents/);
+  assert.doesNotMatch(bundle, /likely-events-block/);
+  assert.doesNotMatch(bundle, /renderFortuneLikelyEvents\(readableReport\)/);
+  assert.match(index, /app\.bundle\.js\?v=20260609f/);
+  assert.match(bundle, /function selectLocalReportContext/);
+  assert.match(bundle, /function readableReportSectionTitles/);
+  assert.match(bundle, /flowModeInstruction\(mode\)/);
+  assert.match(bundle, /大运模式/);
+  assert.match(bundle, /流年模式/);
+  assert.match(bundle, /流月模式/);
   assert.match(bundle, /fortuneAnalysis/);
-  assert.match(bundle, /年度总论/);
-  assert.match(bundle, /大运如何影响这一年/);
-  assert.match(bundle, /这一年被什么触发/);
-  assert.match(bundle, /重点月份/);
-  assert.match(bundle, /现实建议/);
+  assert.doesNotMatch(bundle, /<h2>年度总论<\/h2>/);
+  assert.doesNotMatch(bundle, /岁运综合推演/);
+  assert.doesNotMatch(bundle, /大运如何影响这一年/);
+  assert.doesNotMatch(bundle, /这一年被什么触发/);
+  assert.doesNotMatch(bundle, /fortune-score-grid/);
+  assert.doesNotMatch(bundle, /<h2>现实建议<\/h2>/);
   assert.doesNotMatch(bundle, /renderNarrative\(data\)/);
   assert.doesNotMatch(bundle, /renderDebug\(data\)/);
   assert.match(bundle, /evidence/);

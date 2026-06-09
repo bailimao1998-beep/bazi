@@ -342,6 +342,7 @@
       <section class="ai-report-section"><h4>核心结论</h4><p>${escapeHtml(report.coreConclusion)}</p></section>
       ${renderAiReportBlock("大运背景", report.luckBackground)}
       ${renderAiReportBlock("流年触发", report.yearTrigger)}
+      <section class="ai-report-section"><h4>今年更像发生的事</h4><div class="ai-focus-list">${(report.likelyEvents || []).map(renderAiLikelyEvent).join("")}</div></section>
       <section class="ai-report-section"><h4>重点领域</h4><div class="ai-focus-list">${(report.eventFocus || []).map(renderAiEventFocus).join("")}</div></section>
       <section class="ai-report-section"><h4>重点月份</h4><div class="ai-month-list">${(report.monthlyHighlights || []).map(renderAiMonth).join("")}</div></section>
       <section class="ai-report-section"><h4>建议</h4>${renderScenarioItems(report.overallAdvice || [])}</section>
@@ -355,6 +356,10 @@
 
   function renderAiEventFocus(item = {}) {
     return `<article class="ai-focus-card"><div><strong>${fortuneScoreLabel(item.topic)}</strong><span>${levelLabel(item.level)}</span></div><p>${escapeHtml(item.conclusion || "")}</p><dl><dt>依据</dt><dd>${renderScenarioItems(item.evidence || [])}</dd><dt>现实表现</dt><dd>${escapeHtml(item.reality || "")}</dd><dt>建议</dt><dd>${escapeHtml(item.advice || "")}</dd></dl></article>`;
+  }
+
+  function renderAiLikelyEvent(item = {}) {
+    return `<article class="ai-focus-card"><div><strong>${escapeHtml(item.event || "候选事件")}</strong><span>${levelLabel(item.probabilityLevel)}</span></div><p>${escapeHtml(item.timeWindow || "等待重点月份反馈")}</p><dl><dt>依据</dt><dd>${renderScenarioItems(item.evidence || [])}</dd><dt>现实表现</dt><dd>${escapeHtml(item.reality || "")}</dd><dt>怎么验证</dt><dd>${renderScenarioItems(item.verifyBy || [])}</dd></dl></article>`;
   }
 
   function renderAiMonth(item = {}) {
@@ -493,21 +498,24 @@
       system: [
         "你是命理网站的白话解读层，不是排盘层。",
         "不能重新排盘，不能新增不存在的干支关系，不能补充不存在的干支关系，不能自行改写年份月份。",
-        "你只能根据 fortuneAnalysis、triggerChains、eventScores、monthlyHighlights 写解读。",
-        "你的任务是把本地规则判断翻译成人能听懂的现实语言。",
-        "输出顺序：先给结论，再讲依据，再讲现实表现，再讲强弱，再讲重点月份，最后给建议。",
+        "本地只提供证据包，不负责直接断事；AI 负责生成候选事象，但每条都必须回扣本地证据。",
+        "你只能根据 fortuneAnalysis、triggerChains、eventScores、monthlyHighlights 和 evidencePackage 写解读。",
+        "你的任务是把本地取象证据组合成一个人现实中更像会遇到的具体候选事件。",
+        "每条 likelyEvents 都必须包含具体会发生什么、依据、现实表现、时间窗口、验证点。",
+        "输出顺序：先给结论，也就是先讲今年更像发生的事，再讲依据，再讲现实表现，再讲强弱，再讲重点月份，最后给建议。",
         "禁止确定性断语，禁止使用：一定、必定、绝对、必然、必发财、必离婚、必有灾、必坐牢、必死亡。",
         "禁止编造输入里没有的干支关系。",
         "禁止平均解释 12 个月，只能写 fortuneAnalysis.monthlyHighlights 中的重点月份。",
-        "禁止只说“注意沟通、保持积极、谨慎行事”这种空话。",
+        "禁止只说“事业、关系、情绪、注意沟通、保持积极、谨慎行事”这种空话。",
         "不要每句话都重复边界提醒，把学习边界集中放到 boundary 字段，一句话即可。",
         "禁用词：一定、必定、绝对、必然、必离婚、必发财、必有灾、必坐牢、必死亡。",
-        "输出 JSON 字段必须为 title、coreConclusion、luckBackground、yearTrigger、eventFocus、monthlyHighlights、overallAdvice、boundary。",
+        "输出 JSON 字段必须为 title、coreConclusion、luckBackground、yearTrigger、likelyEvents、eventFocus、monthlyHighlights、overallAdvice、boundary。",
       ].join("\n"),
       user: JSON["stringify"]({
         mode,
         modeLabel: modeLabels[mode] || modeLabels.year,
         fortuneAnalysis: pickBrowserFortuneAnalysis(lastData.fortuneAnalysis),
+        evidencePackage: buildBrowserEvidencePackage(pickBrowserFortuneAnalysis(lastData.fortuneAnalysis)),
         referenceOnly: {
           chart: lastData.chart,
           coreSignals: lastData.coreSignals,
@@ -518,9 +526,9 @@
           selectedMonthInfluence: lastData.selectedMonthInfluence,
         },
         output: {
-          schema: "title/coreConclusion/luckBackground/yearTrigger/eventFocus/monthlyHighlights/overallAdvice/boundary",
-          order: ["结论", "依据", "现实表现", "强弱", "重点月份", "建议"],
-          style: "先取象，再解释；边界提醒只放 boundary，不要每段重复。",
+          schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
+          order: ["今年更像发生的事", "依据", "现实表现", "强弱", "重点月份", "建议"],
+          style: "先取象，再解释；AI 负责从 evidencePackage 生成具体候选事象，边界提醒只放 boundary。",
         },
       }, null, 2),
     };
@@ -542,6 +550,37 @@
     };
   }
 
+  function buildBrowserEvidencePackage(fortuneAnalysis = {}) {
+    const topEventScores = Object.entries(fortuneAnalysis.eventScores || {})
+      .sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0))
+      .slice(0, 5)
+      .map(([topic, value]) => ({
+        topic,
+        score: Number(value?.score || 0),
+        evidence: Array.isArray(value?.evidence) ? value.evidence.slice(0, 4) : [],
+      }));
+    const triggerChains = Array.isArray(fortuneAnalysis.triggerChains) ? fortuneAnalysis.triggerChains.slice(0, 8) : [];
+    const monthlyHighlights = Array.isArray(fortuneAnalysis.monthlyHighlights) ? fortuneAnalysis.monthlyHighlights.slice(0, 5) : [];
+    return {
+      role: "本地证据包，只允许 AI 基于这些内容生成候选事象，不允许补充不存在的干支关系。",
+      luckBackground: fortuneAnalysis.luckBackground,
+      triggerChains: triggerChains.map(chain => ({
+        reason: chain.reason,
+        tags: chain.tags,
+        weight: chain.weight,
+        evidence: chain.evidence,
+        realityMapping: chain.realityMapping,
+      })),
+      topEventScores,
+      timeWindows: monthlyHighlights.map(month => ({
+        month: month.month,
+        pillar: month.pillar,
+        intensity: month.intensity,
+        reasons: month.reasons,
+      })),
+    };
+  }
+
   function normalizeFlowAiReport(report, text, mode, isPlaceholder = false) {
     const fallback = createLocalFlowAiReport(mode, true);
     if (!report) return { ...fallback, coreConclusion: text || fallback.coreConclusion, isPlaceholder: true };
@@ -551,6 +590,7 @@
         coreConclusion: report.coreConclusion || text || fallback.coreConclusion,
         luckBackground: normalizeAiBlock(report.luckBackground, fallback.luckBackground),
         yearTrigger: normalizeAiBlock(report.yearTrigger, fallback.yearTrigger),
+        likelyEvents: normalizeAiLikelyEvents(report.likelyEvents, fallback.likelyEvents),
         eventFocus: normalizeAiEventFocus(report.eventFocus, fallback.eventFocus),
         monthlyHighlights: normalizeAiMonths(report.monthlyHighlights, fallback.monthlyHighlights),
         overallAdvice: normalizeTextList(report.overallAdvice, fallback.overallAdvice),
@@ -588,6 +628,21 @@
         evidence: normalizeTextList(item?.evidence, base.evidence),
         reality: item?.reality || base.reality,
         advice: item?.advice || base.advice,
+      };
+    });
+  }
+
+  function normalizeAiLikelyEvents(value, fallback) {
+    if (!Array.isArray(value) || !value.length) return fallback;
+    return value.map((item, index) => {
+      const base = fallback[index] || fallback[0];
+      return {
+        event: item?.event || base.event,
+        probabilityLevel: ["high", "medium", "low"].includes(item?.probabilityLevel) ? item.probabilityLevel : base.probabilityLevel,
+        timeWindow: item?.timeWindow || base.timeWindow,
+        evidence: normalizeTextList(item?.evidence, base.evidence),
+        reality: item?.reality || base.reality,
+        verifyBy: normalizeTextList(item?.verifyBy, base.verifyBy),
       };
     });
   }
@@ -653,6 +708,7 @@
         evidence: triggerChains.flatMap(chain => normalizeTextList(chain.evidence, chain.reason ? [chain.reason] : [])).slice(0, 5),
         reality: triggerChains.map(chain => chain.realityMapping).filter(Boolean).slice(0, 3).join("；") || "现实中可观察职责、资源、关系、迁动和状态节奏的具体反馈。",
       },
+      likelyEvents: buildLocalLikelyEvents(topEvents, triggerChains, months),
       eventFocus: topEvents.map(([topic, score]) => ({
         topic,
         level: scoreLevel(score?.score),
@@ -689,6 +745,14 @@
   function ensureLocalReadableReport(report) {
     return {
       ...report,
+      likelyEvents: report.likelyEvents.length ? report.likelyEvents : [{
+        event: "工作职责或项目分工出现调整",
+        probabilityLevel: "low",
+        timeWindow: "全年低强度观察",
+        evidence: ["当前本地证据包没有给出更高权重触发链。"],
+        reality: "可能表现为任务边界、交付方式、协作对象或流程要求的小幅调整。",
+        verifyBy: ["是否出现职责边界变化", "是否出现流程或交付节点", "是否在重点月份有反馈"],
+      }],
       eventFocus: report.eventFocus.length ? report.eventFocus : [{
         topic: "career",
         level: "low",
@@ -706,6 +770,82 @@
         advice: "记录现实反馈，等待更明确的岁运触发。",
       }],
     };
+  }
+
+  function buildLocalLikelyEvents(topEvents = [], triggerChains = [], monthlyHighlights = []) {
+    return topEvents.slice(0, 5).map(([topic, score], index) => {
+      const chains = triggerChains.filter(chain => Array.isArray(chain.tags) && chain.tags.includes(topic));
+      const chain = chains[0] || triggerChains[index] || {};
+      const month = monthlyHighlights[index % Math.max(monthlyHighlights.length, 1)] || {};
+      const template = likelyEventTemplate(topic);
+      const probabilityLevel = scoreLevel(score?.score || chain.weight * 18);
+      return {
+        event: template.event,
+        probabilityLevel,
+        timeWindow: eventTimeWindow(month, probabilityLevel),
+        evidence: uniqueText([
+          ...normalizeTextList(score?.evidence, []).slice(0, 2),
+          ...normalizeTextList(chain.evidence, []).slice(0, 2),
+          chain.reason,
+          month.month ? `${month.month}月${month.pillar || ""}${month.intensity || ""}触发窗口` : "",
+        ].filter(Boolean)).slice(0, 5),
+        reality: chain.realityMapping || template.reality,
+        verifyBy: template.verifyBy,
+      };
+    });
+  }
+
+  function likelyEventTemplate(topic) {
+    return {
+      career: {
+        event: "工作职责、项目分工或审批流程出现调整",
+        reality: "可能表现为换负责人、任务边界重划、流程审核变多、交付节奏被重新安排。",
+        verifyBy: ["是否出现岗位职责变化", "是否有项目负责人或协作对象调整", "是否出现审批、合同、流程节点"],
+      },
+      wealth: {
+        event: "收支安排、报价付款或资源分配需要重新核算",
+        reality: "可能表现为预算重排、付款节点延后、报价协商、家庭或团队资源重新分配。",
+        verifyBy: ["是否出现大额收支计划", "是否有报价付款或合同金额复核", "是否需要重新分配资源"],
+      },
+      relationship: {
+        event: "亲密关系或合作关系的边界被重新讨论",
+        reality: "可能表现为沟通频率变化、分工承诺重谈、关系黏连或合作责任变清楚。",
+        verifyBy: ["是否出现关系边界讨论", "是否有合作承诺或分工变化", "是否在重点月份出现反复沟通"],
+      },
+      study: {
+        event: "学习证照、材料文书或表达交付被推到台前",
+        reality: "可能表现为报名考试、整理材料、作品发布、方案汇报或技能训练加密。",
+        verifyBy: ["是否出现考试证照计划", "是否需要补材料或写方案", "是否有公开表达或作品交付"],
+      },
+      health: {
+        event: "作息体感、压力负荷和安全操作需要复核",
+        reality: "可能表现为熬夜增多、节奏被打乱、压力集中、出行或工具操作需要更谨慎。",
+        verifyBy: ["是否出现作息波动", "是否出现压力负荷增加", "是否涉及出行、工具或流程安全复核"],
+      },
+      movement: {
+        event: "出行、搬动、通勤或地点安排出现变化",
+        reality: "可能表现为临时出差、搬动计划、通勤变化、行程改期或项目地点调整。",
+        verifyBy: ["是否出现出行搬动安排", "是否有地点或时间表变化", "是否在重点月份落地"],
+      },
+      social: {
+        event: "同事同辈、朋友或团队协作出现分工摩擦",
+        reality: "可能表现为资源归属要说清、合作节奏不一致、同辈比较或团队分工重新协调。",
+        verifyBy: ["是否出现团队分工争议", "是否有资源归属讨论", "是否出现同辈竞争或协作摩擦"],
+      },
+    }[topic] || {
+      event: "现实事务出现需要重新安排的节点",
+      reality: "可能表现为计划调整、沟通增加、流程复核或资源重新分配。",
+      verifyBy: ["是否出现计划变化", "是否需要流程复核", "是否有资源或关系重新安排"],
+    };
+  }
+
+  function eventTimeWindow(month, probabilityLevel) {
+    if (month?.month) return `${month.month}月${month.pillar ? ` ${month.pillar}` : ""}，${month.intensity || probabilityLevel}触发窗口`;
+    return probabilityLevel === "high" ? "全年偏高触发，重点看高强度月份" : "全年观察，等重点月份反馈";
+  }
+
+  function uniqueText(items = []) {
+    return [...new Set(items.map(item => String(item)).filter(Boolean))];
   }
 
   function firstSentence(value = "") {

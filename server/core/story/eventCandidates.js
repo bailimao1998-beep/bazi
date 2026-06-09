@@ -111,6 +111,7 @@ export function buildReadableAiReportFromPrompt(prompt = {}) {
     .slice(0, 4);
   const monthlyHighlights = Array.isArray(fortune.monthlyHighlights) ? fortune.monthlyHighlights.slice(0, 5) : [];
   const triggerChains = Array.isArray(fortune.triggerChains) ? fortune.triggerChains : [];
+  const likelyEvents = buildLikelyEvents({ topEvents, triggerChains, monthlyHighlights, evidencePackage: input.evidencePackage });
   const report = {
     title: `${fortune.annualTheme || "年度"}结构化解读`,
     coreConclusion: firstSentence(fortune.overallSummary) || `今年重点看${topEvents.map(([key]) => topicName(key)).join("、") || "年度触发主题"}。`,
@@ -124,6 +125,7 @@ export function buildReadableAiReportFromPrompt(prompt = {}) {
       evidence: triggerChains.flatMap((chain) => normalizeList(chain.evidence).length ? normalizeList(chain.evidence) : [chain.reason]).slice(0, 5),
       reality: triggerChains.map((chain) => chain.realityMapping).filter(Boolean).slice(0, 3).join("；") || "现实中可观察职责、资源、关系、迁动和状态节奏的具体反馈。",
     },
+    likelyEvents,
     eventFocus: topEvents.map(([topic, score]) => ({
       topic,
       level: scoreLevel(score?.score),
@@ -253,6 +255,14 @@ function normalizeList(value) {
 function ensureReportDefaults(report) {
   return {
     ...report,
+    likelyEvents: report.likelyEvents.length ? report.likelyEvents : [{
+      event: "工作职责或项目分工出现调整",
+      probabilityLevel: "low",
+      timeWindow: "全年低强度观察",
+      evidence: ["当前本地证据包没有给出更高权重触发链。"],
+      reality: "可能表现为任务边界、交付方式、协作对象或流程要求的小幅调整。",
+      verifyBy: ["是否出现职责边界变化", "是否出现流程或交付节点", "是否在重点月份有反馈"],
+    }],
     eventFocus: report.eventFocus.length ? report.eventFocus : [{
       topic: "career",
       level: "low",
@@ -290,6 +300,79 @@ function scoreLevel(score) {
   if (value >= 70) return "high";
   if (value >= 40) return "medium";
   return "low";
+}
+
+function buildLikelyEvents({ topEvents = [], triggerChains = [], monthlyHighlights = [], evidencePackage = {} } = {}) {
+  const months = monthlyHighlights.length ? monthlyHighlights : normalizeList(evidencePackage.timeWindows);
+  return topEvents.slice(0, 5).map(([topic, score], index) => {
+    const chains = triggerChains.filter((chain) => normalizeList(chain.tags).includes(topic));
+    const chain = chains[0] || triggerChains[index] || {};
+    const month = months[index % Math.max(months.length, 1)] || {};
+    const template = likelyEventTemplate(topic);
+    const probabilityLevel = scoreLevel(score?.score ?? chain.weight * 18);
+    return {
+      event: template.event,
+      probabilityLevel,
+      timeWindow: eventTimeWindow(month, probabilityLevel),
+      evidence: dedupe([
+        ...normalizeList(score?.evidence).slice(0, 2),
+        ...normalizeList(chain.evidence).slice(0, 2),
+        chain.reason,
+        ...(month.month ? [`${month.month}月${month.pillar || ""}${month.intensity || ""}触发窗口`] : []),
+      ].filter(Boolean)).slice(0, 5),
+      reality: chain.realityMapping || template.reality,
+      verifyBy: template.verifyBy,
+    };
+  });
+}
+
+function likelyEventTemplate(topic) {
+  return {
+    career: {
+      event: "工作职责、项目分工或审批流程出现调整",
+      reality: "可能表现为换负责人、任务边界重划、流程审核变多、交付节奏被重新安排。",
+      verifyBy: ["是否出现岗位职责变化", "是否有项目负责人或协作对象调整", "是否出现审批、合同、流程节点"],
+    },
+    wealth: {
+      event: "收支安排、报价付款或资源分配需要重新核算",
+      reality: "可能表现为预算重排、付款节点延后、报价协商、家庭或团队资源重新分配。",
+      verifyBy: ["是否出现大额收支计划", "是否有报价付款或合同金额复核", "是否需要重新分配资源"],
+    },
+    relationship: {
+      event: "亲密关系或合作关系的边界被重新讨论",
+      reality: "可能表现为沟通频率变化、分工承诺重谈、关系黏连或合作责任变清楚。",
+      verifyBy: ["是否出现关系边界讨论", "是否有合作承诺或分工变化", "是否在重点月份出现反复沟通"],
+    },
+    study: {
+      event: "学习证照、材料文书或表达交付被推到台前",
+      reality: "可能表现为报名考试、整理材料、作品发布、方案汇报或技能训练加密。",
+      verifyBy: ["是否出现考试证照计划", "是否需要补材料或写方案", "是否有公开表达或作品交付"],
+    },
+    health: {
+      event: "作息体感、压力负荷和安全操作需要复核",
+      reality: "可能表现为熬夜增多、节奏被打乱、压力集中、出行或工具操作需要更谨慎。",
+      verifyBy: ["是否出现作息波动", "是否出现压力负荷增加", "是否涉及出行、工具或流程安全复核"],
+    },
+    movement: {
+      event: "出行、搬动、通勤或地点安排出现变化",
+      reality: "可能表现为临时出差、搬动计划、通勤变化、行程改期或项目地点调整。",
+      verifyBy: ["是否出现出行搬动安排", "是否有地点或时间表变化", "是否在重点月份落地"],
+    },
+    social: {
+      event: "同事同辈、朋友或团队协作出现分工摩擦",
+      reality: "可能表现为资源归属要说清、合作节奏不一致、同辈比较或团队分工重新协调。",
+      verifyBy: ["是否出现团队分工争议", "是否有资源归属讨论", "是否出现同辈竞争或协作摩擦"],
+    },
+  }[topic] || {
+    event: "现实事务出现需要重新安排的节点",
+    reality: "可能表现为计划调整、沟通增加、流程复核或资源重新分配。",
+    verifyBy: ["是否出现计划变化", "是否需要流程复核", "是否有资源或关系重新安排"],
+  };
+}
+
+function eventTimeWindow(month, probabilityLevel) {
+  if (month?.month) return `${month.month}月${month.pillar ? ` ${month.pillar}` : ""}，${month.intensity || probabilityLevel}触发窗口`;
+  return probabilityLevel === "high" ? "全年偏高触发，重点看高强度月份" : "全年观察，等重点月份反馈";
 }
 
 function topicName(topic) {

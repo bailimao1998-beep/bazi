@@ -67,6 +67,7 @@ function normalizeFlowReport(report = {}, prompt) {
     coreConclusion: normalizeText(report.coreConclusion, fallback.coreConclusion),
     luckBackground: normalizeBlock(report.luckBackground, fallback.luckBackground),
     yearTrigger: normalizeBlock(report.yearTrigger, fallback.yearTrigger),
+    likelyEvents: normalizeLikelyEvents(report.likelyEvents, fallback.likelyEvents),
     eventFocus: normalizeEventFocus(report.eventFocus, fallback.eventFocus),
     monthlyHighlights: normalizeMonths(report.monthlyHighlights, fallback.monthlyHighlights),
     overallAdvice: normalizeList(report.overallAdvice, fallback.overallAdvice),
@@ -97,6 +98,21 @@ function normalizeEventFocus(value, fallback) {
       evidence: normalizeList(item?.evidence, fallbackItem.evidence),
       reality: normalizeText(item?.reality, fallbackItem.reality),
       advice: normalizeText(item?.advice, fallbackItem.advice),
+    };
+  });
+}
+
+function normalizeLikelyEvents(value, fallback) {
+  if (!Array.isArray(value) || !value.length) return fallback;
+  return value.map((item, index) => {
+    const fallbackItem = fallback[index] ?? fallback[0];
+    return {
+      event: normalizeText(item?.event, fallbackItem.event),
+      probabilityLevel: normalizeEnum(item?.probabilityLevel, ["high", "medium", "low"], fallbackItem.probabilityLevel),
+      timeWindow: normalizeText(item?.timeWindow, fallbackItem.timeWindow),
+      evidence: normalizeList(item?.evidence, fallbackItem.evidence),
+      reality: normalizeText(item?.reality, fallbackItem.reality),
+      verifyBy: normalizeList(item?.verifyBy, fallbackItem.verifyBy),
     };
   });
 }

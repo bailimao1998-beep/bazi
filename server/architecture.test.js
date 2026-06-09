@@ -160,9 +160,22 @@ test("flow AI modes build structured prompts and mock reports without model-side
     assert.ok(result.narrative.report.luckBackground?.evidence?.length > 0);
     assert.ok(result.narrative.report.yearTrigger?.evidence?.length > 0);
     assert.ok(Array.isArray(result.narrative.report.eventFocus));
+    assert.ok(Array.isArray(result.narrative.report.likelyEvents));
     assert.ok(Array.isArray(result.narrative.report.monthlyHighlights));
     assert.ok(result.narrative.report.eventFocus.length > 0);
+    assert.ok(result.narrative.report.likelyEvents.length > 0);
     assert.ok(result.narrative.report.monthlyHighlights.length > 0);
+    for (const event of result.narrative.report.likelyEvents) {
+      assert.equal(typeof event.event, "string");
+      assert.match(event.probabilityLevel, /^(high|medium|low)$/);
+      assert.equal(typeof event.timeWindow, "string");
+      assert.ok(Array.isArray(event.evidence));
+      assert.ok(event.evidence.length > 0);
+      assert.equal(typeof event.reality, "string");
+      assert.ok(Array.isArray(event.verifyBy));
+      assert.ok(event.verifyBy.length > 0);
+      assert.doesNotMatch(event.event, /事业为|财运为|感情为|学业为|健康为|迁移为|人际为/);
+    }
     for (const item of result.narrative.report.eventFocus) {
       assert.match(item.topic, /^(career|wealth|relationship|study|health|movement|social)$/);
       assert.match(item.level, /^(high|medium|low)$/);
@@ -196,15 +209,20 @@ test("flow AI modes build structured prompts and mock reports without model-side
   assert.match(prompt.system, /不能补充不存在的干支关系/);
   assert.match(prompt.system, /白话解读层/);
   assert.match(prompt.system, /只能根据 fortuneAnalysis、triggerChains、eventScores、monthlyHighlights/);
+  assert.match(prompt.system, /本地只提供证据包/);
+  assert.match(prompt.system, /AI 负责生成候选事象/);
+  assert.match(prompt.system, /每条 likelyEvents/);
   assert.match(prompt.system, /先给结论/);
   assert.match(prompt.system, /重点月份/);
   assert.match(prompt.system, /禁止平均解释 12 个月/);
   assert.match(JSON.stringify(prompt.schema), /coreConclusion/);
+  assert.match(JSON.stringify(prompt.schema), /likelyEvents/);
   assert.match(JSON.stringify(prompt.schema), /eventFocus/);
   assert.match(JSON.stringify(prompt.schema), /monthlyHighlights/);
   assert.match(JSON.stringify(flowReportSchema), /coreConclusion/);
   assert.match(prompt.user, /"mode": "year"/);
   assert.match(prompt.user, /fortuneAnalysis/);
+  assert.match(prompt.user, /evidencePackage/);
   assert.match(prompt.user, /triggerChains/);
   assert.match(prompt.user, /eventScores/);
   assert.match(prompt.user, /monthlyHighlights/);
@@ -216,6 +234,7 @@ test("flow AI schema exposes conclusion-focused report fields", () => {
   assert.match(schemaText, /coreConclusion/);
   assert.match(schemaText, /luckBackground/);
   assert.match(schemaText, /yearTrigger/);
+  assert.match(schemaText, /likelyEvents/);
   assert.match(schemaText, /eventFocus/);
   assert.match(schemaText, /monthlyHighlights/);
   assert.match(schemaText, /overallAdvice/);
@@ -740,6 +759,8 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /function renderFlowAiControls/);
   assert.match(bundle, /function renderFlowAiReport/);
   assert.match(bundle, /function renderReadableFlowAiReport/);
+  assert.match(bundle, /今年更像发生的事/);
+  assert.match(bundle, /function renderAiLikelyEvent/);
   assert.match(bundle, /核心结论/);
   assert.match(bundle, /大运背景/);
   assert.match(bundle, /流年触发/);
@@ -748,6 +769,7 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /本地占位报告/);
   assert.match(bundle, /fortuneAnalysis: lastData\.fortuneAnalysis/);
   assert.match(bundle, /function pickBrowserFortuneAnalysis/);
+  assert.match(bundle, /evidencePackage/);
   assert.match(bundle, /root\.hidden = false/);
   assert.match(bundle, /咨询总览/);
   assert.match(bundle, /专业证据链/);

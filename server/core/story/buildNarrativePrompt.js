@@ -3,6 +3,7 @@ import { storyToneConfig } from "./storyToneConfig.js";
 const forbiddenWords = ["一定", "必定", "绝对", "必然", "必离婚", "必发财", "必有灾", "必坐牢", "必死亡"];
 
 export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [], storyTags = [], fortuneAnalysis, tone = "default" } = {}) {
+  const pickedFortuneAnalysis = pickFortuneAnalysis(fortuneAnalysis);
   return {
     schema: flowReportSchema,
     system: [
@@ -11,7 +12,8 @@ export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [
       `禁用词：${forbiddenWords.join("、")}`,
     ].join("\n"),
     user: JSON.stringify({
-      fortuneAnalysis: pickFortuneAnalysis(fortuneAnalysis),
+      fortuneAnalysis: pickedFortuneAnalysis,
+      evidencePackage: buildEvidencePackage(pickedFortuneAnalysis),
       referenceOnly: {
         chartJson: chart,
         yearInfluence,
@@ -20,9 +22,9 @@ export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [
       },
       yearInfluence,
       output: {
-        schema: "title/coreConclusion/luckBackground/yearTrigger/eventFocus/monthlyHighlights/overallAdvice/boundary",
-        order: ["结论", "依据", "现实表现", "强弱", "重点月份", "建议"],
-        style: "先取象，再解释；只把本地规则判断翻译成人能听懂的现实语言。",
+        schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
+        order: ["今年更像发生的事", "依据", "现实表现", "强弱", "重点月份", "建议"],
+        style: "先取象，再解释；根据 evidencePackage 生成具体候选事象，每件事都要说明证据和验证点。",
       },
     }, null, 2),
   };
@@ -31,7 +33,7 @@ export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [
 export const flowReportSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["title", "coreConclusion", "luckBackground", "yearTrigger", "eventFocus", "monthlyHighlights", "overallAdvice", "boundary"],
+  required: ["title", "coreConclusion", "luckBackground", "yearTrigger", "likelyEvents", "eventFocus", "monthlyHighlights", "overallAdvice", "boundary"],
   properties: {
     title: { type: "string" },
     coreConclusion: { type: "string" },
@@ -53,6 +55,22 @@ export const flowReportSchema = {
         conclusion: { type: "string" },
         evidence: { type: "array", items: { type: "string" } },
         reality: { type: "string" },
+      },
+    },
+    likelyEvents: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["event", "probabilityLevel", "timeWindow", "evidence", "reality", "verifyBy"],
+        properties: {
+          event: { type: "string" },
+          probabilityLevel: { type: "string", enum: ["high", "medium", "low"] },
+          timeWindow: { type: "string" },
+          evidence: { type: "array", items: { type: "string" } },
+          reality: { type: "string" },
+          verifyBy: { type: "array", items: { type: "string" } },
+        },
       },
     },
     eventFocus: {
@@ -105,6 +123,7 @@ export function buildFlowNarrativePrompt({
   tone = "default",
 } = {}) {
   const modeLabels = { luck: "大运阶段取象", year: "流年年度取象", month: "流月短期取象" };
+  const pickedFortuneAnalysis = pickFortuneAnalysis(fortuneAnalysis);
   return {
     mode,
     schema: flowReportSchema,
@@ -112,12 +131,13 @@ export function buildFlowNarrativePrompt({
       ...baseNarrativeSystemLines(),
       `禁用词：${forbiddenWords.join("、")}`,
       `语气：${storyToneConfig[tone]?.tone ?? storyToneConfig.default.tone}；短句、白话、重点明确，但每个判断都必须回到证据。`,
-      "只输出一个合法 JSON 对象，字段必须匹配 title、coreConclusion、luckBackground、yearTrigger、eventFocus、monthlyHighlights、overallAdvice、boundary，不要输出 Markdown。",
+      "只输出一个合法 JSON 对象，字段必须匹配 title、coreConclusion、luckBackground、yearTrigger、likelyEvents、eventFocus、monthlyHighlights、overallAdvice、boundary，不要输出 Markdown。",
     ].join("\n"),
     user: JSON.stringify({
       mode,
       modeLabel: modeLabels[mode] ?? modeLabels.year,
-      fortuneAnalysis: pickFortuneAnalysis(fortuneAnalysis),
+      fortuneAnalysis: pickedFortuneAnalysis,
+      evidencePackage: buildEvidencePackage(pickedFortuneAnalysis),
       referenceOnly: {
         chart,
         coreSignals,
@@ -128,9 +148,9 @@ export function buildFlowNarrativePrompt({
         selectedMonthInfluence,
       },
       output: {
-        schema: "title/coreConclusion/luckBackground/yearTrigger/eventFocus/monthlyHighlights/overallAdvice/boundary",
-        order: ["结论", "依据", "现实表现", "强弱", "重点月份", "建议"],
-        style: "先取象，再解释；边界提醒只放 boundary，不要每段重复。",
+        schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
+        order: ["今年更像发生的事", "依据", "现实表现", "强弱", "重点月份", "建议"],
+        style: "先取象，再解释；AI 负责从 evidencePackage 生成具体候选事象，边界提醒只放 boundary。",
       },
     }, null, 2),
   };
@@ -140,13 +160,15 @@ function baseNarrativeSystemLines() {
   return [
     "你是命理网站的白话解读层，不是排盘层。",
     "你不能重新排盘，不能新增不存在的干支关系，不能补充不存在的干支关系，不能自行改写年份月份。",
-    "你只能根据 fortuneAnalysis、triggerChains、eventScores、monthlyHighlights 写解读。",
-    "你的任务是把本地规则判断翻译成人能听懂的现实语言。",
-    "输出顺序：先给结论，再讲依据，再讲现实表现，再讲强弱，再讲重点月份，最后给建议。",
+    "本地只提供证据包，不负责直接断事；AI 负责生成候选事象，但每条都必须回扣本地证据。",
+    "你只能根据 fortuneAnalysis、triggerChains、eventScores、monthlyHighlights 和 evidencePackage 写解读。",
+    "你的任务是把本地取象证据组合成一个人现实中更像会遇到的具体候选事件。",
+    "每条 likelyEvents 都必须包含具体会发生什么、依据、现实表现、时间窗口、验证点。",
+    "输出顺序：先给结论，也就是先讲今年更像发生的事，再讲依据，再讲现实表现，再讲强弱，再讲重点月份，最后给建议。",
     "禁止确定性断语，禁止使用：一定、必定、绝对、必然、必发财、必离婚、必有灾、必坐牢、必死亡。",
     "禁止编造输入里没有的干支关系。",
     "禁止平均解释 12 个月，只能写 fortuneAnalysis.monthlyHighlights 中的重点月份。",
-    "禁止只说“注意沟通、保持积极、谨慎行事”这种空话。",
+    "禁止只说“事业、关系、情绪、注意沟通、保持积极、谨慎行事”这种空话。",
     "不要每句话都重复边界提醒，把学习边界集中放到 boundary 字段，一句话即可。",
   ];
 }
@@ -164,5 +186,36 @@ function pickFortuneAnalysis(fortuneAnalysis = {}) {
     eventScores: fortuneAnalysis.eventScores ?? {},
     monthlyHighlights: Array.isArray(fortuneAnalysis.monthlyHighlights) ? fortuneAnalysis.monthlyHighlights : [],
     advice: Array.isArray(fortuneAnalysis.advice) ? fortuneAnalysis.advice : [],
+  };
+}
+
+function buildEvidencePackage(fortuneAnalysis = {}) {
+  const eventScores = Object.entries(fortuneAnalysis.eventScores ?? {})
+    .sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0))
+    .slice(0, 5)
+    .map(([topic, value]) => ({
+      topic,
+      score: Number(value?.score || 0),
+      evidence: Array.isArray(value?.evidence) ? value.evidence.slice(0, 4) : [],
+    }));
+  const triggerChains = Array.isArray(fortuneAnalysis.triggerChains) ? fortuneAnalysis.triggerChains.slice(0, 8) : [];
+  const monthlyHighlights = Array.isArray(fortuneAnalysis.monthlyHighlights) ? fortuneAnalysis.monthlyHighlights.slice(0, 5) : [];
+  return {
+    role: "本地证据包，只允许 AI 基于这些内容生成候选事象，不允许补充不存在的干支关系。",
+    luckBackground: fortuneAnalysis.luckBackground,
+    triggerChains: triggerChains.map((chain) => ({
+      reason: chain.reason,
+      tags: chain.tags,
+      weight: chain.weight,
+      evidence: chain.evidence,
+      realityMapping: chain.realityMapping,
+    })),
+    topEventScores: eventScores,
+    timeWindows: monthlyHighlights.map((month) => ({
+      month: month.month,
+      pillar: month.pillar,
+      intensity: month.intensity,
+      reasons: month.reasons,
+    })),
   };
 }

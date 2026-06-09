@@ -1,6 +1,7 @@
 import { branchElements, countElements, dominantElements, elementLabels, hiddenStems, stemElements } from "./fiveElements.js";
 import { branches, branchMainStem, buildTenGodSummary, getTenGod, stems } from "./tenGods.js";
 import { buildLuckCycles } from "./luckCycles.js";
+import { buildShensha } from "./shensha.js";
 import {
   buildNatalPillars,
   createPillarByIndex,
@@ -74,7 +75,8 @@ export function calculateBazi(input = {}, datasets = {}) {
     yearPillar: pillars.year,
     monthPillar: pillars.month,
   });
-  const pillarDetails = buildPillarDetails(pillars);
+  const shensha = buildShensha(pillars, input);
+  const pillarDetails = buildPillarDetails(pillars, shensha.byPillar);
   const calendar = {
     solarDate: formatBirthDate(birth),
     time: formatBirthTime(birth),
@@ -113,6 +115,7 @@ export function calculateBazi(input = {}, datasets = {}) {
     elementStats: buildElementStats(pillars),
     pillarDetails,
     relations: findRelations(pillars),
+    shensha,
     auxiliary,
     luckCycles,
     calendar,
@@ -130,7 +133,7 @@ export function calculateBazi(input = {}, datasets = {}) {
   };
 }
 
-function buildPillarDetails(pillars) {
+function buildPillarDetails(pillars, shenshaByPillar = {}) {
   return Object.fromEntries(Object.entries(pillars).map(([key, pillar]) => [
     key,
     {
@@ -149,6 +152,7 @@ function buildPillarDetails(pillars) {
       nayin: getNayin(pillar),
       twelveGrowth: twelveStageMatrix[pillars.day.stem]?.[pillar.branch] ?? "待查",
       voidBranches: getVoidBranches(pillar),
+      shensha: shenshaByPillar[key] ?? [],
     },
   ]));
 }

@@ -1,0 +1,67 @@
+{
+  "rules": [
+    {
+      "id": "event-career",
+      "condition": { "tags": ["career", "pressure"] },
+      "tags": ["career"],
+      "weight": 4,
+      "explanation": "事业分数来自官杀、食伤、规则压力和工作环境触发。",
+      "realityMapping": "现实中对应岗位职责、任务交付、流程审核、上级标准和项目调整。",
+      "caution": "事业分数是观察优先级，不等同于结果。"
+    },
+    {
+      "id": "event-wealth",
+      "condition": { "tags": ["wealth", "resource"] },
+      "tags": ["wealth"],
+      "weight": 4,
+      "explanation": "财运分数来自财星、资源承接、合象绑定和现实收支触发。",
+      "realityMapping": "现实中对应预算、付款、报价、客户资源、家庭开支和资源分配。",
+      "caution": "财运分数需要结合现实收支和日主承载复核。"
+    },
+    {
+      "id": "event-relationship",
+      "condition": { "tags": ["relationship"] },
+      "tags": ["relationship"],
+      "weight": 4,
+      "explanation": "感情与合作分数来自日柱、合冲害、官杀财星和互动结构触发。",
+      "realityMapping": "现实中对应亲密互动、合作边界、沟通摩擦、协商绑定和关系规则。",
+      "caution": "关系分数只提示互动主题，不单独推导关系结果。"
+    },
+    {
+      "id": "event-study",
+      "condition": { "tags": ["study", "support"] },
+      "tags": ["study"],
+      "weight": 3,
+      "explanation": "学业分数来自印星、食伤、木火属性和文书学习触发。",
+      "realityMapping": "现实中对应课程证书、资料整理、作品输出、考试准备和技能训练。",
+      "caution": "学业分数需要结合实际投入和反馈验证。"
+    },
+    {
+      "id": "event-health",
+      "condition": { "tags": ["health", "pressure"] },
+      "tags": ["health"],
+      "weight": 3,
+      "explanation": "健康分数只作为状态复核，来自害刑穿、压力累积和作息体感触发。",
+      "realityMapping": "现实中对应作息体感、情绪负荷、流程压力、休息修复和安全操作。",
+      "caution": "本项不作健康判断，只提示需要现实复核。"
+    },
+    {
+      "id": "event-movement",
+      "condition": { "tags": ["movement"] },
+      "tags": ["movement"],
+      "weight": 4,
+      "explanation": "迁移分数来自冲、流动五行、驿马类移动象和地点变化触发。",
+      "realityMapping": "现实中对应搬动、出行、通勤变化、岗位地点调整和计划改期。",
+      "caution": "迁移分数只提示变动主题，需要结合实际安排继续观察。"
+    },
+    {
+      "id": "event-social",
+      "condition": { "tags": ["social", "relationship"] },
+      "tags": ["social"],
+      "weight": 3,
+      "explanation": "人际分数来自比劫、食伤、合害和团队互动触发。",
+      "realityMapping": "现实中对应同事同辈、朋友互动、合作分工、沟通表达和边界调整。",
+      "caution": "人际分数只提示互动密度，不直接推导好坏。"
+    }
+  ]
+}

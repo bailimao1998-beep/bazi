@@ -35,6 +35,7 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit }) {
     targetYear: initialValue.targetYear ?? 2026,
     selectedMonth: initialValue.selectedMonth ?? 1,
     trueSolarTime: Boolean(initialValue.trueSolarTime),
+    preInterpretAi: Boolean(initialValue.preInterpretAi),
     error: "",
   };
 
@@ -99,6 +100,10 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit }) {
       formState.trueSolarTime = event.currentTarget.checked;
       update({ submit: true });
     });
+    container.querySelector("[name='preInterpretAi']")?.addEventListener("change", (event) => {
+      formState.preInterpretAi = event.currentTarget.checked;
+      update({ submit: true });
+    });
     container.querySelector("form")?.addEventListener("submit", (event) => {
       event.preventDefault();
       onSubmit(toPayload(formState));
@@ -151,6 +156,7 @@ function renderForm(state) {
       <p class="location-preview">${escapeHtml(renderLocationPreview(city, state.trueSolarTime))}</p>
       <label class="switch-row"><input name="trueSolarTime" type="checkbox" ${state.trueSolarTime ? "checked" : ""} /> <span>按真太阳时校正</span></label>
       <label><span>解读年份</span><input name="targetYear" type="number" value="${state.targetYear}" /></label>
+      <label class="switch-row"><input name="preInterpretAi" type="checkbox" ${state.preInterpretAi ? "checked" : ""} /> <span>AI 预先解读</span></label>
       <label><span>解读月份</span><input name="selectedMonth" type="number" min="1" max="12" value="${state.selectedMonth}" /></label>
       <button type="submit">重新排盘</button>
     </form>
@@ -265,6 +271,7 @@ function toPayload(state) {
     targetYear: Number(state.targetYear),
     selectedMonth: Number(state.selectedMonth),
     trueSolarTime: Boolean(state.trueSolarTime),
+    preInterpretAi: Boolean(state.preInterpretAi),
   };
 }
 

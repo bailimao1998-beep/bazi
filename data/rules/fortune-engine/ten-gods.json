@@ -1,0 +1,49 @@
+{
+  "rules": [
+    {
+      "id": "ten-god-officer",
+      "condition": { "tenGods": ["正官", "七杀"] },
+      "tags": ["career", "pressure", "relationship"],
+      "weight": 4,
+      "explanation": "官杀可作为规则、职责、标准和约束系统的观察入口。",
+      "realityMapping": "现实中可观察岗位职责、流程审核、证照材料、合作边界和关系规则是否被提到台前。",
+      "caution": "官杀信号只提示规则压力和角色主题，需要结合原局承接、旺衰和岁运继续验证，不能单独作为结论。"
+    },
+    {
+      "id": "ten-god-wealth",
+      "condition": { "tenGods": ["正财", "偏财"] },
+      "tags": ["wealth", "resource", "relationship"],
+      "weight": 4,
+      "explanation": "财星可作为资源、收支、现实经营和责任承载的观察入口。",
+      "realityMapping": "现实中可观察预算、付款、报价、客户资源、家庭开支和资源分配是否被触发。",
+      "caution": "财星不等于实际收益，需要结合日主承载、原局位置和现实选择继续验证，不能单独作为结论。"
+    },
+    {
+      "id": "ten-god-seal",
+      "condition": { "tenGods": ["正印", "偏印"] },
+      "tags": ["study", "support", "health"],
+      "weight": 3,
+      "explanation": "印星可作为学习、资质、信息吸收、支持系统和修复方式的观察入口。",
+      "realityMapping": "现实中可观察课程证书、文书材料、长辈上级支持、制度资源和作息修复需求。",
+      "caution": "印星需要看是否能转化为行动或输出，不能只凭印星推导具体结果。"
+    },
+    {
+      "id": "ten-god-output",
+      "condition": { "tenGods": ["食神", "伤官"] },
+      "tags": ["study", "career", "social"],
+      "weight": 3,
+      "explanation": "食伤可作为表达、作品、技术呈现、沟通输出和才艺展示的观察入口。",
+      "realityMapping": "现实中可观察汇报发布、写作创作、方案展示、客户沟通、技术交付和公开表达。",
+      "caution": "食伤需要看是否受规则承接或制约，不能单独作为事业或关系结果。"
+    },
+    {
+      "id": "ten-god-peer",
+      "condition": { "tenGods": ["比肩", "劫财"] },
+      "tags": ["social", "relationship", "wealth"],
+      "weight": 3,
+      "explanation": "比劫可作为自我、同辈、竞争、协作和资源分摊的观察入口。",
+      "realityMapping": "现实中可观察团队分工、同事同辈竞争、朋友互动、合伙边界和资源分配。",
+      "caution": "比劫只提示互动结构，需要结合财星、官杀和现实合作方式继续验证。"
+    }
+  ]
+}

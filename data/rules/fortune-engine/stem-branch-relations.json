@@ -1,0 +1,49 @@
+{
+  "rules": [
+    {
+      "id": "branch-clash",
+      "condition": { "type": "冲", "pairs": [["子", "午"], ["丑", "未"], ["寅", "申"], ["卯", "酉"], ["辰", "戌"], ["巳", "亥"]] },
+      "tags": ["movement", "pressure", "relationship"],
+      "weight": 5,
+      "explanation": "冲可作为变动、拉扯、迁动、重新安排和关系张力的观察入口。",
+      "realityMapping": "现实中可观察搬动出行、岗位项目调整、沟通冲突、日程改动和环境变化。",
+      "caution": "冲的轻重需要结合被冲柱位、大运背景和流月是否继续触发，不能单独作为结论。"
+    },
+    {
+      "id": "branch-combo",
+      "condition": { "type": "合", "pairs": [["子", "丑"], ["寅", "亥"], ["卯", "戌"], ["辰", "酉"], ["巳", "申"], ["午", "未"]] },
+      "tags": ["relationship", "wealth", "social"],
+      "weight": 3,
+      "explanation": "合可作为合作、绑定、牵连、协商和资源共用的观察入口。",
+      "realityMapping": "现实中可观察签约协商、共同项目、资源责任绑定、关系黏连和合作承接。",
+      "caution": "合不默认成化，需要看月令、透干、根气和整体力量，不能单独作为结论。"
+    },
+    {
+      "id": "branch-harm",
+      "condition": { "type": "害", "pairs": [["子", "未"], ["丑", "午"], ["寅", "巳"], ["卯", "辰"], ["申", "亥"], ["酉", "戌"]] },
+      "tags": ["relationship", "health", "social"],
+      "weight": 4,
+      "explanation": "害可作为隐性摩擦、配合不畅、暗处牵连和细节返工的观察入口。",
+      "realityMapping": "现实中可观察沟通误会、流程卡点、小事反复、合作别扭和体感节奏波动。",
+      "caution": "害不适合单独推导关系或状态结果，需要结合柱位和岁运层级继续验证。"
+    },
+    {
+      "id": "branch-punishment",
+      "condition": { "type": "刑", "pairs": [["寅", "巳"], ["巳", "申"], ["丑", "戌"], ["戌", "未"], ["子", "卯"]] },
+      "tags": ["pressure", "health", "career"],
+      "weight": 4,
+      "explanation": "刑可作为规则挤压、内部消耗、流程纠结和压力累积的观察入口。",
+      "realityMapping": "现实中可观察流程反复、标准压迫、内耗拉扯、作息体感和责任压力。",
+      "caution": "刑只提示压力结构，需要结合现实反馈和其他触发共同复核。"
+    },
+    {
+      "id": "branch-pierce",
+      "condition": { "type": "穿", "pairs": [["子", "未"], ["丑", "午"], ["寅", "巳"], ["卯", "辰"], ["申", "亥"], ["酉", "戌"]] },
+      "tags": ["relationship", "movement", "health"],
+      "weight": 4,
+      "explanation": "穿按本版本作为害的实务近似口径，可观察隐性破坏、细节失配和暗处牵动。",
+      "realityMapping": "现实中可观察合作细节不合、计划被插入、出行操作安全和流程复核。",
+      "caution": "穿的流派口径差异较大，本版本只作为辅助观察点，不能单独作为结论。"
+    }
+  ]
+}

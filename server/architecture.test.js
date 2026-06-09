@@ -6,6 +6,8 @@ import { getTenGod } from "./core/bazi/tenGods.js";
 import { calculateYearInfluence } from "./core/liunian/calculateYearInfluence.js";
 import { calculateMonthInfluence } from "./core/liunian/calculateMonthInfluence.js";
 import { ruleEngine } from "./core/rules/ruleEngine.js";
+import { analyzeFortuneYear } from "./core/fortune-engine/index.js";
+import { buildEventCandidateScenarios, collectEventCandidatesFromSignals } from "./core/story/eventCandidates.js";
 import { generateStoryTags } from "./core/story/generateStoryTags.js";
 import { buildNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
 import { buildFlowNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
@@ -34,6 +36,7 @@ const requiredPaths = [
   "server/core/bazi/tenGods.js",
   "server/core/bazi/fiveElements.js",
   "server/core/bazi/luckCycles.js",
+  "server/core/bazi/shensha.js",
   "server/core/ziwei/calculateZiwei.js",
   "server/core/ziwei/palaces.js",
   "server/core/ziwei/transformations.js",
@@ -41,6 +44,14 @@ const requiredPaths = [
   "server/core/liunian/calculateMonthInfluence.js",
   "server/core/rules/ruleEngine.js",
   "server/core/rules/matchRules.js",
+  "server/core/fortune-engine/index.js",
+  "server/core/fortune-engine/natal-signature.js",
+  "server/core/fortune-engine/decade-theme.js",
+  "server/core/fortune-engine/year-trigger.js",
+  "server/core/fortune-engine/month-trigger.js",
+  "server/core/fortune-engine/event-score.js",
+  "server/core/fortune-engine/narrative-builder.js",
+  "server/core/story/eventCandidates.js",
   "server/core/story/generateStoryTags.js",
   "server/core/story/buildNarrativePrompt.js",
   "server/core/story/storyToneConfig.js",
@@ -61,6 +72,12 @@ const requiredPaths = [
   "data/rules/bazi/wealth.json",
   "data/rules/bazi/liunian.json",
   "data/rules/bazi/liuyue.json",
+  "data/rules/bazi/shensha.json",
+  "data/rules/fortune-engine/ten-gods.json",
+  "data/rules/fortune-engine/stem-branch-relations.json",
+  "data/rules/fortune-engine/clash-combo-penalty.json",
+  "data/rules/fortune-engine/event-tags.json",
+  "data/rules/fortune-engine/narrative-templates.json",
   "data/rules/ziwei/palace-rules.json",
   "data/rules/ziwei/sihua-rules.json",
   "data/rules/ziwei/relationship-rules.json",
@@ -134,6 +151,16 @@ test("flow AI modes build structured prompts and mock reports without model-side
     assert.ok(Array.isArray(result.narrative.report.likelyThemes));
     assert.ok(Array.isArray(result.narrative.report.cautions));
     assert.ok(Array.isArray(result.narrative.report.verificationLimits));
+    assert.ok(Array.isArray(result.narrative.report.scenarios));
+    assert.ok(result.narrative.report.scenarios.length >= 2);
+    for (const scenario of result.narrative.report.scenarios) {
+      assert.equal(typeof scenario.title, "string");
+      assert.ok(Array.isArray(scenario.evidence));
+      assert.ok(Array.isArray(scenario.lifeSignals));
+      assert.ok(Array.isArray(scenario.verification));
+      assert.equal(typeof scenario.boundary, "string");
+      assert.match(scenario.boundary, /不能单独作为结论/);
+    }
     assert.doesNotMatch(JSON.stringify(result.narrative.report), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
   }
 
@@ -156,8 +183,138 @@ test("flow AI modes build structured prompts and mock reports without model-side
   assert.match(prompt.system, /不能补充不存在的干支关系/);
   assert.match(prompt.system, /禁止确定性断语/);
   assert.match(prompt.system, /不能单独作为结论/);
+  assert.match(prompt.system, /咨询型语言/);
+  assert.match(prompt.system, /专业证据链/);
+  assert.match(prompt.system, /证据链 -> 生活翻译 -> 验证步骤/);
+  assert.match(prompt.system, /多候选方向/);
+  assert.match(prompt.system, /证据链/);
+  assert.match(prompt.system, /生活落点/);
+  assert.match(prompt.system, /验证条件/);
+  assert.match(prompt.system, /边界/);
+  assert.match(JSON.stringify(prompt.schema), /scenarios/);
+  assert.match(JSON.stringify(prompt.schema), /lifeSignals/);
   assert.match(prompt.user, /"mode": "year"/);
   assert.match(prompt.user, /transitSignals/);
+  assert.match(prompt.user, /3-5 个年度触发候选/);
+  assert.match(prompt.user, /候选方向/);
+  assert.match(prompt.user, /验证条件/);
+  assert.match(prompt.user, /咨询总览/);
+  assert.match(prompt.user, /专业证据链/);
+  assert.match(prompt.user, /现实验证/);
+});
+
+test("event candidate scenarios translate actual signal matrices into concrete observables", () => {
+  const report = buildEventCandidateScenarios({
+    mode: "year",
+    signals: {
+      groups: [
+        {
+          title: "十神与五行触发",
+          signals: [
+            {
+              title: "流年十神",
+              evidence: "2026年丙午：天干正官，地支主气七杀",
+              keywords: "流年十神 / 正官、七杀",
+              realLifeMeaning: "现实中可观察当年学习、表达、资源、规则、人际竞争等主题是否被放大。",
+              caution: "流年十神不能直接断结果，要看是否与原局和大运形成承接或冲突。",
+            },
+            {
+              title: "流年冲",
+              evidence: "流年丙午 与 月柱壬子 命中子、午",
+              keywords: "流年-月柱 / 子午 / 位置变化",
+              realLifeMeaning: "现实中可观察相关主题是否出现变动、调整、冲突或需要重新安排。",
+              caution: "冲的轻重需要结合柱位、原局强弱、大运背景和流月是否继续触发。",
+            },
+          ],
+        },
+      ],
+    },
+  });
+
+  assert.ok(report.scenarios.length >= 2);
+  const text = JSON.stringify(report);
+  assert.match(text, /候选事象/);
+  assert.match(text, /职责变化|流程合规|合同手续复核/);
+  assert.match(text, /搬动|出行|重新安排/);
+  assert.match(text, /作息体感|出行操作安全|流程合规/);
+  assert.match(text, /不能单独作为结论/);
+  assert.doesNotMatch(text, /现实事务、关系互动、工作节奏、情绪状态/);
+
+  const candidates = collectEventCandidatesFromSignals(report.scenarios);
+  assert.ok(candidates.some((item) => item.includes("候选事象")));
+});
+
+test("fortune-engine links natal, decade, year, and month into structured trigger chains", async () => {
+  const input = {
+    birthDate: "1949-10-01",
+    birthTime: "00:00",
+    birthplace: "北京",
+    gender: "male",
+    targetYear: 2026,
+    selectedMonth: 1,
+  };
+  const chart = calculateBazi(input);
+  const selectedLuck = chart.luckCycles.pillars.find((pillar) => input.targetYear >= pillar.startYear && input.targetYear <= pillar.endYear);
+  const yearInfluence = calculateYearInfluence({ chart, targetYear: input.targetYear });
+  const monthInfluences = Array.from({ length: 12 }, (_, index) =>
+    calculateMonthInfluence({ chart, targetYear: input.targetYear, month: index + 1 }),
+  );
+
+  const result = analyzeFortuneYear({ chart, selectedLuck, yearInfluence, monthInfluences });
+
+  assert.equal(result.year, 2026);
+  assert.ok(result.natalSignature.natalTags.length > 0);
+  assert.ok(result.natalSignature.riskAreas.length > 0);
+  assert.ok(Array.isArray(result.natalSignature.usefulElements));
+  assert.ok(Array.isArray(result.natalSignature.avoidElements));
+  assert.match(result.decadeTheme, /增强原局|补足原局|放大原局问题/);
+  assert.equal(typeof result.decadeSupportScore, "number");
+  assert.ok(result.triggerChains.some((chain) => chain.chain.includes("原局") && chain.chain.includes("大运") && chain.chain.includes("流年")));
+  assert.ok(result.triggerChains.some((chain) => /流年天干十神|流年地支十神|伏吟|反吟|岁运并临|夫妻|财帛|官禄|迁移/.test(chain.reason)));
+  assert.ok(result.monthlyHighlights.length > 0);
+  assert.ok(result.monthlyHighlights.length < 12);
+  assert.ok(result.monthlyHighlights.every((item) => /high|medium|low/.test(item.intensity)));
+  for (const score of Object.values(result.eventScores)) {
+    assert.equal(typeof score.score, "number");
+    assert.ok(score.evidence.length > 0);
+  }
+  assert.ok(result.overallSummary.includes("命理依据"));
+  assert.ok(result.overallSummary.includes("现实表现"));
+  assert.ok(result.advice.length > 0);
+
+  const narrativeText = JSON.stringify(result.narrative);
+  assert.match(narrativeText, /结论/);
+  assert.match(narrativeText, /命理依据/);
+  assert.match(narrativeText, /现实表现/);
+  assert.match(narrativeText, /注意事项/);
+
+  const response = await buildNarrative(input);
+  assert.equal(response.fortuneAnalysis.year, 2026);
+  assert.deepEqual(Object.keys(response.fortuneAnalysis.eventScores), ["career", "wealth", "relationship", "study", "health", "movement", "social"]);
+});
+
+test("fortune-engine rules keep required rule contract", () => {
+  const files = [
+    "data/rules/fortune-engine/ten-gods.json",
+    "data/rules/fortune-engine/stem-branch-relations.json",
+    "data/rules/fortune-engine/clash-combo-penalty.json",
+    "data/rules/fortune-engine/event-tags.json",
+    "data/rules/fortune-engine/narrative-templates.json",
+  ];
+  for (const file of files) {
+    const data = loadJson(file);
+    const rules = data.rules ?? data.templates;
+    assert.ok(Array.isArray(rules), `${file} should expose rules/templates array`);
+    for (const rule of rules) {
+      assert.ok(rule.id, `${file} rule should include id`);
+      assert.ok(rule.condition, `${file} rule should include condition`);
+      assert.ok(Array.isArray(rule.tags), `${file} rule should include tags`);
+      assert.equal(typeof rule.weight, "number", `${file} rule should include numeric weight`);
+      assert.ok(rule.explanation, `${file} rule should include explanation`);
+      assert.ok(rule.realityMapping, `${file} rule should include realityMapping`);
+      assert.ok(rule.caution, `${file} rule should include caution`);
+    }
+  }
 });
 
 test("chat prompt and fallback keep AI answers learning-oriented without leaking keys", async () => {
@@ -372,6 +529,32 @@ test("relation extraction includes six-harm observations in the local chart engi
   assert.deepEqual(sixHarmHit.needVerify, ["干支关系只作为结构观察点，具体作用需要结合柱位、月令、透干、根气与岁运验证。"]);
 });
 
+test("shensha engine exposes learning-only auxiliary observations", () => {
+  const chart = calculateBazi({
+    birthDate: "1990-08-28",
+    birthTime: "12:00",
+    gender: "male",
+  });
+  const hitNames = chart.shensha.items.map((item) => item.name);
+
+  assertSignalContract(chart.shensha.meta, "shensha meta");
+  for (const item of chart.shensha.items) {
+    assertSignalContract(item, `shensha ${item.name}`);
+    assert.equal(typeof item.category, "string");
+    assert.equal(typeof item.sourceBasis, "string");
+    assert.equal(typeof item.learningNote, "string");
+    assert.equal(typeof item.typicalMeaning, "string");
+    assert.ok(Array.isArray(item.matchedPillars));
+    assert.ok(item.matchedPillars.length > 0);
+    assert.doesNotMatch(JSON.stringify(item), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
+  }
+  for (const name of ["天乙贵人", "桃花", "驿马", "华盖", "文昌"]) {
+    assert.ok(hitNames.includes(name), `${name} should be calculated`);
+  }
+  assert.ok(chart.pillarDetails.year.shensha.length > 0);
+  assert.ok(chart.shensha.summary.some((item) => item.category === "贵人助力"));
+});
+
 test("local chart, transit, and story outputs keep evidence confidence and verification fields", () => {
   const chart = calculateBazi({
     birthDate: "1992-08-18",
@@ -397,6 +580,10 @@ test("local chart, transit, and story outputs keep evidence confidence and verif
   }
   for (const relation of chart.relations) {
     assertSignalContract(relation, `relation ${relation.type}`);
+  }
+  assertSignalContract(chart.shensha.meta, "shensha meta");
+  for (const item of chart.shensha.items) {
+    assertSignalContract(item, `shensha ${item.name}`);
   }
   for (const tag of storyTags) {
     assertSignalContract(tag, `story tag ${tag.tag}`);
@@ -472,8 +659,15 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
 
   assert.equal(global.window.FortuneLocationData.cities.length, 3337);
   assert.ok(index.indexOf('id="coreSignals"') < index.indexOf('id="monthTimeline"'));
+  assert.equal(index.includes('id="aiNarrative"'), false);
+  assert.equal(index.includes('id="debugPanel"'), false);
   assert.equal(bundle.includes("<span>解读年份</span>"), false);
   assert.equal(bundle.includes("<span>解读月份</span>"), false);
+  assert.match(bundle, /name="defaultAiYear"/);
+  assert.match(bundle, /默认 AI 分析年份/);
+  assert.match(bundle, /function triggerInitialFlowAiReports/);
+  assert.match(bundle, /triggerInitialFlowAiReports\(\["luck", "year"\]/);
+  assert.doesNotMatch(bundle, /triggerInitialFlowAiReports\(\["luck", "year", "month"\]\)/);
   assert.match(bundle, /birthProvince/);
   assert.match(bundle, /resolveLocation\(input\)/);
   assert.match(bundle, /rerenderSettingsOnly\(\)/);
@@ -482,10 +676,19 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /function parseLunarDayValue/);
   assert.match(bundle, /lunar\.year \?\? lunar\.lunarYear/);
   assert.ok(bundle.indexOf("1. 先选大运") < bundle.indexOf("2. 再看该大运内的流年"));
-  assert.match(bundle, /2\. 再看该大运内的流年[\s\S]*renderTransitSignals\(data\.transitSignals\)[\s\S]*4\. 最后细看流月/);
-  assert.match(bundle, /3\. 大运流年取象/);
-  assert.match(bundle, /4\. 最后细看流月[\s\S]*renderMonthSignals\(data\.monthSignals\)/);
-  assert.match(bundle, /5\. 流月取象/);
+  assert.match(bundle, /function renderNatalMiniChart/);
+  assert.match(bundle, /原局对照/);
+  assert.match(bundle, /renderNatalMiniChart\(data\.chart\)[\s\S]*1\. 先选大运/);
+  assert.match(bundle, /1\. 先选大运[\s\S]*renderFlowAiStage\("luck"[\s\S]*2\. 再看该大运内的流年/);
+  assert.match(bundle, /2\. 再看该大运内的流年[\s\S]*renderFlowAiStage\("year"[\s\S]*renderTransitSignals\(data\.transitSignals, data\)[\s\S]*4\. 最后细看流月/);
+  assert.match(bundle, /3\. 大运流年取象证据库/);
+  assert.match(bundle, /4\. 最后细看流月[\s\S]*renderFlowAiStage\("month"[\s\S]*renderMonthSignals\(data\.monthSignals, data\)/);
+  assert.match(bundle, /5\. 流月取象证据库/);
+  assert.doesNotMatch(bundle, /renderFlowAiControls\(\["year", "month", "luck"\]\)/);
+  assert.doesNotMatch(bundle, /story-card below/);
+  assert.doesNotMatch(bundle, /月度窗口/);
+  assert.match(bundle, /renderYearEvidence\(data\)/);
+  assert.match(bundle, /renderMonthEvidence\(data\)/);
   assert.match(bundle, /selectedLuck\.startYear \+ i/);
   assert.match(bundle, /function buildCoreSignals/);
   assert.match(bundle, /engine: "coreSignalsEngine"/);
@@ -508,6 +711,16 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /function requestFlowAiReport/);
   assert.match(bundle, /function renderFlowAiControls/);
   assert.match(bundle, /function renderFlowAiReport/);
+  assert.match(bundle, /咨询总览/);
+  assert.match(bundle, /专业证据链/);
+  assert.match(bundle, /生活落点/);
+  assert.match(bundle, /现实验证/);
+  assert.match(bundle, /function renderFlowAiScenarios/);
+  assert.match(bundle, /ai-scenario-card/);
+  assert.match(bundle, /候选方向/);
+  assert.match(bundle, /验证条件/);
+  assert.match(bundle, /boundary/);
+  assert.match(bundle, /function renderFlowAiStage/);
   assert.match(bundle, /data-ai-mode="luck"/);
   assert.match(bundle, /data-ai-mode="year"/);
   assert.match(bundle, /data-ai-mode="month"/);
@@ -544,12 +757,31 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /文件模式：使用本地占位 AI 辅助取象/);
   assert.match(bundle, /engine: "transitSignalEngine"/);
   assert.match(bundle, /流年关系触发为观察信号/);
-  assert.match(bundle, /renderTransitSignals\(data\.transitSignals\)/);
-  assert.match(bundle, /renderMonthSignals\(data\.monthSignals\)/);
+  assert.match(bundle, /renderTransitSignals\(data\.transitSignals, data\)/);
+  assert.match(bundle, /renderMonthSignals\(data\.monthSignals, data\)/);
   assert.match(bundle, /renderCoreSignals\(data\)/);
+  assert.match(bundle, /function renderFortuneAnalysis/);
+  assert.match(bundle, /fortuneAnalysis/);
+  assert.match(bundle, /年度总论/);
+  assert.match(bundle, /大运如何影响这一年/);
+  assert.match(bundle, /这一年被什么触发/);
+  assert.match(bundle, /重点月份/);
+  assert.match(bundle, /现实建议/);
+  assert.doesNotMatch(bundle, /renderNarrative\(data\)/);
+  assert.doesNotMatch(bundle, /renderDebug\(data\)/);
   assert.match(bundle, /evidence/);
   assert.match(bundle, /plainReading/);
   assert.match(bundle, /realLifeMeaning/);
+  assert.match(bundle, /eventCandidates/);
+  assert.match(bundle, /候选事象/);
+  assert.match(bundle, /工作职责变化/);
+  assert.match(bundle, /合同手续复核/);
+  assert.match(bundle, /收支安排/);
+  assert.match(bundle, /合作摩擦/);
+  assert.match(bundle, /搬动出行/);
+  assert.match(bundle, /作息体感/);
+  assert.match(bundle, /流程合规/);
+  assert.match(bundle, /出行操作安全/);
   assert.match(bundle, /caution/);
   assert.equal(index.includes("AI"), false);
   assert.equal(bundle.includes("AI 叙事层"), false);
@@ -568,7 +800,8 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /function generateAuxiliaryReadings/);
   assert.match(bundle, /function generateOverallReading/);
   assert.match(bundle, /一句话总览/);
-  assert.match(bundle, /专业速览/);
+  assert.match(bundle, /取象证据库/);
+  assert.match(bundle, /details class="evidence-library"/);
   assert.match(bundle, /core-signal-matrix/);
   assert.match(bundle, /core-signal-row/);
   assert.match(bundle, /取象关键词/);
@@ -580,7 +813,15 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /大运阶段背景/);
   assert.match(bundle, /流年年度触发/);
   assert.match(bundle, /流月短期窗口/);
-  assert.match(bundle, /白话取象/);
+  assert.match(bundle, /取象/);
+  assert.match(bundle, /解释/);
+  assert.match(bundle, /常用实务神煞/);
+  assert.match(bundle, /魁罡/);
+  assert.match(bundle, /阴差阳错/);
+  assert.match(bundle, /天赦/);
+  assert.match(bundle, /四废/);
+  assert.match(bundle, /dayPillarLabel/);
+  assert.match(bundle, /seasonDayPillar/);
   assert.match(bundle, /专业依据/);
   assert.match(bundle, /基础依据/);
   assert.match(bundle, /可取象/);
@@ -596,6 +837,28 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /命宫/);
   assert.match(bundle, /身宫/);
   assert.match(bundle, /取象边界/);
+  assert.match(bundle, /const shenshaRules/);
+  assert.match(bundle, /function buildShensha/);
+  assert.match(bundle, /function renderShenshaStats/);
+  assert.match(bundle, /function renderChartTopline/);
+  assert.match(bundle, /function renderRelationOverview/);
+  assert.match(bundle, /chart-topline/);
+  assert.match(bundle, /chart-topline-primary/);
+  assert.match(bundle, /element-bars/);
+  assert.match(bundle, /topline-element-bar/);
+  assert.match(bundle, /--level/);
+  assert.match(bundle, /shensha-row/);
+  assert.match(bundle, /pillar-shensha/);
+  assert.match(bundle, /relation-overview/);
+  assert.match(bundle, /relation-toggle-hint/);
+  assert.match(bundle, /details class="relation-overview"/);
+  assert.match(bundle, /details class="auxiliary-observation"/);
+  assert.match(bundle, /神煞总表/);
+  assert.match(bundle, /辅助观察项：神煞总表、纳音、十二长生、旬空/);
+  assert.match(bundle, /details class="evidence-library"/);
+  assert.match(bundle, /核心取象/);
+  assert.match(bundle, /matrix-row hidden-row/);
+  assert.doesNotMatch(bundle, /matrix-row aux-row/);
   assert.match(bundle, /月令代表出生环境、季节力量、命局大气候/);
   assert.match(bundle, /五行数量不等于喜忌/);
   assert.match(bundle, /是否成化/);
@@ -712,6 +975,33 @@ test("local json loader reads rule and mock data from project data folders", () 
 
   assert.ok(Array.isArray(personalityRules.rules));
   assert.equal(mockChart.meta.engine, "birth-chart-engine");
+});
+
+test("birth form makes initial AI interpretation opt-in", () => {
+  const bundle = readFileSync("js/app.bundle.js", "utf8");
+  const birthForm = readFileSync("js/components/birthForm.js", "utf8");
+
+  assert.match(bundle, /name="preInterpretAi"/);
+  assert.match(bundle, /AI 预先解读/);
+  assert.match(bundle, /preInterpretAi: false/);
+  assert.match(bundle, /triggerInitialFlowAiReports\(\["luck", "year"\], \{ reveal: true \}\)/);
+  assert.match(bundle, /function revealFlowAiReports/);
+  assert.match(bundle, /\.ai-report-panel/);
+
+  assert.match(birthForm, /name="preInterpretAi"/);
+  assert.match(birthForm, /AI 预先解读/);
+  assert.match(birthForm, /preInterpretAi: Boolean\(initialValue\.preInterpretAi\)/);
+});
+
+test("local server can use ignored DeepSeek config without serving it to the browser", () => {
+  const serverSource = readFileSync("server/server.js", "utf8");
+
+  assert.match(serverSource, /function loadLocalAiProviderOptions/);
+  assert.match(serverSource, /buildNarrative\(input, loadLocalAiProviderOptions\(\)\)/);
+  assert.match(serverSource, /buildChatResponse\(input, loadLocalAiProviderOptions\(\)\)/);
+  assert.match(serverSource, /normalized === "\/js\/local-deepseek-config\.local\.js"/);
+  assert.match(serverSource, /response\.writeHead\(404\)/);
+  assert.doesNotMatch(serverSource, /deepseekApiKey:\s*["']sk-/);
 });
 
 function assertSignalContract(signal, label) {

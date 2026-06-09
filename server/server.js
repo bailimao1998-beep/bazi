@@ -1,4 +1,4 @@
-import { createReadStream, existsSync } from "node:fs";
+import { createReadStream, existsSync, readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import path from "node:path";
 import { calculateBazi } from "./core/bazi/calculateBazi.js";
@@ -7,6 +7,7 @@ import { calculateYearInfluence } from "./core/liunian/calculateYearInfluence.js
 import { calculateMonthInfluence } from "./core/liunian/calculateMonthInfluence.js";
 import { createMonthPillar, createPillarFromYear } from "./core/bazi/pillarMath.js";
 import { ruleEngine } from "./core/rules/ruleEngine.js";
+import { analyzeFortuneYear } from "./core/fortune-engine/index.js";
 import { generateStoryTags } from "./core/story/generateStoryTags.js";
 import { buildFlowNarrativePrompt, buildNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
 import { createAiProvider } from "./core/ai/aiProvider.js";
@@ -22,13 +23,13 @@ const server = createServer(async (request, response) => {
     const url = new URL(request.url, `http://${request.headers.host}`);
     if (request.method === "POST" && url.pathname === "/api/narrative") {
       const input = await readJsonBody(request);
-      const result = await buildNarrative(input);
+      const result = await buildNarrative(input, loadLocalAiProviderOptions());
       sendJson(response, result);
       return;
     }
     if (request.method === "POST" && url.pathname === "/api/chat") {
       const input = await readJsonBody(request);
-      const result = await buildChatResponse(input);
+      const result = await buildChatResponse(input, loadLocalAiProviderOptions());
       sendJson(response, result);
       return;
     }
@@ -39,7 +40,7 @@ const server = createServer(async (request, response) => {
   }
 });
 
-export async function buildNarrative(input = {}) {
+export async function buildNarrative(input = {}, providerOptions = {}) {
   const targetYear = Number(input.targetYear ?? new Date().getFullYear());
   const selectedMonth = Number(input.selectedMonth ?? new Date().getMonth() + 1);
   const aiMode = ["luck", "year", "month"].includes(input.mode) ? input.mode : "default";
@@ -51,6 +52,7 @@ export async function buildNarrative(input = {}) {
   );
   const selectedMonthInfluence = monthInfluences[Math.max(0, Math.min(11, selectedMonth - 1))];
   const selectedLuck = selectLuckPillar(chart.luckCycles, input.selectedLuckIndex, targetYear);
+  const fortuneAnalysis = analyzeFortuneYear({ chart, selectedLuck, yearInfluence, monthInfluences });
   const transitYears = Array.from({ length: 11 }, (_, index) => {
     const year = targetYear - 5 + index;
     return { year, pillar: createPillarFromYear(year, "流年") };
@@ -73,7 +75,7 @@ export async function buildNarrative(input = {}) {
       yearInfluence,
       selectedMonthInfluence,
     });
-  const narrative = await createAiProvider().generate({ prompt, storyTags });
+  const narrative = await createAiProvider(providerOptions).generate({ prompt, storyTags });
   return {
     aiMode,
     chart,
@@ -82,6 +84,7 @@ export async function buildNarrative(input = {}) {
     monthInfluences,
     selectedMonthInfluence,
     selectedLuck,
+    fortuneAnalysis,
     transitYears,
     transitMonths,
     matchedRules,
@@ -117,12 +120,14 @@ export function buildChatPrompt(input = {}) {
   return {
     system: [
       "你是一个通用 AI 助手，同时也可以参考当前八字排盘页面。",
+      "当前命理页面定位为八字结构化学习排盘网站，核心边界是学习、观察、验证。",
       "用户可以问任何合理问题，不要把回答限制在网页内容、命盘内容、数据库内容或当前页面内容内。",
       "当前页面传入的 chart、coreSignals、transitSignals、monthSignals、storyTags 和岁运选择只是可选参考，不是唯一依据。",
       "如果用户问题与八字、命盘、流年、流月、当前页面有关，可以结合页面上下文回答。",
       "如果用户问题与当前页面无关，请直接按通用 AI 正常回答，不要说只能基于页面内容回答。",
-      "不要重新排盘，除非用户明确要求重新排盘并提供出生信息。",
+      "不能重新排盘，除非用户明确要求重新排盘并提供出生信息。",
       "涉及命理判断时，请保留学习、观察、验证边界；涉及普通知识、代码、学习、生活问题时，按正常 AI 助手回答。",
+      "命理相关内容只能作为候选信号，不能单独作为结论。",
       `命理类高风险断语尽量避免：${forbiddenWords.join("、")}`,
       "回答要自然、清楚、直接。不要输出 API key、配置字段或调试信息。",
     ].join("\n"),
@@ -181,6 +186,34 @@ function normalizeHistory(history = []) {
 
 function isProviderPlaceholder(text) {
   return /未配置\s*apiKey|未配置 API key|未配置.*KEY/i.test(text);
+}
+
+function loadLocalAiProviderOptions() {
+  const filePath = path.resolve(publicRoot, "js/local-deepseek-config.local.js");
+  if (!existsSync(filePath)) return {};
+  try {
+    const source = readFileSync(filePath, "utf8");
+    const apiKey = readStringSetting(source, "deepseekApiKey");
+    const endpoint = readStringSetting(source, "deepseekEndpoint");
+    const model = readStringSetting(source, "deepseekModel");
+    const disabled = /enableBrowserDirect\s*:\s*false/.test(source);
+    if (disabled || !apiKey) return {};
+    return {
+      provider: "deepseek",
+      deepseek: {
+        apiKey,
+        ...(endpoint ? { endpoint } : {}),
+        ...(model ? { model } : {}),
+      },
+    };
+  } catch {
+    return {};
+  }
+}
+
+function readStringSetting(source, key) {
+  const match = source.match(new RegExp(`${key}\\\\s*:\\\\s*["']([^"']+)["']`));
+  return match?.[1]?.trim() || "";
 }
 
 function createLocalChatAnswer(question = "", context = {}) {

@@ -1,0 +1,40 @@
+{
+  "rules": [
+    {
+      "id": "relation-high-clash",
+      "condition": { "relationTypes": ["冲"], "minimumHits": 1 },
+      "tags": ["high-trigger", "movement", "pressure"],
+      "weight": 5,
+      "explanation": "冲命中原局或大运时，触发强度上升。",
+      "realityMapping": "现实中优先复核迁动、变更、冲突、调整和时间表变化。",
+      "caution": "强触发只代表观察优先级上升，不代表事件结果。"
+    },
+    {
+      "id": "relation-medium-combo",
+      "condition": { "relationTypes": ["合"], "minimumHits": 1 },
+      "tags": ["medium-trigger", "relationship", "wealth"],
+      "weight": 3,
+      "explanation": "合命中原局或大运时，合作、牵连和资源绑定主题上升。",
+      "realityMapping": "现实中优先复核签约、协作、共同项目、资源共用和关系黏连。",
+      "caution": "合象需要看是否有承接条件，不直接推导结果。"
+    },
+    {
+      "id": "relation-risk-harm-penalty",
+      "condition": { "relationTypes": ["害", "刑", "穿"], "minimumHits": 1 },
+      "tags": ["risk-trigger", "health", "social"],
+      "weight": 4,
+      "explanation": "害、刑、穿命中时，隐性摩擦、流程反复和状态复核优先级上升。",
+      "realityMapping": "现实中优先复核配合不畅、细节返工、作息体感、流程合规和出行操作安全。",
+      "caution": "风险标签只作为复核清单，需要结合现实反馈继续验证。"
+    },
+    {
+      "id": "same-pillar-boost",
+      "condition": { "specialTypes": ["伏吟", "岁运并临"] },
+      "tags": ["high-trigger", "repeat-theme"],
+      "weight": 5,
+      "explanation": "伏吟或岁运并临可作为旧题重现、主题反复和阶段节点的观察入口。",
+      "realityMapping": "现实中优先复核旧项目、旧关系、重复任务、同类问题和阶段性节点。",
+      "caution": "重复信号需要结合流月和现实反馈复核，不单独作为结论。"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "templates": [
+    {
+      "id": "narrative-overall",
+      "condition": { "section": "overall" },
+      "tags": ["summary"],
+      "weight": 1,
+      "explanation": "综合解读按先取象、再解释的顺序组织。",
+      "realityMapping": "输出包含结论、命理依据、现实表现、注意事项。",
+      "caution": "叙事只整合结构化证据，不能脱离规则另起结论。"
+    },
+    {
+      "id": "narrative-decade",
+      "condition": { "section": "decade" },
+      "tags": ["decade"],
+      "weight": 1,
+      "explanation": "大运段落说明十年主题如何影响当年。",
+      "realityMapping": "现实中对应阶段环境、资源条件、压力来源和主题背景。",
+      "caution": "大运是背景层，需要流年流月触发后再观察。"
+    },
+    {
+      "id": "narrative-year",
+      "condition": { "section": "year" },
+      "tags": ["year"],
+      "weight": 1,
+      "explanation": "流年段落说明哪些原局主题被触发。",
+      "realityMapping": "现实中对应年度事件入口、关系资源变化、职责或迁动主题。",
+      "caution": "流年触发不等于事件结果，需要结合月份与现实反馈。"
+    },
+    {
+      "id": "narrative-month",
+      "condition": { "section": "month" },
+      "tags": ["month"],
+      "weight": 1,
+      "explanation": "流月段落只写重点月份，不平均解释十二个月。",
+      "realityMapping": "现实中对应应期窗口、执行节点、反馈月份和短期变化。",
+      "caution": "流月是应期观察，不单独承担全部判断。"
+    }
+  ]
+}

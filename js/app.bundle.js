@@ -71,6 +71,46 @@
     ["地支六害", ["申", "亥"], "害"],
     ["地支六害", ["酉", "戌"], "害"],
   ];
+  const shenshaRules = [
+    ["天乙贵人", "贵人助力", ["dayStem"], "branch", "按日干取地支贵人", { 甲: ["丑", "未"], 乙: ["子", "申"], 丙: ["亥", "酉"], 丁: ["亥", "酉"], 戊: ["丑", "未"], 己: ["子", "申"], 庚: ["丑", "未"], 辛: ["寅", "午"], 壬: ["巳", "卯"], 癸: ["巳", "卯"] }, "传统命理中可作为外部助力、资源承接的候选信号，需要结合柱位、旺衰、十神、岁运继续验证。"],
+    ["太极贵人", "贵人助力", ["dayStem"], "branch", "按日干取太极贵人地支", { 甲: ["子", "午"], 乙: ["子", "午"], 丙: ["卯", "酉"], 丁: ["卯", "酉"], 戊: ["辰", "戌", "丑", "未"], 己: ["辰", "戌", "丑", "未"], 庚: ["寅", "亥"], 辛: ["寅", "亥"], 壬: ["巳", "申"], 癸: ["巳", "申"] }, "可作为学习、理解、抽象思考相关的候选信号，不能单独作为结论。"],
+    ["文昌", "学习才艺", ["dayStem"], "branch", "按日干取文昌地支", { 甲: ["巳"], 乙: ["午"], 丙: ["申"], 丁: ["酉"], 戊: ["申"], 己: ["酉"], 庚: ["亥"], 辛: ["子"], 壬: ["寅"], 癸: ["卯"] }, "传统命理中可作为学习、表达、文书能力的候选信号，需要结合十神和实际训练继续验证。"],
+    ["学堂", "学习才艺", ["dayStem"], "branch", "按日干取学堂地支", { 甲: ["亥"], 乙: ["午"], 丙: ["寅"], 丁: ["酉"], 戊: ["寅"], 己: ["酉"], 庚: ["巳"], 辛: ["子"], 壬: ["申"], 癸: ["卯"] }, "可作为学习环境、吸收能力、知识训练的观察点，仍需结合柱位和岁运验证。"],
+    ["词馆", "学习才艺", ["dayStem"], "branch", "按日干取词馆地支", { 甲: ["寅"], 乙: ["卯"], 丙: ["巳"], 丁: ["午"], 戊: ["巳"], 己: ["午"], 庚: ["申"], 辛: ["酉"], 壬: ["亥"], 癸: ["子"] }, "可作为语言、表达、专业术语训练的候选信号，不能脱离整体结构单看。"],
+    ["桃花", "关系互动", ["yearBranch", "dayBranch"], "branch", "按年支或日支三合局取桃花", { 申: ["酉"], 子: ["酉"], 辰: ["酉"], 寅: ["卯"], 午: ["卯"], 戌: ["卯"], 巳: ["午"], 酉: ["午"], 丑: ["午"], 亥: ["子"], 卯: ["子"], 未: ["子"] }, "传统命理中可作为人际吸引、审美表达、互动活跃度的候选信号，需要结合十神与岁运验证。"],
+    ["红鸾", "关系互动", ["yearBranch"], "branch", "按年支取红鸾地支", { 子: ["卯"], 丑: ["寅"], 寅: ["丑"], 卯: ["子"], 辰: ["亥"], 巳: ["戌"], 午: ["酉"], 未: ["申"], 申: ["未"], 酉: ["午"], 戌: ["巳"], 亥: ["辰"] }, "可作为关系互动被看见的候选信号，不能单独推导关系结果。"],
+    ["天喜", "关系互动", ["yearBranch"], "branch", "按年支取天喜地支", { 子: ["酉"], 丑: ["申"], 寅: ["未"], 卯: ["午"], 辰: ["巳"], 巳: ["辰"], 午: ["卯"], 未: ["寅"], 申: ["丑"], 酉: ["子"], 戌: ["亥"], 亥: ["戌"] }, "可作为关系、庆贺、互动机会的候选信号，仍要结合柱位和岁运观察。"],
+    ["驿马", "移动变化", ["yearBranch", "dayBranch"], "branch", "按年支或日支三合局取驿马", { 申: ["寅"], 子: ["寅"], 辰: ["寅"], 寅: ["申"], 午: ["申"], 戌: ["申"], 巳: ["亥"], 酉: ["亥"], 丑: ["亥"], 亥: ["巳"], 卯: ["巳"], 未: ["巳"] }, "传统命理中可作为移动、变动、转换环境的候选信号，需要结合岁运触发继续验证。"],
+    ["华盖", "学习才艺", ["yearBranch", "dayBranch"], "branch", "按年支或日支三合局取华盖", { 申: ["辰"], 子: ["辰"], 辰: ["辰"], 寅: ["戌"], 午: ["戌"], 戌: ["戌"], 巳: ["丑"], 酉: ["丑"], 丑: ["丑"], 亥: ["未"], 卯: ["未"], 未: ["未"] }, "可作为专注、审美、独立研究倾向的候选信号，需要结合整体结构验证。"],
+    ["将星", "辅助参考", ["yearBranch", "dayBranch"], "branch", "按年支或日支三合局取将星", { 申: ["子"], 子: ["子"], 辰: ["子"], 寅: ["午"], 午: ["午"], 戌: ["午"], 巳: ["酉"], 酉: ["酉"], 丑: ["酉"], 亥: ["卯"], 卯: ["卯"], 未: ["卯"] }, "可作为组织、承担、主导感的候选信号，不能脱离十神和现实角色单看。"],
+    ["禄神", "辅助参考", ["dayStem"], "branch", "按日干取禄地", { 甲: ["寅"], 乙: ["卯"], 丙: ["巳"], 丁: ["午"], 戊: ["巳"], 己: ["午"], 庚: ["申"], 辛: ["酉"], 壬: ["亥"], 癸: ["子"] }, "可作为根气、承接、资源落点的候选信号，需要结合旺衰和岁运验证。"],
+    ["羊刃", "状态提醒", ["dayStem"], "branch", "按日干取刃地", { 甲: ["卯"], 乙: ["寅"], 丙: ["午"], 丁: ["巳"], 戊: ["午"], 己: ["巳"], 庚: ["酉"], 辛: ["申"], 壬: ["子"], 癸: ["亥"] }, "可作为力量集中、行动直接、边界感较强的候选信号，需要结合制化和岁运观察。"],
+    ["劫煞", "状态提醒", ["yearBranch", "dayBranch"], "branch", "按年支或日支三合局取劫煞", { 申: ["巳"], 子: ["巳"], 辰: ["巳"], 寅: ["亥"], 午: ["亥"], 戌: ["亥"], 巳: ["寅"], 酉: ["寅"], 丑: ["寅"], 亥: ["申"], 卯: ["申"], 未: ["申"] }, "可作为资源流动、竞争压力、节奏变化的候选信号，需要结合实际事务验证。"],
+    ["灾煞", "状态提醒", ["yearBranch", "dayBranch"], "branch", "按年支或日支三合局取灾煞", { 申: ["午"], 子: ["午"], 辰: ["午"], 寅: ["子"], 午: ["子"], 戌: ["子"], 巳: ["卯"], 酉: ["卯"], 丑: ["卯"], 亥: ["酉"], 卯: ["酉"], 未: ["酉"] }, "可作为状态波动、外部扰动的观察点，只能提示需要继续验证。"],
+    ["亡神", "状态提醒", ["yearBranch", "dayBranch"], "branch", "按年支或日支三合局取亡神", { 申: ["亥"], 子: ["亥"], 辰: ["亥"], 寅: ["巳"], 午: ["巳"], 戌: ["巳"], 巳: ["申"], 酉: ["申"], 丑: ["申"], 亥: ["寅"], 卯: ["寅"], 未: ["寅"] }, "可作为注意力转移、隐藏压力、内在牵动的候选信号，不能单独作为结论。"],
+    ["孤辰", "关系互动", ["yearBranch"], "branch", "按年支三会方取孤辰", { 亥: ["寅"], 子: ["寅"], 丑: ["寅"], 寅: ["巳"], 卯: ["巳"], 辰: ["巳"], 巳: ["申"], 午: ["申"], 未: ["申"], 申: ["亥"], 酉: ["亥"], 戌: ["亥"] }, "可作为边界感、独立性、人际距离的候选信号，不能单独推导关系结论。"],
+    ["寡宿", "关系互动", ["yearBranch"], "branch", "按年支三会方取寡宿", { 亥: ["戌"], 子: ["戌"], 丑: ["戌"], 寅: ["丑"], 卯: ["丑"], 辰: ["丑"], 巳: ["辰"], 午: ["辰"], 未: ["辰"], 申: ["未"], 酉: ["未"], 戌: ["未"] }, "可作为关系节奏、情感表达距离的观察点，需要结合十神、柱位和现实反馈验证。"],
+    ["空亡", "辅助参考", ["pillarVoid"], "branch", "按各柱旬空取空亡观察", {}, "可作为落空、延迟、需要复核的辅助观察点，不能单独作为结论。"],
+    ["金舆", "辅助参考", ["dayStem"], "branch", "按日干取金舆地支", { 甲: ["辰"], 乙: ["巳"], 丙: ["未"], 丁: ["申"], 戊: ["未"], 己: ["申"], 庚: ["戌"], 辛: ["亥"], 壬: ["丑"], 癸: ["寅"] }, "可作为资源载体、生活配置、承接条件的候选信号，需要结合现实环境验证。"],
+    ["天德", "贵人助力", ["monthBranch"], "stemOrBranch", "按月支取天德", { 寅: ["丁"], 卯: ["申"], 辰: ["壬"], 巳: ["辛"], 午: ["亥"], 未: ["甲"], 申: ["癸"], 酉: ["寅"], 戌: ["丙"], 亥: ["乙"], 子: ["巳"], 丑: ["庚"] }, "可作为缓和、承接、外部助力的候选信号，仍要结合整体结构观察。"],
+    ["月德", "贵人助力", ["monthBranch"], "stem", "按月支三合局取月德天干", { 寅: ["丙"], 午: ["丙"], 戌: ["丙"], 申: ["壬"], 子: ["壬"], 辰: ["壬"], 亥: ["甲"], 卯: ["甲"], 未: ["甲"], 巳: ["庚"], 酉: ["庚"], 丑: ["庚"] }, "可作为助力、调和、资源承接的观察点，不能单独判断结果。"],
+    ["国印", "辅助参考", ["dayStem"], "branch", "按日干取国印地支", { 甲: ["戌"], 乙: ["亥"], 丙: ["丑"], 丁: ["寅"], 戊: ["丑"], 己: ["寅"], 庚: ["辰"], 辛: ["巳"], 壬: ["未"], 癸: ["申"] }, "可作为规则、凭证、组织体系相关的候选信号，需要结合十神和现实角色验证。"],
+    ["福星", "贵人助力", ["dayStem"], "branch", "按日干取福星地支", { 甲: ["寅"], 乙: ["卯"], 丙: ["子"], 丁: ["亥"], 戊: ["子"], 己: ["亥"], 庚: ["申"], 辛: ["未"], 壬: ["辰"], 癸: ["巳"] }, "可作为资源感、缓冲条件、支持环境的候选信号，需要继续验证。"],
+    ["天医", "状态提醒", ["monthBranch"], "branch", "按月支前一位取天医", { 寅: ["丑"], 卯: ["寅"], 辰: ["卯"], 巳: ["辰"], 午: ["巳"], 未: ["午"], 申: ["未"], 酉: ["申"], 戌: ["酉"], 亥: ["戌"], 子: ["亥"], 丑: ["子"] }, "可作为身心状态、修复方式、照护主题的观察点，不能单独作健康判断。"],
+    ["天厨", "贵人助力", ["dayStem"], "branch", "按日干取天厨地支", { 甲: ["巳"], 乙: ["午"], 丙: ["巳"], 丁: ["午"], 戊: ["申"], 己: ["酉"], 庚: ["亥"], 辛: ["子"], 壬: ["寅"], 癸: ["卯"] }, "可作为饮食、供养、资源滋养和生活照料相关的候选信号，需要结合现实条件验证。"],
+    ["红艳", "关系互动", ["dayStem"], "branch", "按日干取红艳地支", { 甲: ["午"], 乙: ["申"], 丙: ["寅"], 丁: ["未"], 戊: ["辰"], 己: ["辰"], 庚: ["戌"], 辛: ["酉"], 壬: ["子"], 癸: ["申"] }, "可作为外在吸引、审美、人际互动被看见的候选信号，不能单独推导情感结果。"],
+    ["流霞", "状态提醒", ["dayStem"], "branch", "按日干取流霞地支", { 甲: ["酉"], 乙: ["戌"], 丙: ["未"], 丁: ["申"], 戊: ["巳"], 己: ["午"], 庚: ["辰"], 辛: ["卯"], 壬: ["亥"], 癸: ["寅"] }, "可作为状态起伏、外部牵动、细节风险意识的观察点，需要结合岁运和现实反馈验证。"],
+    ["天德合", "贵人助力", ["monthBranch"], "stemOrBranch", "按月支取天德合", { 寅: ["壬"], 卯: ["巳"], 辰: ["丁"], 巳: ["丙"], 午: ["寅"], 未: ["己"], 申: ["戊"], 酉: ["亥"], 戌: ["辛"], 亥: ["庚"], 子: ["申"], 丑: ["乙"] }, "可作为调和、缓冲、外部承接的辅助观察点，需要结合柱位和整体结构判断。"],
+    ["月德合", "贵人助力", ["monthBranch"], "stem", "按月支三合局取月德合天干", { 寅: ["辛"], 午: ["辛"], 戌: ["辛"], 申: ["丁"], 子: ["丁"], 辰: ["丁"], 亥: ["己"], 卯: ["己"], 未: ["己"], 巳: ["乙"], 酉: ["乙"], 丑: ["乙"] }, "可作为资源调和、关系缓冲、事务承接的候选信号，不能单独作为结论。"],
+    ["魁罡", "辅助参考", ["dayPillarLabel"], "pillarLabel", "按日柱见庚辰、庚戌、壬辰、戊戌取魁罡", { dayPillarLabel: ["庚辰", "庚戌", "壬辰", "戊戌"] }, "可作为性格棱角、规则意识、行动力度较集中的候选信号，需要结合格局和岁运观察。"],
+    ["金神", "辅助参考", ["dayPillarLabel"], "pillarLabel", "按日柱见乙丑、己巳、癸酉取金神", { dayPillarLabel: ["乙丑", "己巳", "癸酉"] }, "可作为干支组合特殊性的辅助观察点，解释时仍需回到日主、月令和整体力量。"],
+    ["阴差阳错", "关系互动", ["dayPillarLabel"], "pillarLabel", "按日柱见阴差阳错日取", { dayPillarLabel: ["丙子", "丁丑", "戊寅", "辛卯", "壬辰", "癸巳", "丙午", "丁未", "戊申", "辛酉", "壬戌", "癸亥"] }, "可作为关系节奏、沟通错位、现实配合需要复核的候选信号，不能单独推导关系结论。"],
+    ["十恶大败", "状态提醒", ["dayPillarLabel"], "pillarLabel", "按日柱见十恶大败日取", { dayPillarLabel: ["甲辰", "乙巳", "丙申", "丁亥", "戊戌", "己丑", "庚辰", "辛巳", "壬申", "癸亥"] }, "可作为资源管理、承接能力、现实消耗需要观察的候选信号，不能单独判断财务或成败。"],
+    ["孤鸾", "关系互动", ["dayPillarLabel"], "pillarLabel", "按日柱见孤鸾日取", { dayPillarLabel: ["甲寅", "乙巳", "丙午", "丁巳", "戊申", "戊午", "辛亥", "壬子"] }, "可作为关系边界、自我节奏、互动方式需要观察的候选信号，不能单独推断婚恋结果。"],
+    ["天赦", "贵人助力", ["seasonDayPillar"], "pillarLabel", "按季节月令取天赦日", { spring: ["戊寅"], summer: ["甲午"], autumn: ["戊申"], winter: ["甲子"] }, "可作为缓和、转圜、修复机会的候选信号，需要结合岁运和现实反馈验证。"],
+    ["四废", "状态提醒", ["seasonDayPillar"], "pillarLabel", "按季节月令取四废日", { spring: ["庚申", "辛酉"], summer: ["壬子", "癸亥"], autumn: ["甲寅", "乙卯"], winter: ["丙午", "丁巳"] }, "可作为阶段力量不易承接、行动效率需要复核的候选信号，不能单独判断事务结果。"],
+    ["元辰", "状态提醒", ["yearBranchGender"], "branch", "按年支、年干阴阳与性别取元辰", { yangMaleYinFemale: { 子: ["未"], 丑: ["申"], 寅: ["酉"], 卯: ["戌"], 辰: ["亥"], 巳: ["子"], 午: ["丑"], 未: ["寅"], 申: ["卯"], 酉: ["辰"], 戌: ["巳"], 亥: ["午"] }, yinMaleYangFemale: { 子: ["巳"], 丑: ["午"], 寅: ["未"], 卯: ["申"], 辰: ["酉"], 巳: ["戌"], 午: ["亥"], 未: ["子"], 申: ["丑"], 酉: ["寅"], 戌: ["卯"], 亥: ["辰"] } }, "可作为内在牵动、状态反复、节奏不稳的候选信号，需要结合岁运与实际反馈继续验证。"],
+  ];
   const solarTermCache = new Map();
   const lunarFormatter = new Intl.DateTimeFormat("zh-u-ca-chinese", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
 
@@ -88,7 +128,7 @@
       { role: "assistant", content: "可以直接问我任何问题。命盘和网页内容只是可选参考，相关时我会结合，不相关时我会按通用 AI 正常回答。", complete: true },
     ],
   };
-  const state = { name: "测试用户", calendarType: "solar", birthDate: "1949-10-01", birthTime: "00:00", gender: "male", birthProvince: "北京市", birthplace: "北京", trueSolarTime: false, targetYear: now.getFullYear(), selectedMonth: now.getMonth() + 1 };
+  const state = { name: "测试用户", calendarType: "solar", birthDate: "1949-10-01", birthTime: "00:00", gender: "male", birthProvince: "北京市", birthplace: "北京", trueSolarTime: false, targetYear: now.getFullYear(), selectedMonth: now.getMonth() + 1, preInterpretAi: false };
   Object.assign(state, solarToLunarState(state.birthDate));
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -104,8 +144,6 @@
     renderCoreSignals(data);
     renderYear(data);
     renderMonth(data);
-    renderNarrative(data);
-    renderDebug(data);
     noteChatContextChanged();
     setText("status", location.protocol === "file:" ? "文件模式：已完成前端本地排盘。" : "已完成前端本地排盘，可直接打开本地文件。")
   }
@@ -127,6 +165,7 @@
     const transitSignals = buildTransitSignals(chart, selectedLuck, yearInfluence);
     const monthSignals = buildMonthSignals(chart, selectedLuck, yearInfluence, selectedMonthInfluence);
     const storyTags = buildStoryTags(chart, yearInfluence, monthInfluences);
+    const fortuneAnalysis = buildLocalFortuneAnalysis({ chart, selectedLuck, yearInfluence, monthInfluences, transitSignals, monthSignals });
     return {
       chart,
       yearInfluence,
@@ -137,6 +176,7 @@
       coreSignals,
       transitSignals,
       monthSignals,
+      fortuneAnalysis,
       storyTags,
       narrative: { provider: "local-file", text: `年度主线：${storyTags.filter(t => t.period === "year").map(t => t.tag).join("、")}。这些只作为本地规则生成的观察点。` },
       selection: { targetYear, selectedMonth },
@@ -166,6 +206,8 @@
         <label><span>出生城市 / 区县</span><select name="birthplace">${cityOptions.map(c => `<option value="${c.name}" ${sel(state.birthplace, c.name)}>${c.displayName || c.name}</option>`).join("")}</select></label>
         <p class="location-preview">${escapeHtml(renderLocationPreview(city))}</p>
         <label class="switch-row"><input type="checkbox" name="trueSolarTime" ${state.trueSolarTime ? "checked" : ""} /><span>按真太阳时校正</span></label>
+        <label><span>默认 AI 分析年份</span><input type="number" name="defaultAiYear" min="1900" max="2100" value="${Number(state.targetYear) || now.getFullYear()}" required /></label>
+        <label class="switch-row"><input type="checkbox" name="preInterpretAi" ${state.preInterpretAi ? "checked" : ""} /><span>AI 预先解读</span></label>
         <button type="submit">重新排盘</button>
       </form>
       <p class="fine-print">当前已展示专业命盘字段；农历换算支持 1900-2100 年，节气与真太阳时为本地近似算法。</p>`;
@@ -184,8 +226,18 @@
     ["birthTime", "gender"].forEach(name => bindChange(name, el => { state[name] = el.value; }));
     bindChange("birthProvince", el => { state.birthProvince = el.value; state.birthplace = locations.find(c => (c.province || "其他") === state.birthProvince)?.name || state.birthplace; });
     bindChange("birthplace", el => { state.birthplace = el.value; });
+    bindChange("defaultAiYear", el => { state.targetYear = clampYear(el.value); state.selectedLuckIndex = undefined; });
     byName("trueSolarTime")?.addEventListener("change", e => { state.trueSolarTime = e.target.checked; rerenderSettingsOnly(); });
-    byId("birthFormInner")?.addEventListener("submit", e => { e.preventDefault(); resetFlowAiReports(); refresh(); });
+    byName("preInterpretAi")?.addEventListener("change", e => { state.preInterpretAi = e.target.checked; });
+    byId("birthFormInner")?.addEventListener("submit", e => {
+      e.preventDefault();
+      state.targetYear = clampYear(byName("defaultAiYear")?.value || state.targetYear);
+      state.preInterpretAi = Boolean(byName("preInterpretAi")?.checked);
+      state.selectedLuckIndex = undefined;
+      resetFlowAiReports();
+      refresh();
+      if (state.preInterpretAi) setTimeout(() => triggerInitialFlowAiReports(["luck", "year"], { reveal: true }), 0);
+    });
   }
 
   function renderChart(data) {
@@ -193,6 +245,7 @@
     const d = chart.pillarDetails;
     byId("chartSummary").innerHTML = `
       <div class="plugin-header"><p class="eyebrow">核心命盘</p><h2>基础排盘展示</h2></div>
+      ${renderChartTopline(chart)}
       <div class="bazi-matrix">
         <div class="matrix-row matrix-head"><span></span>${["year", "month", "day", "hour"].map(k => `<b>${d[k].label}</b>`).join("")}</div>
         <div class="matrix-row ten-god-row"><span>天干十神</span>${["year", "month", "day", "hour"].map(k => `<em>${d[k].stemTenGod}</em>`).join("")}</div>
@@ -200,35 +253,70 @@
         <div class="matrix-row main-symbol-row"><span>地支</span>${["year", "month", "day", "hour"].map(k => renderSymbol(d[k].pillar.branch, d[k].pillar.branchElement)).join("")}</div>
         <div class="matrix-row ten-god-row"><span>地支主气十神</span>${["year", "month", "day", "hour"].map(k => `<em>${d[k].branchMainTenGod}</em>`).join("")}</div>
         <div class="matrix-row hidden-row"><span>完整藏干</span>${["year", "month", "day", "hour"].map(k => `<small>${renderHidden(d[k].hiddenStems)}</small>`).join("")}</div>
-        <div class="matrix-row aux-row"><span>纳音</span>${["year", "month", "day", "hour"].map(k => `<small>${d[k].nayin}</small>`).join("")}</div>
-        <div class="matrix-row aux-row"><span>十二长生</span>${["year", "month", "day", "hour"].map(k => `<small>${d[k].twelveGrowth}</small>`).join("")}</div>
+        <div class="matrix-row shensha-row"><span>神煞</span>${["year", "month", "day", "hour"].map(k => renderPillarShensha(d[k].shensha)).join("")}</div>
       </div>
-      <p class="fine-print">基础盘只提供结构观察，后续判断需要结合柱位、旺衰、十神和岁运继续验证。</p>
+      ${renderRelationOverview(chart)}
       ${renderTabs(chart)}`;
     bindTabs();
   }
 
   function renderTabs(chart) {
-    const tabs = [
-      ["elements", "五行统计", renderElementStats(chart)], ["hidden", "十神藏干", renderTenGodStats(chart)], ["voids", "空亡旬空", renderVoidStats(chart)],
-      ["relations", "干支关系", renderRelations(chart)], ["expert", "专家明细", renderExpert(chart)], ["calendar", "历法依据", renderCalendar(chart)],
+    const auxiliaryTabs = [
+      ["shensha", "神煞总表", renderShenshaStats(chart)], ["nayin-growth", "纳音长生", renderNayinGrowth(chart)], ["voids", "空亡旬空", renderVoidStats(chart)], ["elements", "五行详表", renderElementStats(chart)], ["expert", "专家明细", renderExpert(chart)], ["calendar", "历法依据", renderCalendar(chart)],
     ];
+    return `<details class="auxiliary-observation"><summary>辅助观察项：神煞总表、纳音、十二长生、旬空、五行详表、专家明细、历法依据</summary>${renderTabSection(auxiliaryTabs)}</details>`;
+  }
+
+  function renderChartTopline(chart) {
+    const visible = chart.elementStats.visible.counts;
+    return `<div class="chart-topline"><article class="chart-topline-item chart-topline-primary"><span>日主</span><strong>${chart.pillars.day.stem}${elementLabels[chart.dayMaster.element]}</strong></article><article class="chart-topline-item"><span>月令</span><strong>${chart.pillars.month.branch}${elementLabels[chart.pillars.month.branchElement]}</strong></article><article class="chart-topline-item element-mini"><span>五行</span>${renderElementBars(visible)}</article></div>`;
+  }
+
+  function renderElementBars(counts) {
+    const max = Math.max(1, ...Object.keys(elementLabels).map(key => Number(counts[key] || 0)));
+    return `<span class="element-bars">${Object.entries(elementLabels).map(([key, label]) => {
+      const value = Number(counts[key] || 0);
+      const level = Math.max(4, Math.round((value / max) * 100));
+      return `<i class="topline-element-bar element-${key}" style="--level:${level}%"><b>${label}</b><em>${value}</em></i>`;
+    }).join("")}</span>`;
+  }
+
+  function renderPillarShensha(items = []) {
+    const list = items.slice(0, 3);
+    const more = items.length > list.length ? `<em>+${items.length - list.length}</em>` : "";
+    return `<small class="pillar-shensha">${list.length ? list.map(item => `<i>${item.name}</i>`).join("") + more : "<i>未列</i>"}</small>`;
+  }
+
+  function renderRelationOverview(chart) {
+    const relations = chart.relations || [];
+    return `<details class="relation-overview"><summary><span>干支关系 <b>${relations.length ? `${relations.length} 条` : "未命中"}</b></span><i class="relation-toggle-hint" aria-hidden="true"><em class="is-closed">展开查看</em><em class="is-open">收起</em></i></summary>${relations.length ? `<div class="relation-chip-list">${relations.map(r => `<details><summary>${r.ganzhi.join(" / ")} · ${r.type}${r.effect}</summary><p>${relationReadingText(r)}</p></details>`).join("")}</div>` : `<p class="fine-print">当前启用规则未命中明显合冲害关系，继续看十神、月令和岁运触发。</p>`}</details>`;
+  }
+
+  function renderTabSection(tabs) {
     return `<section class="core-tabs"><div class="core-tab-list">${tabs.map(([id, label], i) => `<button type="button" class="core-tab ${i === 0 ? "is-active" : ""}" data-tab="${id}">${label}</button>`).join("")}</div>${tabs.map(([id, , html], i) => `<div class="core-tab-panel ${i === 0 ? "is-active" : ""}" data-panel="${id}" ${i ? "hidden" : ""}>${html}</div>`).join("")}</section>`;
   }
 
   function renderCoreSignals(data) {
     const core = data.coreSignals;
-    const total = core.groups.reduce((sum, group) => sum + group.signals.length, 0);
-    byId("coreSignals").innerHTML = `<div class="plugin-header"><p class="eyebrow">原局取象</p><h2>命盘结构解读</h2></div><p class="fine-print">以下内容属于基础取象，不等于最终断命。最终判断还需要结合月令旺衰、日主强弱、十神组合、合冲刑害、大运流年综合分析。</p><section class="reading-overview"><span>一句话总览</span><p>${core.overview}</p></section><section class="reading-panel"><div class="board-title"><h3>专业速览</h3><span>${total} 条</span></div><div class="core-signal-matrix"><table><thead><tr><th>分组</th><th>观察点</th><th>类型</th><th>原始依据</th><th>取象关键词</th><th>展开解释</th></tr></thead><tbody>${core.groups.map(group => group.signals.map(signal => renderCoreSignalRow(signal, group.title)).join("")).join("")}</tbody></table></div></section><details class="professional-evidence"><summary>专业依据</summary><div class="professional-grid">${core.professional.map(item => `<article><span>${item.label}</span><strong>${item.value}</strong><small>${item.note}</small></article>`).join("")}</div></details>`;
+    const visibleGroups = core.groups.filter(group => group.key !== "auxiliary");
+    const auxiliaryGroups = core.groups.filter(group => group.key === "auxiliary");
+    const visibleTotal = visibleGroups.reduce((sum, group) => sum + group.signals.length, 0);
+    const auxiliaryTotal = auxiliaryGroups.reduce((sum, group) => sum + group.signals.length, 0);
+    byId("coreSignals").innerHTML = `<div class="plugin-header"><p class="eyebrow">原局总览</p><h2>命盘结构解读</h2></div><section class="reading-overview"><span>一句话总览</span><p>${core.overview}</p></section><details class="evidence-library"><summary><span>取象证据库</span><b>${visibleTotal + auxiliaryTotal} 条</b></summary><section class="reading-panel"><div class="board-title"><h3>核心取象</h3><span>${visibleTotal} 条</span></div><div class="core-signal-matrix"><table><thead><tr><th>分组</th><th>观察点</th><th>类型</th><th>原始依据</th><th>取象关键词</th><th>展开解释</th></tr></thead><tbody>${visibleGroups.map(group => group.signals.map(signal => renderCoreSignalRow(signal, group.title)).join("")).join("")}</tbody></table></div></section><section class="reading-panel"><div class="board-title"><h3>辅助取象</h3><span>${auxiliaryTotal} 条</span></div><div class="core-signal-matrix"><table><thead><tr><th>分组</th><th>观察点</th><th>类型</th><th>原始依据</th><th>取象关键词</th><th>展开解释</th></tr></thead><tbody>${auxiliaryGroups.map(group => group.signals.map(signal => renderCoreSignalRow(signal, group.title)).join("")).join("")}</tbody></table></div></section><section class="professional-evidence"><div class="board-title"><h3>专业依据</h3><span>${core.professional.length} 项</span></div><div class="professional-grid">${core.professional.map(item => `<article><span>${item.label}</span><strong>${item.value}</strong><small>${item.note}</small></article>`).join("")}</div></section></details>`;
   }
 
   function renderCoreSignalRow(signal, groupTitle) {
-    return `<tr class="core-signal-row"><td data-label="分组">${signal.group || groupTitle}</td><td data-label="观察点"><strong>${signal.title}</strong></td><td data-label="类型"><span class="badge">${signal.tag}</span></td><td data-label="原始依据">${signal.evidence}</td><td data-label="取象关键词">${signal.keywords}</td><td data-label="展开解释"><details class="inline-reading"><summary>展开</summary><dl><dt>白话取象</dt><dd>${signal.plainReading}</dd><dt>现实表现</dt><dd>${signal.realLifeMeaning}</dd><dt>判断限制</dt><dd>${signal.caution}</dd></dl></details></td></tr>`;
+    return `<tr class="core-signal-row"><td data-label="分组">${signal.group || groupTitle}</td><td data-label="观察点"><strong>${signal.title}</strong></td><td data-label="类型"><span class="badge">${signal.tag}</span></td><td data-label="原始依据">${signal.evidence}</td><td data-label="取象关键词">${signal.keywords}</td><td data-label="展开解释"><details class="inline-reading"><summary>展开</summary><dl><dt>怎么取的</dt><dd>${signal.evidence}</dd>${renderSignalEventCandidates(signal)}<dt>解释</dt><dd>${signal.plainReading} ${signal.realLifeMeaning} ${signal.caution}</dd></dl></details></td></tr>`;
   }
 
   function renderSignalCard(signal) {
-    if (signal.plainReading) return `<article class="signal reading-card"><div><strong>${signal.title}</strong><span class="badge">${signal.tag}</span></div><dl><dt>原始依据</dt><dd>${signal.evidence}</dd><dt>白话取象</dt><dd>${signal.plainReading}</dd><dt>现实表现</dt><dd>${signal.realLifeMeaning}</dd><dt>判断限制</dt><dd>${signal.caution}</dd></dl></article>`;
+    if (signal.plainReading) return `<article class="signal reading-card"><div><strong>${signal.title}</strong><span class="badge">${signal.tag}</span></div><dl><dt>怎么取的</dt><dd>${signal.evidence}</dd>${renderSignalEventCandidates(signal)}<dt>解释</dt><dd>${signal.plainReading} ${signal.realLifeMeaning} ${signal.caution}</dd></dl></article>`;
     return `<article class="signal"><div><strong>${signal.tag}</strong><span class="badge">${confidenceLabel(signal.confidence)}</span></div><p>${signal.evidence.join("；")}</p><small>${signal.needVerify.join("；")}</small></article>`;
+  }
+
+  function renderSignalEventCandidates(signal) {
+    const items = Array.isArray(signal.eventCandidates) && signal.eventCandidates.length ? signal.eventCandidates : deriveEventCandidates(signal);
+    return `<dt>候选事象</dt><dd><ul class="event-candidate-list">${items.map(item => `<li>${item}</li>`).join("")}</ul></dd>`;
   }
 
   function renderFlowAiControls(modes) {
@@ -240,16 +328,42 @@
   function renderFlowAiReport(mode) {
     const report = flowAiReports[mode];
     if (!report && flowAiLoading !== mode) return "";
-    if (flowAiLoading === mode) return `<article class="ai-report-panel is-loading"><strong>${flowAiModeLabel(mode)}报告</strong><p>正在根据当前矩阵证据生成白话取象...</p></article>`;
-    return `<article class="ai-report-panel"><div class="ai-report-head"><span>AI辅助取象</span><strong>${flowAiModeLabel(mode)}报告</strong></div><p>${escapeHtml(report.summary)}</p><div class="ai-report-grid">${renderFlowAiList("重点象", report.keySignals)}${renderFlowAiList("现实主题", report.likelyThemes)}${renderFlowAiList("提醒", report.cautions)}${renderFlowAiList("判断限制", report.verificationLimits)}</div></article>`;
+    if (flowAiLoading === mode) return `<article class="ai-report-panel is-loading"><strong>${flowAiModeLabel(mode)}报告</strong><p>正在根据当前矩阵证据生成学习说明...</p></article>`;
+    const scenarios = renderFlowAiScenarios(report.scenarios);
+    const legacyLists = `<div class="ai-report-grid">${renderFlowAiList("专业证据链", report.keySignals)}${renderFlowAiList("生活落点", report.likelyThemes)}${renderFlowAiList("边界提醒", report.cautions)}${renderFlowAiList("现实验证", report.verificationLimits)}</div>`;
+    return `<article class="ai-report-panel"><div class="ai-report-head"><span>AI辅助取象</span><strong>${flowAiModeLabel(mode)}咨询总览</strong></div><p>${escapeHtml(report.summary)}</p>${scenarios || legacyLists}</article>`;
   }
 
   function renderFlowAiList(title, list = []) {
     return `<section><h4>${title}</h4><ul>${(list.length ? list : ["暂无内容"]).map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul></section>`;
   }
 
+  function renderFlowAiScenarios(scenarios = []) {
+    if (!Array.isArray(scenarios) || !scenarios.length) return "";
+    return `<div class="ai-scenario-list">${scenarios.map(scenario => `<section class="ai-scenario-card"><h4>候选方向：${escapeHtml(scenario.title || "待验证方向")}</h4><dl><dt>证据链</dt><dd>${renderScenarioItems(scenario.evidence)}</dd><dt>生活落点</dt><dd>${renderScenarioItems(scenario.lifeSignals)}</dd><dt>验证条件</dt><dd>${renderScenarioItems(scenario.verification)}</dd><dt>边界</dt><dd>${escapeHtml(scenario.boundary || "不能单独作为结论。")}</dd></dl></section>`).join("")}</div>`;
+  }
+
+  function renderScenarioItems(items = []) {
+    const list = Array.isArray(items) && items.length ? items : ["暂无内容"];
+    return `<ul>${list.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+  }
+
   function flowAiModeLabel(mode) {
     return { luck: "大运", year: "流年", month: "流月" }[mode] || "岁运";
+  }
+
+  async function triggerInitialFlowAiReports(modes, options = {}) {
+    for (const mode of modes) {
+      await requestFlowAiReport(mode);
+    }
+    if (options.reveal) revealFlowAiReports();
+  }
+
+  function revealFlowAiReports() {
+    const report = document.querySelector(".ai-report-panel");
+    if (!report) return;
+    report.scrollIntoView({ behavior: "smooth", block: "start" });
+    setText("status", "AI辅助取象已生成，已定位到下方报告。");
   }
 
   async function requestFlowAiReport(mode) {
@@ -340,15 +454,29 @@
 
   function buildBrowserFlowAiPrompt(mode) {
     const modeLabels = { luck: "大运阶段取象", year: "流年年度取象", month: "流月短期取象" };
+    const scenarioRules = {
+      luck: "scenarios 输出 3-5 个长期背景候选，重在阶段底色、资源结构、关系结构、事业学习结构。",
+      year: "scenarios 输出 3-5 个年度触发候选，重在这一年哪些主题更容易被点亮，以及被哪组岁运证据触发。",
+      month: "scenarios 输出 2-4 个短期窗口候选，重在当月触发、节奏变化、临时事务和需要复核的窗口。",
+    };
     return {
       system: [
         "你是命理结构化学习网站的 AI 辅助取象层。",
+        "输出要结合咨询型语言和专业证据链：先说用户能听懂的总览，再列命盘证据，再翻译成现实可观察主题。",
         "不能重新排盘，不能补充不存在的干支关系，不能自行改写年份月份。",
         "只能根据本地页面传入的 chart、coreSignals、transitSignals、monthSignals 和当前岁运选择来润色。",
         "禁止确定性断语，不能断吉凶，不能把候选信号写成最终断命。",
         "所有输出都要保留“不能单独作为结论”的学习型边界。",
+        "每条重点都按“证据链 -> 生活翻译 -> 验证步骤”组织，不要只写抽象术语。",
+        "生活翻译必须落到具体候选事象，例如工作职责变化、合同手续复核、收支安排、合作摩擦、搬动出行、作息体感波动。",
+        "敏感提醒只写作息体感、流程合规、出行操作安全等复核清单，不写病名、官非结果、灾祸结果。",
+        "禁止只输出“现实事务、关系互动、工作节奏、情绪状态”这类空泛合集。",
+        "必须输出多候选方向：scenarios 是核心内容，每个候选方向都按“证据链 -> 生活落点 -> 验证条件 -> 边界”展开。",
+        scenarioRules[mode] || scenarioRules.year,
+        "每个 scenario 固定包含 title、evidence、lifeSignals、verification、boundary；boundary 必须说明不能单独作为结论。",
+        "字段写法：summary=咨询总览；keySignals=专业证据链；likelyThemes=生活落点；cautions=边界提醒；verificationLimits=现实验证；scenarios=候选方向卡片。",
         "禁用词：一定、必定、绝对、必然、必离婚、必发财、必有灾、必坐牢、必死亡。",
-        "输出 JSON 字段必须为 summary、keySignals、likelyThemes、cautions、verificationLimits。",
+        "输出 JSON 字段必须为 summary、keySignals、likelyThemes、cautions、verificationLimits、scenarios。",
       ].join("\n"),
       user: JSON["stringify"]({
         mode,
@@ -361,8 +489,23 @@
         yearInfluence: lastData.yearInfluence,
         selectedMonthInfluence: lastData.selectedMonthInfluence,
         output: {
-          schema: "summary/keySignals/likelyThemes/cautions/verificationLimits",
-          style: "像老师点重点，但必须写成候选信号和观察建议。",
+          schema: "summary/keySignals/likelyThemes/cautions/verificationLimits/scenarios",
+          scenarioRule: scenarioRules[mode] || scenarioRules.year,
+          sections: {
+            summary: "咨询总览：1-2句，说这一层岁运最值得观察的主线，不下结果判断。",
+            keySignals: "专业证据链：3-5条，每条包含具体证据和它说明的候选观察点。",
+            likelyThemes: "生活落点：把证据翻成现实中的具体候选事象，例如关系合作、工作职责、学习证照、钱与资源、迁动变化、作息体感、流程合规。",
+            cautions: "边界提醒：说明哪些内容不能从当前证据单独推出。",
+            verificationLimits: "现实验证：给出后续应结合哪些柱位、旺衰、十神、岁运或现实反馈继续看。",
+            scenarios: {
+              title: "候选方向名称，避免写成结论。",
+              evidence: "证据链：列对应的十神、五行、干支关系、岁运触发证据。",
+              lifeSignals: "生活落点：说明现实中可能表现为哪些具体候选事象，不要只写抽象主题。",
+              verification: "验证条件：说明哪些现实反馈或结构条件出现时，更像这个候选方向。",
+              boundary: "边界：说明不能单独推出什么结论，并写明不能单独作为结论。",
+            },
+          },
+          style: "咨询型语言 + 专业证据链；每条尽量写成“证据链 -> 生活翻译 -> 验证步骤”。",
         },
       }, null, 2),
     };
@@ -370,11 +513,12 @@
 
   function normalizeFlowAiReport(report, text, mode) {
     const fallback = {
-      summary: text || `${flowAiModeLabel(mode)}报告暂未生成，请先查看本地专业矩阵。`,
-      keySignals: ["以当前大运、流年、流月矩阵里的触发点为依据。"],
-      likelyThemes: ["可观察现实事务、关系互动、情绪节奏和执行压力的变化。"],
-      cautions: ["AI辅助只做白话整理，不重新排盘，也不补充不存在的干支关系。"],
-      verificationLimits: ["这些内容不能单独作为结论，仍需结合原局和现实反馈验证。"],
+      summary: text || `${flowAiModeLabel(mode)}咨询总览暂未生成，请先查看本地专业矩阵。`,
+      keySignals: ["证据链 -> 当前大运、流年、流月矩阵已有触发点；候选事象 -> 复核职责变化、收支安排、合作摩擦、搬动出行和作息体感波动。"],
+      likelyThemes: ["候选事象：工作职责变化、合同手续复核、收支安排、合作摩擦、搬动出行、作息体感波动。"],
+      cautions: ["AI辅助只做咨询式整理，不重新排盘，也不补充不存在的干支关系。"],
+      verificationLimits: ["后续仍需结合原局、大运、流年、流月和现实反馈继续验证，不能单独作为结论。"],
+      scenarios: createLocalFlowAiScenarios(mode),
     };
     if (!report) return fallback;
     return {
@@ -383,18 +527,160 @@
       likelyThemes: Array.isArray(report.likelyThemes) ? report.likelyThemes : fallback.likelyThemes,
       cautions: Array.isArray(report.cautions) ? report.cautions : fallback.cautions,
       verificationLimits: Array.isArray(report.verificationLimits) ? report.verificationLimits : fallback.verificationLimits,
+      scenarios: normalizeFlowAiScenarios(report.scenarios, fallback.scenarios),
     };
   }
 
+  function normalizeFlowAiScenarios(value, fallback) {
+    if (!Array.isArray(value) || !value.length) return fallback;
+    return value.map((scenario, index) => {
+      const fallbackScenario = fallback[index] || fallback[0];
+      return {
+        title: scenario?.title || fallbackScenario.title,
+        evidence: normalizeTextList(scenario?.evidence, fallbackScenario.evidence),
+        lifeSignals: normalizeTextList(scenario?.lifeSignals, fallbackScenario.lifeSignals),
+        verification: normalizeTextList(scenario?.verification, fallbackScenario.verification),
+        boundary: scenario?.boundary || fallbackScenario.boundary,
+      };
+    });
+  }
+
+  function normalizeTextList(value, fallback) {
+    return Array.isArray(value) && value.length ? value.map(item => String(item)) : fallback;
+  }
+
   function createLocalFlowAiReport(mode) {
+    return buildLocalEventCandidateReport(mode);
+  }
+
+  function createLocalFlowAiScenarios(mode) {
+    return buildLocalEventCandidateReport(mode).scenarios;
+  }
+
+  function buildLocalEventCandidateReport(mode) {
     const label = flowAiModeLabel(mode);
+    const rows = localEventSignalsForMode(mode);
+    const scenarios = rows.length ? rows.map(signal => buildLocalEventScenario(signal, label)).slice(0, mode === "month" ? 4 : 5) : fallbackEventScenarios(label);
     return {
-      summary: `${label}本地辅助报告：当前只根据页面已有矩阵证据整理候选取象，不能单独作为结论。`,
-      keySignals: [`重点看${label}层级里五行、十神、干支关系是否被触发。`, "所有内容都来自本地排盘和专业速览矩阵。"],
-      likelyThemes: ["现实事务、关系互动、工作节奏、情绪状态可作为观察方向。"],
-      cautions: ["这里不重新排盘，也不补充页面没有列出的干支关系。", "若要使用真正 AI 润色，需要通过后端服务打开页面。"],
-      verificationLimits: ["仍需结合原局、大运、流年、流月和实际经历继续验证。"],
+      summary: `${label}本地辅助报告：已把页面矩阵证据翻成具体候选事象，仍需结合现实反馈继续验证，不能单独作为结论。`,
+      keySignals: rows.slice(0, 5).map(signal => `证据链 -> ${signal.evidence || signal.title}；候选事象 -> ${deriveEventCandidates(signal).join("；")}`),
+      likelyThemes: scenarios.flatMap(s => s.lifeSignals).filter(item => item.includes("候选事象")).slice(0, 8),
+      cautions: ["这里不重新排盘，也不补充页面没有列出的干支关系。", sensitiveReviewText()],
+      verificationLimits: ["仍需结合原局、大运、流年、流月、柱位、旺衰和实际经历继续验证，不能单独作为结论。"],
+      scenarios,
     };
+  }
+
+  function localEventSignalsForMode(mode) {
+    const source = mode === "month" ? lastData?.monthSignals : lastData?.transitSignals;
+    const rows = flattenSignalGroups(source).filter(signal => !String(signal.title || "").includes("未命中"));
+    if (mode === "luck") rows.push(...flattenSignalGroups(lastData?.coreSignals).filter(signal => !String(signal.title || "").includes("未命中")).slice(0, 2));
+    return rows.length ? rows : flattenSignalGroups(lastData?.coreSignals).filter(signal => !String(signal.title || "").includes("未命中"));
+  }
+
+  function flattenSignalGroups(source) {
+    if (!source) return [];
+    if (Array.isArray(source)) return source.flatMap(flattenSignalGroups);
+    if (Array.isArray(source.groups)) return source.groups.flatMap(group => flattenSignalGroups(group.signals).map(signal => ({ ...signal, groupTitle: group.title })));
+    if (Array.isArray(source.signals)) return source.signals;
+    return source.title || source.evidence || source.keywords ? [source] : [];
+  }
+
+  function buildLocalEventScenario(signal, label) {
+    return {
+      title: `${label}${eventTitleForSignal(signal)}`,
+      evidence: [`证据链 -> ${signal.evidence || signal.title || "页面矩阵信号"}`],
+      lifeSignals: [...deriveEventCandidates(signal), ...pillarEventTexts(signal), sensitiveReviewText()],
+      verification: verificationForSignal(signal),
+      boundary: "边界 -> 当前只整理候选事象，不能单独推出具体结果，不能单独作为结论。",
+    };
+  }
+
+  function fallbackEventScenarios(label) {
+    return [
+      {
+        title: `${label}规则职责与现实安排`,
+        evidence: [`证据链 -> ${label}层级已有本地矩阵触发点，需要回看对应十神、五行和干支关系。`],
+        lifeSignals: ["候选事象：工作职责变化、流程合规、合同手续复核、任务重新安排。", sensitiveReviewText()],
+        verification: ["验证条件 -> 现实中若出现职责、流程、合同或时间表变化，再结合原局和岁运层级复核。"],
+        boundary: "边界 -> 不能单独推出具体结果，不能单独作为结论。",
+      },
+      {
+        title: `${label}资源关系与迁动复核`,
+        evidence: [`证据链 -> ${label}层级可从十神、五行、合冲害和柱位继续拆分。`],
+        lifeSignals: ["候选事象：收支安排、合作摩擦、搬动出行、信息沟通和作息体感波动。", sensitiveReviewText()],
+        verification: ["验证条件 -> 现实中若这些主题反复出现，再结合大运、流年、流月和实际反馈继续观察。"],
+        boundary: "边界 -> 不能单独推出关系、财务或状态结论，不能单独作为结论。",
+      },
+    ];
+  }
+
+  function deriveEventCandidates(signal) {
+    const text = signalTextForEvent(signal);
+    const items = [];
+    if (hasEventKey(text, ["正官", "七杀", "官杀"])) items.push("候选事象：工作职责变化、考核流程、合规边界、合同手续复核。");
+    if (hasEventKey(text, ["正财", "偏财", "财星"])) items.push("候选事象：收支安排、预算分配、客户资源、合作报价或家庭资源承接。");
+    if (hasEventKey(text, ["正印", "偏印", "印星"])) items.push("候选事象：课程学习、证书材料、长辈支持、信息吸收或制度内资源申请。");
+    if (hasEventKey(text, ["食神", "伤官", "食伤"])) items.push("候选事象：作品输出、公开表达、方案呈现、沟通交付或技术展示。");
+    if (hasEventKey(text, ["比肩", "劫财", "比劫"])) items.push("候选事象：同事同辈竞争、合伙分工、朋友互动、团队资源分配或边界调整。");
+    if (hasEventKey(text, ["木"])) items.push("候选事象：新计划启动、学习成长、方向调整、关系伸展或长期项目发芽。");
+    if (hasEventKey(text, ["火"])) items.push("候选事象：公开表达、被看见、活动热度、作品显化或情绪热度上升。");
+    if (hasEventKey(text, ["土"])) items.push("候选事象：家宅配置、资产承载、责任分配、储蓄整理或稳定性议题。");
+    if (hasEventKey(text, ["金"])) items.push("候选事象：流程制度、工具技术、标准审核、合规材料或专业训练。");
+    if (hasEventKey(text, ["水"])) items.push("候选事象：出行流动、信息沟通、远方消息、学习吸收或情绪体感波动。");
+    if (hasEventKey(text, ["冲", "变化", "拉扯", "移动", "重新安排"])) items.push("候选事象：搬动、出行、岗位或项目重新安排、沟通冲突、日程改动。");
+    if (hasEventKey(text, ["合", "合象", "牵连", "合绊"])) items.push("候选事象：合作绑定、资源责任被带动、关系黏连、共同项目或协议协商。");
+    if (hasEventKey(text, ["害", "隐性", "摩擦", "不顺"])) items.push("候选事象：暗处别扭、沟通误会、流程卡点、配合不畅或细节返工。");
+    if (hasEventKey(text, ["同干", "同支", "伏吟", "同象"])) items.push("候选事象：旧项目重提、熟人旧事回到台前、原有责任再被强调或同类问题反复出现。");
+    return [...new Set(items.length ? items : ["候选事象：工作职责变化、收支安排、合作摩擦、搬动出行、作息体感波动可作为复核入口。"])];
+  }
+
+  function eventTitleForSignal(signal) {
+    const text = signalTextForEvent(signal);
+    if (hasEventKey(text, ["冲", "变化", "拉扯", "移动", "重新安排"])) return "变动迁移与重新安排";
+    if (hasEventKey(text, ["合", "合象", "牵连", "合绊"])) return "合作绑定与资源牵连";
+    if (hasEventKey(text, ["害", "隐性", "摩擦", "不顺"])) return "隐性摩擦与细节复核";
+    if (hasEventKey(text, ["同干", "同支", "伏吟", "同象"])) return "旧题重现与主题反复";
+    if (hasEventKey(text, ["正官", "七杀", "官杀"])) return "规则职责与流程复核";
+    if (hasEventKey(text, ["正财", "偏财", "财星"])) return "钱与资源安排";
+    if (hasEventKey(text, ["正印", "偏印", "印星"])) return "学习资质与支持系统";
+    if (hasEventKey(text, ["食神", "伤官", "食伤"])) return "表达输出与作品交付";
+    if (hasEventKey(text, ["比肩", "劫财", "比劫"])) return "同辈竞争与协作边界";
+    return signal.title || "候选事象";
+  }
+
+  function verificationForSignal(signal) {
+    const text = signalTextForEvent(signal);
+    const items = [];
+    if (hasEventKey(text, ["正官", "七杀", "官杀"])) items.push("验证条件 -> 现实中若出现岗位责任、审核流程、证照手续或合同节点，再结合原局承接和岁运层级复核。");
+    if (hasEventKey(text, ["正财", "偏财", "财星"])) items.push("验证条件 -> 现实中若出现付款、报价、资源调配或家庭开支主题，再结合财星位置和日主承载继续验证。");
+    if (hasEventKey(text, ["冲", "变化", "拉扯", "移动", "重新安排"])) items.push("验证条件 -> 现实中若出现地点、时间表、合作关系或任务优先级变化，再结合被冲柱位和流月复核。");
+    if (hasEventKey(text, ["合", "合象", "牵连", "合绊"])) items.push("验证条件 -> 现实中若出现协作、签约、资源共用或关系牵制，再看是否有月令、透干、根气承接。");
+    if (hasEventKey(text, ["害", "隐性", "摩擦", "不顺"])) items.push("验证条件 -> 现实中若出现说不清的卡顿、误会或小流程反复，再结合柱位和岁运层级观察。");
+    items.push("验证条件 -> 若现实反馈与候选事象集中重合，再回到柱位、旺衰、十神、岁运继续验证。");
+    return [...new Set(items)];
+  }
+
+  function pillarEventTexts(signal) {
+    const text = signalTextForEvent(signal);
+    return [
+      ["年柱", "柱位落点：年柱偏外部环境、家族背景、远端资源或公开层面的观察。"],
+      ["月柱", "柱位落点：月柱偏工作环境、团队节奏、上级规则或现实运行环境。"],
+      ["日柱", "柱位落点：日柱偏自我状态、亲密关系、合作边界或当下体感。"],
+      ["时柱", "柱位落点：时柱偏长期项目、下属晚辈、后续安排或未来规划。"],
+    ].filter(([key]) => text.includes(key)).map(([, value]) => value);
+  }
+
+  function sensitiveReviewText() {
+    return "敏感复核：作息体感、流程合规、出行操作安全只作为观察清单，需要结合现实反馈和更多结构验证，不能单独作为结论。";
+  }
+
+  function signalTextForEvent(signal) {
+    return [signal?.title, signal?.tag, signal?.group, signal?.groupTitle, signal?.evidence, signal?.keywords, signal?.plainReading, signal?.realLifeMeaning, signal?.caution].filter(Boolean).join(" ");
+  }
+
+  function hasEventKey(text, keys) {
+    return keys.some(key => String(text || "").includes(key));
   }
 
   function bindFlowAiButtons() {
@@ -406,14 +692,39 @@
     flowAiLoading = "";
   }
 
-  function renderTransitSignals(transitSignals) {
+  function renderTransitSignals(transitSignals, data) {
     const total = transitSignals.groups.reduce((sum, group) => sum + group.signals.length, 0);
-    return `<section class="data-board transit-signal-board"><div class="board-title"><h3>3. 大运流年取象</h3><span>${total} 条</span></div><p class="fine-print">以下只列出大运、流年与原局之间的触发观察点，不单独作为事件结论。</p>${renderFlowAiControls(["luck", "year"])}${renderFlowSignalMatrix("岁运专业速览", transitSignals.groups)}</section>`;
+    return `<details class="data-board transit-signal-board evidence-library"><summary><span>3. 大运流年取象证据库</span><b>${total + 1} 条</b></summary><p class="fine-print">以下只列出大运、流年与原局之间的触发观察点，不单独作为事件结论。</p>${renderYearEvidence(data)}${renderFlowSignalMatrix("岁运专业速览", transitSignals.groups)}</details>`;
   }
 
-  function renderMonthSignals(monthSignals) {
+  function renderMonthSignals(monthSignals, data) {
     const total = monthSignals.groups.reduce((sum, group) => sum + group.signals.length, 0);
-    return `<section class="data-board month-signal-board"><div class="board-title"><h3>5. 流月取象</h3><span>${total} 条</span></div><p class="fine-print">以下只列出当前流月的触发观察点，用于细化时间窗口。</p>${renderFlowAiControls(["month"])}${renderFlowSignalMatrix("流月专业速览", monthSignals.groups)}</section>`;
+    return `<details class="data-board month-signal-board evidence-library"><summary><span>5. 流月取象证据库</span><b>${total + 1} 条</b></summary><p class="fine-print">以下只列出当前流月的触发观察点，用于细化时间窗口。</p>${renderMonthEvidence(data)}${renderFlowSignalMatrix("流月专业速览", monthSignals.groups)}</details>`;
+  }
+
+  function renderYearEvidence(data) {
+    return `<article class="evidence-note"><strong>${data.yearInfluence.year} · ${data.yearInfluence.pillar.label}</strong><p>${data.yearInfluence.evidence.join("；")}</p><div class="tag-row">${data.storyTags.filter(t => t.period === "year").map(t => `<span>${t.tag}</span>`).join("")}</div></article>`;
+  }
+
+  function renderMonthEvidence(data) {
+    return `<article class="evidence-note"><strong>${data.selectedMonthInfluence.month}月 ${data.selectedMonthInfluence.pillar.label}</strong><p>${data.selectedMonthInfluence.evidence.join("；")}</p><small>${data.selectedMonthInfluence.needVerify.join("；")}</small></article>`;
+  }
+
+  function renderFlowAiStage(mode, title, contextLabel) {
+    return `<section class="flow-ai-stage" data-ai-scope="${mode}"><div class="board-title"><h3>${title}</h3><span>${contextLabel}</span></div>${renderFlowAiControls([mode])}</section>`;
+  }
+
+  function renderNatalMiniChart(chart) {
+    const details = chart.pillarDetails || {};
+    const keys = ["year", "month", "day", "hour"];
+    const dayMaster = chart.dayMaster || {};
+    const monthPillar = chart.pillars?.month || {};
+    const summary = `日主 ${chart.pillars?.day?.stem || ""}${elementLabels[dayMaster.element] || ""} · 月令 ${monthPillar.branch || ""}${elementLabels[monthPillar.branchElement] || ""}`;
+    return `<section class="data-board natal-mini-chart"><div class="board-title"><h3>原局对照</h3><span>${summary}</span></div><div class="natal-mini-grid">${keys.map(key => {
+      const item = details[key] || {};
+      const pillar = item.pillar || chart.pillars?.[key] || {};
+      return `<article><span>${item.label || key}</span><strong>${pillar.label || ""}</strong><small>${item.stemTenGod || ""} / ${item.branchMainTenGod || ""}</small></article>`;
+    }).join("")}</div></section>`;
   }
 
   function renderFlowSignalMatrix(title, groups) {
@@ -421,7 +732,106 @@
   }
 
   function renderFlowSignalRow(signal, groupTitle) {
-    return `<tr class="flow-signal-row"><td data-label="分组">${signal.group || groupTitle}</td><td data-label="观察点"><strong>${signal.title}</strong></td><td data-label="类型"><span class="badge">${signal.tag}</span></td><td data-label="原始依据">${signal.evidence}</td><td data-label="取象关键词">${signal.keywords}</td><td data-label="展开解释"><details class="inline-reading"><summary>展开</summary><dl><dt>白话取象</dt><dd>${signal.plainReading}</dd><dt>现实表现</dt><dd>${signal.realLifeMeaning}</dd><dt>判断限制</dt><dd>${signal.caution}</dd></dl></details></td></tr>`;
+    return `<tr class="flow-signal-row"><td data-label="分组">${signal.group || groupTitle}</td><td data-label="观察点"><strong>${signal.title}</strong></td><td data-label="类型"><span class="badge">${signal.tag}</span></td><td data-label="原始依据">${signal.evidence}</td><td data-label="取象关键词">${signal.keywords}</td><td data-label="展开解释"><details class="inline-reading"><summary>展开</summary><dl><dt>怎么取的</dt><dd>${signal.evidence}</dd>${renderSignalEventCandidates(signal)}<dt>解释</dt><dd>${signal.plainReading} ${signal.realLifeMeaning} ${signal.caution}</dd></dl></details></td></tr>`;
+  }
+
+  function renderFortuneAnalysis(data) {
+    const analysis = data.fortuneAnalysis;
+    if (!analysis) return "";
+    const scores = analysis.eventScores || {};
+    const scoreCards = Object.entries(scores).map(([key, value]) => `<article><span>${fortuneScoreLabel(key)}</span><strong>${value.score}</strong><small>${(value.evidence || []).slice(0, 2).join("；")}</small></article>`).join("");
+    return `<section class="data-board fortune-analysis-board">
+      <div class="plugin-header"><p class="eyebrow">fortune-engine</p><h2>年度总论</h2></div>
+      <section class="reading-overview"><span>${analysis.year} · ${analysis.annualTheme}</span><p>${analysis.overallSummary}</p></section>
+      <div class="fortune-score-grid">${scoreCards}</div>
+      <article class="analysis-block"><h3>大运如何影响这一年</h3><p>${analysis.decadeTheme}，支持分 ${analysis.decadeSupportScore}。</p><small>依据：${analysis.decadeEvidence?.join("；") || analysis.decadeTheme}</small></article>
+      <article class="analysis-block"><h3>这一年被什么触发</h3>${(analysis.triggerChains || []).slice(0, 5).map(chain => `<p>${chain.reason}</p><small>依据：${(chain.evidence || []).join("；")}</small>`).join("")}</article>
+      <article class="analysis-block"><h3>重点月份</h3>${(analysis.monthlyHighlights || []).map(month => `<p>${month.month}月 ${month.pillar} · ${month.intensity}</p><small>依据：${(month.reasons || []).join("；")}</small>`).join("")}</article>
+      <article class="analysis-block"><h3>现实建议</h3><ul>${(analysis.advice || []).map(item => `<li>${item}</li>`).join("")}</ul></article>
+    </section>`;
+  }
+
+  function buildLocalFortuneAnalysis({ chart, selectedLuck, yearInfluence, monthInfluences, transitSignals, monthSignals }) {
+    const triggerRows = flattenSignalGroups(transitSignals).filter(signal => !String(signal.title || "").includes("未命中"));
+    const monthRows = flattenSignalGroups(monthSignals).filter(signal => !String(signal.title || "").includes("未命中"));
+    const triggerChains = triggerRows.slice(0, 8).map((signal, index) => {
+      const tags = localTagsFromSignal(signal);
+      return {
+        id: `local-chain-${index + 1}`,
+        chain: `原局${chart.pillars.day.label} -> 大运${selectedLuck.label} -> 流年${yearInfluence.pillar.label}`,
+        source: signal.group || signal.groupTitle || "流年触发",
+        reason: `${signal.title}：${signal.keywords || signal.evidence}，引动${tags.map(fortuneScoreLabel).join("、")}主题。`,
+        tags,
+        weight: tags.includes("movement") ? 5 : tags.includes("career") ? 4 : 3,
+        evidence: [signal.evidence, signal.plainReading].filter(Boolean),
+        realityMapping: signal.realLifeMeaning,
+        caution: signal.caution,
+      };
+    });
+    const monthlyHighlights = monthInfluences.map(month => {
+      const related = monthRows.filter(signal => signal.evidence?.includes(`${month.month}月`) || signal.evidence?.includes(month.pillar.label) || signal.keywords?.includes(month.pillar.label));
+      const score = related.length * 4 + triggerChains.filter(chain => chain.reason.includes(month.tenGods.stem) || chain.reason.includes(month.tenGods.branch)).length * 2;
+      return {
+        month: month.month,
+        pillar: month.pillar.label,
+        intensity: score >= 8 ? "high" : score >= 4 ? "medium" : "low",
+        score,
+        reasons: related.length ? related.slice(0, 3).map(signal => `${signal.title}：${signal.evidence}`) : [`${month.month}月${month.pillar.label}作为${month.role}观察窗口`],
+        triggerLinks: triggerChains.slice(0, 3).map(chain => chain.id),
+      };
+    }).filter(month => month.score >= 4).slice(0, 5);
+    const eventScores = Object.fromEntries(["career", "wealth", "relationship", "study", "health", "movement", "social"].map(key => {
+      const hits = triggerChains.filter(chain => chain.tags.includes(key));
+      const monthHits = monthlyHighlights.filter(month => month.triggerLinks.some(id => hits.some(chain => chain.id === id)));
+      return [key, {
+        score: Math.min(100, 20 + hits.reduce((sum, chain) => sum + chain.weight * 8, 0) + monthHits.length * 6),
+        evidence: hits.length ? hits.slice(0, 3).map(chain => chain.reason) : ["暂未出现直接触发链，先保留为低强度观察。"],
+      }];
+    }));
+    const top = Object.entries(eventScores).sort((a, b) => b[1].score - a[1].score).slice(0, 3).map(([key]) => fortuneScoreLabel(key)).join("、");
+    const decadeTheme = selectedLuck.stemElement === chart.dayMaster.element || selectedLuck.branchElement === chart.dayMaster.element ? "增强原局" : "补足原局";
+    const decadeEvidence = [`大运${selectedLuck.label}，天干${getTenGod(chart.dayMaster.stem, selectedLuck.stem)}，地支主气${getTenGod(chart.dayMaster.stem, branchMainStem(selectedLuck.branch))}`, `流年${yearInfluence.pillar.label}接入大运${selectedLuck.label}`];
+    return {
+      year: yearInfluence.year,
+      decadeTheme,
+      decadeSupportScore: Math.min(100, 50 + triggerChains.length * 3),
+      decadeRiskTags: triggerChains.flatMap(chain => chain.tags).slice(0, 6),
+      decadeEvidence,
+      annualTheme: top,
+      overallSummary: `结论：${yearInfluence.year}年先看${top}这些候选主题。\n命理依据：原局${chart.pillars.day.label}接大运${selectedLuck.label}，再由流年${yearInfluence.pillar.label}触发，当前形成${triggerChains.length}条引动链。\n现实表现：重点观察职责资源、关系合作、迁动变化和作息体感是否在重点月份出现反馈。\n注意事项：本地引擎只做结构化取象，需要结合现实反馈继续验证，不能单独作为结论。`,
+      eventScores,
+      triggerChains,
+      monthlyHighlights: monthlyHighlights.length ? monthlyHighlights : [{
+        month: state.selectedMonth,
+        pillar: monthInfluences[state.selectedMonth - 1].pillar.label,
+        intensity: "low",
+        score: 1,
+        reasons: ["当前月份只作为低强度观察窗口。"],
+        triggerLinks: [],
+      }],
+      advice: [
+        "先把年度主题对应到现实中的职责、资源、关系、迁动和作息清单。",
+        "重点月份只做复核窗口，不把单月信号当成结果。",
+        "涉及状态、合规、出行操作安全时，按现实规则做复核和预防。"
+      ],
+    };
+  }
+
+  function localTagsFromSignal(signal) {
+    const text = signalTextForEvent(signal);
+    const tags = [];
+    if (hasEventKey(text, ["官", "职责", "规则", "事业", "任务"])) tags.push("career");
+    if (hasEventKey(text, ["财", "资源", "收支", "承接"])) tags.push("wealth");
+    if (hasEventKey(text, ["关系", "合作", "日柱", "合"])) tags.push("relationship");
+    if (hasEventKey(text, ["印", "食伤", "学习", "表达", "作品"])) tags.push("study");
+    if (hasEventKey(text, ["害", "刑", "穿", "作息", "状态", "压力"])) tags.push("health");
+    if (hasEventKey(text, ["冲", "迁移", "移动", "出行", "变化"])) tags.push("movement");
+    if (hasEventKey(text, ["比劫", "同辈", "人际", "沟通"])) tags.push("social");
+    return [...new Set(tags.length ? tags : ["career", "social"])];
+  }
+
+  function fortuneScoreLabel(key) {
+    return { career: "事业", wealth: "财运", relationship: "感情", study: "学业", health: "健康", movement: "迁移", social: "人际", pressure: "压力", "repeat-theme": "主题反复" }[key] || key;
   }
 
   function renderYear(data) {
@@ -433,14 +843,14 @@
 
   function renderMonth(data) {
     const luck = data.chart.luckCycles;
-    byId("monthTimeline").innerHTML = `<div class="plugin-header"><p class="eyebrow">大运 · 流年 · 流月</p><h2>岁运推演</h2></div><section class="data-board luck-board"><div class="board-title"><h3>1. 先选大运</h3><span>${luck.directionLabel} · ${luck.startAgeText} · 当前 ${data.selectedLuck.label}</span></div><div class="luck-table">${luck.pillars.map((p, i) => `<button class="luck-cell ${p.index === data.selectedLuck.index ? "is-active" : ""}" data-luck-index="${i}"><span>${p.startAge}-${p.endAge}岁</span><strong>${p.label}</strong><small>${p.startYear}-${p.endYear}</small></button>`).join("")}</div><p class="fine-print">${luck.startNote}</p></section><section class="data-board year-board"><div class="board-title"><h3>2. 再看该大运内的流年</h3><span>${data.selectedLuck.startYear}-${data.selectedLuck.endYear} · 当前 ${data.yearInfluence.year} ${data.yearInfluence.pillar.label}</span></div><div class="year-strip decade-strip">${data.transitYears.map(({ year, pillar }) => `<button class="flow-chip ${year === data.yearInfluence.year ? "is-active" : ""}" data-year="${year}"><span>${year}</span><strong>${pillar.label}</strong></button>`).join("")}</div><article class="story-card below"><strong>${data.yearInfluence.year} · ${data.yearInfluence.pillar.label}</strong><p>${data.yearInfluence.evidence.join("；")}</p><div class="tag-row">${data.storyTags.filter(t => t.period === "year").map(t => `<span>${t.tag}</span>`).join("")}</div></article></section>${renderTransitSignals(data.transitSignals)}<section class="data-board month-flow-board"><div class="board-title"><h3>4. 最后细看流月</h3><span>${data.yearInfluence.year} 年 · 当前 ${state.selectedMonth}月 ${data.selectedMonthInfluence.pillar.label}</span></div><div class="transit-layout"><div class="flow-focus">${renderPillarCard(data.yearInfluence.pillar, `${data.yearInfluence.year} 流年`)}${renderPillarCard(data.selectedMonthInfluence.pillar, `${state.selectedMonth}月流月`)}</div><div><div class="month-board">${data.monthInfluences.map(m => `<button class="flow-chip month ${m.month === state.selectedMonth ? "is-active" : ""}" data-month="${m.month}"><span>${m.month}月 · ${m.role}</span><strong>${m.pillar.label}</strong></button>`).join("")}</div></div></div></section>${renderMonthSignals(data.monthSignals)}<section class="analysis-block"><h3>月度窗口</h3><div class="transit-hit-list"><article><strong>${data.selectedMonthInfluence.month}月 ${data.selectedMonthInfluence.pillar.label}</strong><p>${data.selectedMonthInfluence.evidence.join("；")}</p><small>${data.selectedMonthInfluence.needVerify.join("；")}</small></article></div></section>`;
+    byId("monthTimeline").innerHTML = `<div class="plugin-header"><p class="eyebrow">大运 · 流年 · 流月</p><h2>岁运推演</h2></div>${renderFortuneAnalysis(data)}${renderNatalMiniChart(data.chart)}<section class="data-board luck-board"><div class="board-title"><h3>1. 先选大运</h3><span>${luck.directionLabel} · ${luck.startAgeText} · 当前 ${data.selectedLuck.label}</span></div><div class="luck-table">${luck.pillars.map((p, i) => `<button class="luck-cell ${p.index === data.selectedLuck.index ? "is-active" : ""}" data-luck-index="${i}"><span>${p.startAge}-${p.endAge}岁</span><strong>${p.label}</strong><small>${p.startYear}-${p.endYear}</small></button>`).join("")}</div><p class="fine-print">${luck.startNote}</p>${renderFlowAiStage("luck", "大运 AI 解读", data.selectedLuck.label)}</section><section class="data-board year-board"><div class="board-title"><h3>2. 再看该大运内的流年</h3><span>${data.selectedLuck.startYear}-${data.selectedLuck.endYear} · 当前 ${data.yearInfluence.year} ${data.yearInfluence.pillar.label}</span></div><div class="year-strip decade-strip">${data.transitYears.map(({ year, pillar }) => `<button class="flow-chip ${year === data.yearInfluence.year ? "is-active" : ""}" data-year="${year}"><span>${year}</span><strong>${pillar.label}</strong></button>`).join("")}</div>${renderFlowAiStage("year", "流年 AI 解读", `${data.yearInfluence.year} ${data.yearInfluence.pillar.label}`)}</section>${renderTransitSignals(data.transitSignals, data)}<section class="data-board month-flow-board"><div class="board-title"><h3>4. 最后细看流月</h3><span>${data.yearInfluence.year} 年 · 当前 ${state.selectedMonth}月 ${data.selectedMonthInfluence.pillar.label}</span></div><div class="transit-layout"><div class="flow-focus">${renderPillarCard(data.yearInfluence.pillar, `${data.yearInfluence.year} 流年`)}${renderPillarCard(data.selectedMonthInfluence.pillar, `${state.selectedMonth}月流月`)}</div><div><div class="month-board">${data.monthInfluences.map(m => `<button class="flow-chip month ${m.month === state.selectedMonth ? "is-active" : ""}" data-month="${m.month}"><span>${m.month}月 · ${m.role}</span><strong>${m.pillar.label}</strong></button>`).join("")}</div></div></div>${renderFlowAiStage("month", "流月 AI 解读", `${state.selectedMonth}月 ${data.selectedMonthInfluence.pillar.label}`)}</section>${renderMonthSignals(data.monthSignals, data)}`;
     document.querySelectorAll("[data-year]").forEach(b => b.addEventListener("click", () => { resetFlowAiReports(); state.targetYear = Number(b.dataset.year); state.selectedMonth = 1; refresh(); }));
     document.querySelectorAll("[data-month]").forEach(b => b.addEventListener("click", () => { resetFlowAiReports(); state.selectedMonth = Number(b.dataset.month); refresh(); }));
     document.querySelectorAll("[data-luck-index]").forEach(b => b.addEventListener("click", () => { resetFlowAiReports(); const p = luck.pillars[Number(b.dataset.luckIndex)]; state.selectedLuckIndex = p.index - 1; state.targetYear = p.startYear; state.selectedMonth = 1; refresh(); }));
     bindFlowAiButtons();
   }
 
-  function renderNarrative(data) { byId("aiNarrative").innerHTML = `<h2>模型叙事层</h2><article class="narrative"><strong>${providerLabel(data.narrative.provider)}</strong><p>${escapeHtml(data.narrative.text)}</p></article>`; }
+  function renderNarrative() {}
 
   function noteChatContextChanged() {
     chatState.contextVersion += 1;
@@ -636,16 +1046,86 @@
     return `${topic}可以先从${focus}作为候选信号观察。当前回答只整理页面已有证据，传统命理中可作为观察点，仍需要结合柱位、旺衰、十神、岁运和现实反馈继续验证，不能单独作为结论。`;
   }
 
-  function renderDebug(data) { byId("debugPanel").innerHTML = `<h2>调试数据</h2><div class="debug-summary"><article><span>排盘引擎</span><strong>本地排盘</strong><small>${data.chart.meta.evidence.join("；")}</small></article><article><span>原局取象</span><strong>${data.coreSignals.groups.length} 组</strong><small>${data.coreSignals.groups.map(group => `${group.title}${group.signals.length}条`).join("；")}</small></article><article><span>岁运取象</span><strong>${data.transitSignals.groups.length} 组</strong><small>${data.transitSignals.groups.map(group => `${group.title}${group.signals.length}条`).join("；")}</small></article><article><span>流月取象</span><strong>${data.monthSignals.groups.length} 组</strong><small>${data.monthSignals.groups.map(group => `${group.title}${group.signals.length}条`).join("；")}</small></article><article><span>岁运选择</span><strong>${data.selectedLuck.label} · ${data.yearInfluence.year}年 · ${data.selection.selectedMonth}月</strong><small>大运、流年、流月均由本地规则计算。</small></article><article><span>叙事来源</span><strong>${providerLabel(data.narrative.provider)}</strong><small>当前只使用本地生成的剧情标签做演示。</small></article></div>`; }
+  function renderDebug() {}
 
   function calculateBazi(input) {
     const birth = parseBirth(input);
     const pillars = buildNatalPillars(birth);
-    const pillarDetails = buildPillarDetails(pillars);
+    const shensha = buildShensha(pillars, input);
+    const pillarDetails = buildPillarDetails(pillars, shensha.byPillar);
     const elements = countElements(pillars);
     const luckCycles = buildLuckCycles(input, birth, pillars);
     const calendar = { solarDate: formatBirthDate(birth), time: formatBirthTime(birth), originalSolarDate: formatBirthDate(birth.original), originalTime: formatBirthTime(birth.original), inputCalendarType: birth.calendar.inputCalendarType, lunarDate: birth.calendar.lunarDate, trueSolarTime: birth.trueSolarTime, monthNote: pillars.month.meta.method, solarTermRange: `${pillars.month.meta.solarTerm}之后、${pillars.month.meta.nextSolarTerm}之前`, dayPillarDate: pillars.day.meta.pillarDate, dayPillarRule: "23:00-23:59按次日计算日柱（晚子时换日）", hourPillarRule: "按最终排盘时间取时辰，晚子时使用次日日干起时柱。" };
-    return { input, pillars, dayMaster: { stem: pillars.day.stem, element: stemElements[pillars.day.stem], label: `${pillars.day.stem}日主` }, elements, dominantElements: dominantElements(elements), tenGods: buildTenGodSummary(pillars.day.stem, pillars), pillarDetails, tenGodStats: buildTenGodStats(pillarDetails), elementStats: buildElementStats(pillars), relations: findRelations(pillars), auxiliary: buildAuxiliary(pillars), luckCycles, calendar, meta: { engine: "birth-chart-engine", evidence: [`四柱：${Object.values(pillars).map(p => p.label).join(" ")}`, `月柱依据${pillars.month.meta.solarTerm}换月；日柱日期为${pillars.day.meta.pillarDate}。`], confidence: "medium", needVerify: ["节气时刻、真太阳时和起运口径仍建议保留人工复核入口。"] } };
+    return { input, pillars, dayMaster: { stem: pillars.day.stem, element: stemElements[pillars.day.stem], label: `${pillars.day.stem}日主` }, elements, dominantElements: dominantElements(elements), tenGods: buildTenGodSummary(pillars.day.stem, pillars), pillarDetails, tenGodStats: buildTenGodStats(pillarDetails), elementStats: buildElementStats(pillars), relations: findRelations(pillars), shensha, auxiliary: buildAuxiliary(pillars), luckCycles, calendar, meta: { engine: "birth-chart-engine", evidence: [`四柱：${Object.values(pillars).map(p => p.label).join(" ")}`, `月柱依据${pillars.month.meta.solarTerm}换月；日柱日期为${pillars.day.meta.pillarDate}。`], confidence: "medium", needVerify: ["节气时刻、真太阳时和起运口径仍建议保留人工复核入口。"] } };
+  }
+
+  function buildShensha(pillars, input) {
+    const items = shenshaRules.flatMap(([name, category, basis, targetType, sourceBasis, targets, learningNote]) => {
+      const matchedPillars = matchShenshaRule({ basis, targetType, targets }, pillars, input);
+      if (!matchedPillars.length) return [];
+      return [{
+        name,
+        category,
+        theme: `${category}：${name}`,
+        sourceBasis,
+        matchedPillars,
+        evidence: matchedPillars.map(hit => `${hit.pillarLabel}${hit.target}命中${name}，${sourceBasis}。`),
+        learningNote,
+        typicalMeaning: learningNote,
+        confidence: "medium",
+        needVerify: ["神煞只作为辅助候选信号，需要结合柱位、旺衰、十神、岁运继续验证，不能单独作为结论。"],
+      }];
+    });
+    const byPillar = Object.fromEntries(["year", "month", "day", "hour"].map(key => [key, []]));
+    items.forEach(item => item.matchedPillars.forEach(hit => byPillar[hit.pillarKey]?.push({ name: item.name, category: item.category, theme: item.theme, sourceBasis: item.sourceBasis, target: hit.target })));
+    const counts = {};
+    items.forEach(item => counts[item.category] = (counts[item.category] || 0) + 1);
+    return { items, byPillar, summary: Object.entries(counts).map(([category, count]) => ({ category, count })), meta: { engine: "shensha-rule-table", version: "0.1.0", evidence: [`已启用${shenshaRules.length}条常用实务神煞规则，当前命中${items.length}项。`], confidence: "medium", needVerify: ["当前为内置常用实务神煞表，不宣称覆盖所有流派异名；神煞只作为传统命理中的辅助观察点，不能单独作为结论。"] } };
+  }
+
+  function matchShenshaRule(rule, pillars, input) {
+    if (rule.basis.includes("pillarVoid")) return matchVoidShensha(pillars);
+    if (rule.basis.includes("dayPillarLabel")) return matchDayPillarShensha(rule, pillars);
+    if (rule.basis.includes("seasonDayPillar")) return matchSeasonDayPillarShensha(rule, pillars);
+    const targets = collectShenshaTargets(rule.basis, rule.targets, pillars, input);
+    if (!targets.length) return [];
+    return ["year", "month", "day", "hour"].flatMap(key => {
+      const p = pillars[key], values = rule.targetType === "stem" ? [p.stem] : rule.targetType === "stemOrBranch" ? [p.stem, p.branch] : [p.branch];
+      return targets.filter(target => values.includes(target)).map(target => ({ pillarKey: key, pillarLabel: p.role, target }));
+    });
+  }
+
+  function matchDayPillarShensha(rule, pillars) {
+    return (rule.targets.dayPillarLabel || []).includes(pillars.day.label) ? [{ pillarKey: "day", pillarLabel: pillars.day.role, target: pillars.day.label }] : [];
+  }
+
+  function matchSeasonDayPillarShensha(rule, pillars) {
+    const targets = rule.targets[seasonKey(pillars.month.branch)] || [];
+    return targets.includes(pillars.day.label) ? [{ pillarKey: "day", pillarLabel: pillars.day.role, target: pillars.day.label }] : [];
+  }
+
+  function collectShenshaTargets(basis, targets, pillars, input) {
+    if (basis.includes("yearBranchGender")) {
+      const yearYang = stemYinYang[pillars.year.stem] === "yang", gender = input.gender === "female" ? "female" : "male";
+      const group = (gender === "male" && yearYang) || (gender === "female" && !yearYang) ? "yangMaleYinFemale" : "yinMaleYangFemale";
+      return targets[group]?.[pillars.year.branch] || [];
+    }
+    const valueByBasis = { dayStem: pillars.day.stem, dayBranch: pillars.day.branch, yearBranch: pillars.year.branch, monthBranch: pillars.month.branch };
+    return [...new Set(basis.flatMap(key => targets[valueByBasis[key]] || []))];
+  }
+
+  function matchVoidShensha(pillars) {
+    return ["year", "month", "day", "hour"].flatMap(sourceKey => {
+      const voids = getVoidBranches(pillars[sourceKey]);
+      return ["year", "month", "day", "hour"].filter(targetKey => voids.includes(pillars[targetKey].branch)).map(targetKey => ({ pillarKey: targetKey, pillarLabel: pillars[targetKey].role, target: pillars[targetKey].branch }));
+    });
+  }
+
+  function seasonKey(branch) {
+    if (["寅", "卯", "辰"].includes(branch)) return "spring";
+    if (["巳", "午", "未"].includes(branch)) return "summer";
+    if (["申", "酉", "戌"].includes(branch)) return "autumn";
+    return "winter";
   }
 
   function parseBirth(input) {
@@ -685,21 +1165,22 @@
   function generateMonthElementReading(monthPillar) { return makeCoreReading("流月触发", "流月五行", "可取象", `${monthPillar.label}流月：天干${elementLabels[monthPillar.stemElement]}，地支${elementLabels[monthPillar.branchElement]}`, `流月五行 / ${elementLabels[monthPillar.stemElement]}、${elementLabels[monthPillar.branchElement]}`, "流月五行用于看当月气机偏向哪类属性。", "现实中可观察当月某类规划、表达、承载、规则或信息变化是否更明显。", "流月五行不等于喜忌，也不等于结果，需要结合原局和岁运层级。"); }
   function generateMonthRelationReadings(chart, selectedLuck, yearPillar, monthPillar) { const rows = [], collect = (targetName, targetPillar) => comboRules.forEach(([type, members, effect]) => { if (samePair(members, [monthPillar.stem, targetPillar.stem]) || samePair(members, [monthPillar.branch, targetPillar.branch])) rows.push(makeFlowRelationReading("流月关系", `流月${type}`, `流月${monthPillar.label} 与 ${targetName}${targetPillar.label} 命中${members.join("、")}`, `流月-${targetName} / ${members.join("")} / ${effect}`, type, members, effect)); }); Object.values(chart.pillars).forEach(p => collect(p.role, p)); collect("大运", selectedLuck); collect("流年", yearPillar); return rows.length ? rows : [makeCoreReading("流月关系", "流月关系触发未命中", "基础依据", "当前流月与原局、大运、流年未命中已启用的合冲规则", "未命中 / 不强行取象", "当前启用规则下，流月没有额外列出合冲害候选点。", "现实中仍可从流月十神、五行和当前月份角色观察。", "未命中规则不代表月份无作用。")]; }
   function generateMonthCoreHitReadings(chart, monthPillar) { const hits = Object.values(chart.pillars).flatMap(p => { const list = []; if (p.stem === monthPillar.stem) list.push(makeCoreReading("流月原局", `流月同干触发${p.role}`, "需验证", `流月${monthPillar.label}与${p.role}${p.label}出现同干`, `流月同干 / ${p.role}`, "流月同干可作为当月把某个原局天干主题带到台前的候选信号。", "现实中可观察该柱主题是否在当月更容易出现动作、沟通或反馈。", "同干触发需要结合大运流年和该柱在原局中的位置。")); if (p.branch === monthPillar.branch) list.push(makeCoreReading("流月原局", `流月同支触发${p.role}`, "需验证", `流月${monthPillar.label}与${p.role}${p.label}出现同支`, `流月同支 / ${p.role}`, "流月同支可作为当月把某个原局地支环境带出的候选信号。", "现实中可观察该柱相关环境、关系或事务是否在当月更容易被触发。", "同支触发需要结合大运流年和冲合刑害等关系继续验证。")); return list; }); return hits.length ? hits : [makeCoreReading("流月原局", "流月原局同象未命中", "基础依据", "当前流月与原局四柱未出现同干或同支", "未命中 / 不强行取象", "当前流月没有命中原局同干同支触发点。", "现实观察可转向流月五行十神和关系触发。", "未命中同象不代表该月无观察价值。")]; }
-  function buildCoreSignals(chart) { return { engine: "coreSignalsEngine", overview: generateOverallReading(chart), groups: [{ key: "core", title: "核心", signals: [generateDayMasterReading(chart), generateMonthCommandReading(chart)] }, { key: "elements-ten-gods", title: "五行十神", signals: [...generateElementReading(chart), ...generateTenGodReading(chart)] }, { key: "rooting-relations", title: "根气关系", signals: [...generateRootingReadings(chart), ...generateStemBranchRelationReading(chart)] }, { key: "auxiliary", title: "辅助取象", signals: [...generateVoidReadings(chart), ...generateNayinReadings(chart), ...generateGrowthReadings(chart), ...generateAuxiliaryReadings(chart), generateCautionReading(chart)] }], professional: generateProfessionalEvidence(chart) }; }
-  function makeCoreReading(group, title, tag, evidence, keywords, plainReading, realLifeMeaning, caution) { return { group, title, tag, evidence, keywords, plainReading, realLifeMeaning, caution }; }
+  function buildCoreSignals(chart) { return { engine: "coreSignalsEngine", overview: generateOverallReading(chart), groups: [{ key: "core", title: "核心", signals: [generateDayMasterReading(chart), generateMonthCommandReading(chart)] }, { key: "elements-ten-gods", title: "五行十神", signals: [...generateElementReading(chart), ...generateTenGodReading(chart)] }, { key: "rooting-relations", title: "根气关系", signals: [...generateRootingReadings(chart), ...generateStemBranchRelationReading(chart)] }, { key: "auxiliary", title: "辅助取象", signals: [...generateShenshaReadings(chart), ...generateVoidReadings(chart), ...generateNayinReadings(chart), ...generateGrowthReadings(chart), ...generateAuxiliaryReadings(chart), generateCautionReading(chart)] }], professional: generateProfessionalEvidence(chart) }; }
+  function makeCoreReading(group, title, tag, evidence, keywords, plainReading, realLifeMeaning, caution) { const signal = { group, title, tag, evidence, keywords, plainReading, realLifeMeaning, caution }; return { ...signal, eventCandidates: deriveEventCandidates(signal) }; }
   function generateDayMasterReading(chart) { const stem = chart.pillars.day.stem, element = elementLabels[chart.dayMaster.element], nature = stemNature(stem); return makeCoreReading("核心", `${stem}${element}日主`, "基础依据", `日干${stem}，五行${element}`, `${stem}${element} / ${elementAttributes[chart.dayMaster.element]} / 日主`, `${stem}${element}${nature.image}，传统取象可看成长、方向感、处事方式和自我表达的底色。`, nature.life, `${stem}${element}只是入口，日主强弱还要结合月令、根气、水火配合和十神组合判断。`); }
   function generateMonthCommandReading(chart) { const branch = chart.pillars.month.branch, info = monthCommandInfo(branch), dayStem = chart.pillars.day.stem, monthElement = elementLabels[chart.pillars.month.branchElement]; return makeCoreReading("核心", `月令${branch}`, "关键结构", `月柱${chart.pillars.month.label}，月令${branch}`, `${branch}月 / ${monthElement}气 / 出生环境`, `月令代表出生环境、季节力量、命局大气候。${branch}月${info.season}，对${dayStem}日主来说，环境底色带有${info.image}。`, `${info.life}这不是普通地支说明，而是在看命局最先受到哪类气候和现实环境塑形。`, "月令影响很大，但仍需结合透干、藏干、根气、五行数量和岁运触发一起看。"); }
-  function generateElementReading(chart) { const visible = chart.elementStats.visible.counts, hidden = chart.elementStats.hidden.counts, monthElement = elementLabels[chart.pillars.month.branchElement]; return [makeCoreReading("五行十神", "明面五行偏性", "可取象", elementCountText(visible), `${topElementsText(visible)}突出 / ${weakElementText(visible).replace("在明面", "")}`, `明面数量里，${dominantElementText(visible)}；${weakElementText(visible)}。这可以用来观察外显结构，但五行数量不等于喜忌。`, "数量明显的五行，常对应相关属性更容易被看见；数量少或未显的五行，相关表达可能不在表层。", `月令会修正数量判断，例如月令属${monthElement}时，即使${monthElement}数量不多，也不能简单视为弱。`), makeCoreReading("五行十神", "藏干五行偏性", "可取象", elementCountText(hidden), `${topElementsText(hidden)}根气 / ${zeroElementsText(hidden)}`, `藏干数量里，${dominantElementText(hidden)}；${weakElementText(hidden).replace("明面", "藏干")}。这更偏向内在根气和来源支撑。`, "藏干层面的五行不一定外露，但常用于观察某类属性是否有暗处来源或持续支撑。", "藏干统计仍需结合主气、中气、余气权重，以及月令和透干情况判断。")]; }
+  function generateElementReading(chart) { const visible = chart.elementStats.visible.counts, hidden = chart.elementStats.hidden.counts, monthElement = elementLabels[chart.pillars.month.branchElement]; return [makeCoreReading("五行十神", "明面五行偏性", "可取象", elementCountText(visible), `${topElementsText(visible)}突出 / ${weakElementText(visible).replace("在明面", "")}`, `明面数量里，${dominantElementText(visible)}；${weakElementText(visible)}。这可以用来观察外显结构，但五行数量不等于喜忌。`, "数量明显的五行，常对应相关属性更容易被看见；数量少或未显的五行，相关表达可能不在表层。", `月令会修正数量判断，例如月令属${monthElement}时，即使${monthElement}数量不多，也不能简单视为弱。`), makeCoreReading("五行十神", "藏干五行偏性", "可取象", elementCountText(hidden), `${topElementsText(hidden)}根气 / ${zeroElementsText(hidden)}`, `藏干数量里，${dominantElementText(hidden)}；${weakElementText(hidden).replace("明面", "藏干")}。这更偏向内在根气和来源支撑。`, "藏干层面的五行未必外露，但常用于观察某类属性是否有暗处来源或持续支撑。", "藏干统计仍需结合主气、中气、余气权重，以及月令和透干情况判断。")]; }
   function generateTenGodReading(chart) { const groups = tenGodGroupCounts(chart.tenGodStats.mainQi, chart.tenGodStats.fullHidden), top = topTenGodGroup(groups), low = lowTenGodGroup(groups); return [makeCoreReading("五行十神", "主气十神", "可取象", countText(chart.tenGodStats.mainQi), `${top.label}入口 / 学习表达资源规则关系`, `主气十神用于看表层更容易被看见的行为入口。${top.label}相对明显，可先看${top.meaning}。`, "十神可对应学习、表达、资源、规则、关系与自我驱动力，但只能描述结构倾向。", "主气统计不能直接推出富贵贫贱，也不能脱离日主强弱、月令和组合关系单看。"), makeCoreReading("五行十神", "完整藏干十神", "可取象", countText(chart.tenGodStats.fullHidden), `${top.label}来源 / ${low.label}待观察`, `完整藏干十神用于看内在来源。${low.label}不算外显，${low.meaning}相关面向需要结合柱位和岁运观察。`, "藏干十神能补充主气没有展示出的信息来源，但现实表现要看是否被透干、月令或岁运引动。", "完整藏干数量也不等于最终格局，需要回到月令、透干、根气和组合结构。")]; }
-  function generateRootingReadings(chart) { return ["year", "month", "day", "hour"].map(key => { const d = chart.pillarDetails[key], hidden = d.hiddenStems.map(h => `${h.stem}${h.tenGod}${h.role}`).join("、") || "无"; return makeCoreReading("根气关系", `${d.label}${d.pillar.branch}藏干根气`, d.label === "月柱" ? "关键结构" : "基础依据", `${d.pillar.label}，地支${d.pillar.branch}藏干：${hidden}`, `${d.pillar.branch} / ${hidden}`, `藏干根气用来观察一个地支内部藏了哪些五行和十神来源。${d.label}${d.pillar.branch}的藏干为${hidden}。`, "现实表现上，它更像暗处资源、习惯底层或环境来源，不一定直接外显。", "根气轻重需要结合主气、中气、余气、月令和透干判断，不能只看是否出现。"); }); }
+  function generateRootingReadings(chart) { return ["year", "month", "day", "hour"].map(key => { const d = chart.pillarDetails[key], hidden = d.hiddenStems.map(h => `${h.stem}${h.tenGod}${h.role}`).join("、") || "无"; return makeCoreReading("根气关系", `${d.label}${d.pillar.branch}藏干根气`, d.label === "月柱" ? "关键结构" : "基础依据", `${d.pillar.label}，地支${d.pillar.branch}藏干：${hidden}`, `${d.pillar.branch} / ${hidden}`, `藏干根气用来观察一个地支内部藏了哪些五行和十神来源。${d.label}${d.pillar.branch}的藏干为${hidden}。`, "现实表现上，它更像暗处资源、习惯底层或环境来源，未必直接外显。", "根气轻重需要结合主气、中气、余气、月令和透干判断，不能只看是否出现。"); }); }
   function generateStemBranchRelationReading(chart) { if (!chart.relations.length) return [makeCoreReading("根气关系", "干支关系未命中", "基础依据", "当前启用规则未命中明显合冲害关系", "未命中 / 不强行取象", "这表示本轮基础规则下，原局没有额外列出合冲害候选点。", "页面会优先看日主、月令、五行和十神，不强行补充关系取象。", "未命中规则不代表没有细节，后续可结合更多刑害破会规则继续扩展。")]; return chart.relations.map(r => makeCoreReading("根气关系", `${r.type}${r.effect}`, "需验证", `${r.ganzhi.join(" / ")} 命中${r.members.join("、")}`, `${r.members.join("")} / ${r.effect} / 牵连`, relationReadingText(r), "合多看牵连与黏合，冲多看变化与拉扯，害多看隐性别扭或互动不顺，具体落点要回到柱位。", "所有合象都不能默认成化，是否成化需要看月令、透干、根气和整体力量。")); }
   function generateVoidReadings(chart) { return ["year", "month", "day", "hour"].map(key => { const d = chart.pillarDetails[key]; return makeCoreReading("辅助取象", `${d.label}旬空`, "不能单断", `${d.pillar.label}旬空：${d.voidBranches.join("、")}`, `${d.voidBranches.join("、")} / 空亡观察`, `旬空用于记录该柱所在旬的空亡地支，传统命理中可作为虚实、落空、等待验证的辅助观察点。`, "现实表现不宜直接套结论，可作为某类主题暂不稳定、需等触发的候选信号。", "空亡必须结合柱位、冲合填实和岁运触发，不能单独作为结论。"); }); }
+  function generateShenshaReadings(chart) { const items = chart.shensha?.items || []; if (!items.length) return [makeCoreReading("辅助取象", "神煞未命中", "辅助取象", "当前内置神煞规则未命中", "神煞 / 不强行取象", "当前内置神煞表没有额外列出候选信号，仍可回到五行、十神、柱位和岁运观察。", "现实分析不需要强行补神煞，先看核心结构更稳。", "未命中不代表没有细节，神煞本身也不能单独作为结论。")]; return items.map(item => makeCoreReading("辅助取象", item.name, "辅助取象", item.evidence.join("；"), `${item.category} / ${item.name}`, item.learningNote, "现实中只适合作为辅助入口，需观察它落在哪个柱位、对应哪类十神和岁运是否引动。", item.needVerify.join("；"))); }
   function generateNayinReadings(chart) { return ["year", "month", "day", "hour"].map(key => { const d = chart.pillarDetails[key]; return makeCoreReading("辅助取象", `${d.label}纳音`, "辅助取象", `${d.pillar.label}纳音：${d.nayin}`, `${d.nayin} / 辅助象`, `纳音提供另一套干支组合取象，可作为辅助意象保留。${d.label}${d.pillar.label}纳音为${d.nayin}。`, "现实表现更适合做意象补充，不应覆盖日主、月令、五行十神等主线。", "纳音不是本模块的主判断依据，不能单独作为结论。"); }); }
   function generateGrowthReadings(chart) { return ["year", "month", "day", "hour"].map(key => { const d = chart.pillarDetails[key]; return makeCoreReading("辅助取象", `${d.label}十二长生`, "辅助取象", `以${chart.pillars.day.stem}日主看${d.pillar.branch}为${d.twelveGrowth}`, `${d.pillar.branch} / ${d.twelveGrowth} / 气势阶段`, `十二长生用于观察日主五行在各地支中的气势阶段。${d.label}${d.pillar.branch}对应${d.twelveGrowth}。`, "现实表现可作为某类力量处在启动、旺盛、收束或储藏阶段的候选象。", "十二长生要配合月令、根气和透干使用，不单独断强弱。"); }); }
   function generateAuxiliaryReadings(chart) { return [chart.auxiliary.fetalOrigin, chart.auxiliary.lifePalace, chart.auxiliary.bodyPalace].map(p => makeCoreReading("辅助取象", `${p.role}${p.label}`, "辅助取象", `${p.role}${p.label}，${p.meta.method}`, `${p.role} / ${p.label}`, `${p.role}属于辅助宫位取象，用于保留传统排盘里的旁支观察入口。`, "现实表现上只适合辅助理解命盘侧面，不宜压过四柱主线。", "胎元、命宫、身宫需要保留复核口径，本版本只作为学习观察点。")); }
   function generateCautionReading(chart) { return makeCoreReading("辅助取象", "取象边界", "不能单断", chart.meta.needVerify.join("；"), "学习观察 / 不作最终断命", "本区只整理原局候选信号，把可观察的象列出来，方便后续验证。", "现实表现需要回到具体柱位、组合、岁运和实际反馈，不适合从单项数据直接下判断。", "基础取象不等于最终断命，后续仍需结合月令旺衰、日主强弱、十神组合、合冲刑害、大运流年综合分析。"); }
   function generateOverallReading(chart) { const day = `${chart.pillars.day.stem}${elementLabels[chart.dayMaster.element]}`, month = chart.pillars.month.branch, visible = chart.elementStats.visible.counts, topElements = topElementsText(visible), zero = zeroElementsText(visible), weakPhrase = zero === "没有明显空缺项" ? "明面五行没有明显空缺项" : `${zero}不在明面`, ten = topTenGodGroup(tenGodGroupCounts(chart.tenGodStats.mainQi, chart.tenGodStats.fullHidden)); return `此命局日主为${day}，生于${month}月，整体呈现“${topElements}较明显，${weakPhrase}”的结构。${ten.label}较容易成为观察入口，现实中可先看${ten.meaning}；但这只是基础取象，不直接断吉凶。`; }
-  function generateProfessionalEvidence(chart) { return [{ label: "日主", value: `${chart.pillars.day.stem}（${elementLabels[chart.dayMaster.element]}）`, note: "日干为命局观察中心" }, { label: "月令", value: `${chart.pillars.month.branch}（${elementLabels[chart.pillars.month.branchElement]}）`, note: "出生季节与命局大气候" }, { label: "明面五行", value: elementCountText(chart.elementStats.visible.counts), note: "天干与地支本气统计" }, { label: "藏干五行", value: elementCountText(chart.elementStats.hidden.counts), note: "四个地支完整藏干统计" }, { label: "主气十神", value: countText(chart.tenGodStats.mainQi), note: "天干与地支主气口径" }, { label: "完整藏干十神", value: countText(chart.tenGodStats.fullHidden), note: "藏干全部纳入统计" }, { label: "干支关系", value: chart.relations.length ? chart.relations.map(r => `${r.ganzhi.join("/")} ${r.type}${r.effect}`).join("；") : "未命中", note: "这里只列依据，不作为最终结论" }]; }
+  function generateProfessionalEvidence(chart) { return [{ label: "日主", value: `${chart.pillars.day.stem}（${elementLabels[chart.dayMaster.element]}）`, note: "日干为命局观察中心" }, { label: "月令", value: `${chart.pillars.month.branch}（${elementLabels[chart.pillars.month.branchElement]}）`, note: "出生季节与命局大气候" }, { label: "明面五行", value: elementCountText(chart.elementStats.visible.counts), note: "天干与地支本气统计" }, { label: "藏干五行", value: elementCountText(chart.elementStats.hidden.counts), note: "四个地支完整藏干统计" }, { label: "主气十神", value: countText(chart.tenGodStats.mainQi), note: "天干与地支主气口径" }, { label: "完整藏干十神", value: countText(chart.tenGodStats.fullHidden), note: "藏干全部纳入统计" }, { label: "神煞", value: chart.shensha?.items?.length ? chart.shensha.items.map(item => item.name).join("、") : "未命中", note: "神煞只作为辅助候选信号" }, { label: "干支关系", value: chart.relations.length ? chart.relations.map(r => `${r.ganzhi.join("/")} ${r.type}${r.effect}`).join("；") : "未命中", note: "这里只列依据，不作为最终结论" }]; }
   function stemNature(stem) { return { 甲: { image: "像大树，重在向上生发、立方向、成体系", life: "容易重视长期规划、原则和成长路径，也可能比较坚持自己的判断。" }, 乙: { image: "像花草藤蔓，重在柔韧、适应、细腻生长", life: "容易重视关系中的弹性、审美和环境适应，也可能绕着现实条件寻找出路。" }, 丙: { image: "像太阳，重在照见、热度、外放表达", life: "容易在表达、带动气氛、公开呈现上有需求，也要看水金是否形成约束。" }, 丁: { image: "像灯火，重在专注、感受、细致照明", life: "容易重视灵感、温度和精细表达，也需要看木火是否有持续支撑。" }, 戊: { image: "像山岳厚土，重在承载、边界、稳定", life: "容易重视责任、秩序和现实承托，也可能显得慢热或守成。" }, 己: { image: "像田园湿土，重在吸收、整理、培育", life: "容易重视细节、服务和资源整合，也要避免过度包容导致压力累积。" }, 庚: { image: "像矿石刀斧，重在规则、决断、执行", life: "容易重视效率、标准和行动边界，也需要火来锻炼、水来润泽。" }, 辛: { image: "像珠玉精金，重在审美、标准、精细筛选", life: "容易重视品质、边界和专业标准，也可能对细节较敏感。" }, 壬: { image: "像江河大水，重在流动、信息、变化", life: "容易重视见识、流动性和系统理解，也需要土来定向、火来显化。" }, 癸: { image: "像雨露细水，重在感受、渗透、学习吸收", life: "容易重视观察、理解和细腻感受，也需要木火把吸收转成表达。" } }[stem] || { image: "可作为日主基础取象", life: "需要结合完整命盘继续观察。" }; }
   function monthCommandInfo(branch) { return { 子: { season: "冬水当令，水气明显", image: "信息、感受、流动和寒湿环境", life: "现实表现上常先看学习吸收、感受力、流动性和安全感。" }, 丑: { season: "寒土收束，水土夹杂", image: "积累、储藏、现实压力和慢性事务", life: "现实表现上常先看责任、耐心、资源沉淀和内在拉扯。" }, 寅: { season: "初春木气发动", image: "启动、规划、生长和方向感", life: "现实表现上常先看开端意识、成长欲和行动准备。" }, 卯: { season: "仲春木气舒展", image: "生发、条达、关系伸展", life: "现实表现上常先看成长、人际协调、审美和自我伸展。" }, 辰: { season: "湿土承接，木土水混杂", image: "转化、承载、资源整理", life: "现实表现上常先看现实责任、资源整合和阶段转换。" }, 巳: { season: "初夏火气升起", image: "表达、显化、技术和热度", life: "现实表现上常先看表达欲、行动热度、专业技能和外部呈现。" }, 午: { season: "盛夏火气明显", image: "曝光、热情、推动力", life: "现实表现上常先看表现欲、主动性、感染力和情绪热度。" }, 未: { season: "夏末燥土承火", image: "收纳、责任、现实承载", life: "现实表现上常先看责任感、稳定需求和现实任务。" }, 申: { season: "初秋金气起，水气也藏", image: "规则、技术、执行、信息流动", life: "现实表现上常先看标准、效率、专业训练和现实考核。" }, 酉: { season: "秋天金气较旺", image: "规则、标准、压力、技术、考核，也像修剪之力", life: "现实表现上常先看规则感、专业标准、证书技术、被环境打磨的体验。" }, 戌: { season: "秋末燥土藏火金", image: "收束、秩序、责任和旧事沉淀", life: "现实表现上常先看责任边界、规则收束和阶段复盘。" }, 亥: { season: "初冬水气起，木气暗藏", image: "学习、流动、远方信息和内在生机", life: "现实表现上常先看吸收力、感受力、流动变化和潜在成长。" } }[branch] || { season: "季节力量需要复核", image: "环境力量", life: "现实表现需要结合完整命盘观察。" }; }
   function elementCountText(counts) { return Object.entries(elementLabels).map(([k, label]) => `${label}${counts[k] || 0}`).join("、"); }
@@ -716,7 +1197,7 @@
   function relationReadingText(relation) { const pair = relation.members.join(""); if (relation.type.includes("合")) return `命局见${pair}${relation.type}，有合象、牵连、合绊之象，可能牵动${relation.effect}；是否成化需结合月令、透干、根气和整体力量判断`; if (relation.type.includes("冲")) return `命局见${pair}${relation.type}，有变化、拉扯、位置互动之象，轻重需看柱位和岁运触发`; if (relation.type.includes("害")) return `命局见${pair}${relation.type}，有牵连、合绊、互动不顺之象，具体表现需回到柱位`; return `命局见${pair}${relation.type}，可作为结构观察点`; }
   function buildStoryTags(chart, year, months) { return [{ period: "natal", topic: "chart", tag: `${chart.dayMaster.stem}日主结构观察`, evidence: chart.meta.evidence, confidence: "medium", needVerify: ["剧情标签只负责叙事组织，不能单独作为结论。"] }, { period: "year", topic: "year-theme", tag: `${year.pillar.label}年度主线`, evidence: year.evidence, confidence: "medium", needVerify: ["剧情标签只负责叙事组织，不能单独作为结论。"] }, ...months.map(m => ({ period: "month", month: m.month, topic: "month-role", tag: `${m.month}月${m.role}`, evidence: m.evidence, confidence: "medium", needVerify: ["剧情标签只负责叙事组织，不能单独作为结论。"] }))]; }
 
-  function buildPillarDetails(pillars) { return Object.fromEntries(Object.entries(pillars).map(([key, p]) => [key, { key, label: p.role, pillar: p, stemTenGod: key === "day" ? "日主" : getTenGod(pillars.day.stem, p.stem), branchMainTenGod: getTenGod(pillars.day.stem, branchMainStem(p.branch)), hiddenStems: (hiddenStems[p.branch] || []).map((s, i) => ({ stem: s, tenGod: getTenGod(pillars.day.stem, s), element: stemElements[s], elementLabel: elementLabels[stemElements[s]], role: ["主气", "中气", "余气"][i] || "余气" })), nayin: getNayin(p), twelveGrowth: twelveStageMatrix[pillars.day.stem]?.[p.branch] || "待查", voidBranches: getVoidBranches(p) }])); }
+  function buildPillarDetails(pillars, shenshaByPillar = {}) { return Object.fromEntries(Object.entries(pillars).map(([key, p]) => [key, { key, label: p.role, pillar: p, stemTenGod: key === "day" ? "日主" : getTenGod(pillars.day.stem, p.stem), branchMainTenGod: getTenGod(pillars.day.stem, branchMainStem(p.branch)), hiddenStems: (hiddenStems[p.branch] || []).map((s, i) => ({ stem: s, tenGod: getTenGod(pillars.day.stem, s), element: stemElements[s], elementLabel: elementLabels[stemElements[s]], role: ["主气", "中气", "余气"][i] || "余气" })), nayin: getNayin(p), twelveGrowth: twelveStageMatrix[pillars.day.stem]?.[p.branch] || "待查", voidBranches: getVoidBranches(p), shensha: shenshaByPillar[key] || [] }])); }
   function buildElementStats(pillars) { const visible = { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 }, hidden = { ...visible }; Object.values(pillars).forEach(p => { visible[p.stemElement]++; visible[p.branchElement]++; (hiddenStems[p.branch] || []).forEach(s => hidden[stemElements[s]]++); }); return { visible: { label: "明面五行", note: "按四柱天干地支统计", counts: visible }, hidden: { label: "藏干五行", note: "按地支藏干统计", counts: hidden } }; }
   function buildTenGodStats(details) { const fullHidden = {}, mainQi = {}; Object.values(details).forEach(d => { inc(mainQi, d.stemTenGod === "日主" ? "比肩" : d.stemTenGod); inc(mainQi, d.branchMainTenGod); d.hiddenStems.forEach(h => inc(fullHidden, h.tenGod)); }); return { fullHidden, mainQi, notes: { fullHidden: "按完整藏干统计", mainQi: "按天干与地支主气统计" } }; }
   function buildAuxiliary(pillars) { return { fetalOrigin: createPillarByIndex(getGanzhiIndex(pillars.month.stem, pillars.month.branch) + 1, "胎元", { method: "月柱后一干三支近似法" }), lifePalace: createPalacePillar(pillars.month, pillars.hour, "命宫", false), bodyPalace: createPalacePillar(pillars.month, pillars.hour, "身宫", true) }; }
@@ -752,6 +1233,8 @@
   function formatElementAttributes(items) { return items.map(item => `${item.label}的${item.attributes}`).join("、"); }
   function renderTenGodStats(chart) { return `<div class="compact-table"><div class="compact-row hidden-detail compact-head"><span>柱位</span><span>地支</span><span>完整藏干</span></div>${["year", "month", "day", "hour"].map(k => `<div class="compact-row hidden-detail"><span>${chart.pillarDetails[k].label}</span><strong>${chart.pillarDetails[k].pillar.branch}</strong><small>${renderHidden(chart.pillarDetails[k].hiddenStems)}</small></div>`).join("")}</div><div class="stats-two-col below">${renderStatBox("完整藏干十神", chart.tenGodStats.notes.fullHidden, chart.tenGodStats.fullHidden)}${renderStatBox("主气十神", chart.tenGodStats.notes.mainQi, chart.tenGodStats.mainQi)}</div>`; }
   function renderStatBox(title, note, counts) { const entries = Object.entries(counts || {}); return `<article class="stats-box"><span>${title}</span><strong>${note}</strong><div class="stat-chip-row">${entries.length ? entries.map(([name, count]) => `<span><b>${name}</b>${count}</span>`).join("") : "<span><b>暂无</b>0</span>"}</div></article>`; }
+  function renderShenshaStats(chart) { const keys = ["year", "month", "day", "hour"]; const items = chart.shensha?.items || []; if (!items.length) return `<p class="fine-print">当前内置常用实务神煞规则未命中，仍可从十神、五行和岁运继续观察。</p>`; return `<div class="shensha-group-list"><p class="fine-print">${chart.shensha?.meta?.needVerify?.join("；") || "神煞只作为辅助观察点。"}</p>${keys.map(key => { const detail = chart.pillarDetails[key], names = new Set((detail.shensha || []).map(item => item.name)); const list = items.filter(item => item.matchedPillars.some(hit => hit.pillarKey === key) || names.has(item.name)); return `<section><h4>${detail.label} ${detail.pillar.label}</h4>${list.length ? `<div class="shensha-card-grid">${list.map(item => `<article class="shensha-card"><span>${item.name}</span><dl><dt>取象</dt><dd>${item.sourceBasis}；命中位置：${item.matchedPillars.filter(hit => hit.pillarKey === key).map(hit => `${hit.pillarLabel}${hit.target}`).join("、") || detail.label}</dd><dt>解释</dt><dd>${item.typicalMeaning || item.learningNote}</dd></dl></article>`).join("")}</div>` : `<p class="fine-print">此柱未列出神煞。</p>`}</section>`; }).join("")}</div>`; }
+  function renderNayinGrowth(chart) { return `<div class="compact-table"><div class="compact-row expert compact-head"><span>柱位</span><span>干支</span><span>纳音</span><span>十二长生</span><span>神煞简表</span></div>${["year", "month", "day", "hour"].map(k => { const d = chart.pillarDetails[k]; return `<div class="compact-row expert"><span>${d.label}</span><strong>${d.pillar.label}</strong><small>${d.nayin}</small><small>${d.twelveGrowth}</small><small>${(d.shensha || []).map(item => item.name).join("、") || "未命中"}</small></div>`; }).join("")}</div>`; }
   function renderVoidStats(chart) { return `<div class="core-tab-grid">${["year", "month", "day", "hour"].map(k => `<article class="core-fact"><span>${chart.pillarDetails[k].label}</span><strong>${chart.pillarDetails[k].voidBranches.join("、")}</strong><small>${chart.pillarDetails[k].pillar.label} 旬空观察</small></article>`).join("")}</div>`; }
   function renderRelations(chart) { return chart.relations.length ? `<div class="relation-list">${chart.relations.map(r => `<article><span>${r.type}</span><strong>${r.members.join("、")} ${r.effect}</strong><small>${r.ganzhi.join(" / ")}</small></article>`).join("")}</div>` : `<p class="fine-print">当前命盘未命中已启用的干支关系规则。</p>`; }
   function renderExpert(chart) { return `<div class="compact-table"><div class="compact-row expert compact-head"><span>柱位</span><span>干支</span><span>纳音</span><span>长生</span><span>旬空</span></div>${["year", "month", "day", "hour"].map(k => `<div class="compact-row expert"><span>${chart.pillarDetails[k].label}</span><strong>${chart.pillarDetails[k].pillar.label}</strong><small>${chart.pillarDetails[k].nayin}</small><small>${chart.pillarDetails[k].twelveGrowth}</small><small>${chart.pillarDetails[k].voidBranches.join("、")}</small></div>`).join("")}</div><div class="candidate-grid below"><article class="core-fact"><span>胎元</span><strong>${chart.auxiliary.fetalOrigin.label}</strong><small>${chart.auxiliary.fetalOrigin.meta.method}</small></article><article class="core-fact"><span>命宫</span><strong>${chart.auxiliary.lifePalace.label}</strong><small>${chart.auxiliary.lifePalace.meta.method}</small></article><article class="core-fact"><span>身宫</span><strong>${chart.auxiliary.bodyPalace.label}</strong><small>${chart.auxiliary.bodyPalace.meta.method}</small></article></div>`; }
@@ -759,7 +1242,7 @@
   function renderSymbol(value, element, yy) { const label = [polarityLabels[yy], elementLabels[element]].filter(Boolean).join(""); return `<span class="bazi-symbol element-${element || "unknown"} polarity-${yy || "unknown"}" data-element-label="${label}"><strong>${value}</strong><small>${label || elementLabels[element]}</small></span>`; }
   function renderHidden(items) { const elementByLabel = { 木: "wood", 火: "fire", 土: "earth", 金: "metal", 水: "water" }; return `<span class="hidden-chip-list">${items.map(i => `<span class="hidden-chip element-${elementByLabel[i.elementLabel] || "earth"}"><b>${i.stem}</b><em>${i.tenGod}</em><small>${i.role}</small><i>${i.elementLabel}</i></span>`).join("")}</span>`; }
   function renderPillarCard(p, title) { return `<article class="pillar-card"><span>${title}</span><strong>${p.label}</strong><small>${p.stemElement} / ${p.branchElement}</small></article>`; }
-  function bindTabs() { document.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("[data-tab]").forEach(x => x.classList.toggle("is-active", x === b)); document.querySelectorAll("[data-panel]").forEach(p => { const active = p.dataset.panel === b.dataset.tab; p.classList.toggle("is-active", active); p.hidden = !active; }); })); }
+  function bindTabs() { document.querySelectorAll(".core-tabs").forEach(section => { const buttons = [...section.querySelectorAll("[data-tab]")], panels = [...section.querySelectorAll("[data-panel]")]; buttons.forEach(b => b.addEventListener("click", () => { buttons.forEach(x => x.classList.toggle("is-active", x === b)); panels.forEach(p => { const active = p.dataset.panel === b.dataset.tab; p.classList.toggle("is-active", active); p.hidden = !active; }); })); }); }
 
   function getTenGod(dayStem, targetStem) { const de = stemElements[dayStem], te = stemElements[targetStem], same = stemYinYang[dayStem] === stemYinYang[targetStem]; if (te === de) return same ? "比肩" : "劫财"; if (generates(de) === te) return same ? "食神" : "伤官"; if (controls(de) === te) return same ? "偏财" : "正财"; if (controls(te) === de) return same ? "七杀" : "正官"; return same ? "偏印" : "正印"; }
   function buildTenGodSummary(dayStem, pillars) { return Object.fromEntries(Object.entries(pillars).map(([k, p]) => [k, { stem: k === "day" ? "日主" : getTenGod(dayStem, p.stem), branch: getTenGod(dayStem, branchMainStem(p.branch)) }])); }
@@ -804,6 +1287,7 @@
   function rangeOptions(count, selected, suffix, fmt) { return Array.from({ length: count }, (_, i) => { const v = i + 1; return `<option value="${v}" ${v === Number(selected) ? "selected" : ""}>${fmt ? fmt(v) : `${v}${suffix}`}</option>`; }).join(""); }
   function renderLocationPreview(city) { const c = Math.round((city.longitude - (city.standardMeridian || 120)) * 4); return `${city.name}：经度${city.longitude.toFixed(4)}，纬度${city.latitude.toFixed(4)}；${state.trueSolarTime ? `经度校正约${c}分钟，已自动参与排盘。` : "勾选真太阳时后会自动按此地校正。"}`; }
   function formatProvinceName(province) { return String(province || "其他").replace(/特别行政区$/u, "").replace(/省$/u, "").replace(/市$/u, ""); }
+  function clampYear(value) { return Math.max(1900, Math.min(2100, Number(value) || now.getFullYear())); }
   function confidenceLabel(value) { return { low: "需验证", medium: "可取象", high: "关键结构" }[value] || "不能单断"; }
   function providerLabel(value) { return { "local-file": "本地演示", mock: "本地模拟" }[value] || "本地叙事"; }
   function escapeHtml(v) { return String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }

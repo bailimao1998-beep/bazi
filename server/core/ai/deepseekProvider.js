@@ -108,10 +108,13 @@ function normalizeLikelyEvents(value, fallback) {
     const fallbackItem = fallback[index] ?? fallback[0];
     return {
       event: normalizeText(item?.event, fallbackItem.event),
+      conclusion: normalizeText(item?.conclusion, fallbackItem.conclusion),
       probabilityLevel: normalizeEnum(item?.probabilityLevel, ["high", "medium", "low"], fallbackItem.probabilityLevel),
       timeWindow: normalizeText(item?.timeWindow, fallbackItem.timeWindow),
+      timing: normalizeText(item?.timing, fallbackItem.timing),
       evidence: normalizeList(item?.evidence, fallbackItem.evidence),
       reality: normalizeText(item?.reality, fallbackItem.reality),
+      advice: normalizeText(item?.advice, fallbackItem.advice),
       verifyBy: normalizeList(item?.verifyBy, fallbackItem.verifyBy),
     };
   });

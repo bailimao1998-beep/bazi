@@ -2,11 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { calculateBazi } from "./core/bazi/calculateBazi.js";
-import { getTenGod } from "./core/bazi/tenGods.js";
+import { branchMainStem, getTenGod } from "./core/bazi/tenGods.js";
 import { calculateYearInfluence } from "./core/liunian/calculateYearInfluence.js";
 import { calculateMonthInfluence } from "./core/liunian/calculateMonthInfluence.js";
 import { ruleEngine } from "./core/rules/ruleEngine.js";
 import { analyzeFortuneYear } from "./core/fortune-engine/index.js";
+import { buildAnnualEventReport } from "./core/fortune/buildAnnualEventReport.js";
 import { buildEventCandidateScenarios, collectEventCandidatesFromSignals } from "./core/story/eventCandidates.js";
 import { generateStoryTags } from "./core/story/generateStoryTags.js";
 import { buildNarrativePrompt, flowReportSchema } from "./core/story/buildNarrativePrompt.js";
@@ -51,6 +52,21 @@ const requiredPaths = [
   "server/core/fortune-engine/month-trigger.js",
   "server/core/fortune-engine/event-score.js",
   "server/core/fortune-engine/narrative-builder.js",
+  "server/core/fortune/relationUtils.js",
+  "server/core/fortune/topicMapper.js",
+  "server/core/fortune/eventTaxonomy.js",
+  "server/core/fortune/buildTriggerChains.js",
+  "server/core/fortune/scoreEventCandidates.js",
+  "server/core/fortune/analyzeMonthlyWindows.js",
+  "server/core/fortune/buildAnnualEventReport.js",
+  "server/core/fortune/detectors/relationshipDetector.js",
+  "server/core/fortune/detectors/wealthDetector.js",
+  "server/core/fortune/detectors/careerDetector.js",
+  "server/core/fortune/detectors/childrenOutputDetector.js",
+  "server/core/fortune/detectors/healthDetector.js",
+  "server/core/fortune/detectors/movementDetector.js",
+  "server/core/fortune/detectors/socialDetector.js",
+  "server/core/fortune/detectors/familyHomeDetector.js",
   "server/core/story/eventCandidates.js",
   "server/core/story/generateStoryTags.js",
   "server/core/story/buildNarrativePrompt.js",
@@ -92,6 +108,37 @@ const requiredPaths = [
   "config/ai-config.json",
   "README.md",
 ];
+
+function createManualChart({ gender = "unknown", pillars } = {}) {
+  const roleLabels = { year: "年柱", month: "月柱", day: "日柱", hour: "时柱" };
+  const chartPillars = Object.fromEntries(Object.entries(pillars).map(([key, label]) => [
+    key,
+    {
+      role: roleLabels[key],
+      label,
+      stem: label.slice(0, 1),
+      branch: label.slice(1, 2),
+    },
+  ]));
+  const dayStem = chartPillars.day.stem;
+  const tenGodStats = {};
+  for (const [key, pillar] of Object.entries(chartPillars)) {
+    const stemTenGod = key === "day" ? "比肩" : getTenGod(dayStem, pillar.stem);
+    const branchTenGod = getTenGod(dayStem, branchMainStem(pillar.branch));
+    tenGodStats[stemTenGod] = (tenGodStats[stemTenGod] || 0) + 1;
+    tenGodStats[branchTenGod] = (tenGodStats[branchTenGod] || 0) + 1;
+  }
+  return {
+    input: { gender },
+    pillars: chartPillars,
+    dayMaster: { stem: dayStem, label: `${dayStem}日主` },
+    tenGodStats: { mainQi: tenGodStats, fullHidden: tenGodStats },
+    elementStats: { visible: { counts: {} }, hidden: { counts: {} } },
+    dominantElements: [],
+    relations: [],
+    luckCycles: { pillars: [] },
+  };
+}
 
 test("project exposes the requested fortune-ai architecture", () => {
   for (const filePath of requiredPaths) {
@@ -176,11 +223,14 @@ test("flow AI modes build structured prompts and mock reports without model-side
     assert.doesNotMatch(reportText, /年度触发主题|现实事务出现|事情落地、反馈出现/);
     for (const event of result.narrative.report.likelyEvents) {
       assert.equal(typeof event.event, "string");
+      assert.equal(typeof event.conclusion, "string");
       assert.match(event.probabilityLevel, /^(high|medium|low)$/);
       assert.equal(typeof event.timeWindow, "string");
+      assert.equal(typeof event.timing, "string");
       assert.ok(Array.isArray(event.evidence));
       assert.ok(event.evidence.length > 0);
       assert.equal(typeof event.reality, "string");
+      assert.equal(typeof event.advice, "string");
       assert.ok(Array.isArray(event.verifyBy));
       assert.ok(event.verifyBy.length > 0);
       assert.doesNotMatch(event.event, /事业为|财运为|感情为|学业为|健康为|迁移为|人际为/);
@@ -240,9 +290,11 @@ test("flow AI modes build structured prompts and mock reports without model-side
   assert.match(prompt.system, /不能重新排盘/);
   assert.match(prompt.system, /不能补充不存在的干支关系/);
   assert.match(prompt.system, /白话解读层/);
-  assert.match(prompt.system, /只能根据 fortuneAnalysis、triggerChains、eventScores、monthlyHighlights/);
-  assert.match(prompt.system, /本地只提供证据包/);
-  assert.match(prompt.system, /AI 负责生成候选事象/);
+  assert.match(prompt.system, /只能根据 fortuneAnalysis、mainEvents、triggerChains、monthlyHighlights/);
+  assert.match(prompt.system, /本地事件引擎已经提供 eventCandidates 和 mainEvents/);
+  assert.match(prompt.system, /AI 不再自己判断事件/);
+  assert.match(prompt.system, /score 最高的 1-3 个 mainEvents/);
+  assert.match(prompt.system, /没有 evidenceChain 的事件不能写成强判断/);
   assert.match(prompt.system, /每条 likelyEvents/);
   assert.match(prompt.system, /少废话/);
   assert.match(prompt.system, /避免重复/);
@@ -260,6 +312,8 @@ test("flow AI modes build structured prompts and mock reports without model-side
   assert.match(JSON.stringify(flowReportSchema), /coreConclusion/);
   assert.match(prompt.user, /"mode": "year"/);
   assert.match(prompt.user, /fortuneAnalysis/);
+  assert.match(prompt.user, /mainEvents/);
+  assert.match(prompt.user, /eventCandidates/);
   assert.match(prompt.user, /evidencePackage/);
   assert.match(prompt.user, /modeInstruction/);
   assert.match(prompt.user, /triggerChains/);
@@ -274,6 +328,9 @@ test("flow AI schema exposes conclusion-focused report fields", () => {
   assert.match(schemaText, /luckBackground/);
   assert.match(schemaText, /yearTrigger/);
   assert.match(schemaText, /likelyEvents/);
+  assert.match(schemaText, /conclusion/);
+  assert.match(schemaText, /timing/);
+  assert.match(schemaText, /advice/);
   assert.match(schemaText, /eventFocus/);
   assert.match(schemaText, /monthlyHighlights/);
   assert.match(schemaText, /overallAdvice/);
@@ -377,6 +434,92 @@ test("fortune-engine links natal, decade, year, and month into structured trigge
   assert.ok(Array.isArray(response.fortuneAnalysis.monthlyHighlights));
   assert.ok(Array.isArray(response.fortuneAnalysis.advice));
   assert.deepEqual(Object.keys(response.fortuneAnalysis.eventScores), ["career", "wealth", "relationship", "study", "health", "movement", "social"]);
+});
+
+test("annual fortune event engine returns ranked event candidates from trigger chains", async () => {
+  const chart = createManualChart({
+    gender: "female",
+    pillars: {
+      year: "戊寅",
+      month: "辛酉",
+      day: "辛酉",
+      hour: "戊子",
+    },
+  });
+  const selectedLuck = { label: "丙申", stem: "丙", branch: "申", startYear: 2010, endYear: 2019, startAge: 20, endAge: 29 };
+  const yearInfluence = calculateYearInfluence({ chart, targetYear: 2017 });
+  const monthInfluences = Array.from({ length: 12 }, (_, index) =>
+    calculateMonthInfluence({ chart, targetYear: 2017, month: index + 1 }),
+  );
+
+  const report = buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences });
+
+  assert.equal(report.year, 2017);
+  assert.ok(Array.isArray(report.triggerChains));
+  assert.ok(Array.isArray(report.eventCandidates));
+  assert.ok(Array.isArray(report.mainEvents));
+  assert.ok(Array.isArray(report.monthlyHighlights));
+  assert.ok(report.triggerChains.length > 0);
+  assert.ok(report.eventCandidates.length > 0);
+  assert.ok(report.mainEvents.length <= 3);
+  assert.ok(report.mainEvents.every((event) => ["high", "medium"].includes(event.level)));
+  assert.ok(report.mainEvents.every((event) => Array.isArray(event.evidenceChain) && event.evidenceChain.length > 0));
+  assert.ok(report.triggerChains.every((chain) => chain.id && chain.level && chain.type && chain.source && chain.target));
+  assert.ok(report.triggerChains.every((chain) => Array.isArray(chain.topicHints) && chain.evidence && chain.realityMapping));
+  assert.ok(report.monthlyHighlights.length > 0);
+  assert.ok(report.monthlyHighlights.length < 12);
+
+  const relationship = report.eventCandidates.find((event) => event.eventType === "relationship_marriage");
+  assert.ok(relationship, "2017 丁酉应生成关系候选事件");
+  assert.match(relationship.level, /^(high|medium)$/);
+  assert.match(JSON.stringify(relationship.evidenceChain), /日支|日柱|酉|伏吟|同支|官|杀/);
+});
+
+test("annual fortune event engine recognizes 2026 career or movement triggers for the sample chart", async () => {
+  const chart = createManualChart({
+    gender: "female",
+    pillars: {
+      year: "戊寅",
+      month: "辛酉",
+      day: "辛酉",
+      hour: "戊子",
+    },
+  });
+  const selectedLuck = { label: "丙午", stem: "丙", branch: "午", startYear: 2020, endYear: 2029, startAge: 30, endAge: 39 };
+  const yearInfluence = calculateYearInfluence({ chart, targetYear: 2026 });
+  const monthInfluences = Array.from({ length: 12 }, (_, index) =>
+    calculateMonthInfluence({ chart, targetYear: 2026, month: index + 1 }),
+  );
+
+  const report = buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences });
+  const mediumOrHigh = report.eventCandidates.filter((event) => ["high", "medium"].includes(event.level));
+  const eventTypes = mediumOrHigh.map((event) => event.eventType);
+
+  assert.ok(
+    ["relationship_marriage", "career_status", "movement_change"].some((type) => eventTypes.includes(type)),
+    "2026 丙午应在关系、事业或迁动中至少识别一个 medium/high 事件",
+  );
+  assert.ok(report.mainEvents.length <= 3);
+  assert.ok(report.mainEvents.every((event) => event.evidenceChain.length > 0));
+  assert.match(JSON.stringify(report.triggerChains), /丙午|正官|官|午|子|冲|大运/);
+
+  const response = await buildNarrative({
+    birthDate: "1992-08-18",
+    birthTime: "14:30",
+    gender: "female",
+    targetYear: 2026,
+  });
+  assert.ok(Array.isArray(response.eventCandidates));
+  assert.ok(Array.isArray(response.mainEvents));
+  assert.ok(Array.isArray(response.triggerChains));
+  assert.ok(Array.isArray(response.monthlyHighlights));
+  assert.equal(response.fortuneAnalysis, response.annualEventReport);
+  assert.equal(response.mainEvents, response.annualEventReport.mainEvents);
+  assert.ok(response.mainEvents.length <= 3);
+  assert.match(response.prompt.user, /fortuneAnalysis/);
+  assert.match(response.prompt.user, /mainEvents/);
+  assert.match(response.prompt.user, /eventCandidates/);
+  assert.doesNotMatch(response.prompt.user, /apiKey|DEEPSEEK_API_KEY|sk-/i);
 });
 
 test("fortune-engine rules keep required rule contract", () => {
@@ -867,7 +1010,7 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.doesNotMatch(bundle, /function renderFortuneLikelyEvents/);
   assert.doesNotMatch(bundle, /likely-events-block/);
   assert.doesNotMatch(bundle, /renderFortuneLikelyEvents\(readableReport\)/);
-  assert.match(index, /app\.bundle\.js\?v=20260609f/);
+  assert.match(index, /app\.bundle\.js\?v=20260609g/);
   assert.match(bundle, /function selectLocalReportContext/);
   assert.match(bundle, /function readableReportSectionTitles/);
   assert.match(bundle, /flowModeInstruction\(mode\)/);

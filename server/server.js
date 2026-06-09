@@ -7,7 +7,7 @@ import { calculateYearInfluence } from "./core/liunian/calculateYearInfluence.js
 import { calculateMonthInfluence } from "./core/liunian/calculateMonthInfluence.js";
 import { createMonthPillar, createPillarFromYear } from "./core/bazi/pillarMath.js";
 import { ruleEngine } from "./core/rules/ruleEngine.js";
-import { analyzeFortuneYear } from "./core/fortune-engine/index.js";
+import { buildAnnualEventReport } from "./core/fortune/buildAnnualEventReport.js";
 import { generateStoryTags } from "./core/story/generateStoryTags.js";
 import { buildFlowNarrativePrompt, buildNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
 import { createAiProvider } from "./core/ai/aiProvider.js";
@@ -52,7 +52,8 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
   );
   const selectedMonthInfluence = monthInfluences[Math.max(0, Math.min(11, selectedMonth - 1))];
   const selectedLuck = selectLuckPillar(chart.luckCycles, input.selectedLuckIndex, targetYear);
-  const fortuneAnalysis = analyzeFortuneYear({ chart, selectedLuck, yearInfluence, monthInfluences });
+  const annualEventReport = buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences });
+  const fortuneAnalysis = annualEventReport;
   const transitYears = Array.from({ length: 11 }, (_, index) => {
     const year = targetYear - 5 + index;
     return { year, pillar: createPillarFromYear(year, "流年") };
@@ -85,7 +86,12 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
     monthInfluences,
     selectedMonthInfluence,
     selectedLuck,
+    annualEventReport,
     fortuneAnalysis,
+    eventCandidates: annualEventReport.eventCandidates,
+    mainEvents: annualEventReport.mainEvents,
+    triggerChains: annualEventReport.triggerChains,
+    monthlyHighlights: annualEventReport.monthlyHighlights,
     transitYears,
     transitMonths,
     matchedRules,

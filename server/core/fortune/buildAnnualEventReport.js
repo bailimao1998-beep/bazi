@@ -1,0 +1,89 @@
+import { analyzeMonthlyWindows } from "./analyzeMonthlyWindows.js";
+import { buildTriggerChains } from "./buildTriggerChains.js";
+import { eventTaxonomy, unique } from "./eventTaxonomy.js";
+import { scoreEventCandidates } from "./scoreEventCandidates.js";
+
+export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences = [] } = {}) {
+  const triggerChains = buildTriggerChains({ chart, selectedLuck, yearInfluence, monthInfluences });
+  const scored = scoreEventCandidates({ triggerChains, chart, selectedLuck, yearInfluence, monthInfluences });
+  const monthlyHighlights = analyzeMonthlyWindows({
+    triggerChains,
+    monthInfluences,
+    mainEvents: scored.mainEvents,
+    eventCandidates: scored.eventCandidates,
+  });
+  const mainEvents = scored.mainEvents.map((event) => ({
+    ...event,
+    timing: event.timing?.length ? event.timing : timingFromHighlights(monthlyHighlights, event.eventType),
+  }));
+  const annualTheme = buildAnnualTheme({ yearInfluence, mainEvents });
+  const luckBackground = buildLuckBackground({ selectedLuck, triggerChains });
+
+  return {
+    year: yearInfluence?.year,
+    selectedLuck,
+    annualTheme,
+    overallSummary: buildOverallSummary({ yearInfluence, selectedLuck, mainEvents, triggerChains, monthlyHighlights }),
+    luckBackground,
+    triggerChains,
+    eventCandidates: scored.eventCandidates,
+    mainEvents,
+    monthlyHighlights,
+    lowEvidenceTopics: scored.lowEvidenceTopics,
+    eventScores: scored.eventScores,
+    advice: buildAdvice(mainEvents),
+    debug: {
+      engine: "annual-fortune-event-engine",
+      triggerChainCount: triggerChains.length,
+      eventCandidateCount: scored.eventCandidates.length,
+      mainEventCount: mainEvents.length,
+      monthlyHighlightCount: monthlyHighlights.length,
+    },
+  };
+}
+
+function buildAnnualTheme({ yearInfluence, mainEvents }) {
+  const labels = mainEvents.map((event) => eventTaxonomy[event.eventType]?.label).filter(Boolean);
+  if (labels.length) return `${yearInfluence?.year ?? ""}年重点候选：${labels.join("、")}`;
+  return `${yearInfluence?.year ?? ""}年暂未形成高强度事件候选，先看有证据的低强度主题。`;
+}
+
+function buildLuckBackground({ selectedLuck, triggerChains }) {
+  const luckChains = triggerChains.filter((chain) => chain.level === "luck-natal" || chain.level === "luck-year");
+  const evidence = unique(luckChains.map((chain) => chain.evidence)).slice(0, 5);
+  return {
+    conclusion: selectedLuck?.label
+      ? `大运${selectedLuck.label}作为阶段背景，先看它与原局、流年的承接关系。`
+      : "未选中大运时，只保留年度触发链观察。",
+    evidence: evidence.length ? evidence : ["当前报告优先使用年度和月度触发链。"],
+    reality: "大运只作为十年背景，不直接替代年度事件判断；事件仍以当年触发链和流月窗口为准。",
+  };
+}
+
+function buildOverallSummary({ yearInfluence, selectedLuck, mainEvents, triggerChains, monthlyHighlights }) {
+  const eventText = mainEvents.length
+    ? mainEvents.map((event) => `${eventTaxonomy[event.eventType]?.label}为${event.level}`).join("；")
+    : "暂未出现高强度主事件";
+  const evidence = triggerChains.slice(0, 3).map((chain) => chain.evidence).join("；");
+  const months = monthlyHighlights.map((month) => `${month.month}月`).join("、") || "后续流月";
+  return [
+    `结论：${yearInfluence?.year ?? ""}年先看${eventText}。`,
+    `命理依据：原局接大运${selectedLuck?.label ?? "未选"}，再由流年${yearInfluence?.pillar?.label ?? ""}触发；${evidence}`,
+    `现实表现：重点观察${mainEvents.flatMap((event) => event.possibleManifestations).slice(0, 4).join("、") || "职责、资源、关系、迁动和作息复核"}。`,
+    `时间点：优先看${months}是否出现具体反馈。`,
+    "边界：本地事件引擎只输出候选事件和证据链，需要结合现实反馈复核，不能单独作为结论。",
+  ].join("\n");
+}
+
+function buildAdvice(mainEvents = []) {
+  const advice = mainEvents.map((event) => eventTaxonomy[event.eventType]?.advice).filter(Boolean);
+  return unique(advice).slice(0, 4);
+}
+
+function timingFromHighlights(monthlyHighlights = [], eventType) {
+  const rows = monthlyHighlights
+    .filter((month) => month.eventTypes?.includes(eventType))
+    .map((month) => `${month.month}月${month.pillar}：${month.level}触发，${month.reasons?.[0] || "看现实反馈"}`);
+  return rows.length ? rows : ["全年观察，等流月继续触发时再确认应期。"];
+}
+

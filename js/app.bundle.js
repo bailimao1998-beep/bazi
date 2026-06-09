@@ -534,10 +534,12 @@
       system: [
         "你是命理网站的白话解读层，不是排盘层。",
         "不能重新排盘，不能新增不存在的干支关系，不能补充不存在的干支关系，不能自行改写年份月份。",
-        "本地只提供证据包，不负责直接断事；AI 负责生成候选事象，但每条都必须回扣本地证据。",
-        "你只能根据 fortuneAnalysis、triggerChains、eventScores、monthlyHighlights 和 evidencePackage 写解读。",
-        "你的任务是把本地取象证据组合成一个人现实中更像会遇到的具体候选事件。",
-        "每条 likelyEvents 都必须包含具体会发生什么、依据、现实表现、时间窗口、验证点。",
+        "本地事件引擎已经提供 eventCandidates 和 mainEvents；AI 不再自己判断事件，也不能新增 mainEvents 之外的强判断。",
+        "你只能根据 fortuneAnalysis、mainEvents、triggerChains、monthlyHighlights 和 evidencePackage 写解读。",
+        "你的任务是把本地事件引擎识别出的 1-3 个重点候选事件翻译成人能听懂的现实语言。",
+        "只重点解释 score 最高的 1-3 个 mainEvents；禁止平均解释所有领域。",
+        "每条 likelyEvents 都必须对应一个 mainEvent，并包含 conclusion、evidence、reality、timing、advice。",
+        "没有 evidenceChain 的事件不能写成强判断，只能放在 boundary 或不写。",
         "输出顺序：先给结论，也就是先讲当前模式对应层级更像发生的事，再讲依据，再讲现实表现，再讲强弱，最后给建议。",
         "禁止确定性断语，禁止使用：一定、必定、绝对、必然、必发财、必离婚、必有灾、必坐牢、必死亡。",
         "禁止编造输入里没有的干支关系。",
@@ -568,7 +570,7 @@
         output: {
           schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
           order: ["对应时间层级的候选事象", "依据", "现实表现", "强弱", "建议"],
-          style: "先取象，再解释；AI 负责从 evidencePackage 生成具体候选事象，边界提醒只放 boundary。",
+          style: "先取象，再解释；AI 只解释 fortuneAnalysis.mainEvents，不新增本地没有给出的事件，边界提醒只放 boundary。",
           modeInstruction,
         },
       }, null, 2),
@@ -584,14 +586,18 @@
         evidence: fortuneAnalysis.decadeEvidence || [],
         reality: "大运作为十年背景影响当年事件承接方式。",
       },
+      eventCandidates: Array.isArray(fortuneAnalysis.eventCandidates) ? fortuneAnalysis.eventCandidates : [],
+      mainEvents: Array.isArray(fortuneAnalysis.mainEvents) ? fortuneAnalysis.mainEvents : [],
       triggerChains: Array.isArray(fortuneAnalysis.triggerChains) ? fortuneAnalysis.triggerChains : [],
       eventScores: fortuneAnalysis.eventScores || {},
       monthlyHighlights: Array.isArray(fortuneAnalysis.monthlyHighlights) ? fortuneAnalysis.monthlyHighlights : [],
+      lowEvidenceTopics: Array.isArray(fortuneAnalysis.lowEvidenceTopics) ? fortuneAnalysis.lowEvidenceTopics : [],
       advice: Array.isArray(fortuneAnalysis.advice) ? fortuneAnalysis.advice : [],
     };
   }
 
   function buildBrowserEvidencePackage(fortuneAnalysis = {}, { mode = "year", selectedMonthInfluence } = {}) {
+    const mainEvents = Array.isArray(fortuneAnalysis.mainEvents) ? fortuneAnalysis.mainEvents : [];
     const topEventScores = Object.entries(fortuneAnalysis.eventScores || {})
       .sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0))
       .slice(0, 5)
@@ -613,18 +619,37 @@
         ? inferBrowserScoresFromEvidence(pickedMonthlyHighlights.flatMap(month => month.reasons || selectedMonthInfluence?.evidence || []), [], pickedMonthlyHighlights[0]?.score)
         : topEventScores;
     return {
-      role: "本地证据包，只允许 AI 基于这些内容生成候选事象，不允许补充不存在的干支关系。",
+      role: "本地年度事件证据包；AI 只能解释 mainEvents，不允许补充不存在的干支关系或新增事件。",
       mode,
       modeInstruction: flowModeInstruction(mode),
       luckBackground: fortuneAnalysis.luckBackground,
+      mainEvents: mainEvents.slice(0, 3).map(event => ({
+        eventType: event.eventType,
+        score: event.score,
+        level: event.level,
+        confidence: event.confidence,
+        evidenceChain: Array.isArray(event.evidenceChain) ? event.evidenceChain.slice(0, 6) : [],
+        possibleManifestations: Array.isArray(event.possibleManifestations) ? event.possibleManifestations.slice(0, 5) : [],
+        timing: Array.isArray(event.timing) ? event.timing.slice(0, 5) : [],
+      })),
       triggerChains: modeTriggerChains.map(chain => ({
+        level: chain.level,
+        type: chain.type,
+        source: chain.source,
+        target: chain.target,
+        topicHints: chain.topicHints,
+        strength: chain.strength,
         reason: chain.reason,
         tags: chain.tags,
         weight: chain.weight,
         evidence: chain.evidence,
         realityMapping: chain.realityMapping,
       })),
-      topEventScores: modeEventScores,
+      topEventScores: mainEvents.length ? mainEvents.slice(0, 3).map(event => ({
+        topic: event.eventType,
+        score: event.score,
+        evidence: Array.isArray(event.evidenceChain) ? event.evidenceChain.slice(0, 4) : [],
+      })) : modeEventScores,
       selectedMonth: mode === "month" ? {
         month: selectedMonth || selectedMonthInfluence?.month,
         pillar: selectedMonthInfluence?.pillar?.label || selectedMonthInfluence?.pillar,
@@ -1344,6 +1369,22 @@
         evidence: hits.length ? hits.slice(0, 3).map(chain => chain.reason) : ["暂未出现直接触发链，先保留为低强度观察。"],
       }];
     }));
+    const eventCandidates = Object.entries(eventScores).map(([key, value], index) => {
+      const eventType = localEventTypeForScoreKey(key);
+      const level = value.score >= 75 ? "high" : value.score >= 50 ? "medium" : value.score >= 30 ? "low" : "none";
+      return {
+        eventType,
+        score: value.score,
+        level,
+        confidence: value.score >= 75 ? "high" : value.score >= 50 ? "medium" : "low",
+        rank: index + 1,
+        evidenceChain: value.evidence || [],
+        possibleManifestations: localManifestationsForEvent(eventType),
+        timing: monthlyHighlights.slice(0, 3).map(month => `${month.month}月${month.pillar}：${month.intensity}触发，${(month.reasons || [])[0] || "看现实反馈"}`),
+        debug: { source: "browser-local-event-scores", scoreKey: key },
+      };
+    }).sort((a, b) => b.score - a.score).map((event, index) => ({ ...event, rank: index + 1 }));
+    const mainEvents = eventCandidates.filter(event => ["high", "medium"].includes(event.level) && event.evidenceChain.length).slice(0, 3);
     const top = Object.entries(eventScores).sort((a, b) => b[1].score - a[1].score).slice(0, 3).map(([key]) => fortuneScoreLabel(key)).join("、");
     const decadeTheme = selectedLuck.stemElement === chart.dayMaster.element || selectedLuck.branchElement === chart.dayMaster.element ? "增强原局" : "补足原局";
     const decadeEvidence = [`大运${selectedLuck.label}，天干${getTenGod(chart.dayMaster.stem, selectedLuck.stem)}，地支主气${getTenGod(chart.dayMaster.stem, branchMainStem(selectedLuck.branch))}`, `流年${yearInfluence.pillar.label}接入大运${selectedLuck.label}`];
@@ -1360,6 +1401,8 @@
       },
       annualTheme: top,
       overallSummary: `结论：${yearInfluence.year}年先看${top}这些候选主题。\n命理依据：原局${chart.pillars.day.label}接大运${selectedLuck.label}，再由流年${yearInfluence.pillar.label}触发，当前形成${triggerChains.length}条引动链。\n现实表现：重点观察职责资源、关系合作、迁动变化和作息体感是否在重点月份出现反馈。\n注意事项：本地引擎只做结构化取象，需要结合现实反馈继续验证，不能单独作为结论。`,
+      eventCandidates,
+      mainEvents,
       eventScores,
       triggerChains,
       monthlyHighlights: monthlyHighlights.length ? monthlyHighlights : [{
@@ -1376,6 +1419,31 @@
         "涉及状态、合规、出行操作安全时，按现实规则做复核和预防。"
       ],
     };
+  }
+
+  function localEventTypeForScoreKey(key) {
+    return {
+      relationship: "relationship_marriage",
+      wealth: "wealth_resource",
+      study: "children_output",
+      career: "career_status",
+      health: "health_risk",
+      movement: "movement_change",
+      social: "social_conflict",
+    }[key] || "social_conflict";
+  }
+
+  function localManifestationsForEvent(eventType) {
+    return {
+      relationship_marriage: ["关系边界重谈", "合作或亲密关系分工调整", "旧关系议题回到台前"],
+      wealth_resource: ["收支安排复核", "报价付款核算", "资源分配重新讨论"],
+      children_output: ["作品项目交付", "方案表达或成果整理", "晚辈学生或长期项目安排增加"],
+      career_status: ["岗位职责调整", "审批考核节点", "证书材料或身份角色复核"],
+      health_risk: ["作息体感波动", "压力负荷复核", "出行操作和流程安全复核"],
+      movement_change: ["出行改期", "搬动通勤调整", "地点或时间表重排"],
+      social_conflict: ["团队分工重谈", "同辈竞争协作", "合作资源边界讨论"],
+      family_home: ["家庭事务整理", "居住环境调整", "房屋材料或长辈安排复核"],
+    }[eventType] || ["现实事务重新安排"];
   }
 
   function localTagsFromSignal(signal) {

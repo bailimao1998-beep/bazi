@@ -24,7 +24,7 @@ export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [
       output: {
         schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
         order: ["对应时间层级的候选事象", "依据", "现实表现", "强弱", "建议"],
-        style: "先取象，再解释；根据 evidencePackage 生成具体候选事象，每件事都要说明证据和验证点。",
+        style: "先取象，再解释；只解释 fortuneAnalysis.mainEvents 中的重点候选事件，每件事都要说明证据、现实表现、时间点和建议。",
         modeInstruction: flowModeInstruction("year"),
       },
     }, null, 2),
@@ -63,13 +63,16 @@ export const flowReportSchema = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["event", "probabilityLevel", "timeWindow", "evidence", "reality", "verifyBy"],
+        required: ["event", "conclusion", "probabilityLevel", "timeWindow", "timing", "evidence", "reality", "advice", "verifyBy"],
         properties: {
           event: { type: "string" },
+          conclusion: { type: "string" },
           probabilityLevel: { type: "string", enum: ["high", "medium", "low"] },
           timeWindow: { type: "string" },
+          timing: { type: "string" },
           evidence: { type: "array", items: { type: "string" } },
           reality: { type: "string" },
+          advice: { type: "string" },
           verifyBy: { type: "array", items: { type: "string" } },
         },
       },
@@ -153,7 +156,7 @@ export function buildFlowNarrativePrompt({
       output: {
         schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
         order: ["对应时间层级的候选事象", "依据", "现实表现", "强弱", "建议"],
-        style: "先取象，再解释；AI 负责从 evidencePackage 生成具体候选事象，边界提醒只放 boundary。",
+        style: "先取象，再解释；AI 只解释 fortuneAnalysis.mainEvents，不新增本地没有给出的事件，边界提醒只放 boundary。",
         modeInstruction,
       },
     }, null, 2),
@@ -164,10 +167,12 @@ function baseNarrativeSystemLines() {
   return [
     "你是命理网站的白话解读层，不是排盘层。",
     "你不能重新排盘，不能新增不存在的干支关系，不能补充不存在的干支关系，不能自行改写年份月份。",
-    "本地只提供证据包，不负责直接断事；AI 负责生成候选事象，但每条都必须回扣本地证据。",
-    "你只能根据 fortuneAnalysis、triggerChains、eventScores、monthlyHighlights 和 evidencePackage 写解读。",
-    "你的任务是把本地取象证据组合成一个人现实中更像会遇到的具体候选事件。",
-    "每条 likelyEvents 都必须包含具体会发生什么、依据、现实表现、时间窗口、验证点。",
+    "本地事件引擎已经提供 eventCandidates 和 mainEvents；AI 不再自己判断事件，也不能新增 mainEvents 之外的强判断。",
+    "你只能根据 fortuneAnalysis、mainEvents、triggerChains、monthlyHighlights 和 evidencePackage 写解读。",
+    "你的任务是把本地事件引擎识别出的 1-3 个重点候选事件翻译成人能听懂的现实语言。",
+    "只重点解释 score 最高的 1-3 个 mainEvents；禁止平均解释所有领域。",
+    "每条 likelyEvents 都必须对应一个 mainEvent，并包含 conclusion、evidence、reality、timing、advice。",
+    "没有 evidenceChain 的事件不能写成强判断，只能放在 boundary 或不写。",
     "少废话，避免重复；同一条依据不要在多个段落换词复述。",
     "事件标题必须像现实里的动作或节点，例如职责调整、合同复核、付款重算、合作重谈、材料补交、出行改期。",
     "输出顺序：先给结论，也就是先讲当前模式对应层级更像发生的事，再讲依据，再讲现实表现，再讲强弱，最后给建议。",
@@ -186,19 +191,24 @@ function pickFortuneAnalysis(fortuneAnalysis = {}) {
   return {
     annualTheme: fortuneAnalysis.annualTheme ?? "",
     overallSummary: fortuneAnalysis.overallSummary ?? "",
+    selectedLuck: fortuneAnalysis.selectedLuck ?? null,
     luckBackground: fortuneAnalysis.luckBackground ?? {
       conclusion: fortuneAnalysis.decadeTheme ?? "",
       evidence: fortuneAnalysis.decadeEvidence ?? [],
       reality: "大运作为十年背景影响当年事件承接方式。",
     },
+    eventCandidates: Array.isArray(fortuneAnalysis.eventCandidates) ? fortuneAnalysis.eventCandidates : [],
+    mainEvents: Array.isArray(fortuneAnalysis.mainEvents) ? fortuneAnalysis.mainEvents : [],
     triggerChains: Array.isArray(fortuneAnalysis.triggerChains) ? fortuneAnalysis.triggerChains : [],
     eventScores: fortuneAnalysis.eventScores ?? {},
     monthlyHighlights: Array.isArray(fortuneAnalysis.monthlyHighlights) ? fortuneAnalysis.monthlyHighlights : [],
+    lowEvidenceTopics: Array.isArray(fortuneAnalysis.lowEvidenceTopics) ? fortuneAnalysis.lowEvidenceTopics : [],
     advice: Array.isArray(fortuneAnalysis.advice) ? fortuneAnalysis.advice : [],
   };
 }
 
 function buildEvidencePackage(fortuneAnalysis = {}, { mode = "year", selectedMonthInfluence } = {}) {
+  const mainEvents = Array.isArray(fortuneAnalysis.mainEvents) ? fortuneAnalysis.mainEvents : [];
   const eventScores = Object.entries(fortuneAnalysis.eventScores ?? {})
     .sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0))
     .slice(0, 5)
@@ -207,7 +217,7 @@ function buildEvidencePackage(fortuneAnalysis = {}, { mode = "year", selectedMon
       score: Number(value?.score || 0),
       evidence: Array.isArray(value?.evidence) ? value.evidence.slice(0, 4) : [],
     }));
-  const triggerChains = Array.isArray(fortuneAnalysis.triggerChains) ? fortuneAnalysis.triggerChains.slice(0, 8) : [];
+  const triggerChains = Array.isArray(fortuneAnalysis.triggerChains) ? fortuneAnalysis.triggerChains.slice(0, 12) : [];
   const monthlyHighlights = Array.isArray(fortuneAnalysis.monthlyHighlights) ? fortuneAnalysis.monthlyHighlights.slice(0, 5) : [];
   const selectedMonth = Number(selectedMonthInfluence?.month || 0);
   const pickedMonthlyHighlights = mode === "month" && selectedMonth
@@ -220,18 +230,39 @@ function buildEvidencePackage(fortuneAnalysis = {}, { mode = "year", selectedMon
       ? inferPromptScoresFromEvidence(pickedMonthlyHighlights.flatMap((month) => month.reasons || selectedMonthInfluence?.evidence || []), [], pickedMonthlyHighlights[0]?.score)
       : eventScores;
   return {
-    role: "本地证据包，只允许 AI 基于这些内容生成候选事象，不允许补充不存在的干支关系。",
+    role: "本地年度事件证据包；AI 只能解释 mainEvents，不允许补充不存在的干支关系或新增事件。",
     mode,
     modeInstruction: flowModeInstruction(mode),
     luckBackground: fortuneAnalysis.luckBackground,
+    mainEvents: mainEvents.slice(0, 3).map((event) => ({
+      eventType: event.eventType,
+      score: event.score,
+      level: event.level,
+      confidence: event.confidence,
+      evidenceChain: Array.isArray(event.evidenceChain) ? event.evidenceChain.slice(0, 6) : [],
+      possibleManifestations: Array.isArray(event.possibleManifestations) ? event.possibleManifestations.slice(0, 5) : [],
+      timing: Array.isArray(event.timing) ? event.timing.slice(0, 5) : [],
+    })),
     triggerChains: modeTriggerChains.map((chain) => ({
+      level: chain.level,
+      type: chain.type,
+      source: chain.source,
+      target: chain.target,
+      topicHints: chain.topicHints,
+      strength: chain.strength,
       reason: chain.reason,
       tags: chain.tags,
       weight: chain.weight,
       evidence: chain.evidence,
       realityMapping: chain.realityMapping,
     })),
-    topEventScores: modeEventScores,
+    topEventScores: mainEvents.length
+      ? mainEvents.slice(0, 3).map((event) => ({
+        topic: event.eventType,
+        score: event.score,
+        evidence: Array.isArray(event.evidenceChain) ? event.evidenceChain.slice(0, 4) : [],
+      }))
+      : modeEventScores,
     selectedMonth: mode === "month" ? {
       month: selectedMonth || selectedMonthInfluence?.month,
       pillar: selectedMonthInfluence?.pillar?.label || selectedMonthInfluence?.pillar,

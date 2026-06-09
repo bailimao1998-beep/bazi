@@ -1,3 +1,5 @@
+import { eventTaxonomy } from "../fortune/eventTaxonomy.js";
+
 const modeLabels = { luck: "大运", year: "流年", month: "流月" };
 
 const tenGodEventMap = [
@@ -107,9 +109,15 @@ export function buildReadableAiReportFromPrompt(prompt = {}) {
   const mode = prompt.mode ?? input.mode ?? "year";
   const fortune = input.fortuneAnalysis ?? {};
   const eventScores = fortune.eventScores ?? {};
-  const annualTopEvents = Object.entries(eventScores)
-    .sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0))
-    .slice(0, 4);
+  const annualTopEvents = Array.isArray(fortune.mainEvents) && fortune.mainEvents.length
+    ? fortune.mainEvents.map((event) => [event.eventType, {
+      score: event.score,
+      evidence: event.evidenceChain,
+      candidate: event,
+    }])
+    : Object.entries(eventScores)
+      .sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0))
+      .slice(0, 4);
   const monthlyHighlights = Array.isArray(fortune.monthlyHighlights) ? fortune.monthlyHighlights.slice(0, 5) : [];
   const triggerChains = Array.isArray(fortune.triggerChains) ? fortune.triggerChains : [];
   const context = selectReportContext({
@@ -144,7 +152,7 @@ export function buildReadableAiReportFromPrompt(prompt = {}) {
     },
     likelyEvents,
     eventFocus: context.topEvents.map(([topic, score]) => ({
-      topic,
+      topic: legacyTopic(topic),
       level: scoreLevel(score?.score),
       conclusion: `${topicName(topic)}：${context.focusPrefix}${levelName(scoreLevel(score?.score))}证据，作为候选事件来源参考。`,
       evidence: normalizeList(score?.evidence).slice(0, 4),
@@ -400,10 +408,13 @@ function ensureReportDefaults(report) {
     ...report,
     likelyEvents: report.likelyEvents.length ? report.likelyEvents : [{
       event: "工作职责或项目分工出现调整",
+      conclusion: "当前只保留低强度职责与项目分工观察。",
       probabilityLevel: "low",
       timeWindow: "全年低强度观察",
+      timing: "全年低强度观察",
       evidence: ["当前本地证据包没有给出更高权重触发链。"],
       reality: "可能表现为任务边界、交付方式、协作对象或流程要求的小幅调整。",
+      advice: "只记录现实中实际出现的职责、流程或交付变化。",
       verifyBy: ["是否出现职责边界变化", "是否出现流程或交付节点", "是否在重点月份有反馈"],
     }],
     eventFocus: report.eventFocus.length ? report.eventFocus : [{
@@ -441,6 +452,22 @@ function scoreLevel(score) {
 function buildLikelyEvents({ mode = "year", topEvents = [], triggerChains = [], monthlyHighlights = [], evidencePackage = {}, selectedMonth } = {}) {
   const months = monthlyHighlights.length ? monthlyHighlights : normalizeList(evidencePackage.timeWindows);
   return topEvents.slice(0, 5).map(([topic, score], index) => {
+    if (score?.candidate) {
+      const candidate = score.candidate;
+      const eventText = candidate.possibleManifestations?.[0] || `${topicName(candidate.eventType)}候选事件`;
+      const timing = normalizeList(candidate.timing)[0] || eventTimeWindow(months[index % Math.max(months.length, 1)] || {}, scoreLevel(candidate.score), mode, selectedMonth);
+      return {
+        event: eventText,
+        conclusion: `${topicName(candidate.eventType)}：${eventText}`,
+        probabilityLevel: scoreLevel(candidate.score),
+        timeWindow: timing,
+        timing,
+        evidence: normalizeList(candidate.evidenceChain).slice(0, 5),
+        reality: normalizeList(candidate.possibleManifestations).slice(0, 4).join("；") || eventReality(candidate.eventType),
+        advice: eventAdvice(candidate.eventType),
+        verifyBy: normalizeList(candidate.timing).slice(0, 3).concat(["现实中是否出现对应事项", "是否与证据链中的柱位和十神一致"]).slice(0, 5),
+      };
+    }
     const chains = triggerChains.filter((chain) => normalizeList(chain.tags).includes(topic));
     const chain = chains[0] || triggerChains[index] || {};
     const month = months[index % Math.max(months.length, 1)] || {};
@@ -448,8 +475,10 @@ function buildLikelyEvents({ mode = "year", topEvents = [], triggerChains = [], 
     const probabilityLevel = scoreLevel(score?.score ?? chain.weight * 18);
     return {
       event: template.event,
+      conclusion: `${topicName(topic)}：${template.event}`,
       probabilityLevel,
       timeWindow: eventTimeWindow(month, probabilityLevel, mode, selectedMonth),
+      timing: eventTimeWindow(month, probabilityLevel, mode, selectedMonth),
       evidence: dedupe([
         ...normalizeList(score?.evidence).slice(0, 2),
         ...normalizeList(chain.evidence).slice(0, 2),
@@ -457,6 +486,7 @@ function buildLikelyEvents({ mode = "year", topEvents = [], triggerChains = [], 
         ...(month.month ? [`${month.month}月${month.pillar || ""}${month.intensity || ""}触发窗口`] : []),
       ].filter(Boolean)).slice(0, 5),
       reality: template.reality,
+      advice: eventAdvice(topic),
       verifyBy: template.verifyBy,
     };
   });
@@ -522,7 +552,7 @@ function likelyEventTemplate(topic, mode = "year") {
   };
   const luck = {
     career: { ...yearlyTemplates.career, event: "十年阶段内职责权限、项目角色或流程标准逐步调整" },
-    wealth: { ...yearlyTemplates.wealth, event: "十年阶段内收支结构、报价方式或资源配置逐步重算" },
+    wealth: { ...yearlyTemplates.wealth, event: "十年阶段内收支结构、报价方式或资源配置逐步核算" },
     relationship: { ...yearlyTemplates.relationship, event: "十年阶段内亲密关系或合作边界反复重谈" },
     study: { ...yearlyTemplates.study, event: "十年阶段内学习证照、专业训练或文书能力逐步加重" },
     health: { ...yearlyTemplates.health, event: "十年阶段内作息体感、压力负荷和安全操作需要持续复核" },
@@ -571,11 +601,18 @@ function levelName(level) {
   return { high: "高强度", medium: "中强度", low: "低强度" }[level] || "观察";
 }
 
+function legacyTopic(topic) {
+  return eventTaxonomy[topic]?.legacyTopic && scoreTopicNames().includes(eventTaxonomy[topic].legacyTopic)
+    ? eventTaxonomy[topic].legacyTopic
+    : scoreTopicNames().includes(topic) ? topic : "social";
+}
+
 function topicName(topic) {
-  return { career: "事业", wealth: "财运", relationship: "感情", study: "学业", health: "健康", movement: "迁移", social: "人际" }[topic] || topic;
+  return eventTaxonomy[topic]?.label || { career: "事业", wealth: "财运", relationship: "感情", study: "学业", health: "健康", movement: "迁移", social: "人际", family_home: "家庭居住" }[topic] || topic;
 }
 
 function eventReality(topic) {
+  if (eventTaxonomy[topic]) return eventTaxonomy[topic].manifestations.join("；");
   return {
     career: "现实中看岗位职责、任务交付、流程审核和项目调整。",
     wealth: "现实中看收支安排、预算分配、报价付款和资源承接。",
@@ -588,6 +625,7 @@ function eventReality(topic) {
 }
 
 function eventAdvice(topic) {
+  if (eventTaxonomy[topic]) return eventTaxonomy[topic].advice;
   return {
     career: "把职责、流程、交付节点列清楚，遇到审核或规则变化时留证据。",
     wealth: "把收支、报价、合同和资源分配写成清单，避免只凭感觉判断。",

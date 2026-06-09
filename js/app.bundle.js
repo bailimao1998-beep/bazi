@@ -329,9 +329,40 @@
     const report = flowAiReports[mode];
     if (!report && flowAiLoading !== mode) return "";
     if (flowAiLoading === mode) return `<article class="ai-report-panel is-loading"><strong>${flowAiModeLabel(mode)}报告</strong><p>正在根据当前矩阵证据生成学习说明...</p></article>`;
+    if (report?.coreConclusion) return renderReadableFlowAiReport(mode, report);
     const scenarios = renderFlowAiScenarios(report.scenarios);
     const legacyLists = `<div class="ai-report-grid">${renderFlowAiList("专业证据链", report.keySignals)}${renderFlowAiList("生活落点", report.likelyThemes)}${renderFlowAiList("边界提醒", report.cautions)}${renderFlowAiList("现实验证", report.verificationLimits)}</div>`;
     return `<article class="ai-report-panel"><div class="ai-report-head"><span>AI辅助取象</span><strong>${flowAiModeLabel(mode)}咨询总览</strong></div><p>${escapeHtml(report.summary)}</p>${scenarios || legacyLists}</article>`;
+  }
+
+  function renderReadableFlowAiReport(mode, report) {
+    const placeholder = report.isPlaceholder ? `<span class="ai-placeholder-badge">本地占位报告</span>` : "";
+    return `<article class="ai-report-panel ai-readable-report">
+      <div class="ai-report-head"><span>AI白话解读${placeholder}</span><strong>${escapeHtml(report.title || `${flowAiModeLabel(mode)}解读`)}</strong></div>
+      <section class="ai-report-section"><h4>核心结论</h4><p>${escapeHtml(report.coreConclusion)}</p></section>
+      ${renderAiReportBlock("大运背景", report.luckBackground)}
+      ${renderAiReportBlock("流年触发", report.yearTrigger)}
+      <section class="ai-report-section"><h4>重点领域</h4><div class="ai-focus-list">${(report.eventFocus || []).map(renderAiEventFocus).join("")}</div></section>
+      <section class="ai-report-section"><h4>重点月份</h4><div class="ai-month-list">${(report.monthlyHighlights || []).map(renderAiMonth).join("")}</div></section>
+      <section class="ai-report-section"><h4>建议</h4>${renderScenarioItems(report.overallAdvice || [])}</section>
+      <p class="ai-boundary">${escapeHtml(report.boundary || "以上为学习型观察边界，请结合现实反馈复核。")}</p>
+    </article>`;
+  }
+
+  function renderAiReportBlock(title, block = {}) {
+    return `<section class="ai-report-section"><h4>${title}</h4><p>${escapeHtml(block.conclusion || "暂无结论")}</p><dl><dt>依据</dt><dd>${renderScenarioItems(block.evidence || [])}</dd><dt>现实表现</dt><dd>${escapeHtml(block.reality || "暂无现实映射")}</dd></dl></section>`;
+  }
+
+  function renderAiEventFocus(item = {}) {
+    return `<article class="ai-focus-card"><div><strong>${fortuneScoreLabel(item.topic)}</strong><span>${levelLabel(item.level)}</span></div><p>${escapeHtml(item.conclusion || "")}</p><dl><dt>依据</dt><dd>${renderScenarioItems(item.evidence || [])}</dd><dt>现实表现</dt><dd>${escapeHtml(item.reality || "")}</dd><dt>建议</dt><dd>${escapeHtml(item.advice || "")}</dd></dl></article>`;
+  }
+
+  function renderAiMonth(item = {}) {
+    return `<article class="ai-focus-card"><div><strong>${Number(item.month) || "-"}月</strong><span>${levelLabel(item.level)}</span></div><p>${escapeHtml(item.theme || "")}</p><dl><dt>依据</dt><dd>${renderScenarioItems(item.evidence || [])}</dd><dt>现实表现</dt><dd>${escapeHtml(item.reality || "")}</dd><dt>建议</dt><dd>${escapeHtml(item.advice || "")}</dd></dl></article>`;
+  }
+
+  function levelLabel(level) {
+    return { high: "高触发", medium: "中触发", low: "低触发" }[level] || "观察";
   }
 
   function renderFlowAiList(title, list = []) {
@@ -376,6 +407,7 @@
       }
       flowAiReports[mode] = createLocalFlowAiReport(mode);
       setText("status", "文件模式：使用本地占位 AI 辅助取象。");
+      renderYear(lastData);
       renderMonth(lastData);
       return;
     }
@@ -394,16 +426,18 @@
           selectedLuck: lastData.selectedLuck,
           yearInfluence: lastData.yearInfluence,
           selectedMonthInfluence: lastData.selectedMonthInfluence,
+          fortuneAnalysis: lastData.fortuneAnalysis,
         }),
       });
       const result = await response.json();
-      flowAiReports[mode] = normalizeFlowAiReport(result.narrative?.report, result.narrative?.text, mode);
+      flowAiReports[mode] = normalizeFlowAiReport(result.narrative?.report, result.narrative?.text, mode, result.narrative?.isPlaceholder);
       setText("status", `${flowAiModeLabel(mode)}AI辅助取象已生成。`);
     } catch (error) {
       flowAiReports[mode] = createLocalFlowAiReport(mode);
       setText("status", "后端暂不可用：使用本地占位 AI 辅助取象。");
     } finally {
       flowAiLoading = "";
+      renderYear(lastData);
       renderMonth(lastData);
     }
   }
@@ -441,86 +475,89 @@
       });
       const result = await response.json();
       const text = result.choices?.[0]?.message?.content || "";
-      flowAiReports[mode] = normalizeFlowAiReport(JSON.parse(text), text, mode);
+      flowAiReports[mode] = normalizeFlowAiReport(JSON.parse(text), text, mode, false);
       setText("status", `${flowAiModeLabel(mode)}浏览器直连 DeepSeek 解读已生成。`);
     } catch (error) {
       flowAiReports[mode] = createLocalFlowAiReport(mode);
       setText("status", "浏览器直连 DeepSeek 未成功：已改用本地占位取象。");
     } finally {
       flowAiLoading = "";
+      renderYear(lastData);
       renderMonth(lastData);
     }
   }
 
   function buildBrowserFlowAiPrompt(mode) {
     const modeLabels = { luck: "大运阶段取象", year: "流年年度取象", month: "流月短期取象" };
-    const scenarioRules = {
-      luck: "scenarios 输出 3-5 个长期背景候选，重在阶段底色、资源结构、关系结构、事业学习结构。",
-      year: "scenarios 输出 3-5 个年度触发候选，重在这一年哪些主题更容易被点亮，以及被哪组岁运证据触发。",
-      month: "scenarios 输出 2-4 个短期窗口候选，重在当月触发、节奏变化、临时事务和需要复核的窗口。",
-    };
     return {
       system: [
-        "你是命理结构化学习网站的 AI 辅助取象层。",
-        "输出要结合咨询型语言和专业证据链：先说用户能听懂的总览，再列命盘证据，再翻译成现实可观察主题。",
-        "不能重新排盘，不能补充不存在的干支关系，不能自行改写年份月份。",
-        "只能根据本地页面传入的 chart、coreSignals、transitSignals、monthSignals 和当前岁运选择来润色。",
-        "禁止确定性断语，不能断吉凶，不能把候选信号写成最终断命。",
-        "所有输出都要保留“不能单独作为结论”的学习型边界。",
-        "每条重点都按“证据链 -> 生活翻译 -> 验证步骤”组织，不要只写抽象术语。",
-        "生活翻译必须落到具体候选事象，例如工作职责变化、合同手续复核、收支安排、合作摩擦、搬动出行、作息体感波动。",
-        "敏感提醒只写作息体感、流程合规、出行操作安全等复核清单，不写病名、官非结果、灾祸结果。",
-        "禁止只输出“现实事务、关系互动、工作节奏、情绪状态”这类空泛合集。",
-        "必须输出多候选方向：scenarios 是核心内容，每个候选方向都按“证据链 -> 生活落点 -> 验证条件 -> 边界”展开。",
-        scenarioRules[mode] || scenarioRules.year,
-        "每个 scenario 固定包含 title、evidence、lifeSignals、verification、boundary；boundary 必须说明不能单独作为结论。",
-        "字段写法：summary=咨询总览；keySignals=专业证据链；likelyThemes=生活落点；cautions=边界提醒；verificationLimits=现实验证；scenarios=候选方向卡片。",
+        "你是命理网站的白话解读层，不是排盘层。",
+        "不能重新排盘，不能新增不存在的干支关系，不能补充不存在的干支关系，不能自行改写年份月份。",
+        "你只能根据 fortuneAnalysis、triggerChains、eventScores、monthlyHighlights 写解读。",
+        "你的任务是把本地规则判断翻译成人能听懂的现实语言。",
+        "输出顺序：先给结论，再讲依据，再讲现实表现，再讲强弱，再讲重点月份，最后给建议。",
+        "禁止确定性断语，禁止使用：一定、必定、绝对、必然、必发财、必离婚、必有灾、必坐牢、必死亡。",
+        "禁止编造输入里没有的干支关系。",
+        "禁止平均解释 12 个月，只能写 fortuneAnalysis.monthlyHighlights 中的重点月份。",
+        "禁止只说“注意沟通、保持积极、谨慎行事”这种空话。",
+        "不要每句话都重复边界提醒，把学习边界集中放到 boundary 字段，一句话即可。",
         "禁用词：一定、必定、绝对、必然、必离婚、必发财、必有灾、必坐牢、必死亡。",
-        "输出 JSON 字段必须为 summary、keySignals、likelyThemes、cautions、verificationLimits、scenarios。",
+        "输出 JSON 字段必须为 title、coreConclusion、luckBackground、yearTrigger、eventFocus、monthlyHighlights、overallAdvice、boundary。",
       ].join("\n"),
       user: JSON["stringify"]({
         mode,
         modeLabel: modeLabels[mode] || modeLabels.year,
-        chart: lastData.chart,
-        coreSignals: lastData.coreSignals,
-        transitSignals: lastData.transitSignals,
-        monthSignals: lastData.monthSignals,
-        selectedLuck: lastData.selectedLuck,
-        yearInfluence: lastData.yearInfluence,
-        selectedMonthInfluence: lastData.selectedMonthInfluence,
+        fortuneAnalysis: pickBrowserFortuneAnalysis(lastData.fortuneAnalysis),
+        referenceOnly: {
+          chart: lastData.chart,
+          coreSignals: lastData.coreSignals,
+          transitSignals: lastData.transitSignals,
+          monthSignals: lastData.monthSignals,
+          selectedLuck: lastData.selectedLuck,
+          yearInfluence: lastData.yearInfluence,
+          selectedMonthInfluence: lastData.selectedMonthInfluence,
+        },
         output: {
-          schema: "summary/keySignals/likelyThemes/cautions/verificationLimits/scenarios",
-          scenarioRule: scenarioRules[mode] || scenarioRules.year,
-          sections: {
-            summary: "咨询总览：1-2句，说这一层岁运最值得观察的主线，不下结果判断。",
-            keySignals: "专业证据链：3-5条，每条包含具体证据和它说明的候选观察点。",
-            likelyThemes: "生活落点：把证据翻成现实中的具体候选事象，例如关系合作、工作职责、学习证照、钱与资源、迁动变化、作息体感、流程合规。",
-            cautions: "边界提醒：说明哪些内容不能从当前证据单独推出。",
-            verificationLimits: "现实验证：给出后续应结合哪些柱位、旺衰、十神、岁运或现实反馈继续看。",
-            scenarios: {
-              title: "候选方向名称，避免写成结论。",
-              evidence: "证据链：列对应的十神、五行、干支关系、岁运触发证据。",
-              lifeSignals: "生活落点：说明现实中可能表现为哪些具体候选事象，不要只写抽象主题。",
-              verification: "验证条件：说明哪些现实反馈或结构条件出现时，更像这个候选方向。",
-              boundary: "边界：说明不能单独推出什么结论，并写明不能单独作为结论。",
-            },
-          },
-          style: "咨询型语言 + 专业证据链；每条尽量写成“证据链 -> 生活翻译 -> 验证步骤”。",
+          schema: "title/coreConclusion/luckBackground/yearTrigger/eventFocus/monthlyHighlights/overallAdvice/boundary",
+          order: ["结论", "依据", "现实表现", "强弱", "重点月份", "建议"],
+          style: "先取象，再解释；边界提醒只放 boundary，不要每段重复。",
         },
       }, null, 2),
     };
   }
 
-  function normalizeFlowAiReport(report, text, mode) {
-    const fallback = {
-      summary: text || `${flowAiModeLabel(mode)}咨询总览暂未生成，请先查看本地专业矩阵。`,
-      keySignals: ["证据链 -> 当前大运、流年、流月矩阵已有触发点；候选事象 -> 复核职责变化、收支安排、合作摩擦、搬动出行和作息体感波动。"],
-      likelyThemes: ["候选事象：工作职责变化、合同手续复核、收支安排、合作摩擦、搬动出行、作息体感波动。"],
-      cautions: ["AI辅助只做咨询式整理，不重新排盘，也不补充不存在的干支关系。"],
-      verificationLimits: ["后续仍需结合原局、大运、流年、流月和现实反馈继续验证，不能单独作为结论。"],
-      scenarios: createLocalFlowAiScenarios(mode),
+  function pickBrowserFortuneAnalysis(fortuneAnalysis = {}) {
+    return {
+      annualTheme: fortuneAnalysis.annualTheme || "",
+      overallSummary: fortuneAnalysis.overallSummary || "",
+      luckBackground: fortuneAnalysis.luckBackground || {
+        conclusion: fortuneAnalysis.decadeTheme || "",
+        evidence: fortuneAnalysis.decadeEvidence || [],
+        reality: "大运作为十年背景影响当年事件承接方式。",
+      },
+      triggerChains: Array.isArray(fortuneAnalysis.triggerChains) ? fortuneAnalysis.triggerChains : [],
+      eventScores: fortuneAnalysis.eventScores || {},
+      monthlyHighlights: Array.isArray(fortuneAnalysis.monthlyHighlights) ? fortuneAnalysis.monthlyHighlights : [],
+      advice: Array.isArray(fortuneAnalysis.advice) ? fortuneAnalysis.advice : [],
     };
-    if (!report) return fallback;
+  }
+
+  function normalizeFlowAiReport(report, text, mode, isPlaceholder = false) {
+    const fallback = createLocalFlowAiReport(mode, true);
+    if (!report) return { ...fallback, coreConclusion: text || fallback.coreConclusion, isPlaceholder: true };
+    if (report.coreConclusion || report.eventFocus || report.monthlyHighlights) {
+      return sanitizeLocalAiReport({
+        title: report.title || fallback.title,
+        coreConclusion: report.coreConclusion || text || fallback.coreConclusion,
+        luckBackground: normalizeAiBlock(report.luckBackground, fallback.luckBackground),
+        yearTrigger: normalizeAiBlock(report.yearTrigger, fallback.yearTrigger),
+        eventFocus: normalizeAiEventFocus(report.eventFocus, fallback.eventFocus),
+        monthlyHighlights: normalizeAiMonths(report.monthlyHighlights, fallback.monthlyHighlights),
+        overallAdvice: normalizeTextList(report.overallAdvice, fallback.overallAdvice),
+        boundary: report.boundary || fallback.boundary,
+        isPlaceholder: Boolean(isPlaceholder),
+      });
+    }
     return {
       summary: report.summary || fallback.summary,
       keySignals: Array.isArray(report.keySignals) ? report.keySignals : fallback.keySignals,
@@ -528,7 +565,46 @@
       cautions: Array.isArray(report.cautions) ? report.cautions : fallback.cautions,
       verificationLimits: Array.isArray(report.verificationLimits) ? report.verificationLimits : fallback.verificationLimits,
       scenarios: normalizeFlowAiScenarios(report.scenarios, fallback.scenarios),
+      isPlaceholder: Boolean(isPlaceholder),
     };
+  }
+
+  function normalizeAiBlock(value, fallback) {
+    return {
+      conclusion: value?.conclusion || fallback.conclusion,
+      evidence: normalizeTextList(value?.evidence, fallback.evidence),
+      reality: value?.reality || fallback.reality,
+    };
+  }
+
+  function normalizeAiEventFocus(value, fallback) {
+    if (!Array.isArray(value) || !value.length) return fallback;
+    return value.map((item, index) => {
+      const base = fallback[index] || fallback[0];
+      return {
+        topic: ["career", "wealth", "relationship", "study", "health", "movement", "social"].includes(item?.topic) ? item.topic : base.topic,
+        level: ["high", "medium", "low"].includes(item?.level) ? item.level : base.level,
+        conclusion: item?.conclusion || base.conclusion,
+        evidence: normalizeTextList(item?.evidence, base.evidence),
+        reality: item?.reality || base.reality,
+        advice: item?.advice || base.advice,
+      };
+    });
+  }
+
+  function normalizeAiMonths(value, fallback) {
+    if (!Array.isArray(value) || !value.length) return fallback;
+    return value.map((item, index) => {
+      const base = fallback[index] || fallback[0];
+      return {
+        month: Number(item?.month || base.month),
+        level: ["high", "medium", "low"].includes(item?.level) ? item.level : base.level,
+        theme: item?.theme || base.theme,
+        evidence: normalizeTextList(item?.evidence, base.evidence),
+        reality: item?.reality || base.reality,
+        advice: item?.advice || base.advice,
+      };
+    });
   }
 
   function normalizeFlowAiScenarios(value, fallback) {
@@ -549,12 +625,130 @@
     return Array.isArray(value) && value.length ? value.map(item => String(item)) : fallback;
   }
 
-  function createLocalFlowAiReport(mode) {
-    return buildLocalEventCandidateReport(mode);
+  function createLocalFlowAiReport(mode, isPlaceholder = true) {
+    return buildLocalReadableAiReport(mode, isPlaceholder);
   }
 
   function createLocalFlowAiScenarios(mode) {
     return buildLocalEventCandidateReport(mode).scenarios;
+  }
+
+  function buildLocalReadableAiReport(mode, isPlaceholder = true) {
+    const fortune = lastData?.fortuneAnalysis || {};
+    const eventScores = fortune.eventScores || {};
+    const topEvents = Object.entries(eventScores).sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0)).slice(0, 4);
+    const triggerChains = Array.isArray(fortune.triggerChains) ? fortune.triggerChains : [];
+    const months = Array.isArray(fortune.monthlyHighlights) ? fortune.monthlyHighlights.slice(0, 5) : [];
+    const legacy = buildLocalEventCandidateReport(mode);
+    const report = {
+      title: `${flowAiModeLabel(mode)}结构化解读`,
+      coreConclusion: firstSentence(fortune.overallSummary) || `今年重点看${topEvents.map(([key]) => fortuneScoreLabel(key)).join("、") || "年度触发主题"}。`,
+      luckBackground: {
+        conclusion: fortune.luckBackground?.conclusion || `${lastData?.selectedLuck?.label || "当前"}大运作为十年背景影响这一年。`,
+        evidence: normalizeTextList(fortune.luckBackground?.evidence, fortune.decadeEvidence || []).slice(0, 4),
+        reality: fortune.luckBackground?.reality || "现实中可观察阶段环境、资源条件、职责压力和关系节奏如何承接年度触发。",
+      },
+      yearTrigger: {
+        conclusion: triggerChains[0]?.reason || "流年把原局与大运中的重点主题推到当年。",
+        evidence: triggerChains.flatMap(chain => normalizeTextList(chain.evidence, chain.reason ? [chain.reason] : [])).slice(0, 5),
+        reality: triggerChains.map(chain => chain.realityMapping).filter(Boolean).slice(0, 3).join("；") || "现实中可观察职责、资源、关系、迁动和状态节奏的具体反馈。",
+      },
+      eventFocus: topEvents.map(([topic, score]) => ({
+        topic,
+        level: scoreLevel(score?.score),
+        conclusion: `${fortuneScoreLabel(topic)}为${levelLabel(scoreLevel(score?.score))}关注项。`,
+        evidence: normalizeTextList(score?.evidence, ["当前本地规则没有给出更高权重触发链。"]).slice(0, 4),
+        reality: score?.realityMapping || eventReality(topic),
+        advice: eventAdvice(topic),
+      })),
+      monthlyHighlights: months.map(month => ({
+        month: Number(month.month),
+        level: month.intensity || scoreLevel(month.score),
+        theme: `${month.pillar || ""}${month.intensity || ""}触发窗口`,
+        evidence: normalizeTextList(month.reasons, ["本月作为规则引擎挑出的观察窗口。"]).slice(0, 4),
+        reality: "现实中可观察事情落地、反馈出现、计划改动或关系资源变化。",
+        advice: "把本月作为复盘窗口，记录具体发生的职责、资源、关系或迁动反馈。",
+      })),
+      overallAdvice: normalizeTextList(fortune.advice, [
+        "先按本地规则列出的高分领域做现实复盘。",
+        "重点月份只观察实际反馈，不平均解释十二个月。",
+        "涉及状态、合规、出行时按现实规则复核。",
+      ]).slice(0, 3),
+      boundary: "以上为本地规则取象后的白话整理，请结合现实反馈复核。",
+      isPlaceholder,
+      summary: legacy.summary,
+      keySignals: legacy.keySignals,
+      likelyThemes: legacy.likelyThemes,
+      cautions: legacy.cautions,
+      verificationLimits: legacy.verificationLimits,
+      scenarios: legacy.scenarios,
+    };
+    return sanitizeLocalAiReport(ensureLocalReadableReport(report));
+  }
+
+  function ensureLocalReadableReport(report) {
+    return {
+      ...report,
+      eventFocus: report.eventFocus.length ? report.eventFocus : [{
+        topic: "career",
+        level: "low",
+        conclusion: "事业先作为低强度观察项。",
+        evidence: ["当前本地规则没有给出更高权重触发链。"],
+        reality: eventReality("career"),
+        advice: eventAdvice("career"),
+      }],
+      monthlyHighlights: report.monthlyHighlights.length ? report.monthlyHighlights : [{
+        month: state.selectedMonth,
+        level: "low",
+        theme: "低强度观察窗口",
+        evidence: ["当前本地规则没有给出重点月份。"],
+        reality: "现实中只做普通复盘，不扩大解读。",
+        advice: "记录现实反馈，等待更明确的岁运触发。",
+      }],
+    };
+  }
+
+  function firstSentence(value = "") {
+    return String(value || "").split(/\n|。/u).find(Boolean)?.trim() || "";
+  }
+
+  function scoreLevel(score) {
+    const value = Number(score || 0);
+    if (value >= 70) return "high";
+    if (value >= 40) return "medium";
+    return "low";
+  }
+
+  function eventReality(topic) {
+    return {
+      career: "现实中看岗位职责、任务交付、流程审核和项目调整。",
+      wealth: "现实中看收支安排、预算分配、报价付款和资源承接。",
+      relationship: "现实中看亲密互动、合作边界、沟通摩擦和关系规则。",
+      study: "现实中看课程证书、资料整理、技能训练和表达输出。",
+      health: "现实中只看作息体感、压力负荷和安全操作复核。",
+      movement: "现实中看搬动出行、通勤变化、地点调整和计划改期。",
+      social: "现实中看同事同辈、朋友互动、合作分工和沟通密度。",
+    }[topic] || "现实中看该主题是否出现明确反馈。";
+  }
+
+  function eventAdvice(topic) {
+    return {
+      career: "把职责、流程、交付节点列清楚，遇到审核或规则变化时留证据。",
+      wealth: "把收支、报价、合同和资源分配写成清单，避免只凭感觉判断。",
+      relationship: "先看互动频率和边界变化，再看是否有实际协作或承诺动作。",
+      study: "把学习目标拆成证书、材料、作品或训练计划，按月份复盘。",
+      health: "只做现实层面的作息、压力和安全复核，必要时按专业渠道处理。",
+      movement: "提前核对行程、地点、交通和时间表，重要变动保留备选方案。",
+      social: "合作前先确认分工、资源归属和沟通节奏。",
+    }[topic] || "把现实反馈记录下来，再回到触发链复核。";
+  }
+
+  function sanitizeLocalAiReport(value) {
+    const forbidden = ["一定", "必定", "绝对", "必然", "必离婚", "必发财", "必有灾", "必坐牢", "必死亡"];
+    if (typeof value === "string") return forbidden.reduce((text, word) => text.split(word).join("需复核"), value);
+    if (Array.isArray(value)) return value.map(sanitizeLocalAiReport);
+    if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, sanitizeLocalAiReport(item)]));
+    return value;
   }
 
   function buildLocalEventCandidateReport(mode) {
@@ -797,6 +991,11 @@
       decadeSupportScore: Math.min(100, 50 + triggerChains.length * 3),
       decadeRiskTags: triggerChains.flatMap(chain => chain.tags).slice(0, 6),
       decadeEvidence,
+      luckBackground: {
+        conclusion: `${selectedLuck.label}大运${decadeTheme}`,
+        evidence: decadeEvidence,
+        reality: "大运是十年背景层，决定这一年事件更容易以资源承接、规则压力、关系互动或迁动变化的方式被看见。",
+      },
       annualTheme: top,
       overallSummary: `结论：${yearInfluence.year}年先看${top}这些候选主题。\n命理依据：原局${chart.pillars.day.label}接大运${selectedLuck.label}，再由流年${yearInfluence.pillar.label}触发，当前形成${triggerChains.length}条引动链。\n现实表现：重点观察职责资源、关系合作、迁动变化和作息体感是否在重点月份出现反馈。\n注意事项：本地引擎只做结构化取象，需要结合现实反馈继续验证，不能单独作为结论。`,
       eventScores,
@@ -837,8 +1036,9 @@
   function renderYear(data) {
     const root = byId("yearStory");
     if (!root) return;
-    root.hidden = true;
-    root.innerHTML = "";
+    const report = flowAiReports.year?.coreConclusion ? flowAiReports.year : buildLocalReadableAiReport("year", true);
+    root.hidden = false;
+    root.innerHTML = `<div class="plugin-header"><p class="eyebrow">年度 AI 输出</p><h2>流年白话解读</h2></div>${renderReadableFlowAiReport("year", report)}`;
   }
 
   function renderMonth(data) {

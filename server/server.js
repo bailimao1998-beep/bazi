@@ -64,7 +64,7 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
   const matchedRules = ruleEngine({ chart, ziwei, yearInfluence, monthInfluences });
   const storyTags = generateStoryTags({ chart, yearInfluence, monthInfluences, matchedRules });
   const prompt = aiMode === "default"
-    ? buildNarrativePrompt({ chart, yearInfluence, monthInfluences, storyTags })
+    ? buildNarrativePrompt({ chart, yearInfluence, monthInfluences, storyTags, fortuneAnalysis })
     : buildFlowNarrativePrompt({
       mode: aiMode,
       chart,
@@ -74,6 +74,7 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
       selectedLuck,
       yearInfluence,
       selectedMonthInfluence,
+      fortuneAnalysis,
     });
   const narrative = await createAiProvider(providerOptions).generate({ prompt, storyTags });
   return {

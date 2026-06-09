@@ -1,16 +1,17 @@
 import { loadJson } from "../../utils/jsonLoader.js";
-import { buildEventCandidateReportFromPrompt } from "../story/eventCandidates.js";
+import { buildReadableAiReportFromPrompt } from "../story/eventCandidates.js";
 
 export function createMockProvider() {
   return {
     name: "mock",
     async generate({ prompt, storyTags = [] } = {}) {
       if (prompt?.mode) {
-        const report = buildEventCandidateReportFromPrompt(prompt);
+        const report = buildReadableAiReportFromPrompt(prompt);
         return {
           provider: "mock",
-          text: report.summary,
+          text: report.coreConclusion,
           report,
+          isPlaceholder: true,
         };
       }
       const mock = loadJson("data/mock/mock-ai-response.json");

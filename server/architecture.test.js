@@ -9,7 +9,7 @@ import { ruleEngine } from "./core/rules/ruleEngine.js";
 import { analyzeFortuneYear } from "./core/fortune-engine/index.js";
 import { buildEventCandidateScenarios, collectEventCandidatesFromSignals } from "./core/story/eventCandidates.js";
 import { generateStoryTags } from "./core/story/generateStoryTags.js";
-import { buildNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
+import { buildNarrativePrompt, flowReportSchema } from "./core/story/buildNarrativePrompt.js";
 import { buildFlowNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
 import { buildChatPrompt, buildChatResponse, buildNarrative, sanitizeChatText } from "./server.js";
 import { createAiProvider } from "./core/ai/aiProvider.js";
@@ -115,7 +115,13 @@ test("local engines build chart, rules, story tags, prompt, and mock narrative w
   );
   const matchedRules = ruleEngine({ chart, yearInfluence, monthInfluences });
   const storyTags = generateStoryTags({ chart, yearInfluence, monthInfluences, matchedRules });
-  const prompt = buildNarrativePrompt({ chart, yearInfluence, monthInfluences, storyTags });
+  const fortuneAnalysis = analyzeFortuneYear({
+    chart,
+    selectedLuck: chart.luckCycles.pillars[0],
+    yearInfluence,
+    monthInfluences,
+  });
+  const prompt = buildNarrativePrompt({ chart, yearInfluence, monthInfluences, storyTags, fortuneAnalysis });
   const provider = createAiProvider({ provider: "mock" });
   const narrative = await provider.generate({ prompt, storyTags });
 
@@ -126,7 +132,9 @@ test("local engines build chart, rules, story tags, prompt, and mock narrative w
   assert.ok(matchedRules.length > 0);
   assert.ok(storyTags.some((tag) => tag.period === "year"));
   assert.match(prompt.system, /不能重新排盘/);
-  assert.match(prompt.user, /storyTags/);
+  assert.match(prompt.system, /白话解读层/);
+  assert.match(prompt.user, /fortuneAnalysis/);
+  assert.doesNotMatch(prompt.user, /apiKey|DEEPSEEK_API_KEY|sk-/i);
   assert.equal(narrative.provider, "mock");
   assert.ok(narrative.text.includes("年度主线"));
   assert.doesNotMatch(narrative.text, /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
@@ -146,20 +154,19 @@ test("flow AI modes build structured prompts and mock reports without model-side
     const result = await buildNarrative({ ...input, mode });
     assert.equal(result.aiMode, mode);
     assert.equal(result.narrative.provider, "deepseek");
-    assert.equal(typeof result.narrative.report.summary, "string");
-    assert.ok(Array.isArray(result.narrative.report.keySignals));
-    assert.ok(Array.isArray(result.narrative.report.likelyThemes));
-    assert.ok(Array.isArray(result.narrative.report.cautions));
-    assert.ok(Array.isArray(result.narrative.report.verificationLimits));
-    assert.ok(Array.isArray(result.narrative.report.scenarios));
-    assert.ok(result.narrative.report.scenarios.length >= 2);
-    for (const scenario of result.narrative.report.scenarios) {
-      assert.equal(typeof scenario.title, "string");
-      assert.ok(Array.isArray(scenario.evidence));
-      assert.ok(Array.isArray(scenario.lifeSignals));
-      assert.ok(Array.isArray(scenario.verification));
-      assert.equal(typeof scenario.boundary, "string");
-      assert.match(scenario.boundary, /不能单独作为结论/);
+    assert.equal(result.narrative.isPlaceholder, true);
+    assert.equal(typeof result.narrative.report.title, "string");
+    assert.equal(typeof result.narrative.report.coreConclusion, "string");
+    assert.ok(result.narrative.report.luckBackground?.evidence?.length > 0);
+    assert.ok(result.narrative.report.yearTrigger?.evidence?.length > 0);
+    assert.ok(Array.isArray(result.narrative.report.eventFocus));
+    assert.ok(Array.isArray(result.narrative.report.monthlyHighlights));
+    assert.ok(result.narrative.report.eventFocus.length > 0);
+    assert.ok(result.narrative.report.monthlyHighlights.length > 0);
+    for (const item of result.narrative.report.eventFocus) {
+      assert.match(item.topic, /^(career|wealth|relationship|study|health|movement|social)$/);
+      assert.match(item.level, /^(high|medium|low)$/);
+      assert.ok(Array.isArray(item.evidence));
     }
     assert.doesNotMatch(JSON.stringify(result.narrative.report), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
   }
@@ -178,29 +185,41 @@ test("flow AI modes build structured prompts and mock reports without model-side
     selectedLuck: chart.luckCycles.pillars[0],
     yearInfluence,
     selectedMonthInfluence: monthInfluences[5],
+    fortuneAnalysis: analyzeFortuneYear({
+      chart,
+      selectedLuck: chart.luckCycles.pillars[0],
+      yearInfluence,
+      monthInfluences,
+    }),
   });
   assert.match(prompt.system, /不能重新排盘/);
   assert.match(prompt.system, /不能补充不存在的干支关系/);
-  assert.match(prompt.system, /禁止确定性断语/);
-  assert.match(prompt.system, /不能单独作为结论/);
-  assert.match(prompt.system, /咨询型语言/);
-  assert.match(prompt.system, /专业证据链/);
-  assert.match(prompt.system, /证据链 -> 生活翻译 -> 验证步骤/);
-  assert.match(prompt.system, /多候选方向/);
-  assert.match(prompt.system, /证据链/);
-  assert.match(prompt.system, /生活落点/);
-  assert.match(prompt.system, /验证条件/);
-  assert.match(prompt.system, /边界/);
-  assert.match(JSON.stringify(prompt.schema), /scenarios/);
-  assert.match(JSON.stringify(prompt.schema), /lifeSignals/);
+  assert.match(prompt.system, /白话解读层/);
+  assert.match(prompt.system, /只能根据 fortuneAnalysis、triggerChains、eventScores、monthlyHighlights/);
+  assert.match(prompt.system, /先给结论/);
+  assert.match(prompt.system, /重点月份/);
+  assert.match(prompt.system, /禁止平均解释 12 个月/);
+  assert.match(JSON.stringify(prompt.schema), /coreConclusion/);
+  assert.match(JSON.stringify(prompt.schema), /eventFocus/);
+  assert.match(JSON.stringify(prompt.schema), /monthlyHighlights/);
+  assert.match(JSON.stringify(flowReportSchema), /coreConclusion/);
   assert.match(prompt.user, /"mode": "year"/);
-  assert.match(prompt.user, /transitSignals/);
-  assert.match(prompt.user, /3-5 个年度触发候选/);
-  assert.match(prompt.user, /候选方向/);
-  assert.match(prompt.user, /验证条件/);
-  assert.match(prompt.user, /咨询总览/);
-  assert.match(prompt.user, /专业证据链/);
-  assert.match(prompt.user, /现实验证/);
+  assert.match(prompt.user, /fortuneAnalysis/);
+  assert.match(prompt.user, /triggerChains/);
+  assert.match(prompt.user, /eventScores/);
+  assert.match(prompt.user, /monthlyHighlights/);
+  assert.doesNotMatch(prompt.user, /apiKey|DEEPSEEK_API_KEY|sk-/i);
+});
+
+test("flow AI schema exposes conclusion-focused report fields", () => {
+  const schemaText = JSON.stringify(flowReportSchema);
+  assert.match(schemaText, /coreConclusion/);
+  assert.match(schemaText, /luckBackground/);
+  assert.match(schemaText, /yearTrigger/);
+  assert.match(schemaText, /eventFocus/);
+  assert.match(schemaText, /monthlyHighlights/);
+  assert.match(schemaText, /overallAdvice/);
+  assert.match(schemaText, /boundary/);
 });
 
 test("event candidate scenarios translate actual signal matrices into concrete observables", () => {
@@ -263,6 +282,11 @@ test("fortune-engine links natal, decade, year, and month into structured trigge
   const result = analyzeFortuneYear({ chart, selectedLuck, yearInfluence, monthInfluences });
 
   assert.equal(result.year, 2026);
+  assert.ok(result.annualTheme);
+  assert.ok(result.overallSummary);
+  assert.ok(result.luckBackground?.conclusion);
+  assert.ok(result.luckBackground?.evidence?.length > 0);
+  assert.ok(result.luckBackground?.reality);
   assert.ok(result.natalSignature.natalTags.length > 0);
   assert.ok(result.natalSignature.riskAreas.length > 0);
   assert.ok(Array.isArray(result.natalSignature.usefulElements));
@@ -290,6 +314,10 @@ test("fortune-engine links natal, decade, year, and month into structured trigge
 
   const response = await buildNarrative(input);
   assert.equal(response.fortuneAnalysis.year, 2026);
+  assert.ok(response.fortuneAnalysis.luckBackground.conclusion);
+  assert.ok(Array.isArray(response.fortuneAnalysis.triggerChains));
+  assert.ok(Array.isArray(response.fortuneAnalysis.monthlyHighlights));
+  assert.ok(Array.isArray(response.fortuneAnalysis.advice));
   assert.deepEqual(Object.keys(response.fortuneAnalysis.eventScores), ["career", "wealth", "relationship", "study", "health", "movement", "social"]);
 });
 
@@ -711,6 +739,16 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /function requestFlowAiReport/);
   assert.match(bundle, /function renderFlowAiControls/);
   assert.match(bundle, /function renderFlowAiReport/);
+  assert.match(bundle, /function renderReadableFlowAiReport/);
+  assert.match(bundle, /核心结论/);
+  assert.match(bundle, /大运背景/);
+  assert.match(bundle, /流年触发/);
+  assert.match(bundle, /重点领域/);
+  assert.match(bundle, /重点月份/);
+  assert.match(bundle, /本地占位报告/);
+  assert.match(bundle, /fortuneAnalysis: lastData\.fortuneAnalysis/);
+  assert.match(bundle, /function pickBrowserFortuneAnalysis/);
+  assert.match(bundle, /root\.hidden = false/);
   assert.match(bundle, /咨询总览/);
   assert.match(bundle, /专业证据链/);
   assert.match(bundle, /生活落点/);

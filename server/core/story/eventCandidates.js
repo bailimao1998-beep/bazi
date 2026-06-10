@@ -108,16 +108,13 @@ export function buildReadableAiReportFromPrompt(prompt = {}) {
   const input = parsePromptUser(prompt.user);
   const mode = prompt.mode ?? input.mode ?? "year";
   const fortune = input.fortuneAnalysis ?? {};
-  const eventScores = fortune.eventScores ?? {};
   const annualTopEvents = Array.isArray(fortune.mainEvents) && fortune.mainEvents.length
     ? fortune.mainEvents.map((event) => [event.eventType, {
       score: event.score,
       evidence: event.evidenceChain,
       candidate: event,
     }])
-    : Object.entries(eventScores)
-      .sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0))
-      .slice(0, 4);
+    : [];
   const monthlyHighlights = Array.isArray(fortune.monthlyHighlights) ? fortune.monthlyHighlights.slice(0, 5) : [];
   const triggerChains = Array.isArray(fortune.triggerChains) ? fortune.triggerChains : [];
   const context = selectReportContext({
@@ -256,7 +253,7 @@ function selectReportContext({ mode, fortune, topEvents, triggerChains, monthlyH
     title: `${fortune.annualTheme || "流年年度"}结构化解读`,
     coreConclusion: (events) => events.length
       ? `今年优先看：${events.slice(0, 3).map((item) => item.event).join("；")}。`
-      : firstSentence(fortune.overallSummary) || "今年先看职责、资源、关系和时间表是否出现具体调整。",
+      : "本地触发链不足，不能硬断年度事件。",
     yearTriggerConclusion: triggerChains[0]?.reason || "流年把原局与大运中的重点主题推到当年。",
     luckConclusion: "流年报告不展开大运，只分析当年触发本身。",
     luckReality: "本段看年度干支、十神和原局关系把哪些现实主题推到当年。",
@@ -407,15 +404,16 @@ function ensureReportDefaults(report) {
   return {
     ...report,
     likelyEvents: report.likelyEvents.length ? report.likelyEvents : [{
-      event: "工作职责或项目分工出现调整",
-      conclusion: "当前只保留低强度职责与项目分工观察。",
+      event: "本地触发链不足",
+      conclusion: "本地触发链不足，不能硬断年度事件。",
       probabilityLevel: "low",
-      timeWindow: "全年低强度观察",
-      timing: "全年低强度观察",
-      evidence: ["当前本地证据包没有给出更高权重触发链。"],
-      reality: "可能表现为任务边界、交付方式、协作对象或流程要求的小幅调整。",
-      advice: "只记录现实中实际出现的职责、流程或交付变化。",
-      verifyBy: ["是否出现职责边界变化", "是否出现流程或交付节点", "是否在重点月份有反馈"],
+      timeWindow: "不指定强事件窗口",
+      timing: "不指定强事件窗口",
+      evidence: ["当前本地证据包没有给出 mainEvents。"],
+      reality: "只能作为趋势观察入口，不能写成明确年度事件。",
+      advice: "先记录现实反馈，等触发链更明确时再展开。",
+      verifyBy: ["是否出现现实反馈", "是否有对应柱位、十神和岁运证据", "是否存在流月再次触发"],
+      boundary: "本地触发链不足，不能硬断年度事件。",
     }],
     eventFocus: report.eventFocus.length ? report.eventFocus : [{
       topic: "career",
@@ -456,16 +454,18 @@ function buildLikelyEvents({ mode = "year", topEvents = [], triggerChains = [], 
       const candidate = score.candidate;
       const eventText = candidate.possibleManifestations?.[0] || `${topicName(candidate.eventType)}候选事件`;
       const timing = normalizeList(candidate.timing)[0] || eventTimeWindow(months[index % Math.max(months.length, 1)] || {}, scoreLevel(candidate.score), mode, selectedMonth);
+      const evidence = normalizeList(candidate.evidenceChain)[0] || "本地触发链命中";
       return {
         event: eventText,
-        conclusion: `${topicName(candidate.eventType)}：${eventText}`,
+        conclusion: `${evidence}，可能是${eventText}。`,
         probabilityLevel: scoreLevel(candidate.score),
         timeWindow: timing,
         timing,
-        evidence: normalizeList(candidate.evidenceChain).slice(0, 5),
-        reality: normalizeList(candidate.possibleManifestations).slice(0, 4).join("；") || eventReality(candidate.eventType),
-        advice: eventAdvice(candidate.eventType),
-        verifyBy: normalizeList(candidate.timing).slice(0, 3).concat(["现实中是否出现对应事项", "是否与证据链中的柱位和十神一致"]).slice(0, 5),
+        evidence: [evidence],
+        reality: normalizeList(candidate.possibleManifestations)[0] || eventReality(candidate.eventType),
+        advice: "只当候选事象看，等现实反馈验证。",
+        verifyBy: normalizeList(candidate.timing).slice(0, 1).concat(["现实中是否出现对应事项"]).slice(0, 2),
+        boundary: "这是本地事件引擎给出的候选事件，需要结合现实反馈、柱位、旺衰、十神和岁运继续验证，不能单独作为结论。",
       };
     }
     const chains = triggerChains.filter((chain) => normalizeList(chain.tags).includes(topic));
@@ -473,21 +473,23 @@ function buildLikelyEvents({ mode = "year", topEvents = [], triggerChains = [], 
     const month = months[index % Math.max(months.length, 1)] || {};
     const template = normalizeTemplateForMode(likelyEventTemplate(topic, mode), mode);
     const probabilityLevel = scoreLevel(score?.score ?? chain.weight * 18);
+    const evidence = dedupe([
+      ...normalizeList(score?.evidence).slice(0, 2),
+      ...normalizeList(chain.evidence).slice(0, 2),
+      chain.reason,
+      ...(month.month ? [`${month.month}月${month.pillar || ""}${month.intensity || ""}触发窗口`] : []),
+    ].filter(Boolean)).slice(0, 1);
     return {
       event: template.event,
-      conclusion: `${topicName(topic)}：${template.event}`,
+      conclusion: `${evidence[0] || topicName(topic)}，可能是${template.event}。`,
       probabilityLevel,
       timeWindow: eventTimeWindow(month, probabilityLevel, mode, selectedMonth),
       timing: eventTimeWindow(month, probabilityLevel, mode, selectedMonth),
-      evidence: dedupe([
-        ...normalizeList(score?.evidence).slice(0, 2),
-        ...normalizeList(chain.evidence).slice(0, 2),
-        chain.reason,
-        ...(month.month ? [`${month.month}月${month.pillar || ""}${month.intensity || ""}触发窗口`] : []),
-      ].filter(Boolean)).slice(0, 5),
-      reality: template.reality,
-      advice: eventAdvice(topic),
-      verifyBy: template.verifyBy,
+      evidence,
+      reality: firstSentence(template.reality),
+      advice: "只当候选事象看，等现实反馈验证。",
+      verifyBy: normalizeList(template.verifyBy).slice(0, 2),
+      boundary: "这是本地事件引擎给出的候选事件，需要结合现实反馈、柱位、旺衰、十神和岁运继续验证，不能单独作为结论。",
     };
   });
 }

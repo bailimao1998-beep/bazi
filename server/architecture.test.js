@@ -298,6 +298,8 @@ test("flow AI modes build structured prompts and mock reports without model-side
   assert.match(prompt.system, /每条 likelyEvents/);
   assert.match(prompt.system, /少废话/);
   assert.match(prompt.system, /避免重复/);
+  assert.match(prompt.system, /象 → 可能的事/);
+  assert.match(prompt.system, /不要写复杂报告/);
   assert.match(prompt.system, /先给结论/);
   assert.match(prompt.system, /对应层级/);
   assert.match(prompt.system, /禁止平均解释 12 个月/);
@@ -475,6 +477,31 @@ test("annual fortune event engine returns ranked event candidates from trigger c
   assert.match(JSON.stringify(relationship.evidenceChain), /日支|日柱|酉|伏吟|同支|官|杀/);
 });
 
+test("annual fortune event engine promotes 2017 male relationship trigger into year main events", async () => {
+  const chart = createManualChart({
+    gender: "male",
+    pillars: {
+      year: "戊寅",
+      month: "辛酉",
+      day: "辛酉",
+      hour: "戊子",
+    },
+  });
+  const selectedLuck = { label: "丙申", stem: "丙", branch: "申", startYear: 2010, endYear: 2019, startAge: 20, endAge: 29 };
+  const yearInfluence = calculateYearInfluence({ chart, targetYear: 2017 });
+  const monthInfluences = Array.from({ length: 12 }, (_, index) =>
+    calculateMonthInfluence({ chart, targetYear: 2017, month: index + 1 }),
+  );
+
+  const report = buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences });
+  const relationship = report.mainEvents.find((event) => event.eventType === "relationship_marriage");
+
+  assert.ok(relationship, "2017 丁酉应把关系婚恋放入 yearAnalysis/mainEvents 主线");
+  assert.match(relationship.level, /^(high|medium)$/);
+  assert.match(JSON.stringify(relationship.evidenceChain), /流年酉触发日支酉|流年.*酉.*日支.*酉/);
+  assert.match(JSON.stringify(relationship.possibleManifestations), /暧昧|确定关系|旧关系|关系边界变化|关系边界/);
+});
+
 test("annual fortune event engine recognizes 2026 career or movement triggers for the sample chart", async () => {
   const chart = createManualChart({
     gender: "female",
@@ -520,6 +547,80 @@ test("annual fortune event engine recognizes 2026 career or movement triggers fo
   assert.match(response.prompt.user, /mainEvents/);
   assert.match(response.prompt.user, /eventCandidates/);
   assert.doesNotMatch(response.prompt.user, /apiKey|DEEPSEEK_API_KEY|sk-/i);
+});
+
+test("annual fortune event engine keeps 2026 male sample differentiated instead of making every topic high", () => {
+  const chart = createManualChart({
+    gender: "male",
+    pillars: {
+      year: "戊寅",
+      month: "辛酉",
+      day: "辛酉",
+      hour: "戊子",
+    },
+  });
+  const selectedLuck = { label: "丙午", stem: "丙", branch: "午", startYear: 2020, endYear: 2029, startAge: 30, endAge: 39 };
+  const yearInfluence = calculateYearInfluence({ chart, targetYear: 2026 });
+  const monthInfluences = Array.from({ length: 12 }, (_, index) =>
+    calculateMonthInfluence({ chart, targetYear: 2026, month: index + 1 }),
+  );
+
+  const report = buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences });
+  const mainTypes = report.mainEvents.map((event) => event.eventType);
+  const scoreValues = Object.values(report.eventScores).map((item) => item.score);
+
+  assert.ok(
+    ["relationship_marriage", "health_risk", "career_status"].some((type) => mainTypes.includes(type)),
+    "2026 丙午应至少在关系、健康或事业身份中识别年度观察重点",
+  );
+  assert.ok(scoreValues.some((score) => score < 70), "2026 不应所有领域都 high");
+  assert.ok(scoreValues.some((score) => score < 100), "2026 不应所有分数都是 100");
+  assert.doesNotMatch(JSON.stringify(report.mainEvents), /流年午合动日支酉/);
+});
+
+test("flow narrative prompt reads the requested fortuneAnalysis layer by mode", () => {
+  const layeredFortune = {
+    mainEvents: [{ eventType: "legacy_top", score: 100, level: "high", evidenceChain: ["旧顶层不应进入 mode 报告"] }],
+    eventScores: { relationship: { score: 100, evidence: ["旧顶层"] } },
+    triggerChains: [{ reason: "旧顶层 triggerChain" }],
+    monthlyHighlights: [{ month: 12, reasons: ["旧顶层月份"] }],
+    luckAnalysis: {
+      annualTheme: "大运层",
+      mainEvents: [{ eventType: "wealth_resource", score: 60, level: "medium", evidenceChain: ["大运层证据"] }],
+      eventScores: { wealth: { score: 60, evidence: ["大运层证据"] } },
+      triggerChains: [{ reason: "大运层 triggerChain" }],
+      monthlyHighlights: [],
+    },
+    yearAnalysis: {
+      annualTheme: "流年层",
+      mainEvents: [{ eventType: "relationship_marriage", score: 80, level: "high", evidenceChain: ["流年层证据"] }],
+      eventScores: { relationship: { score: 80, evidence: ["流年层证据"] } },
+      triggerChains: [{ reason: "流年层 triggerChain" }],
+      monthlyHighlights: [{ month: 6, reasons: ["流年层月份不应进入流年 evidencePackage timeWindows"] }],
+    },
+    monthAnalysis: {
+      annualTheme: "流月层",
+      mainEvents: [{ eventType: "health_risk", score: 70, level: "medium", evidenceChain: ["流月层证据"] }],
+      eventScores: { health: { score: 70, evidence: ["流月层证据"] } },
+      triggerChains: [{ reason: "流月层 triggerChain" }],
+      monthlyHighlights: [{ month: 3, pillar: "庚寅", intensity: "medium", reasons: ["流月层月份"] }],
+    },
+  };
+
+  const luckUser = JSON.parse(buildFlowNarrativePrompt({ mode: "luck", fortuneAnalysis: layeredFortune }).user);
+  const yearUser = JSON.parse(buildFlowNarrativePrompt({ mode: "year", fortuneAnalysis: layeredFortune }).user);
+  const monthUser = JSON.parse(buildFlowNarrativePrompt({
+    mode: "month",
+    fortuneAnalysis: layeredFortune,
+    selectedMonthInfluence: { month: 3, pillar: { label: "庚寅" }, evidence: ["选中流月"] },
+  }).user);
+
+  assert.equal(luckUser.fortuneAnalysis.mainEvents[0].eventType, "wealth_resource");
+  assert.equal(yearUser.fortuneAnalysis.mainEvents[0].eventType, "relationship_marriage");
+  assert.equal(monthUser.fortuneAnalysis.mainEvents[0].eventType, "health_risk");
+  assert.equal(yearUser.evidencePackage.timeWindows.length, 0);
+  assert.equal(monthUser.evidencePackage.timeWindows[0].month, 3);
+  assert.doesNotMatch(JSON.stringify({ luckUser, yearUser, monthUser }), /legacy_top|旧顶层/);
 });
 
 test("fortune-engine rules keep required rule contract", () => {
@@ -904,12 +1005,12 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /function monthNumberFromLunarLabel/);
   assert.match(bundle, /function parseLunarDayValue/);
   assert.match(bundle, /lunar\.year \?\? lunar\.lunarYear/);
-  assert.ok(bundle.indexOf("1. 先选大运") < bundle.indexOf("2. 再看该大运内的流年"));
   assert.match(bundle, /function renderNatalMiniChart/);
   assert.match(bundle, /原局对照/);
-  assert.match(bundle, /renderNatalMiniChart\(data\.chart\)[\s\S]*1\. 先选大运/);
-  assert.match(bundle, /1\. 先选大运[\s\S]*renderFlowAiStage\("luck"[\s\S]*2\. 再看该大运内的流年/);
-  assert.match(bundle, /2\. 再看该大运内的流年[\s\S]*renderFlowAiStage\("year"[\s\S]*renderTransitSignals\(data\.transitSignals, data\)[\s\S]*4\. 最后细看流月/);
+  assert.ok(bundle.indexOf("1. 大运盘") < bundle.indexOf("2. 流年盘"));
+  assert.ok(bundle.indexOf("2. 流年盘") < bundle.indexOf("3. 基础命盘"));
+  assert.match(bundle, /renderFortuneTransitChart\(data\)[\s\S]*renderFlowAiStage\("luck"[\s\S]*renderFlowAiStage\("year"/);
+  assert.match(bundle, /renderFlowAiStage\("year"[\s\S]*renderTransitSignals\(data\.transitSignals, data\)[\s\S]*4\. 最后细看流月/);
   assert.match(bundle, /3\. 大运流年取象证据库/);
   assert.match(bundle, /4\. 最后细看流月[\s\S]*renderFlowAiStage\("month"[\s\S]*renderMonthSignals\(data\.monthSignals, data\)/);
   assert.match(bundle, /5\. 流月取象证据库/);
@@ -945,12 +1046,11 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.doesNotMatch(bundle, /这一年更像发生的事/);
   assert.match(bundle, /流年候选事象/);
   assert.match(bundle, /function renderAiLikelyEvent/);
-  assert.match(bundle, /核心结论/);
-  assert.match(bundle, /大运背景/);
-  assert.match(bundle, /流年触发/);
-  assert.match(bundle, /大运领域依据/);
-  assert.match(bundle, /流年领域依据/);
-  assert.match(bundle, /本月领域依据/);
+  assert.match(bundle, /AI短解/);
+  assert.match(bundle, /取象/);
+  assert.match(bundle, /可能的事/);
+  assert.match(bundle, /ai-one-line/);
+  assert.match(bundle, /ai-event-brief/);
   assert.match(bundle, /重点月份/);
   assert.match(bundle, /本地占位报告/);
   assert.match(bundle, /fortuneAnalysis: lastData\.fortuneAnalysis/);
@@ -967,12 +1067,41 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /验证条件/);
   assert.match(bundle, /boundary/);
   assert.match(bundle, /function renderFlowAiStage/);
+  assert.match(bundle, /function renderFortuneTransitChart/);
+  assert.match(bundle, /function renderTransitPillarMatrix/);
+  assert.match(bundle, /function renderFortuneStepper/);
+  assert.match(bundle, /fortune-transit-grid/);
+  assert.match(bundle, /fortune-ai-layout/);
+  assert.match(bundle, /flow-ai-card/);
+  assert.match(bundle, /transit-pillar-matrix/);
+  assert.match(bundle, /data-luck-prev/);
+  assert.match(bundle, /data-luck-next/);
+  assert.match(bundle, /data-year-prev/);
+  assert.match(bundle, /data-year-next/);
+  assert.match(bundle, /data-luck-select/);
+  assert.match(bundle, /data-year-select/);
+  assert.doesNotMatch(bundle, /主线观察/);
+  assert.doesNotMatch(bundle, /五行合看/);
+  assert.match(bundle, /大运盘/);
+  assert.match(bundle, /流年盘/);
+  assert.match(bundle, /基础命盘/);
+  assert.ok(bundle.indexOf("1. 大运盘") < bundle.indexOf("2. 流年盘"));
+  assert.ok(bundle.indexOf("2. 流年盘") < bundle.indexOf("3. 基础命盘"));
+  assert.ok(bundle.indexOf("renderFortuneTransitChart(data)") < bundle.indexOf('renderFlowAiStage("luck"'));
+  assert.ok(bundle.indexOf('renderFlowAiStage("year"') < bundle.indexOf("最后细看流月"));
+  assert.match(styles, /fortune-transit-grid/);
+  assert.match(styles, /minmax\(440px, 1\.7fr\)/);
+  assert.match(styles, /fortune-ai-layout/);
+  assert.match(styles, /transit-pillar-matrix/);
+  assert.match(styles, /fortune-stepper/);
   assert.match(bundle, /data-ai-mode="luck"/);
   assert.match(bundle, /data-ai-mode="year"/);
   assert.match(bundle, /data-ai-mode="month"/);
   assert.match(bundle, /AI解读大运/);
   assert.match(bundle, /AI解读流年/);
   assert.match(bundle, /AI解读流月/);
+  assert.match(bundle, /AI短解/);
+  assert.match(bundle, /可能的事/);
   assert.match(bundle, /ai-report-panel/);
   assert.match(bundle, /function createLocalFlowAiReport/);
   assert.match(bundle, /function renderChatWidget/);

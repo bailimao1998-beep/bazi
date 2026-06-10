@@ -347,21 +347,15 @@
   function renderReadableFlowAiReport(mode, report) {
     const placeholder = report.isPlaceholder ? `<span class="ai-placeholder-badge">本地占位报告</span>` : "";
     const titles = readableReportSectionTitles(mode);
-    const backgroundBlock = mode === "luck" ? renderAiReportBlock(titles.background, report.luckBackground) : "";
-    const triggerBlock = mode === "luck" ? renderAiReportBlock(titles.trigger, report.yearTrigger) : renderAiReportBlock(titles.trigger, report.yearTrigger);
     const monthBlock = mode === "month" && Array.isArray(report.monthlyHighlights) && report.monthlyHighlights.length
       ? `<section class="ai-report-section"><h4>${titles.months}</h4><div class="ai-month-list">${report.monthlyHighlights.map(renderAiMonth).join("")}</div></section>`
       : "";
     return `<article class="ai-report-panel ai-readable-report">
-      <div class="ai-report-head"><span>AI白话解读${placeholder}</span><strong>${escapeHtml(report.title || `${flowAiModeLabel(mode)}解读`)}</strong></div>
-      <section class="ai-report-section"><h4>核心结论</h4><p>${escapeHtml(report.coreConclusion)}</p></section>
-      ${backgroundBlock}
-      ${triggerBlock}
-      <section class="ai-report-section"><h4>${titles.events}</h4><div class="ai-focus-list">${(report.likelyEvents || []).map(renderAiLikelyEvent).join("")}</div></section>
-      <details class="ai-report-section"><summary>${titles.focus}</summary><div class="ai-focus-list">${(report.eventFocus || []).map(renderAiEventFocus).join("")}</div></details>
+      <div class="ai-report-head"><span>AI短解${placeholder}</span><strong>${escapeHtml(report.title || `${flowAiModeLabel(mode)}解读`)}</strong></div>
+      <p class="ai-one-line">${escapeHtml(shortText(report.coreConclusion, 42))}</p>
+      <section class="ai-report-section compact"><h4>${titles.events}</h4><div class="ai-focus-list compact">${(report.likelyEvents || []).map(renderAiLikelyEvent).join("")}</div></section>
       ${monthBlock}
-      <section class="ai-report-section"><h4>建议</h4>${renderScenarioItems(report.overallAdvice || [])}</section>
-      <p class="ai-boundary">${escapeHtml(report.boundary || "以上为学习型观察边界，请结合现实反馈复核。")}</p>
+      <p class="ai-boundary">${escapeHtml(shortText(report.boundary || "以上为学习型观察边界，请结合现实反馈复核。", 36))}</p>
     </article>`;
   }
 
@@ -402,7 +396,9 @@
   }
 
   function renderAiLikelyEvent(item = {}) {
-    return `<article class="ai-focus-card"><div><strong>${escapeHtml(item.event || "候选事件")}</strong><span>${levelLabel(item.probabilityLevel)}</span></div><p>${escapeHtml(item.timeWindow || "等待现实反馈")}</p><dl><dt>依据</dt><dd>${renderScenarioItems(item.evidence || [])}</dd><dt>现实表现</dt><dd>${escapeHtml(item.reality || "")}</dd><dt>怎么验证</dt><dd>${renderScenarioItems(item.verifyBy || [])}</dd></dl></article>`;
+    const evidence = firstListItem(item.evidence) || "本地触发链不足";
+    const possible = item.reality || item.conclusion || item.event || "等待现实反馈";
+    return `<article class="ai-focus-card ai-event-brief"><div><strong>${escapeHtml(shortText(item.event || "候选事件", 24))}</strong><span>${levelLabel(item.probabilityLevel)}</span></div><dl><dt>取象</dt><dd>${escapeHtml(shortText(evidence, 42))}</dd><dt>可能的事</dt><dd>${escapeHtml(shortText(possible, 46))}</dd></dl></article>`;
   }
 
   function renderAiMonth(item = {}) {
@@ -425,6 +421,16 @@
   function renderScenarioItems(items = []) {
     const list = Array.isArray(items) && items.length ? items : ["暂无内容"];
     return `<ul>${list.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+  }
+
+  function firstListItem(items = []) {
+    return Array.isArray(items) && items.length ? String(items[0] || "") : "";
+  }
+
+  function shortText(value = "", maxLength = 48) {
+    const text = String(value || "").replace(/\s+/g, " ").split(/[。；;]/u).find(Boolean)?.trim() || "";
+    if (text.length <= maxLength) return text;
+    return `${text.slice(0, maxLength - 1)}…`;
   }
 
   function flowAiModeLabel(mode) {
@@ -537,19 +543,23 @@
 
   function buildBrowserFlowAiPrompt(mode) {
     const modeLabels = { luck: "大运阶段取象", year: "流年年度取象", month: "流月短期取象" };
-    const pickedFortuneAnalysis = pickBrowserFortuneAnalysis(lastData.fortuneAnalysis);
+    const rootFortune = lastData.fortuneAnalysis || {};
+    const pickedFortuneAnalysis = pickBrowserFortuneAnalysis(getFortuneAnalysisByMode(mode, rootFortune));
     const modeInstruction = flowModeInstruction(mode);
     return {
       system: [
         "你是命理网站的白话解读层，不是排盘层。",
         "不能重新排盘，不能新增不存在的干支关系，不能补充不存在的干支关系，不能自行改写年份月份。",
         "本地事件引擎已经提供 eventCandidates 和 mainEvents；AI 不再自己判断事件，也不能新增 mainEvents 之外的强判断。",
-        "你只能根据 fortuneAnalysis、mainEvents、triggerChains、monthlyHighlights 和 evidencePackage 写解读。",
-        "你的任务是把本地事件引擎识别出的 1-3 个重点候选事件翻译成人能听懂的现实语言。",
-        "只重点解释 score 最高的 1-3 个 mainEvents；禁止平均解释所有领域。",
-        "每条 likelyEvents 都必须对应一个 mainEvent，并包含 conclusion、evidence、reality、timing、advice。",
+        "你只能根据 fortuneAnalysis、mainEvents、triggerChains、monthlyHighlights 和 evidencePackage 写解读，且这些字段必须来自当前 mode 对应层级、对应分析层。",
+        "你的任务是把本地事件引擎识别出的 1-3 个重点候选事件翻译成非常短的“象 → 可能的事”。",
+        "mainEvents 是唯一主线；只重点解释 score 最高的 1-3 个 mainEvents；禁止平均解释所有领域。",
+        "每条 likelyEvents 都必须逐条对应一个 mainEvent，不允许新增 mainEvents 之外的强事件。",
+        "每条 likelyEvents 必须包含字段，但内容要短：conclusion 一句话，evidence 只放最关键 1 条象，reality 只写 1 句可能的现实事情，verifyBy 最多 2 条，boundary 一句。",
+        "如果 mainEvents 为空，必须说明“本地触发链不足，不能硬断年度事件”，likelyEvents 不要补写强事件。",
         "没有 evidenceChain 的事件不能写成强判断，只能放在 boundary 或不写。",
-        "输出顺序：先给结论，也就是先讲当前模式对应层级更像发生的事，再讲依据，再讲现实表现，再讲强弱，最后给建议。",
+        "输出顺序：先给结论，也就是一句总览；再列候选事象。每条候选事象先讲取象，再讲可能的事。",
+        "不要写复杂报告，不要长篇故事。用户只需要类似“2017 年酉触发日支酉，可能遇到初恋、暧昧或确定关系”这种短句。",
         "禁止确定性断语，禁止使用：一定、必定、绝对、必然、必发财、必离婚、必有灾、必坐牢、必死亡。",
         "禁止编造输入里没有的干支关系。",
         "禁止平均解释 12 个月；只有流月模式才写选中月份，其他模式不要展开月份。",
@@ -578,8 +588,8 @@
         },
         output: {
           schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
-          order: ["对应时间层级的候选事象", "依据", "现实表现", "强弱", "建议"],
-          style: "先取象，再解释；AI 只解释 fortuneAnalysis.mainEvents，不新增本地没有给出的事件，边界提醒只放 boundary。",
+          order: ["一句总览", "象", "可能的事"],
+          style: "极简短句。AI 只解释 fortuneAnalysis.mainEvents，不新增本地没有给出的事件。每个 likelyEvents 只写：根据什么象、可能遇到什么事，不写长建议。",
           modeInstruction,
         },
       }, null, 2),
@@ -628,7 +638,7 @@
         ? inferBrowserScoresFromEvidence(pickedMonthlyHighlights.flatMap(month => month.reasons || selectedMonthInfluence?.evidence || []), [], pickedMonthlyHighlights[0]?.score)
         : topEventScores;
     return {
-      role: "本地年度事件证据包；AI 只能解释 mainEvents，不允许补充不存在的干支关系或新增事件。",
+      role: "本地当前层级事件证据包；AI 只能解释 mainEvents，不允许补充不存在的干支关系或新增事件。",
       mode,
       modeInstruction: flowModeInstruction(mode),
       luckBackground: fortuneAnalysis.luckBackground,
@@ -762,11 +772,15 @@
       const base = fallback[index] || fallback[0];
       return {
         event: item?.event || base.event,
+        conclusion: item?.conclusion || base.conclusion,
         probabilityLevel: ["high", "medium", "low"].includes(item?.probabilityLevel) ? item.probabilityLevel : base.probabilityLevel,
         timeWindow: item?.timeWindow || base.timeWindow,
+        timing: item?.timing || base.timing,
         evidence: normalizeTextList(item?.evidence, base.evidence),
         reality: item?.reality || base.reality,
+        advice: item?.advice || base.advice,
         verifyBy: normalizeTextList(item?.verifyBy, base.verifyBy),
+        boundary: item?.boundary || base.boundary,
       };
     });
   }
@@ -814,23 +828,25 @@
 
   function getFortuneAnalysisByMode(mode, fortune = lastData?.fortuneAnalysis || {}) {
     if (mode === "luck") {
-      return fortune.luckAnalysis || fortune;
+      return fortune.luckAnalysis || {};
     }
     if (mode === "month") {
-      return fortune.monthAnalysis || fortune;
+      return fortune.monthAnalysis || {};
     }
-    return fortune.yearAnalysis || fortune;
+    return fortune.yearAnalysis || {};
   }
 
   function buildLocalReadableAiReport(mode, isPlaceholder = true) {
     const rootFortune = lastData?.fortuneAnalysis || {};
     const fortune = getFortuneAnalysisByMode(mode, rootFortune);
 
-    const eventScores = fortune.eventScores || {};
-    const annualTopEvents = Object.entries(eventScores)
-      .sort((a, b) => Number(b[1]?.score || 0) - Number(a[1]?.score || 0))
-      .filter(([, value]) => Number(value?.score || 0) > 0)
-      .slice(0, 4);
+    const annualTopEvents = Array.isArray(fortune.mainEvents) && fortune.mainEvents.length
+      ? fortune.mainEvents.map(event => [event.eventType, {
+        score: event.score,
+        evidence: event.evidenceChain,
+        candidate: event,
+      }])
+      : [];
 
     const triggerChains = Array.isArray(fortune.triggerChains) ? fortune.triggerChains : [];
     const months = mode === "month" && Array.isArray(fortune.monthlyHighlights)
@@ -861,12 +877,12 @@
       },
       likelyEvents,
       eventFocus: context.topEvents.map(([topic, score]) => ({
-        topic,
+        topic: localScoreKeyForEventType(topic),
         level: scoreLevel(score?.score),
-        conclusion: `${fortuneScoreLabel(topic)}：${context.focusPrefix}${levelLabel(scoreLevel(score?.score))}证据，作为候选事件来源参考。`,
+        conclusion: `${fortuneScoreLabel(localScoreKeyForEventType(topic))}：${context.focusPrefix}${levelLabel(scoreLevel(score?.score))}证据，作为候选事件来源参考。`,
         evidence: normalizeTextList(score?.evidence, ["当前本地规则没有给出更高权重触发链。"]).slice(0, 4),
-        reality: eventReality(topic),
-        advice: eventAdvice(topic),
+        reality: eventReality(localScoreKeyForEventType(topic)),
+        advice: eventAdvice(localScoreKeyForEventType(topic)),
       })),
       monthlyHighlights: context.months.map(month => ({
         month: Number(month.month),
@@ -1002,12 +1018,16 @@
     return {
       ...report,
       likelyEvents: report.likelyEvents.length ? report.likelyEvents : [{
-        event: "工作职责或项目分工出现调整",
+        event: "本地触发链不足",
+        conclusion: "本地触发链不足，不能硬断年度事件。",
         probabilityLevel: "low",
-        timeWindow: "全年低强度观察",
-        evidence: ["当前本地证据包没有给出更高权重触发链。"],
-        reality: "可能表现为任务边界、交付方式、协作对象或流程要求的小幅调整。",
-        verifyBy: ["是否出现职责边界变化", "是否出现流程或交付节点", "是否在重点月份有反馈"],
+        timeWindow: "不指定强事件窗口",
+        timing: "不指定强事件窗口",
+        evidence: ["当前本地证据包没有给出 mainEvents。"],
+        reality: "只能作为趋势观察入口，不能写成明确年度事件。",
+        advice: "先记录现实反馈，等触发链更明确时再展开。",
+        verifyBy: ["是否出现现实反馈", "是否有对应柱位、十神和岁运证据", "是否存在流月再次触发"],
+        boundary: "本地触发链不足，不能硬断年度事件。",
       }],
       eventFocus: report.eventFocus.length ? report.eventFocus : [{
         topic: "career",
@@ -1023,23 +1043,47 @@
 
   function buildLocalLikelyEvents(topEvents = [], triggerChains = [], monthlyHighlights = [], mode = "year", selectedMonth) {
     return topEvents.slice(0, 5).map(([topic, score], index) => {
+      if (score?.candidate) {
+        const candidate = score.candidate;
+        const eventText = normalizeTextList(candidate.possibleManifestations, [localEventLabel(candidate.eventType)])[0];
+        const timing = normalizeTextList(candidate.timing, [eventTimeWindow(monthlyHighlights[index % Math.max(monthlyHighlights.length, 1)] || {}, scoreLevel(candidate.score), mode, selectedMonth)])[0];
+        const evidence = normalizeTextList(candidate.evidenceChain, [])[0] || "本地触发链命中";
+        const reality = normalizeTextList(candidate.possibleManifestations, [eventReality(localScoreKeyForEventType(candidate.eventType))])[0];
+        return {
+          event: eventText,
+          conclusion: `${evidence}，可能是${eventText}。`,
+          probabilityLevel: scoreLevel(candidate.score),
+          timeWindow: timing,
+          timing,
+          evidence: [evidence],
+          reality,
+          advice: "只当候选事象看，等现实反馈验证。",
+          verifyBy: normalizeTextList(candidate.timing, []).slice(0, 1).concat(["现实中是否出现对应事项"]).slice(0, 2),
+          boundary: "这是本地事件引擎给出的候选事件，需要结合现实反馈、柱位、旺衰、十神和岁运继续验证，不能单独作为结论。",
+        };
+      }
       const chains = triggerChains.filter(chain => Array.isArray(chain.tags) && chain.tags.includes(topic));
       const chain = chains[0] || triggerChains[index] || {};
       const month = monthlyHighlights[index % Math.max(monthlyHighlights.length, 1)] || {};
       const template = normalizeTemplateForMode(likelyEventTemplate(topic, mode), mode);
       const probabilityLevel = scoreLevel(score?.score || chain.weight * 18);
+      const evidence = uniqueText([
+        ...normalizeTextList(score?.evidence, []).slice(0, 2),
+        ...normalizeTextList(chain.evidence, []).slice(0, 2),
+        chain.reason,
+        month.month ? `${month.month}月${month.pillar || ""}${month.intensity || ""}触发窗口` : "",
+      ].filter(Boolean)).slice(0, 1);
       return {
         event: template.event,
+        conclusion: `${evidence[0] || topicName(topic)}，可能是${template.event}。`,
         probabilityLevel,
         timeWindow: eventTimeWindow(month, probabilityLevel, mode, selectedMonth),
-        evidence: uniqueText([
-          ...normalizeTextList(score?.evidence, []).slice(0, 2),
-          ...normalizeTextList(chain.evidence, []).slice(0, 2),
-          chain.reason,
-          month.month ? `${month.month}月${month.pillar || ""}${month.intensity || ""}触发窗口` : "",
-        ].filter(Boolean)).slice(0, 5),
-        reality: template.reality,
-        verifyBy: template.verifyBy,
+        timing: eventTimeWindow(month, probabilityLevel, mode, selectedMonth),
+        evidence,
+        reality: shortText(template.reality, 46),
+        advice: "只当候选事象看，等现实反馈验证。",
+        verifyBy: normalizeTextList(template.verifyBy, []).slice(0, 2),
+        boundary: "这是本地事件引擎给出的候选事件，需要结合现实反馈、柱位、旺衰、十神和岁运继续验证，不能单独作为结论。",
       };
     });
   }
@@ -1158,6 +1202,32 @@
     if (value >= 70) return "high";
     if (value >= 40) return "medium";
     return "low";
+  }
+
+  function localScoreKeyForEventType(eventType) {
+    return {
+      relationship_marriage: "relationship",
+      wealth_resource: "wealth",
+      children_output: "study",
+      career_status: "career",
+      health_risk: "health",
+      movement_change: "movement",
+      social_conflict: "social",
+      family_home: "social",
+    }[eventType] || eventType;
+  }
+
+  function localEventLabel(eventType) {
+    return {
+      relationship_marriage: "关系婚恋",
+      wealth_resource: "财与资源",
+      children_output: "子与输出",
+      career_status: "事业身份",
+      health_risk: "作息体感",
+      movement_change: "迁移变动",
+      social_conflict: "人际合作",
+      family_home: "家庭居住",
+    }[eventType] || fortuneScoreLabel(localScoreKeyForEventType(eventType));
   }
 
   function eventReality(topic) {
@@ -1345,8 +1415,8 @@
     return `<article class="evidence-note"><strong>${data.selectedMonthInfluence.month}月 ${data.selectedMonthInfluence.pillar.label}</strong><p>${data.selectedMonthInfluence.evidence.join("；")}</p><small>${data.selectedMonthInfluence.needVerify.join("；")}</small></article>`;
   }
 
-  function renderFlowAiStage(mode, title, contextLabel) {
-    return `<section class="flow-ai-stage" data-ai-scope="${mode}"><div class="board-title"><h3>${title}</h3><span>${contextLabel}</span></div>${renderFlowAiControls([mode])}</section>`;
+  function renderFlowAiStage(mode, title, contextLabel, extraClass = "") {
+    return `<section class="data-board flow-ai-stage ${extraClass}" data-ai-scope="${mode}"><div class="board-title"><h3>${title}</h3><span>${contextLabel}</span></div>${renderFlowAiControls([mode])}</section>`;
   }
 
   function renderNatalMiniChart(chart) {
@@ -1360,6 +1430,72 @@
       const pillar = item.pillar || chart.pillars?.[key] || {};
       return `<article><span>${item.label || key}</span><strong>${pillar.label || ""}</strong><small>${item.stemTenGod || ""} / ${item.branchMainTenGod || ""}</small></article>`;
     }).join("")}</div></section>`;
+  }
+
+  function renderFortuneTransitChart(data) {
+    const luck = data.chart.luckCycles;
+    const luckIndex = Math.max(0, luck.pillars.findIndex(p => p.index === data.selectedLuck.index));
+    const yearIndex = Math.max(0, data.transitYears.findIndex(item => item.year === data.yearInfluence.year));
+    const luckTenGods = buildTransitPillarTenGods(data.chart, data.selectedLuck);
+    const yearTenGods = data.yearInfluence.tenGods || buildTransitPillarTenGods(data.chart, data.yearInfluence.pillar);
+    return `<section class="data-board fortune-transit-board"><div class="board-title"><h3>大运流年盘面</h3><span>${luck.directionLabel} · ${luck.startAgeText} · ${data.yearInfluence.year} ${data.yearInfluence.pillar.label}</span></div><div class="fortune-transit-grid">${renderTransitPillarMatrix({
+      title: "1. 大运盘",
+      subtitle: `${data.selectedLuck.startAge}-${data.selectedLuck.endAge}岁 · ${data.selectedLuck.startYear}-${data.selectedLuck.endYear}`,
+      pillar: data.selectedLuck,
+      stemTenGod: luckTenGods.stem,
+      branchTenGod: luckTenGods.branch,
+      controls: renderFortuneStepper("luck", luck.pillars, luckIndex, data)
+    })}${renderTransitPillarMatrix({
+      title: "2. 流年盘",
+      subtitle: `${data.yearInfluence.year} · 所在大运 ${data.selectedLuck.label}`,
+      pillar: data.yearInfluence.pillar,
+      stemTenGod: yearTenGods.stem,
+      branchTenGod: yearTenGods.branch,
+      controls: renderFortuneStepper("year", data.transitYears, yearIndex, data)
+    })}${renderNatalTransitMatrix(data)}</div><p class="fine-print">${luck.startNote}</p></section>`;
+  }
+
+  function renderTransitPillarMatrix({ title, subtitle, pillar, stemTenGod, branchTenGod, controls }) {
+    return `<article class="fortune-transit-card"><div class="transit-card-head"><div><h4>${title}</h4><span>${subtitle}</span></div><strong>${pillar.label}</strong></div><div class="bazi-matrix transit-pillar-matrix"><div class="matrix-row matrix-head"><span></span><b>天干</b><b>地支</b></div><div class="matrix-row ten-god-row"><span>十神</span><em>${stemTenGod || ""}</em><em>${branchTenGod || ""}</em></div><div class="matrix-row main-symbol-row"><span>干支</span>${renderSymbol(pillar.stem, pillar.stemElement, pillar.yinYang)}${renderSymbol(pillar.branch, pillar.branchElement)}</div><div class="matrix-row ten-god-row"><span>五行</span><em>${elementLabels[pillar.stemElement] || ""}</em><em>${elementLabels[pillar.branchElement] || ""}</em></div></div>${controls}</article>`;
+  }
+
+  function renderNatalTransitMatrix(data) {
+    const details = data.chart.pillarDetails || {};
+    const keys = ["year", "month", "day", "hour"];
+    return `<article class="fortune-transit-card natal-transit-card"><div class="transit-card-head"><div><h4>3. 基础命盘</h4><span>原局四柱 · 与大运流年合看</span></div><strong>${data.chart.pillars?.day?.label || ""}</strong></div><div class="bazi-matrix transit-pillar-matrix natal-transit-matrix"><div class="matrix-row matrix-head"><span></span>${keys.map(key => `<b>${details[key]?.label || key}</b>`).join("")}</div><div class="matrix-row ten-god-row"><span>天干十神</span>${keys.map(key => `<em>${details[key]?.stemTenGod || ""}</em>`).join("")}</div><div class="matrix-row main-symbol-row"><span>天干</span>${keys.map(key => {
+      const pillar = details[key]?.pillar || {};
+      return renderSymbol(pillar.stem, pillar.stemElement, pillar.yinYang);
+    }).join("")}</div><div class="matrix-row main-symbol-row"><span>地支</span>${keys.map(key => {
+      const pillar = details[key]?.pillar || {};
+      return renderSymbol(pillar.branch, pillar.branchElement);
+    }).join("")}</div><div class="matrix-row ten-god-row"><span>地支主气</span>${keys.map(key => `<em>${details[key]?.branchMainTenGod || ""}</em>`).join("")}</div></div></article>`;
+  }
+
+  function renderFortuneStepper(kind, items, activeIndex, data) {
+    const isLuck = kind === "luck";
+    const safeIndex = Math.max(0, activeIndex);
+    const current = items[safeIndex] || items[0] || {};
+    const prev = Math.max(0, safeIndex - 1);
+    const next = Math.min(items.length - 1, safeIndex + 1);
+    const prevAttr = isLuck ? `data-luck-prev="${prev}"` : `data-year-prev="${items[prev]?.year || data.yearInfluence.year}"`;
+    const nextAttr = isLuck ? `data-luck-next="${next}"` : `data-year-next="${items[next]?.year || data.yearInfluence.year}"`;
+    const label = isLuck ? "大运" : "流年";
+    const currentMeta = isLuck
+      ? `${current.startAge}-${current.endAge}岁 · ${current.startYear}-${current.endYear}`
+      : `所在大运 ${data.selectedLuck.label}`;
+    const options = isLuck
+      ? items.map((p, i) => `<option value="${i}" ${i === safeIndex ? "selected" : ""}>${p.startAge}-${p.endAge}岁 · ${p.label} · ${p.startYear}-${p.endYear}</option>`).join("")
+      : items.map(({ year, pillar }) => `<option value="${year}" ${year === data.yearInfluence.year ? "selected" : ""}>${year} · ${pillar.label}</option>`).join("");
+    const selectAttr = isLuck ? "data-luck-select" : "data-year-select";
+    return `<div class="fortune-stepper ${isLuck ? "luck-stepper" : "year-stepper"}"><button type="button" class="stepper-button" ${prevAttr} ${safeIndex === 0 ? "disabled" : ""} aria-label="上一个${label}"><span aria-hidden="true">&lt;</span></button><label class="stepper-picker"><span>${label}切换</span><select ${selectAttr} aria-label="${label}切换">${options}</select><small>${currentMeta}</small></label><button type="button" class="stepper-button" ${nextAttr} ${safeIndex === items.length - 1 ? "disabled" : ""} aria-label="下一个${label}"><span aria-hidden="true">&gt;</span></button></div>`;
+  }
+
+  function buildTransitPillarTenGods(chart, pillar) {
+    const dayStem = chart.dayMaster?.stem || chart.pillars?.day?.stem;
+    return {
+      stem: dayStem && pillar?.stem ? getTenGod(dayStem, pillar.stem) : "",
+      branch: dayStem && pillar?.branch ? getTenGod(dayStem, branchMainStem(pillar.branch)) : ""
+    };
   }
 
   function renderFlowSignalMatrix(title, groups) {
@@ -1481,12 +1617,14 @@ function buildLayerFortuneAnalysis({
   selectedMonthInfluence,
   rows
 }) {
-  const triggerChains = rows.slice(0, 8).map((signal, index) => {
+  const triggerChains = [
+    ...buildStructuredLayerChains({ mode, chart, selectedLuck, yearInfluence, selectedMonthInfluence }),
+    ...rows.slice(0, 8).map((signal, index) => {
     const tags = limitTopicTags(localTagsFromSignal(signal), signal);
     const evidence = [signal.evidence, signal.plainReading].filter(Boolean);
 
     return {
-      id: `${mode}-chain-${index + 1}`,
+      id: `${mode}-signal-chain-${index + 1}`,
       chain: buildLayerChainLabel({ mode, chart, selectedLuck, yearInfluence, selectedMonthInfluence }),
       source: signal.group || signal.groupTitle || layerModeLabel(mode),
       reason: `${signal.title}：${signal.keywords || signal.evidence}，引动${tags.map(fortuneScoreLabel).join("、")}主题。`,
@@ -1499,7 +1637,8 @@ function buildLayerFortuneAnalysis({
       realityMapping: signal.realLifeMeaning,
       caution: signal.caution,
     };
-  }).filter(chain => chain.tags.length);
+  })
+  ].filter(chain => chain.tags.length);
 
   const eventScores = scoreLayerEvents(triggerChains);
 
@@ -1556,8 +1695,254 @@ function buildLayerFortuneAnalysis({
     eventCandidates,
     mainEvents,
     triggerChains,
+    monthlyHighlights: mode === "month" ? [{
+      month: Number(selectedMonthInfluence?.month || state.selectedMonth || 1),
+      pillar: selectedMonthInfluence?.pillar?.label || "",
+      intensity: scoreLevel(eventCandidates[0]?.score || 40),
+      score: eventCandidates[0]?.score || 40,
+      reasons: triggerChains.slice(0, 4).flatMap(chain => normalizeTextList(chain.evidence, [chain.reason])).slice(0, 5),
+      eventTypes: mainEvents.map(event => event.eventType),
+    }] : [],
     topScore: eventCandidates[0]?.score || 0
   };
+}
+
+function buildStructuredLayerChains({ mode, chart, selectedLuck, yearInfluence, selectedMonthInfluence } = {}) {
+  if (mode === "luck") {
+    return buildLuckStructuredChains({ chart, selectedLuck });
+  }
+  if (mode === "month") {
+    return buildMonthStructuredChains({ chart, selectedLuck, yearInfluence, selectedMonthInfluence });
+  }
+  return buildYearStructuredChains({ chart, selectedLuck, yearInfluence });
+}
+
+function buildYearStructuredChains({ chart, selectedLuck, yearInfluence } = {}) {
+  const chains = [];
+  const dayBranch = chart?.pillars?.day?.branch;
+  const yearPillar = yearInfluence?.pillar || {};
+  const yearBranch = yearPillar.branch;
+  const yearStemGod = yearInfluence?.tenGods?.stem || getTenGod(chart?.dayMaster?.stem, yearPillar.stem);
+  const yearBranchGod = yearInfluence?.tenGods?.branch || getTenGod(chart?.dayMaster?.stem, branchMainStem(yearBranch));
+  const gender = chart?.input?.gender || state?.gender || "unknown";
+
+  for (const relation of localBranchRelations(yearBranch, dayBranch)) {
+    const scoreBonus = { same: 35, clash: 40, combo: 25, harm: 20, break: 20, punish: 20 }[relation.kind] || 0;
+    chains.push(createStructuredChain({
+      mode: "year",
+      id: `year-relationship-day-${relation.kind}`,
+      tags: ["relationship", "health"].concat(relation.kind === "clash" ? ["movement"] : []),
+      scoreBonus,
+      reason: relation.reason(yearBranch, dayBranch),
+      evidence: [relation.reason(yearBranch, dayBranch)],
+      weight: Math.max(3, Math.round(scoreBonus / 10)),
+    }));
+  }
+
+  const yearGods = [yearStemGod, yearBranchGod].filter(Boolean);
+  if (gender === "male" && yearGods.some(god => ["正财", "偏财"].includes(god))) {
+    chains.push(createStructuredChain({
+      mode: "year",
+      id: "year-relationship-spouse-star",
+      tags: ["relationship", "wealth"],
+      scoreBonus: 25,
+      reason: "男命流年出现财星，传统命理中可作为关系对象的重要观察点。",
+      evidence: [`流年${yearPillar.label}十神见${yearGods.join("、")}。`],
+      weight: 3,
+    }));
+  }
+  if (gender === "female" && yearGods.some(god => ["正官", "七杀"].includes(god))) {
+    chains.push(createStructuredChain({
+      mode: "year",
+      id: "year-relationship-spouse-star",
+      tags: ["relationship", "career", "health"],
+      scoreBonus: 25,
+      reason: "女命流年出现官杀，传统命理中可作为关系对象的重要观察点。",
+      evidence: [`流年${yearPillar.label}十神见${yearGods.join("、")}。`],
+      weight: 3,
+    }));
+  }
+
+  if (yearGods.some(god => ["正官", "七杀"].includes(god))) {
+    chains.push(createStructuredChain({
+      mode: "year",
+      id: "year-career-officer",
+      tags: ["career", "health"],
+      scoreBonus: 25,
+      reason: `流年${yearPillar.label}出现官杀，事业身份、规则流程和压力负荷作为观察点。`,
+      evidence: [`流年天干/地支十神：${yearGods.join("、")}。`],
+      weight: 3,
+    }));
+  }
+  if (yearGods.some(god => ["正财", "偏财"].includes(god))) {
+    chains.push(createStructuredChain({
+      mode: "year",
+      id: "year-wealth-star",
+      tags: ["wealth"],
+      scoreBonus: 25,
+      reason: `流年${yearPillar.label}出现财星，财务资源、收支报价和现实责任作为观察点。`,
+      evidence: [`流年天干/地支十神：${yearGods.join("、")}。`],
+      weight: 3,
+    }));
+  }
+  if (yearGods.some(god => ["食神", "伤官"].includes(god))) {
+    chains.push(createStructuredChain({
+      mode: "year",
+      id: "year-output-star",
+      tags: ["study"],
+      scoreBonus: 25,
+      reason: `流年${yearPillar.label}出现食伤，作品、表达、学业成果和交付作为观察点。`,
+      evidence: [`流年天干/地支十神：${yearGods.join("、")}。`],
+      weight: 3,
+    }));
+  }
+
+  for (const [key, pillar] of Object.entries(chart?.pillars || {})) {
+    for (const relation of localBranchRelations(yearBranch, pillar.branch)) {
+      if (!["clash", "harm", "break", "punish"].includes(relation.kind)) continue;
+      const tags = ["health"];
+      if (["year", "month", "hour"].includes(key) || relation.kind === "clash") tags.push("movement");
+      if (key === "month") tags.push("career", "social");
+      if (key === "hour") tags.push("study");
+      chains.push(createStructuredChain({
+        mode: "year",
+        id: `year-${key}-${relation.kind}`,
+        tags,
+        scoreBonus: relation.kind === "clash" ? 22 : 14,
+        reason: `流年${yearBranch}与原局${pillar.role || key}${pillar.branch}形成${relation.label}，${key === "day" ? "日支" : "对应柱位"}作为年度变化观察点。`,
+        evidence: [`流年${yearPillar.label}触发原局${pillar.label}。`],
+        weight: 2,
+      }));
+    }
+  }
+
+  if (selectedLuck?.branch) {
+    for (const relation of localBranchRelations(yearBranch, selectedLuck.branch)) {
+      chains.push(createStructuredChain({
+        mode: "year",
+        id: `year-luck-${relation.kind}`,
+        tags: relation.kind === "clash" ? ["career", "movement", "health"] : ["career", "wealth", "relationship"],
+        scoreBonus: relation.kind === "clash" ? 22 : 14,
+        reason: `流年${yearPillar.label}与大运${selectedLuck.label}形成${relation.label}，阶段背景与年度触发叠加。`,
+        evidence: [`流年支${yearBranch}触发大运支${selectedLuck.branch}。`],
+        weight: 2,
+      }));
+    }
+  }
+
+  return chains;
+}
+
+function buildLuckStructuredChains({ chart, selectedLuck } = {}) {
+  if (!selectedLuck?.label) return [];
+  const dayStem = chart?.dayMaster?.stem;
+  const gods = [getTenGod(dayStem, selectedLuck.stem), getTenGod(dayStem, branchMainStem(selectedLuck.branch))].filter(Boolean);
+  return gods.map((god, index) => createStructuredChain({
+    mode: "luck",
+    id: `luck-ten-god-${index + 1}`,
+    tags: localTagsFromTenGod(god, chart?.input?.gender),
+    scoreBonus: 18,
+    reason: `大运${selectedLuck.label}十神见${god}，作为十年阶段背景观察点。`,
+    evidence: [`大运${selectedLuck.label}接入原局${chart?.pillars?.day?.label || ""}。`],
+    weight: 2,
+  }));
+}
+
+function buildMonthStructuredChains({ chart, selectedLuck, yearInfluence, selectedMonthInfluence } = {}) {
+  const monthPillar = selectedMonthInfluence?.pillar || {};
+  const monthBranch = monthPillar.branch;
+  const chains = [];
+  const targets = [
+    ["日支", chart?.pillars?.day?.branch, ["relationship", "health"]],
+    ["流年支", yearInfluence?.pillar?.branch, ["career", "movement", "health", "social"]],
+    ["大运支", selectedLuck?.branch, ["career", "wealth", "relationship", "movement"]],
+  ];
+  for (const [label, branch, tags] of targets) {
+    for (const relation of localBranchRelations(monthBranch, branch)) {
+      chains.push(createStructuredChain({
+        mode: "month",
+        id: `month-${label}-${relation.kind}`,
+        tags,
+        scoreBonus: relation.kind === "clash" ? 28 : relation.kind === "combo" ? 22 : 18,
+        reason: `流月${monthBranch}触发${label}${branch}形成${relation.label}，只进入流月短期应期观察。`,
+        evidence: [`${selectedMonthInfluence?.month || ""}月${monthPillar.label || ""}触发${label}${branch}。`],
+        weight: 3,
+      }));
+    }
+  }
+  return chains;
+}
+
+function createStructuredChain({ mode, id, tags, scoreBonus, reason, evidence, weight }) {
+  return {
+    id,
+    chain: `${layerModeLabel(mode)}结构化事件链`,
+    source: layerModeLabel(mode),
+    reason,
+    tags: uniqueText(tags).filter(tag => ["career", "wealth", "relationship", "study", "health", "movement", "social"].includes(tag)),
+    weight,
+    scoreBonus,
+    evidence,
+    realityMapping: "传统命理中可作为观察点，需要结合柱位、旺衰、十神、岁运继续验证。",
+    caution: "不能单独作为结论。",
+  };
+}
+
+function localTagsFromTenGod(tenGod, gender = "unknown") {
+  const tags = [];
+  if (["正官", "七杀"].includes(tenGod)) tags.push("career", "health");
+  if (["正印", "偏印"].includes(tenGod)) tags.push("career", "study");
+  if (["正财", "偏财"].includes(tenGod)) tags.push("wealth");
+  if (["食神", "伤官"].includes(tenGod)) tags.push("study");
+  if (["比肩", "劫财"].includes(tenGod)) tags.push("social");
+  if (gender === "male" && ["正财", "偏财"].includes(tenGod)) tags.push("relationship");
+  if (gender === "female" && ["正官", "七杀"].includes(tenGod)) tags.push("relationship");
+  return tags;
+}
+
+function localBranchRelations(left, right) {
+  if (!left || !right) return [];
+  const rows = [];
+  if (left === right) {
+    rows.push({
+      kind: "same",
+      label: "同支",
+      reason: (yearBranch, dayBranch) => `流年${yearBranch}触发日支${dayBranch}，日支作为关系宫位被重复引动。`,
+    });
+  }
+  if (localSameBranchPair(left, right, [["子", "午"], ["丑", "未"], ["寅", "申"], ["卯", "酉"], ["辰", "戌"], ["巳", "亥"]])) {
+    rows.push({
+      kind: "clash",
+      label: "冲",
+      reason: (yearBranch, dayBranch) => `流年${yearBranch}冲动日支${dayBranch}，关系宫位有变化、拉扯、调整之象。`,
+    });
+  }
+  if (localSameBranchPair(left, right, [["子", "丑"], ["寅", "亥"], ["卯", "戌"], ["辰", "酉"], ["巳", "申"], ["午", "未"]])) {
+    rows.push({
+      kind: "combo",
+      label: "合",
+      reason: (yearBranch, dayBranch) => `流年${yearBranch}合动日支${dayBranch}，关系宫位有靠近、牵连、绑定之象。`,
+    });
+  }
+  if (localSameBranchPair(left, right, [["子", "未"], ["丑", "午"], ["寅", "巳"], ["卯", "辰"], ["申", "亥"], ["酉", "戌"]])) {
+    rows.push({
+      kind: "harm",
+      label: "害",
+      reason: (yearBranch, dayBranch) => `流年${yearBranch}对日支${dayBranch}形成不顺互动，关系细节容易别扭或反复。`,
+    });
+  }
+  if (localSameBranchPair(left, right, [["子", "卯"], ["寅", "巳"], ["巳", "申"], ["申", "寅"], ["丑", "戌"], ["戌", "未"], ["未", "丑"]])) {
+    rows.push({
+      kind: "punish",
+      label: "刑",
+      reason: (yearBranch, dayBranch) => `流年${yearBranch}对日支${dayBranch}形成不顺互动，关系细节容易别扭或反复。`,
+    });
+  }
+  return rows;
+}
+
+function localSameBranchPair(left, right, pairs) {
+  return pairs.some(pair => pair.includes(left) && pair.includes(right));
 }
 
 function scoreLayerEvents(triggerChains = []) {
@@ -1568,10 +1953,11 @@ function scoreLayerEvents(triggerChains = []) {
 
     const specificScore = specificHits.reduce((sum, chain) => sum + Number(chain.weight || 0) * 7, 0);
     const genericScore = genericHits.reduce((sum, chain) => sum + Number(chain.weight || 0) * 3, 0);
+    const bonusScore = hits.reduce((sum, chain) => sum + Number(chain.scoreBonus || 0), 0);
     const layerBonus = specificHits.length >= 2 ? 8 : 0;
 
     const score = hits.length
-      ? Math.min(95, Math.round(specificScore + genericScore + layerBonus))
+      ? Math.min(95, Math.round(specificScore + genericScore + bonusScore + layerBonus))
       : 0;
 
     return [key, {
@@ -1642,7 +2028,7 @@ function buildLayerSummary({
 
   function localManifestationsForEvent(eventType) {
     return {
-      relationship_marriage: ["关系边界重谈", "合作或亲密关系分工调整", "旧关系议题回到台前"],
+      relationship_marriage: ["可能遇到初恋、暧昧或确定关系", "关系边界重谈", "旧关系议题回到台前"],
       wealth_resource: ["收支安排复核", "报价付款核算", "资源分配重新讨论"],
       children_output: ["作品项目交付", "方案表达或成果整理", "晚辈学生或长期项目安排增加"],
       career_status: ["岗位职责调整", "审批考核节点", "证书材料或身份角色复核"],
@@ -1716,6 +2102,9 @@ function chainHasSpecificEvidence(chain = {}) {
       <details class="debug-fortune-panel">
         <summary>开发调试：本地事件评分</summary>
         <pre>${escapeHtml(JSON.stringify({
+          luckAnalysis: fortune.luckAnalysis,
+          yearAnalysis: fortune.yearAnalysis,
+          monthAnalysis: fortune.monthAnalysis,
           mainEvents: fortune.mainEvents,
           eventScores: fortune.eventScores,
           triggerChains: fortune.triggerChains,
@@ -1746,10 +2135,14 @@ function chainHasSpecificEvidence(chain = {}) {
 
   function renderMonth(data) {
     const luck = data.chart.luckCycles;
-    byId("monthTimeline").innerHTML = `<div class="plugin-header"><p class="eyebrow">大运 · 流年 · 流月</p><h2>岁运推演</h2></div>${renderNatalMiniChart(data.chart)}<section class="data-board luck-board"><div class="board-title"><h3>1. 先选大运</h3><span>${luck.directionLabel} · ${luck.startAgeText} · 当前 ${data.selectedLuck.label}</span></div><div class="luck-table">${luck.pillars.map((p, i) => `<button class="luck-cell ${p.index === data.selectedLuck.index ? "is-active" : ""}" data-luck-index="${i}"><span>${p.startAge}-${p.endAge}岁</span><strong>${p.label}</strong><small>${p.startYear}-${p.endYear}</small></button>`).join("")}</div><p class="fine-print">${luck.startNote}</p>${renderFlowAiStage("luck", "大运 AI 解读", data.selectedLuck.label)}</section><section class="data-board year-board"><div class="board-title"><h3>2. 再看该大运内的流年</h3><span>${data.selectedLuck.startYear}-${data.selectedLuck.endYear} · 当前 ${data.yearInfluence.year} ${data.yearInfluence.pillar.label}</span></div><div class="year-strip decade-strip">${data.transitYears.map(({ year, pillar }) => `<button class="flow-chip ${year === data.yearInfluence.year ? "is-active" : ""}" data-year="${year}"><span>${year}</span><strong>${pillar.label}</strong></button>`).join("")}</div>${renderFlowAiStage("year", "流年 AI 解读", `${data.yearInfluence.year} ${data.yearInfluence.pillar.label}`)}</section>${renderTransitSignals(data.transitSignals, data)}<section class="data-board month-flow-board"><div class="board-title"><h3>4. 最后细看流月</h3><span>${data.yearInfluence.year} 年 · 当前 ${state.selectedMonth}月 ${data.selectedMonthInfluence.pillar.label}</span></div><div class="transit-layout"><div class="flow-focus">${renderPillarCard(data.yearInfluence.pillar, `${data.yearInfluence.year} 流年`)}${renderPillarCard(data.selectedMonthInfluence.pillar, `${state.selectedMonth}月流月`)}</div><div><div class="month-board">${data.monthInfluences.map(m => `<button class="flow-chip month ${m.month === state.selectedMonth ? "is-active" : ""}" data-month="${m.month}"><span>${m.month}月 · ${m.role}</span><strong>${m.pillar.label}</strong></button>`).join("")}</div></div></div>${renderFlowAiStage("month", "流月 AI 解读", `${state.selectedMonth}月 ${data.selectedMonthInfluence.pillar.label}`)}</section>${renderMonthSignals(data.monthSignals, data)}`;
+    byId("monthTimeline").innerHTML = `<div class="plugin-header"><p class="eyebrow">大运 · 流年 · 流月</p><h2>岁运推演</h2></div>${renderFortuneTransitChart(data)}<section class="fortune-ai-layout"><div class="board-title"><h3>AI 分层解读</h3><span>先看十年背景，再看年度触发</span></div><div class="fortune-ai-stack">${renderFlowAiStage("luck", "大运 AI 解读", data.selectedLuck.label, "flow-ai-card")} ${renderFlowAiStage("year", "流年 AI 解读", `${data.yearInfluence.year} ${data.yearInfluence.pillar.label}`, "flow-ai-card")}</div></section>${renderTransitSignals(data.transitSignals, data)}<section class="data-board month-flow-board"><div class="board-title"><h3>4. 最后细看流月</h3><span>${data.yearInfluence.year} 年 · 当前 ${state.selectedMonth}月 ${data.selectedMonthInfluence.pillar.label}</span></div><div class="transit-layout"><div class="flow-focus">${renderPillarCard(data.yearInfluence.pillar, `${data.yearInfluence.year} 流年`)}${renderPillarCard(data.selectedMonthInfluence.pillar, `${state.selectedMonth}月流月`)}</div><div><div class="month-board">${data.monthInfluences.map(m => `<button class="flow-chip month ${m.month === state.selectedMonth ? "is-active" : ""}" data-month="${m.month}"><span>${m.month}月 · ${m.role}</span><strong>${m.pillar.label}</strong></button>`).join("")}</div></div></div>${renderFlowAiStage("month", "流月 AI 解读", `${state.selectedMonth}月 ${data.selectedMonthInfluence.pillar.label}`)}</section>${renderMonthSignals(data.monthSignals, data)}`;
     document.querySelectorAll("[data-year]").forEach(b => b.addEventListener("click", () => { resetFlowAiReports(); state.targetYear = Number(b.dataset.year); state.selectedMonth = 1; refresh(); }));
     document.querySelectorAll("[data-month]").forEach(b => b.addEventListener("click", () => { resetFlowAiReports(); state.selectedMonth = Number(b.dataset.month); refresh(); }));
     document.querySelectorAll("[data-luck-index]").forEach(b => b.addEventListener("click", () => { resetFlowAiReports(); const p = luck.pillars[Number(b.dataset.luckIndex)]; state.selectedLuckIndex = p.index - 1; state.targetYear = p.startYear; state.selectedMonth = 1; refresh(); }));
+    document.querySelectorAll("[data-luck-select]").forEach(select => select.addEventListener("change", () => { resetFlowAiReports(); const p = luck.pillars[Number(select.value)]; if (!p) return; state.selectedLuckIndex = p.index - 1; state.targetYear = p.startYear; state.selectedMonth = 1; refresh(); }));
+    document.querySelectorAll("[data-year-select]").forEach(select => select.addEventListener("change", () => { resetFlowAiReports(); state.targetYear = Number(select.value); state.selectedMonth = 1; refresh(); }));
+    document.querySelectorAll("[data-luck-prev],[data-luck-next]").forEach(b => b.addEventListener("click", () => { resetFlowAiReports(); const index = Number(b.dataset.luckPrev ?? b.dataset.luckNext); const p = luck.pillars[index]; if (!p) return; state.selectedLuckIndex = p.index - 1; state.targetYear = p.startYear; state.selectedMonth = 1; refresh(); }));
+    document.querySelectorAll("[data-year-prev],[data-year-next]").forEach(b => b.addEventListener("click", () => { resetFlowAiReports(); const year = Number(b.dataset.yearPrev ?? b.dataset.yearNext); if (!year) return; state.targetYear = year; state.selectedMonth = 1; refresh(); }));
     bindFlowAiButtons();
   }
 

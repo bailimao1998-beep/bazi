@@ -116,6 +116,7 @@ function normalizeLikelyEvents(value, fallback) {
       reality: normalizeText(item?.reality, fallbackItem.reality),
       advice: normalizeText(item?.advice, fallbackItem.advice),
       verifyBy: normalizeList(item?.verifyBy, fallbackItem.verifyBy),
+      boundary: normalizeText(item?.boundary, fallbackItem.boundary),
     };
   });
 }

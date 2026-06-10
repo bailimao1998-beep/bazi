@@ -18,8 +18,73 @@ export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, mon
   }));
   const annualTheme = buildAnnualTheme({ yearInfluence, mainEvents });
   const luckBackground = buildLuckBackground({ selectedLuck, triggerChains });
+  const annualChains = triggerChains.filter((chain) => !String(chain.level || "").startsWith("month-"));
+  const luckChains = annualChains.filter((chain) => chain.level === "luck-natal" || chain.level === "luck-year");
+  const monthChains = triggerChains.filter((chain) => String(chain.level || "").startsWith("month-"));
+  const yearAnalysis = {
+    year: yearInfluence?.year,
+    selectedLuck,
+    annualTheme,
+    overallSummary: buildOverallSummary({ yearInfluence, selectedLuck, mainEvents, triggerChains: annualChains, monthlyHighlights: [] }),
+    luckBackground,
+    triggerChains: annualChains,
+    eventCandidates: scored.eventCandidates,
+    mainEvents,
+    monthlyHighlights: [],
+    lowEvidenceTopics: scored.lowEvidenceTopics,
+    eventScores: scored.eventScores,
+    advice: buildAdvice(mainEvents),
+    debug: {
+      engine: "annual-fortune-event-engine",
+      layer: "yearAnalysis",
+      triggerChainCount: annualChains.length,
+      mainEventCount: mainEvents.length,
+    },
+  };
+  const luckAnalysis = {
+    year: yearInfluence?.year,
+    selectedLuck,
+    annualTheme: selectedLuck?.label ? `${selectedLuck.label}大运阶段背景` : "大运阶段背景",
+    overallSummary: luckBackground.conclusion,
+    luckBackground,
+    triggerChains: luckChains,
+    eventCandidates: [],
+    mainEvents: [],
+    monthlyHighlights: [],
+    lowEvidenceTopics: [],
+    eventScores: {},
+    advice: ["大运只看阶段背景，不直接断某一年结果。"],
+    debug: {
+      engine: "annual-fortune-event-engine",
+      layer: "luckAnalysis",
+      triggerChainCount: luckChains.length,
+    },
+  };
+  const monthAnalysis = {
+    year: yearInfluence?.year,
+    selectedLuck,
+    annualTheme: `${yearInfluence?.year ?? ""}年流月应期观察`,
+    overallSummary: "流月层只用于短期应期观察，不替代年度主事件。",
+    luckBackground,
+    triggerChains: monthChains,
+    eventCandidates: scored.eventCandidates,
+    mainEvents,
+    monthlyHighlights,
+    lowEvidenceTopics: scored.lowEvidenceTopics,
+    eventScores: scored.eventScores,
+    advice: ["流月只判断短期应期，不代表全年。"],
+    debug: {
+      engine: "annual-fortune-event-engine",
+      layer: "monthAnalysis",
+      triggerChainCount: monthChains.length,
+      monthlyHighlightCount: monthlyHighlights.length,
+    },
+  };
 
   return {
+    luckAnalysis,
+    yearAnalysis,
+    monthAnalysis,
     year: yearInfluence?.year,
     selectedLuck,
     annualTheme,
@@ -86,4 +151,3 @@ function timingFromHighlights(monthlyHighlights = [], eventType) {
     .map((month) => `${month.month}月${month.pillar}：${month.level}触发，${month.reasons?.[0] || "看现实反馈"}`);
   return rows.length ? rows : ["全年观察，等流月继续触发时再确认应期。"];
 }
-

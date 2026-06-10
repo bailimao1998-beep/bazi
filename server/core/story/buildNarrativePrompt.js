@@ -3,7 +3,7 @@ import { storyToneConfig } from "./storyToneConfig.js";
 const forbiddenWords = ["一定", "必定", "绝对", "必然", "必离婚", "必发财", "必有灾", "必坐牢", "必死亡"];
 
 export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [], storyTags = [], fortuneAnalysis, tone = "default" } = {}) {
-  const pickedFortuneAnalysis = pickFortuneAnalysis(fortuneAnalysis);
+  const pickedFortuneAnalysis = pickFortuneAnalysis(getFortuneAnalysisByMode("year", fortuneAnalysis));
   return {
     schema: flowReportSchema,
     system: [
@@ -23,8 +23,8 @@ export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [
       yearInfluence,
       output: {
         schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
-        order: ["对应时间层级的候选事象", "依据", "现实表现", "强弱", "建议"],
-        style: "先取象，再解释；只解释 fortuneAnalysis.mainEvents 中的重点候选事件，每件事都要说明证据、现实表现、时间点和建议。",
+        order: ["一句总览", "象", "可能的事"],
+        style: "极简短句。不要写咨询稿，不要铺垫，不要讲大道理。每个 likelyEvents 只写：根据什么象、可能遇到什么事。例如：流年酉触发日支酉，感情关系被带出来，可能遇到初恋、暧昧或确定关系。",
         modeInstruction: flowModeInstruction("year"),
       },
     }, null, 2),
@@ -63,7 +63,7 @@ export const flowReportSchema = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["event", "conclusion", "probabilityLevel", "timeWindow", "timing", "evidence", "reality", "advice", "verifyBy"],
+        required: ["event", "conclusion", "probabilityLevel", "timeWindow", "timing", "evidence", "reality", "advice", "verifyBy", "boundary"],
         properties: {
           event: { type: "string" },
           conclusion: { type: "string" },
@@ -74,6 +74,7 @@ export const flowReportSchema = {
           reality: { type: "string" },
           advice: { type: "string" },
           verifyBy: { type: "array", items: { type: "string" } },
+          boundary: { type: "string" },
         },
       },
     },
@@ -127,7 +128,7 @@ export function buildFlowNarrativePrompt({
   tone = "default",
 } = {}) {
   const modeLabels = { luck: "大运阶段取象", year: "流年年度取象", month: "流月短期取象" };
-  const pickedFortuneAnalysis = pickFortuneAnalysis(fortuneAnalysis);
+  const pickedFortuneAnalysis = pickFortuneAnalysis(getFortuneAnalysisByMode(mode, fortuneAnalysis));
   const modeInstruction = flowModeInstruction(mode);
   return {
     mode,
@@ -155,8 +156,8 @@ export function buildFlowNarrativePrompt({
       },
       output: {
         schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
-        order: ["对应时间层级的候选事象", "依据", "现实表现", "强弱", "建议"],
-        style: "先取象，再解释；AI 只解释 fortuneAnalysis.mainEvents，不新增本地没有给出的事件，边界提醒只放 boundary。",
+        order: ["一句总览", "象", "可能的事"],
+        style: "极简短句。AI 只解释 fortuneAnalysis.mainEvents，不新增本地没有给出的事件。每个 likelyEvents 只写：根据什么象、可能遇到什么事，不写长建议。",
         modeInstruction,
       },
     }, null, 2),
@@ -168,14 +169,17 @@ function baseNarrativeSystemLines() {
     "你是命理网站的白话解读层，不是排盘层。",
     "你不能重新排盘，不能新增不存在的干支关系，不能补充不存在的干支关系，不能自行改写年份月份。",
     "本地事件引擎已经提供 eventCandidates 和 mainEvents；AI 不再自己判断事件，也不能新增 mainEvents 之外的强判断。",
-    "你只能根据 fortuneAnalysis、mainEvents、triggerChains、monthlyHighlights 和 evidencePackage 写解读。",
-    "你的任务是把本地事件引擎识别出的 1-3 个重点候选事件翻译成人能听懂的现实语言。",
-    "只重点解释 score 最高的 1-3 个 mainEvents；禁止平均解释所有领域。",
-    "每条 likelyEvents 都必须对应一个 mainEvent，并包含 conclusion、evidence、reality、timing、advice。",
+    "你只能根据 fortuneAnalysis、mainEvents、triggerChains、monthlyHighlights 和 evidencePackage 写解读，且这些字段必须来自当前 mode 对应层级、对应分析层。",
+    "你的任务是把本地事件引擎识别出的 1-3 个重点候选事件翻译成非常短的“象 → 可能的事”。",
+    "mainEvents 是唯一主线；只重点解释 score 最高的 1-3 个 mainEvents；禁止平均解释所有领域。",
+    "每条 likelyEvents 都必须逐条对应一个 mainEvent，不允许新增 mainEvents 之外的强事件。",
+    "每条 likelyEvents 必须包含字段，但内容要短：conclusion 一句话，evidence 只放最关键 1 条象，reality 只写 1 句可能的现实事情，verifyBy 最多 2 条，boundary 一句。",
+    "如果 mainEvents 为空，必须说明“本地触发链不足，不能硬断年度事件”，likelyEvents 不要补写强事件。",
     "没有 evidenceChain 的事件不能写成强判断，只能放在 boundary 或不写。",
     "少废话，避免重复；同一条依据不要在多个段落换词复述。",
+    "不要写复杂报告，不要长篇故事。用户只需要类似“2017 年酉触发日支酉，可能遇到初恋、暧昧或确定关系”这种短句。",
     "事件标题必须像现实里的动作或节点，例如职责调整、合同复核、付款重算、合作重谈、材料补交、出行改期。",
-    "输出顺序：先给结论，也就是先讲当前模式对应层级更像发生的事，再讲依据，再讲现实表现，再讲强弱，最后给建议。",
+    "输出顺序：先给结论，也就是一句总览；再列候选事象。每条候选事象先讲取象，再讲可能的事。",
     "禁止确定性断语，禁止使用：一定、必定、绝对、必然、必发财、必离婚、必有灾、必坐牢、必死亡。",
     "禁止编造输入里没有的干支关系。",
     "禁止平均解释 12 个月；只有流月模式才写选中月份，其他模式不要展开月份。",
@@ -185,6 +189,12 @@ function baseNarrativeSystemLines() {
     "禁止只说“事业、关系、情绪、注意沟通、保持积极、谨慎行事”这种空话。",
     "不要每句话都重复边界提醒，把学习边界集中放到 boundary 字段，一句话即可。",
   ];
+}
+
+export function getFortuneAnalysisByMode(mode, fortune = {}) {
+  if (mode === "luck") return fortune.luckAnalysis || {};
+  if (mode === "month") return fortune.monthAnalysis || {};
+  return fortune.yearAnalysis || {};
 }
 
 function pickFortuneAnalysis(fortuneAnalysis = {}) {
@@ -230,7 +240,7 @@ function buildEvidencePackage(fortuneAnalysis = {}, { mode = "year", selectedMon
       ? inferPromptScoresFromEvidence(pickedMonthlyHighlights.flatMap((month) => month.reasons || selectedMonthInfluence?.evidence || []), [], pickedMonthlyHighlights[0]?.score)
       : eventScores;
   return {
-    role: "本地年度事件证据包；AI 只能解释 mainEvents，不允许补充不存在的干支关系或新增事件。",
+    role: "本地当前层级事件证据包；AI 只能解释 mainEvents，不允许补充不存在的干支关系或新增事件。",
     mode,
     modeInstruction: flowModeInstruction(mode),
     luckBackground: fortuneAnalysis.luckBackground,

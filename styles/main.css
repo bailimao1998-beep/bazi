@@ -956,10 +956,6 @@ button {
   margin-top: 12px;
 }
 
-.compact-strip {
-  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
-}
-
 .month-board {
   grid-template-columns: repeat(6, minmax(0, 1fr));
   margin-top: 8px;
@@ -1282,7 +1278,17 @@ button {
 
 .ai-readable-report {
   display: grid;
-  gap: 12px;
+  gap: 10px;
+}
+
+.ai-one-line {
+  margin: 0;
+  padding: 9px 10px;
+  border: 1px solid #eadfce;
+  border-radius: 6px;
+  background: rgba(255, 253, 248, .78);
+  color: var(--ink);
+  font-weight: 800;
 }
 
 .ai-report-section {
@@ -1290,6 +1296,10 @@ button {
   border: 1px solid #eadfce;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.66);
+}
+
+.ai-report-section.compact {
+  padding: 10px;
 }
 
 .ai-report-section h4 {
@@ -1327,6 +1337,10 @@ button {
   gap: 10px;
 }
 
+.ai-focus-list.compact {
+  grid-template-columns: 1fr;
+}
+
 .ai-focus-card {
   padding: 10px;
   border: 1px solid #eadfce;
@@ -1351,6 +1365,19 @@ button {
   color: #765a27;
   font-size: 12px;
   font-weight: 900;
+}
+
+.ai-event-brief {
+  background: #fffdf8;
+}
+
+.ai-event-brief dl {
+  grid-template-columns: 62px minmax(0, 1fr);
+  gap: 6px 8px;
+}
+
+.ai-event-brief dd {
+  color: var(--ink);
 }
 
 .ai-boundary {
@@ -1736,6 +1763,221 @@ button {
   background: linear-gradient(180deg, #fffaf1, #fffdf8);
 }
 
+.fortune-transit-board {
+  margin-top: 14px;
+}
+
+.fortune-transit-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, .72fr) minmax(180px, .72fr) minmax(440px, 1.7fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.fortune-transit-card {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #eadfce;
+  border-radius: 8px;
+  background: #fffdf8;
+}
+
+.transit-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.transit-card-head h4 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.transit-card-head span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.transit-card-head strong {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.transit-pillar-matrix {
+  padding: 10px;
+}
+
+.transit-pillar-matrix .matrix-row {
+  grid-template-columns: 62px repeat(2, minmax(0, 1fr));
+}
+
+.natal-transit-matrix .matrix-row {
+  grid-template-columns: 86px repeat(4, minmax(0, 1fr));
+}
+
+.transit-pillar-matrix .bazi-symbol strong {
+  font-size: 34px;
+}
+
+.natal-transit-card {
+  padding: 14px;
+}
+
+.natal-transit-card .transit-card-head strong {
+  font-size: 26px;
+}
+
+.natal-transit-card .transit-pillar-matrix {
+  padding: 14px;
+}
+
+.natal-transit-card .bazi-symbol strong {
+  font-size: 44px;
+}
+
+.fortune-stepper {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #d8c9b8;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fbf6ea, #fffdf8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
+}
+
+.stepper-picker {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  padding: 9px 10px 10px;
+  border: 1px solid #d9cbb8;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #fffdf8, #fff7ea);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .9), inset 0 0 0 1px rgba(255, 255, 255, .56);
+}
+
+.stepper-picker::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  top: 42px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  pointer-events: none;
+  transform: rotate(45deg);
+}
+
+.stepper-picker span {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.stepper-picker small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.fortune-stepper select {
+  appearance: none;
+  width: 100%;
+  min-height: 42px;
+  min-width: 0;
+  padding: 0 34px 0 11px;
+  border: 1px solid #dfd0bd;
+  border-radius: 6px;
+  background: #fffaf1;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 900;
+  outline: 0;
+  box-shadow: inset 0 1px 2px rgba(88, 64, 37, .06);
+  cursor: pointer;
+}
+
+.fortune-stepper select:hover {
+  border-color: #c7ad83;
+  background: #fff5e3;
+}
+
+.fortune-stepper select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(47, 111, 115, .14), inset 0 1px 2px rgba(88, 64, 37, .06);
+}
+
+.stepper-button {
+  min-height: 72px;
+  padding: 0;
+  border-radius: 6px;
+  background: #2f6f73;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.stepper-button:hover {
+  background: #245b5f;
+}
+
+.stepper-button:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+}
+
+.fortune-ai-layout {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #eadfce;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fffdf8, #fbf6ea);
+}
+
+.fortune-ai-layout .board-title {
+  margin-bottom: 0;
+}
+
+.fortune-ai-stack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fortune-ai-stack .flow-ai-card {
+  margin-top: 0;
+  border-color: #d9c19a;
+  background: #fffdf8;
+}
+
+.fortune-ai-stack .flow-ai-card .board-title {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eadfce;
+}
+
+.fortune-ai-stack .flow-ai-card .board-title h3 {
+  font-size: 17px;
+}
+
+.fortune-ai-stack .ai-report-panel {
+  margin-top: 10px;
+}
+
 .natal-mini-chart {
   border-color: #e5d8c4;
   background: #fffdf8;
@@ -1973,6 +2215,16 @@ pre {
   border-radius: 8px;
 }
 
+@media (max-width: 1120px) {
+  .fortune-transit-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .natal-transit-card {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 760px) {
   .chat-widget {
     right: 12px;
@@ -2033,7 +2285,9 @@ pre {
   .core-tab-grid,
   .candidate-grid,
   .transit-layout,
-  .luck-table {
+  .luck-table,
+  .fortune-transit-grid,
+  .fortune-ai-stack {
     grid-template-columns: 1fr;
   }
 
@@ -2056,6 +2310,11 @@ pre {
   .month-board,
   .calendar-date-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .natal-transit-matrix .matrix-row {
+    grid-template-columns: 70px repeat(4, minmax(56px, 1fr));
+    overflow-x: auto;
   }
 
   .signal-grid {

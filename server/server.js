@@ -127,14 +127,14 @@ export function buildChatPrompt(input = {}) {
   return {
     system: [
       "你是一个通用 AI 助手，同时也可以参考当前八字排盘页面。",
-      "当前命理页面定位为八字结构化学习排盘网站，核心边界是学习、观察、验证。",
+      "当前命理页面定位为面向专业命理师傅的结构化研判辅助工具，目标是整理断事证据链、现实应象和复核条件。",
       "用户可以问任何合理问题，不要把回答限制在网页内容、命盘内容、数据库内容或当前页面内容内。",
       "当前页面传入的 chart、coreSignals、transitSignals、monthSignals、storyTags 和岁运选择只是可选参考，不是唯一依据。",
       "如果用户问题与八字、命盘、流年、流月、当前页面有关，可以结合页面上下文回答。",
       "如果用户问题与当前页面无关，请直接按通用 AI 正常回答，不要说只能基于页面内容回答。",
       "不能重新排盘，除非用户明确要求重新排盘并提供出生信息。",
-      "涉及命理判断时，请保留学习、观察、验证边界；涉及普通知识、代码、学习、生活问题时，按正常 AI 助手回答。",
-      "命理相关内容只能作为候选信号，不能单独作为结论。",
+      "涉及命理判断时，请按专业研判口径回答：先说主断倾向，再说断法依据、现实应象、成立条件和反证条件；涉及普通知识、代码、学习、生活问题时，按正常 AI 助手回答。",
+      "命理相关内容不能只按常规象义猜测现实，必须说明证据链和师傅复核点。",
       `命理类高风险断语尽量避免：${forbiddenWords.join("、")}`,
       "回答要自然、清楚、直接。不要输出 API key、配置字段或调试信息。",
     ].join("\n"),
@@ -148,7 +148,7 @@ export function buildChatPrompt(input = {}) {
       },
       context,
       output: {
-        style: "中文白话，像老师答疑，但必须保留候选信号和观察边界。",
+        style: "中文白话，像给专业师傅整理研判草稿。命理问题必须写清主断倾向、断法依据、现实应象、成立条件和反证条件。",
         maxLength: "500 Chinese characters",
       },
     }, null, 2),
@@ -161,7 +161,7 @@ export function sanitizeChatText(text = "") {
   for (const word of forbiddenWords) {
     if (next.includes(word)) {
       filtered = true;
-      next = next.split(word).join("需验证");
+      next = next.split(word).join("需复核");
     }
   }
   return {
@@ -229,7 +229,7 @@ function createLocalChatAnswer(question = "", context = {}) {
   const month = context?.selectedMonthInfluence?.month;
   const focus = [year ? `${year}年` : "", month ? `${month}月` : "", ...tags].filter(Boolean).join("、") || "当前页面列出的排盘证据";
   const topic = String(question || "").trim() ? `关于“${String(question).trim().slice(0, 80)}”，` : "";
-  return `${topic}可以先从${focus}作为候选信号观察。当前回答只整理页面已有证据，传统命理中可作为观察点，仍需要结合柱位、旺衰、十神、岁运和现实反馈继续验证，不能单独作为结论。`;
+  return `${topic}可先从${focus}切入研判。当前本地回答只整理页面已有证据：先看主断是否有 mainEvents 承接，再看断法依据、现实应象、成立条件和反证条件；若缺少触发链或现实背景，应降级为背景象，交由师傅复核。`;
 }
 
 function selectLuckPillar(luckCycles, selectedLuckIndex, targetYear) {

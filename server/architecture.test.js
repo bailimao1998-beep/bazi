@@ -8,7 +8,7 @@ import { calculateMonthInfluence } from "./core/liunian/calculateMonthInfluence.
 import { ruleEngine } from "./core/rules/ruleEngine.js";
 import { analyzeFortuneYear } from "./core/fortune-engine/index.js";
 import { buildAnnualEventReport } from "./core/fortune/buildAnnualEventReport.js";
-import { buildEventCandidateScenarios, collectEventCandidatesFromSignals } from "./core/story/eventCandidates.js";
+import { buildEventCandidateScenarios, buildReadableAiReportFromPrompt, collectEventCandidatesFromSignals } from "./core/story/eventCandidates.js";
 import { generateStoryTags } from "./core/story/generateStoryTags.js";
 import { buildNarrativePrompt, flowReportSchema } from "./core/story/buildNarrativePrompt.js";
 import { buildFlowNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
@@ -179,7 +179,7 @@ test("local engines build chart, rules, story tags, prompt, and mock narrative w
   assert.ok(matchedRules.length > 0);
   assert.ok(storyTags.some((tag) => tag.period === "year"));
   assert.match(prompt.system, /不能重新排盘/);
-  assert.match(prompt.system, /白话解读层/);
+  assert.match(prompt.system, /专业研判辅助层/);
   assert.match(prompt.user, /fortuneAnalysis/);
   assert.doesNotMatch(prompt.user, /apiKey|DEEPSEEK_API_KEY|sk-/i);
   assert.equal(narrative.provider, "mock");
@@ -289,18 +289,18 @@ test("flow AI modes build structured prompts and mock reports without model-side
   });
   assert.match(prompt.system, /不能重新排盘/);
   assert.match(prompt.system, /不能补充不存在的干支关系/);
-  assert.match(prompt.system, /白话解读层/);
-  assert.match(prompt.system, /只能根据 fortuneAnalysis、mainEvents、triggerChains、monthlyHighlights/);
+  assert.match(prompt.system, /专业研判辅助层/);
+  assert.match(prompt.system, /只能根据 fortuneAnalysis、mainEvents、parallelEvents、triggerChains、monthlyHighlights/);
   assert.match(prompt.system, /本地事件引擎已经提供 eventCandidates 和 mainEvents/);
   assert.match(prompt.system, /AI 不再自己判断事件/);
   assert.match(prompt.system, /score 最高的 1-3 个 mainEvents/);
-  assert.match(prompt.system, /没有 evidenceChain 的事件不能写成强判断/);
+  assert.match(prompt.system, /没有 evidenceChain 的事件不能写成主断/);
   assert.match(prompt.system, /每条 likelyEvents/);
   assert.match(prompt.system, /少废话/);
   assert.match(prompt.system, /避免重复/);
-  assert.match(prompt.system, /象 → 可能的事/);
-  assert.match(prompt.system, /不要写复杂报告/);
-  assert.match(prompt.system, /先给结论/);
+  assert.match(prompt.system, /主断倾向 → 断法依据 → 现实应象/);
+  assert.match(prompt.system, /常规象义直接猜现实/);
+  assert.match(prompt.system, /先给主断总览/);
   assert.match(prompt.system, /对应层级/);
   assert.match(prompt.system, /禁止平均解释 12 个月/);
   assert.match(prompt.system, /只有流月模式才写选中月份/);
@@ -315,6 +315,7 @@ test("flow AI modes build structured prompts and mock reports without model-side
   assert.match(prompt.user, /"mode": "year"/);
   assert.match(prompt.user, /fortuneAnalysis/);
   assert.match(prompt.user, /mainEvents/);
+  assert.match(prompt.user, /parallelEvents/);
   assert.match(prompt.user, /eventCandidates/);
   assert.match(prompt.user, /evidencePackage/);
   assert.match(prompt.user, /modeInstruction/);
@@ -623,6 +624,64 @@ test("flow narrative prompt reads the requested fortuneAnalysis layer by mode", 
   assert.doesNotMatch(JSON.stringify({ luckUser, yearUser, monthUser }), /legacy_top|旧顶层/);
 });
 
+test("flow narrative prompt preserves evidenced side lines as parallel review events", () => {
+  const fortuneAnalysis = {
+    yearAnalysis: {
+      annualTheme: "18岁年度样例",
+      mainEvents: [{
+        eventType: "children_output",
+        score: 72,
+        level: "medium",
+        evidenceChain: ["食伤透出，学习表达和材料交付被推到台前"],
+        possibleManifestations: ["学习证照、材料文书或表达交付被推到台前"],
+      }],
+      eventCandidates: [
+        {
+          eventType: "children_output",
+          score: 72,
+          level: "medium",
+          evidenceChain: ["食伤透出，学习表达和材料交付被推到台前"],
+          possibleManifestations: ["学习证照、材料文书或表达交付被推到台前"],
+        },
+        {
+          eventType: "relationship_marriage",
+          score: 46,
+          level: "low",
+          evidenceChain: ["流年支合动日支，关系宫位有靠近和牵连"],
+          possibleManifestations: ["恋爱启动、暧昧或关系边界变化"],
+        },
+        {
+          eventType: "wealth_resource",
+          score: 43,
+          level: "low",
+          evidenceChain: ["流年见财星，资源和收入方式进入复核"],
+          possibleManifestations: ["兼职打工、临时收入或资源变现"],
+        },
+      ],
+      triggerChains: [],
+      monthlyHighlights: [],
+      eventScores: {},
+    },
+  };
+
+  const prompt = buildFlowNarrativePrompt({ mode: "year", fortuneAnalysis });
+  const user = JSON.parse(prompt.user);
+  const report = buildReadableAiReportFromPrompt(prompt);
+
+  assert.deepEqual(
+    user.evidencePackage.mainEvents.map((event) => event.eventType),
+    ["children_output"],
+  );
+  assert.deepEqual(
+    user.evidencePackage.parallelEvents.map((event) => event.eventType),
+    ["relationship_marriage", "wealth_resource"],
+  );
+  assert.match(prompt.system, /并行复核/);
+  assert.match(prompt.system, /年龄.*不能覆盖证据链|证据链.*年龄/);
+  assert.match(JSON.stringify(report.eventFocus), /副线复核.*关系|关系.*副线复核/);
+  assert.match(JSON.stringify(report.eventFocus), /兼职打工|临时收入/);
+});
+
 test("fortune-engine rules keep required rule contract", () => {
   const files = [
     "data/rules/fortune-engine/ten-gods.json",
@@ -647,7 +706,7 @@ test("fortune-engine rules keep required rule contract", () => {
   }
 });
 
-test("chat prompt and fallback keep AI answers learning-oriented without leaking keys", async () => {
+test("chat prompt and fallback keep AI answers professional without leaking keys", async () => {
   const context = {
     chart: { pillars: { day: { label: "甲子" } } },
     coreSignals: { groups: [{ title: "核心", signals: [{ title: "日主观察" }] }] },
@@ -665,9 +724,9 @@ test("chat prompt and fallback keep AI answers learning-oriented without leaking
     context,
   });
 
-  assert.match(prompt.system, /结构化学习/);
+  assert.match(prompt.system, /专业命理师傅/);
   assert.match(prompt.system, /不能重新排盘/);
-  assert.match(prompt.system, /不能单独作为结论/);
+  assert.match(prompt.system, /主断倾向/);
   assert.match(prompt.user, /这个月适合观察什么/);
   assert.match(prompt.user, /selectedLuck/);
   assert.doesNotMatch(prompt.user, /sk-test-should-not-leak/);
@@ -681,8 +740,8 @@ test("chat prompt and fallback keep AI answers learning-oriented without leaking
     { provider: "openai", openai: { apiKey: "" } },
   );
   assert.equal(response.provider, "local-chat");
-  assert.match(response.text, /候选信号/);
-  assert.match(response.text, /不能单独作为结论/);
+  assert.match(response.text, /研判/);
+  assert.match(response.text, /师傅复核/);
   assert.doesNotMatch(response.text, /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
 });
 
@@ -1044,11 +1103,11 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /function renderReadableFlowAiReport/);
   assert.doesNotMatch(bundle, /今年更像发生的事/);
   assert.doesNotMatch(bundle, /这一年更像发生的事/);
-  assert.match(bundle, /流年候选事象/);
+  assert.match(bundle, /流年主断事项/);
   assert.match(bundle, /function renderAiLikelyEvent/);
-  assert.match(bundle, /AI短解/);
-  assert.match(bundle, /取象/);
-  assert.match(bundle, /可能的事/);
+  assert.match(bundle, /专业研判/);
+  assert.match(bundle, /断法依据/);
+  assert.match(bundle, /现实应象/);
   assert.match(bundle, /ai-one-line/);
   assert.match(bundle, /ai-event-brief/);
   assert.match(bundle, /重点月份/);
@@ -1100,8 +1159,8 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /AI解读大运/);
   assert.match(bundle, /AI解读流年/);
   assert.match(bundle, /AI解读流月/);
-  assert.match(bundle, /AI短解/);
-  assert.match(bundle, /可能的事/);
+  assert.match(bundle, /专业研判/);
+  assert.match(bundle, /成立条件/);
   assert.match(bundle, /ai-report-panel/);
   assert.match(bundle, /function createLocalFlowAiReport/);
   assert.match(bundle, /function renderChatWidget/);
@@ -1116,7 +1175,18 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(bundle, /AI问答/);
   assert.match(bundle, /chatForbiddenWords/);
   assert.match(bundle, /\/api\/chat/);
+  assert.match(bundle, /function renderAssistantChatContent/);
+  assert.match(bundle, /function renderChatAnswerBlocks/);
+  assert.match(bundle, /chat-answer-card/);
+  assert.match(bundle, /chat-answer-body/);
+  assert.match(bundle, /chat-answer-marker/);
+  assert.match(bundle, /chat-answer-text/);
+  assert.doesNotMatch(bundle, /function chatPointLabel/);
   assert.match(styles, /chat-widget/);
+  assert.match(styles, /chat-answer-card/);
+  assert.match(styles, /chat-answer-body/);
+  assert.match(styles, /chat-widget\.is-open \.chat-toggle/);
+  assert.match(styles, /chat-window\[hidden\]/);
   assert.match(styles, /typing-caret/);
   assert.match(index, /js\/local-deepseek-config\.local\.js/);
   assert.match(serverSource, /local-deepseek-config\.local\.js/);

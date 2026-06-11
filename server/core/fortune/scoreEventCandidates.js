@@ -31,6 +31,11 @@ export function scoreEventCandidates(context = {}) {
   const mainEvents = eventCandidates
     .filter((candidate) => ["high", "medium"].includes(candidate.level) && candidate.evidenceChain.length > 0)
     .slice(0, 3);
+  const mainEventTypes = new Set(mainEvents.map((event) => event.eventType));
+  const parallelEvents = eventCandidates
+    .filter((candidate) => !mainEventTypes.has(candidate.eventType))
+    .filter((candidate) => candidate.score >= 30 && candidate.evidenceChain.length > 0)
+    .slice(0, 5);
   const lowEvidenceTopics = ranked
     .filter((candidate) => candidate.score < 30 || candidate.evidenceChain.length === 0)
     .map((candidate) => ({
@@ -43,6 +48,7 @@ export function scoreEventCandidates(context = {}) {
   return {
     eventCandidates,
     mainEvents,
+    parallelEvents,
     lowEvidenceTopics,
     eventScores: buildLegacyEventScores(eventCandidates),
   };
@@ -66,4 +72,3 @@ function buildLegacyEventScores(eventCandidates = []) {
   }
   return grouped;
 }
-

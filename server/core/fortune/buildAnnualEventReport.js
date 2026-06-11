@@ -12,10 +12,12 @@ export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, mon
     mainEvents: scored.mainEvents,
     eventCandidates: scored.eventCandidates,
   });
-  const mainEvents = scored.mainEvents.map((event) => ({
+  const withTiming = (event) => ({
     ...event,
     timing: event.timing?.length ? event.timing : timingFromHighlights(monthlyHighlights, event.eventType),
-  }));
+  });
+  const mainEvents = scored.mainEvents.map(withTiming);
+  const parallelEvents = scored.parallelEvents.map(withTiming);
   const annualTheme = buildAnnualTheme({ yearInfluence, mainEvents });
   const luckBackground = buildLuckBackground({ selectedLuck, triggerChains });
   const annualChains = triggerChains.filter((chain) => !String(chain.level || "").startsWith("month-"));
@@ -30,6 +32,7 @@ export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, mon
     triggerChains: annualChains,
     eventCandidates: scored.eventCandidates,
     mainEvents,
+    parallelEvents,
     monthlyHighlights: [],
     lowEvidenceTopics: scored.lowEvidenceTopics,
     eventScores: scored.eventScores,
@@ -50,6 +53,7 @@ export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, mon
     triggerChains: luckChains,
     eventCandidates: [],
     mainEvents: [],
+    parallelEvents: [],
     monthlyHighlights: [],
     lowEvidenceTopics: [],
     eventScores: {},
@@ -69,6 +73,7 @@ export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, mon
     triggerChains: monthChains,
     eventCandidates: scored.eventCandidates,
     mainEvents,
+    parallelEvents,
     monthlyHighlights,
     lowEvidenceTopics: scored.lowEvidenceTopics,
     eventScores: scored.eventScores,
@@ -93,6 +98,7 @@ export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, mon
     triggerChains,
     eventCandidates: scored.eventCandidates,
     mainEvents,
+    parallelEvents,
     monthlyHighlights,
     lowEvidenceTopics: scored.lowEvidenceTopics,
     eventScores: scored.eventScores,

@@ -3,14 +3,14 @@ export const eventTaxonomy = {
     label: "关系婚恋",
     legacyTopic: "relationship",
     symbols: ["妻/夫", "婚恋", "关系变化"],
-    manifestations: ["关系边界重谈", "合作或亲密关系靠近", "承诺、分工或相处节奏变化", "旧关系议题回到台前"],
+    manifestations: ["恋爱启动、暧昧或确定关系", "关系边界重谈", "合作或亲密关系靠近", "承诺、分工或相处节奏变化", "旧关系议题回到台前"],
     advice: "把关系里的承诺、边界、分工和实际反馈分开记录，不把单一信号当成结果。",
   },
   wealth_resource: {
     label: "财与资源",
     legacyTopic: "wealth",
     symbols: ["财", "收入", "支出", "资源"],
-    manifestations: ["收入结构调整", "支出预算重算", "报价付款复核", "投资或资源安排被重新讨论"],
+    manifestations: ["兼职打工、临时收入或资源变现", "收入结构调整", "支出预算重算", "报价付款复核", "投资或资源安排被重新讨论"],
     advice: "重点复核合同金额、付款节奏、预算上限和资源归属。",
   },
   children_output: {

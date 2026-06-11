@@ -84,11 +84,11 @@ export function buildEventCandidateScenarios({ mode = "year", signals, coreSigna
   const rows = pickSignals(mode, signals, coreSignals);
   const scenarios = rows.length ? rows.map((signal) => buildScenario(signal, label)).slice(0, mode === "month" ? 4 : 5) : fallbackScenarios(label);
   return {
-    summary: `${label}本地辅助报告：已把页面矩阵证据翻成具体候选事象，仍需结合现实反馈继续验证，不能单独作为结论。`,
-    keySignals: rows.slice(0, 5).map((signal) => `证据链 -> ${signal.evidence || signal.title || "页面矩阵信号"}；候选事象 -> ${eventTextForSignal(signal).join("；")}`),
+    summary: `${label}本地辅助报告：已把页面矩阵证据整理成可复核的断事线索，供师傅判断主断与背景象。`,
+    keySignals: rows.slice(0, 5).map((signal) => `断法依据 -> ${signal.evidence || signal.title || "页面矩阵信号"}；现实应象 -> ${eventTextForSignal(signal).join("；")}`),
     likelyThemes: collectEventCandidatesFromSignals(scenarios).slice(0, 8),
     cautions: ["这里不重新排盘，也不补充页面没有列出的干支关系。", sensitiveReview],
-    verificationLimits: ["现实验证仍需结合原局、大运、流年、流月、柱位、旺衰与实际经历继续观察，不能单独作为结论。"],
+    verificationLimits: ["师傅复核时仍需并看原局、大运、流年、流月、柱位、旺衰与实际经历；弱证据项应降级为背景象。"],
     scenarios: scenarios.length ? scenarios : fallbackScenarios(label, text),
   };
 }
@@ -115,12 +115,26 @@ export function buildReadableAiReportFromPrompt(prompt = {}) {
       candidate: event,
     }])
     : [];
+  const parallelTopEvents = Array.isArray(fortune.parallelEvents) && fortune.parallelEvents.length
+    ? fortune.parallelEvents.map((event) => [event.eventType, {
+      score: event.score,
+      evidence: event.evidenceChain,
+      candidate: event,
+    }])
+    : Array.isArray(input.evidencePackage?.parallelEvents)
+      ? input.evidencePackage.parallelEvents.map((event) => [event.eventType, {
+        score: event.score,
+        evidence: event.evidenceChain,
+        candidate: event,
+      }])
+      : [];
   const monthlyHighlights = Array.isArray(fortune.monthlyHighlights) ? fortune.monthlyHighlights.slice(0, 5) : [];
   const triggerChains = Array.isArray(fortune.triggerChains) ? fortune.triggerChains : [];
   const context = selectReportContext({
     mode,
     fortune,
     topEvents: annualTopEvents,
+    parallelEvents: parallelTopEvents,
     triggerChains,
     monthlyHighlights,
     evidencePackage: input.evidencePackage,
@@ -148,14 +162,10 @@ export function buildReadableAiReportFromPrompt(prompt = {}) {
       reality: context.triggerReality(likelyEvents),
     },
     likelyEvents,
-    eventFocus: context.topEvents.map(([topic, score]) => ({
-      topic: legacyTopic(topic),
-      level: scoreLevel(score?.score),
-      conclusion: `${topicName(topic)}：${context.focusPrefix}${levelName(scoreLevel(score?.score))}证据，作为候选事件来源参考。`,
-      evidence: normalizeList(score?.evidence).slice(0, 4),
-      reality: eventReality(topic),
-      advice: eventAdvice(topic),
-    })),
+    eventFocus: [
+      ...context.topEvents.map((entry) => buildEventFocusEntry(entry, context, false)),
+      ...context.parallelEvents.map((entry) => buildEventFocusEntry(entry, context, true)),
+    ],
     monthlyHighlights: context.monthlyHighlights.map((month) => ({
       month: Number(month.month),
       level: month.intensity || scoreLevel(month.score),
@@ -165,12 +175,29 @@ export function buildReadableAiReportFromPrompt(prompt = {}) {
       advice: "只记录本月实际出现的事，不把没有发生的主题硬套进去。",
     })),
     overallAdvice: context.overallAdvice,
-    boundary: "以上为本地规则取象后的白话整理，请结合现实反馈复核。",
+    boundary: "以上为本地规则取象后的专业研判草稿，供师傅结合现实反馈复核。",
   };
   return sanitizeReport(ensureReportDefaults(report));
 }
 
-function selectReportContext({ mode, fortune, topEvents, triggerChains, monthlyHighlights, selectedMonthInfluence, evidencePackage } = {}) {
+function buildEventFocusEntry([topic, score], context, isParallel = false) {
+  const level = scoreLevel(score?.score);
+  const manifestations = normalizeList(score?.candidate?.possibleManifestations).join("；") || eventReality(topic);
+  return {
+    topic: legacyTopic(topic),
+    level,
+    conclusion: isParallel
+      ? `${topicName(topic)}：副线复核，${context.focusPrefix}${levelName(level)}证据；暂不作主断，先看现实条件是否承接。`
+      : `${topicName(topic)}：${context.focusPrefix}${levelName(level)}证据，作为主断或背景象来源参考。`,
+    evidence: normalizeList(score?.evidence).slice(0, 4),
+    reality: manifestations,
+    advice: isParallel
+      ? "并行复核：若现实中出现对应动作，再交由师傅回看主断与副线是否同源；若无承接，降级为背景象。"
+      : eventAdvice(topic),
+  };
+}
+
+function selectReportContext({ mode, fortune, topEvents, parallelEvents = [], triggerChains, monthlyHighlights, selectedMonthInfluence, evidencePackage } = {}) {
   const selectedMonth = Number(selectedMonthInfluence?.month || monthlyHighlights[0]?.month || 1);
   const selectedMonthHighlight = monthlyHighlights.find((month) => Number(month.month) === selectedMonth) || {
     month: selectedMonth,
@@ -197,6 +224,7 @@ function selectReportContext({ mode, fortune, topEvents, triggerChains, monthlyH
     return {
       selectedMonth,
       topEvents: luckEvents,
+      parallelEvents: [],
       triggerChains: [{
         reason: fortune.luckBackground?.conclusion || "当前大运形成十年阶段背景。",
         tags: luckEvents.map(([topic]) => topic),
@@ -223,6 +251,7 @@ function selectReportContext({ mode, fortune, topEvents, triggerChains, monthlyH
     return {
       selectedMonth,
       topEvents: monthEvents,
+      parallelEvents: [],
       triggerChains: [{
         reason: `${selectedMonth}月流月信号进入短期应期。`,
         tags: monthEvents.map(([topic]) => topic),
@@ -248,18 +277,19 @@ function selectReportContext({ mode, fortune, topEvents, triggerChains, monthlyH
   return {
     selectedMonth,
     topEvents,
+    parallelEvents,
     triggerChains,
     monthlyHighlights: [],
     title: `${fortune.annualTheme || "流年年度"}结构化解读`,
     coreConclusion: (events) => events.length
-      ? `今年优先看：${events.slice(0, 3).map((item) => item.event).join("；")}。`
+      ? `今年优先看：${events.slice(0, 3).map((item) => item.event).join("；")}${parallelEvents.length ? `；另有${parallelEvents.slice(0, 3).map(([topic]) => topicName(topic)).join("、")}作并行复核` : ""}。`
       : "本地触发链不足，不能硬断年度事件。",
     yearTriggerConclusion: triggerChains[0]?.reason || "流年把原局与大运中的重点主题推到当年。",
     luckConclusion: "流年报告不展开大运，只分析当年触发本身。",
     luckReality: "本段看年度干支、十神和原局关系把哪些现实主题推到当年。",
     triggerReality: conciseTriggerReality,
     focusPrefix: "流年触发后的",
-    overallAdvice: ["只看这一年自身被触发的候选事项。", "把今年出现的职责、资源、关系和迁动变化记录成清单。", "流月应期留到流月报告单独判断。"],
+    overallAdvice: ["先分清主断事项和并行复核事项。", "把今年出现的职责、资源、关系和迁动变化记录成清单。", "流月应期留到流月报告单独判断。"],
   };
 }
 
@@ -454,18 +484,19 @@ function buildLikelyEvents({ mode = "year", topEvents = [], triggerChains = [], 
       const candidate = score.candidate;
       const eventText = candidate.possibleManifestations?.[0] || `${topicName(candidate.eventType)}候选事件`;
       const timing = normalizeList(candidate.timing)[0] || eventTimeWindow(months[index % Math.max(months.length, 1)] || {}, scoreLevel(candidate.score), mode, selectedMonth);
-      const evidence = normalizeList(candidate.evidenceChain)[0] || "本地触发链命中";
+      const evidence = normalizeList(candidate.evidenceChain).slice(0, 4);
+      const primaryEvidence = evidence[0] || "本地触发链命中";
       return {
         event: eventText,
-        conclusion: `${evidence}，可能是${eventText}。`,
+        conclusion: `${primaryEvidence}，主断倾向为${eventText}。`,
         probabilityLevel: scoreLevel(candidate.score),
         timeWindow: timing,
         timing,
-        evidence: [evidence],
+        evidence: evidence.length ? evidence : [primaryEvidence],
         reality: normalizeList(candidate.possibleManifestations)[0] || eventReality(candidate.eventType),
-        advice: "只当候选事象看，等现实反馈验证。",
+        advice: "师傅复核：看现实背景是否能承接该象，不能只按象义平移。",
         verifyBy: normalizeList(candidate.timing).slice(0, 1).concat(["现实中是否出现对应事项"]).slice(0, 2),
-        boundary: "这是本地事件引擎给出的候选事件，需要结合现实反馈、柱位、旺衰、十神和岁运继续验证，不能单独作为结论。",
+        boundary: "反证：若现实中没有对应背景或承接动作，应降级为背景象，不作主断。",
       };
     }
     const chains = triggerChains.filter((chain) => normalizeList(chain.tags).includes(topic));
@@ -478,18 +509,18 @@ function buildLikelyEvents({ mode = "year", topEvents = [], triggerChains = [], 
       ...normalizeList(chain.evidence).slice(0, 2),
       chain.reason,
       ...(month.month ? [`${month.month}月${month.pillar || ""}${month.intensity || ""}触发窗口`] : []),
-    ].filter(Boolean)).slice(0, 1);
+    ].filter(Boolean)).slice(0, 4);
     return {
       event: template.event,
-      conclusion: `${evidence[0] || topicName(topic)}，可能是${template.event}。`,
+      conclusion: `${evidence[0] || topicName(topic)}，主断倾向为${template.event}。`,
       probabilityLevel,
       timeWindow: eventTimeWindow(month, probabilityLevel, mode, selectedMonth),
       timing: eventTimeWindow(month, probabilityLevel, mode, selectedMonth),
       evidence,
       reality: firstSentence(template.reality),
-      advice: "只当候选事象看，等现实反馈验证。",
+      advice: "师傅复核：看现实背景是否能承接该象，不能只按象义平移。",
       verifyBy: normalizeList(template.verifyBy).slice(0, 2),
-      boundary: "这是本地事件引擎给出的候选事件，需要结合现实反馈、柱位、旺衰、十神和岁运继续验证，不能单独作为结论。",
+      boundary: "反证：若现实中没有对应背景或承接动作，应降级为背景象，不作主断。",
     };
   });
 }
@@ -518,13 +549,13 @@ function likelyEventTemplate(topic, mode = "year") {
     },
     wealth: {
       event: "收支安排、报价付款或资源分配需要重新核算",
-      reality: "可能表现为预算重排、付款节点延后、报价协商、家庭或团队资源重新分配。",
-      verifyBy: ["是否出现大额收支计划", "是否有报价付款或合同金额复核", "是否需要重新分配资源"],
+      reality: "可能表现为兼职打工、临时收入、预算重排、付款节点延后、报价协商或资源重新分配。",
+      verifyBy: ["是否出现兼职打工或临时收入", "是否有报价付款或合同金额复核", "是否需要重新分配资源"],
     },
     relationship: {
       event: "亲密关系或合作关系的边界被重新讨论",
-      reality: "可能表现为沟通频率变化、分工承诺重谈、关系黏连或合作责任变清楚。",
-      verifyBy: ["是否出现关系边界讨论", "是否有合作承诺或分工变化", "是否在重点月份出现反复沟通"],
+      reality: "可能表现为恋爱启动、暧昧、确定关系、沟通频率变化、承诺重谈或合作责任变清楚。",
+      verifyBy: ["是否出现恋爱或暧昧对象", "是否有关系边界讨论", "是否有合作承诺或分工变化"],
     },
     study: {
       event: "学习证照、材料文书或表达交付被推到台前",
@@ -617,8 +648,8 @@ function eventReality(topic) {
   if (eventTaxonomy[topic]) return eventTaxonomy[topic].manifestations.join("；");
   return {
     career: "现实中看岗位职责、任务交付、流程审核和项目调整。",
-    wealth: "现实中看收支安排、预算分配、报价付款和资源承接。",
-    relationship: "现实中看亲密互动、合作边界、沟通摩擦和关系规则。",
+    wealth: "现实中看兼职打工、临时收入、收支安排、报价付款和资源承接。",
+    relationship: "现实中看恋爱启动、暧昧确定、亲密互动、合作边界和关系规则。",
     study: "现实中看课程证书、资料整理、技能训练和表达输出。",
     health: "现实中只看作息体感、压力负荷和安全操作复核。",
     movement: "现实中看搬动出行、通勤变化、地点调整和计划改期。",

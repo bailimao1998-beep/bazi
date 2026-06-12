@@ -1707,7 +1707,8 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.match(bundle, /流程合规/);
   assert.match(bundle, /出行操作安全/);
   assert.match(bundle, /caution/);
-  assert.equal(index.includes("AI"), false);
+  assert.match(index, /浏览器本地完成排盘和取象，AI 只作为可选解释层。/);
+  assert.match(index, /js\/locationData\.js\?v=20260612b/);
   assert.equal(bundle.includes("AI 叙事层"), false);
   assert.equal(bundle.includes("调试 JSON"), false);
   assert.equal(bundle.includes("可直接打开 index.html"), false);

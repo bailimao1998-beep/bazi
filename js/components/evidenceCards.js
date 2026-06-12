@@ -14,6 +14,7 @@ export function renderEvidenceCards(root, evidenceReport) {
     </section>
     ${renderEventSection("主断事件卡片", report.mainEventCards)}
     ${renderEventSection("副线复核卡片", report.parallelEventCards, { parallel: true })}
+    ${renderTimingCards(report.timingCards)}
     ${renderRuleCards(report.ruleCards)}
     ${renderReviewQuestions(report.reviewQuestions)}
   `;
@@ -54,6 +55,31 @@ function renderRuleCards(cards = []) {
         ${cards.length ? cards.map(renderRuleCard).join("") : `<p class="muted">暂无规则证据。</p>`}
       </div>
     </section>
+  `;
+}
+
+function renderTimingCards(cards = []) {
+  return `
+    <section class="evidence-card-section">
+      <div class="board-title"><h3>应期观察卡片</h3><span>${cards.length} 条</span></div>
+      <div class="evidence-card-grid">
+        ${cards.length ? cards.map(renderTimingCard).join("") : `<p class="muted">暂无明确应期卡片。</p>`}
+      </div>
+    </section>
+  `;
+}
+
+function renderTimingCard(card = {}) {
+  const month = card.month ? `${Number(card.month)}月` : "月份待复核";
+  return `
+    <article class="evidence-card timing">
+      <header>
+        <span>${escapeHtml(month)} · ${escapeHtml(card.pillar ?? "干支待复核")}</span>
+        <strong>${escapeHtml(card.theme ?? "应期观察")}</strong>
+        <small>${escapeHtml(card.level ?? "medium")} · ${escapeHtml(card.source ?? "evidenceReport")}</small>
+      </header>
+      ${renderList("应期依据", card.evidence)}
+    </article>
   `;
 }
 

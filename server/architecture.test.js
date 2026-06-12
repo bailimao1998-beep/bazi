@@ -22,6 +22,7 @@ import { createAiProvider } from "./core/ai/aiProvider.js";
 import { loadJson } from "./utils/jsonLoader.js";
 import { formatLunarDate, lunarToSolar, solarToLunar } from "./utils/lunarCalendar.js";
 import { renderAiNarrativePanel } from "../js/components/aiNarrativePanel.js";
+import { renderEvidenceCards } from "../js/components/evidenceCards.js";
 
 const requiredPaths = [
   "index.html",
@@ -1379,6 +1380,7 @@ test("static index uses server-mode module entry and keeps old birth settings da
 
   assert.equal(global.window.FortuneLocationData.cities.length, 3337);
   assert.doesNotMatch(index, /js\/app\.bundle\.js/);
+  assert.doesNotMatch(index, /js\/local-deepseek-config\.local\.js/);
   assert.match(index, /<script\s+type="module"\s+src="js\/app\.js\?v=20260609g"><\/script>/);
   assert.ok(index.indexOf('id="coreSignals"') < index.indexOf('id="monthTimeline"'));
   assert.ok(index.indexOf('id="coreSignals"') < index.indexOf('id="evidenceCards"'));
@@ -1531,7 +1533,7 @@ test("static index uses server-mode module entry and keeps old birth settings da
   assert.match(styles, /chat-widget\.is-open \.chat-toggle/);
   assert.match(styles, /chat-window\[hidden\]/);
   assert.match(styles, /typing-caret/);
-  assert.match(index, /js\/local-deepseek-config\.local\.js/);
+  assert.match(offlineIndex, /js\/local-deepseek-config\.local\.js/);
   assert.match(staticRouteSource, /local-deepseek-config\.local\.js/);
   assert.match(staticRouteSource, /response\.writeHead\(404\)/);
   assert.match(bundle, /function getBrowserDeepseekConfig/);
@@ -1794,6 +1796,37 @@ test("birth form makes initial AI interpretation opt-in", () => {
 
 test("AI narrative panel tolerates missing root", () => {
   assert.doesNotThrow(() => renderAiNarrativePanel(null, { narrative: { text: "测试" } }));
+});
+
+test("EvidenceCards renders timing cards and tolerates empty timing data", () => {
+  const root = { innerHTML: "" };
+  renderEvidenceCards(root, {
+    summary: { year: 2026, selectedLuck: "甲子", mainEventCount: 1, ruleV2Count: 1, topTopics: ["career"] },
+    mainEventCards: [{ title: "事业身份复核", eventType: "career", level: "medium", score: 68, evidence: ["官杀触发"] }],
+    timingCards: [
+      {
+        month: 4,
+        pillar: "壬辰",
+        level: "medium",
+        theme: "项目推进",
+        evidence: ["流月再次触发事业环境"],
+        source: "monthlyHighlights",
+      },
+    ],
+    ruleCards: [],
+    reviewQuestions: [],
+  });
+
+  assert.match(root.innerHTML, /应期观察卡片/);
+  assert.match(root.innerHTML, /4月/);
+  assert.match(root.innerHTML, /壬辰/);
+  assert.match(root.innerHTML, /medium/);
+  assert.match(root.innerHTML, /项目推进/);
+  assert.match(root.innerHTML, /流月再次触发事业环境/);
+  assert.match(root.innerHTML, /monthlyHighlights/);
+
+  renderEvidenceCards(root, { summary: {}, mainEventCards: [], timingCards: [], ruleCards: [], reviewQuestions: [] });
+  assert.match(root.innerHTML, /暂无明确应期卡片。/);
 });
 
 test("local server can use ignored DeepSeek config without serving it to the browser", () => {

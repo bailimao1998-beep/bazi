@@ -18,6 +18,7 @@ import { buildChatPrompt } from "./prompts/chatPromptBuilder.js";
 import { sanitizeChatText } from "./security/outputSanitizer.js";
 import { buildChatResponse } from "./services/chatService.js";
 import { buildNarrative } from "./services/narrativeService.js";
+import { createAppServer } from "./server.js";
 import { createAiProvider } from "./core/ai/aiProvider.js";
 import { loadJson } from "./utils/jsonLoader.js";
 import { formatLunarDate, lunarToSolar, solarToLunar } from "./utils/lunarCalendar.js";
@@ -27,6 +28,8 @@ import { renderEvidenceCards } from "../js/components/evidenceCards.js";
 const requiredPaths = [
   "index.html",
   "index.offline.html",
+  "desktop/main.js",
+  "desktop/preload.js",
   "styles/main.css",
   "js/app.js",
   "js/app.bundle.js",
@@ -1846,6 +1849,40 @@ test("local server can use ignored DeepSeek config without serving it to the bro
   assert.match(serverSource, /staticRoute\(url, response\)/);
   assert.doesNotMatch(serverSource, /calculateBazi|calculateZiwei|ruleEngine|buildAnnualEventReport|generateStoryTags|createAiProvider/);
   assert.doesNotMatch(aiConfigSource, /deepseekApiKey:\s*["']sk-/);
+});
+
+test("desktop shell can reuse the local server without exposing Node APIs to the renderer", () => {
+  const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+  const serverSource = readFileSync("server/server.js", "utf8");
+  const desktopMainSource = readFileSync("desktop/main.js", "utf8");
+  const preloadSource = readFileSync("desktop/preload.js", "utf8");
+  const appServer = createAppServer({ port: 3000 });
+
+  assert.equal(appServer.url, "http://localhost:3000");
+  assert.equal(typeof appServer.start, "function");
+  assert.equal(typeof appServer.stop, "function");
+  assert.equal(typeof appServer.server.close, "function");
+  assert.match(serverSource, /export function createAppServer/);
+  assert.match(serverSource, /process\.argv\[1\]/);
+
+  assert.equal(packageJson.scripts.dev, "node server/server.js");
+  assert.equal(packageJson.scripts.desktop, "electron desktop/main.js");
+  assert.equal(packageJson.scripts["package:mac"], "electron-builder --mac");
+  assert.equal(packageJson.scripts["package:win"], "electron-builder --win");
+  assert.ok(packageJson.devDependencies?.electron);
+  assert.ok(packageJson.devDependencies?.["electron-builder"]);
+  assert.equal(packageJson.build.productName, "命理断事系统");
+  assert.equal(packageJson.build.directories.output, "dist");
+
+  assert.match(desktopMainSource, /BrowserWindow/);
+  assert.match(desktopMainSource, /createAppServer/);
+  assert.match(desktopMainSource, /loadURL\(localUrl\)/);
+  assert.match(desktopMainSource, /nodeIntegration:\s*false/);
+  assert.match(desktopMainSource, /contextIsolation:\s*true/);
+  assert.match(desktopMainSource, /preload:/);
+  assert.match(desktopMainSource, /stopLocalServer/);
+  assert.doesNotMatch(desktopMainSource, /local-deepseek-config\.local\.js|deepseekApiKey|apiKey/);
+  assert.doesNotMatch(preloadSource, /contextBridge\.exposeInMainWorld|ipcRenderer|require\(|node:/);
 });
 
 function assertSignalContract(signal, label) {

@@ -11,7 +11,7 @@
 - AI provider 只负责叙事，不参与排盘、取象或触发判断。
 - 默认 provider 是 `mock`，配置在 `config/ai-config.json`。
 
-## 运行
+## 使用方式
 
 Beta 主运行模式为 server 模式：
 
@@ -19,13 +19,27 @@ Beta 主运行模式为 server 模式：
 index.html → js/app.js → /api/narrative → 后端 buildNarrative → evidenceReport → EvidenceCards
 ```
 
+开发者调试：
+
 ```bash
 npm run dev
 ```
 
 打开 `http://localhost:3000`。
 
+本机快速启动桌面壳：
+
+```bash
+npm run desktop
+```
+
+普通用户使用：
+
+下载打包后的 `命理断事系统.app` 或 `命理断事系统.exe`，双击打开即可，不需要安装 npm、Node、Git 或 VS Code。
+
 `js/app.bundle.js` 保留为 legacy/offline 纯前端演示入口，只用于旧版本地展示，不参与专业师傅工作台主链路。需要离线演示时可打开 `index.offline.html`。
+
+桌面应用仍然通过本地后端读取配置或环境变量，浏览器页面不会直接读取 DeepSeek API Key。
 
 ## 测试
 

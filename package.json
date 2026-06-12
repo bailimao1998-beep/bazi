@@ -3,10 +3,42 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "main": "desktop/main.js",
   "scripts": {
     "dev": "node server/server.js",
+    "desktop": "electron desktop/main.js",
+    "package:mac": "electron-builder --mac",
+    "package:win": "electron-builder --win",
     "start": "node server/server.js",
     "test": "node --test server/architecture.test.js",
     "validate": "node scripts/validate-bazi-data.mjs"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.fortune-ai.desktop",
+    "productName": "命理断事系统",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "desktop/**/*",
+      "server/**/*",
+      "js/**/*",
+      "styles/**/*",
+      "data/**/*",
+      "config/**/*",
+      "index.html",
+      "index.offline.html",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "nsis"
+    }
   }
 }

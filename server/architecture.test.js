@@ -233,7 +233,7 @@ test("base bazi view model exposes blind-style chart layers without re-calculati
     targetYear: 2030,
   };
   const chart = calculateBazi(input);
-  const viewModel = buildBaseBaziViewModel({ input, chart });
+  const viewModel = buildBaseBaziViewModel(chart);
   const narrative = await buildNarrative(input);
 
   assert.equal(viewModel.birthInfo.name, "测试用户");
@@ -1444,7 +1444,7 @@ test("static index uses server-mode module entry and keeps old birth settings da
   assert.doesNotMatch(index, /id="coreSignals"|id="yearStory"|id="monthTimeline"|id="casePanel"|id="chartSummary"|id="aiNarrative"/);
   const orderedPanels = [
     "birthForm",
-    "baseChartPanel",
+    "baseBaziPanel",
     "natalImagePanel",
     "natalAiNarrative",
     "luckImagePanel",
@@ -1453,7 +1453,6 @@ test("static index uses server-mode module entry and keeps old birth settings da
     "yearAiNarrative",
     "monthImagePanel",
     "monthAiNarrative",
-    "aiChatPanel",
     "aiSettings",
     "debugPanel",
   ];
@@ -1464,7 +1463,16 @@ test("static index uses server-mode module entry and keeps old birth settings da
   assert.match(appSource, /renderEvidenceCards/);
   assert.match(appSource, /renderAiSettingsPanel/);
   assert.match(appSource, /renderBaseBaziPanel/);
+  assert.match(appSource, /renderPlaceholderPanel/);
   assert.match(appSource, /baseBaziViewModel/);
+  assert.match(appSource, /renderBaseBaziPanel\(roots\.baseBaziPanel, state\.baseBaziViewModel\)/);
+  assert.match(appSource, /renderEvidenceCards\(roots\.yearImagePanel, state\.evidenceReport\)/);
+  assert.match(appSource, /renderAiNarrativePanel\(roots\.yearAiNarrative, state/);
+  assert.match(appSource, /renderMonthTimeline\(roots\.monthImagePanel, state/);
+  assert.match(appSource, /原局取象[\s\S]*待实现/);
+  assert.match(appSource, /大运取象[\s\S]*待实现/);
+  assert.match(appSource, /流月 AI 解读[\s\S]*待实现/);
+  assert.doesNotMatch(appSource, /aiChatPanel|renderChatPanel/);
   assert.match(apiClientSource, /\/api\/settings\/ai/);
   assert.match(apiClientSource, /\/api\/settings\/ai\/test/);
   assert.match(apiClientSource, /\/api\/cases/);

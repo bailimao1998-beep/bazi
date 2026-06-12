@@ -5,17 +5,17 @@ const pillarOrder = [
   ["hour", "时柱"],
 ];
 
-export function buildBaseBaziViewModel({ input = {}, chart = {} } = {}) {
+export function buildBaseBaziViewModel(chart = {}) {
   const calendar = chart.calendar ?? {};
   const details = chart.pillarDetails ?? {};
   return {
     birthInfo: {
-      name: chart.input?.name ?? input.name ?? "",
-      gender: chart.input?.gender ?? input.gender ?? "unknown",
-      birthplace: chart.input?.birthplace ?? input.birthplace ?? "",
-      solarDate: calendar.solarDate ?? chart.input?.birthDate ?? input.birthDate ?? "",
+      name: chart.input?.name ?? "",
+      gender: chart.input?.gender ?? "unknown",
+      birthplace: chart.input?.birthplace ?? "",
+      solarDate: calendar.solarDate ?? chart.input?.birthDate ?? "",
       lunarDate: calendar.lunarDate ?? "",
-      trueSolarTime: Boolean(calendar.trueSolarTime ?? chart.input?.trueSolarTime ?? input.trueSolarTime),
+      trueSolarTime: Boolean(calendar.trueSolarTime ?? chart.input?.trueSolarTime),
       calendarNotes: [
         calendar.monthNote,
         calendar.solarTermRange,
@@ -34,11 +34,7 @@ export function buildBaseBaziViewModel({ input = {}, chart = {} } = {}) {
       fullHidden: chart.tenGodStats?.fullHidden ?? {},
     },
     relations: Array.isArray(chart.relations) ? chart.relations : [],
-    auxiliary: {
-      fetalOrigin: chart.auxiliary?.fetalOrigin ?? null,
-      lifePalace: chart.auxiliary?.lifePalace ?? null,
-      bodyPalace: chart.auxiliary?.bodyPalace ?? null,
-    },
+    auxiliary: chart.auxiliary ?? {},
     luckCycles: Array.isArray(chart.luckCycles?.pillars) ? chart.luckCycles.pillars : [],
   };
 }

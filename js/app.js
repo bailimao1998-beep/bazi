@@ -6,11 +6,10 @@ import { renderBirthForm } from "./components/birthForm.js";
 import { renderDebugPanel } from "./components/debugPanel.js";
 import { renderEvidenceCards } from "./components/evidenceCards.js";
 import { renderMonthTimeline } from "./components/monthTimeline.js";
-import { renderYearStoryPanel } from "./components/yearStoryPanel.js";
 
 const roots = {
   birthForm: document.querySelector("#birthForm"),
-  baseChartPanel: document.querySelector("#baseChartPanel"),
+  baseBaziPanel: document.querySelector("#baseBaziPanel"),
   natalImagePanel: document.querySelector("#natalImagePanel"),
   natalAiNarrative: document.querySelector("#natalAiNarrative"),
   luckImagePanel: document.querySelector("#luckImagePanel"),
@@ -19,7 +18,6 @@ const roots = {
   yearAiNarrative: document.querySelector("#yearAiNarrative"),
   monthImagePanel: document.querySelector("#monthImagePanel"),
   monthAiNarrative: document.querySelector("#monthAiNarrative"),
-  aiChatPanel: document.querySelector("#aiChatPanel"),
   aiSettings: document.querySelector("#aiSettings"),
   debug: document.querySelector("#debugPanel"),
   status: document.querySelector("#status"),
@@ -106,17 +104,12 @@ function renderAiSettings() {
 }
 
 function renderAll() {
-  renderBaseBaziPanel(roots.baseChartPanel, state.baseBaziViewModel);
-  renderEvidenceCards(roots.natalImagePanel, state.evidenceReport);
-  renderAiNarrativePanel(roots.natalAiNarrative, state, { title: "原局 AI 解读" });
-  renderLuckImagePanel(roots.luckImagePanel, state);
-  renderAiNarrativePanel(roots.luckAiNarrative, state, { title: "大运 AI 解读" });
-  renderYearStoryPanel(roots.yearImagePanel, state, {
-    onSelectYear(year) {
-      currentInput = { ...currentInput, targetYear: year };
-      refresh();
-    },
-  });
+  renderBaseBaziPanel(roots.baseBaziPanel, state.baseBaziViewModel);
+  renderPlaceholderPanel(roots.natalImagePanel, "原局取象");
+  renderPlaceholderPanel(roots.natalAiNarrative, "原局 AI 解读");
+  renderPlaceholderPanel(roots.luckImagePanel, "大运取象");
+  renderPlaceholderPanel(roots.luckAiNarrative, "大运 AI 解读");
+  renderEvidenceCards(roots.yearImagePanel, state.evidenceReport);
   renderAiNarrativePanel(roots.yearAiNarrative, state, { title: "流年 AI 解读" });
   renderMonthTimeline(roots.monthImagePanel, state, {
     onSelectMonth(month) {
@@ -133,34 +126,18 @@ function renderAll() {
       refresh();
     },
   });
-  renderAiNarrativePanel(roots.monthAiNarrative, state, { title: "流月 AI 解读" });
-  renderChatPanel(roots.aiChatPanel);
+  renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 解读");
   renderDebugPanel(roots.debug, state);
 }
 
-function renderLuckImagePanel(root, data) {
-  if (!root) return;
-  const luck = data?.selectedLuck;
-  root.innerHTML = `
-    <div class="plugin-header">
-      <p class="eyebrow">大运取象</p>
-      <h2>当前大运</h2>
-    </div>
-    <article class="story-card">
-      <strong>${escapeHtml(luck?.label ?? "大运待选")}</strong>
-      <p>${escapeHtml(luck ? `${luck.startYear}-${luck.endYear}，${luck.startAge}-${luck.endAge}岁。` : "等待排盘。")}</p>
-    </article>
-  `;
-}
-
-function renderChatPanel(root) {
+function renderPlaceholderPanel(root, title) {
   if (!root) return;
   root.innerHTML = `
     <div class="plugin-header">
-      <p class="eyebrow">AI 问答</p>
-      <h2>师傅问答</h2>
+      <p class="eyebrow">${escapeHtml(title)}</p>
+      <h2>${escapeHtml(title)}</h2>
     </div>
-    <p class="muted">AI 问答接口已保留在后端，主页面问答交互将在后续阶段接入。</p>
+    <p class="muted">待实现。</p>
   `;
 }
 

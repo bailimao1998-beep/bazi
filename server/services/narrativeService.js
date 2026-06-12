@@ -15,7 +15,7 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
   const selectedMonth = Number(input.selectedMonth ?? new Date().getMonth() + 1);
   const aiMode = ["luck", "year", "month"].includes(input.mode) ? input.mode : "default";
   const chart = calculateBazi(input);
-  const baseBaziViewModel = buildBaseBaziViewModel({ input, chart });
+  const baseBaziViewModel = buildBaseBaziViewModel(chart);
   const yearInfluence = calculateYearInfluence({ chart, targetYear });
   const monthInfluences = Array.from({ length: 12 }, (_, index) =>
     calculateMonthInfluence({ chart, targetYear, month: index + 1 }),

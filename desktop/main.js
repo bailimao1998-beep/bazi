@@ -13,6 +13,7 @@ const defaultDesktopPorts = [3000, 3001, 3002, 3003, 3004, 3005];
 
 async function startLocalServer() {
   if (appServer) return appServer.url;
+  process.env.FORTUNE_AI_USER_DATA_DIR = app.getPath("userData");
   const configuredPort = process.env.FORTUNE_AI_DESKTOP_PORT ?? process.env.PORT;
   const ports = configuredPort ? [Number(configuredPort)] : defaultDesktopPorts;
   let lastError = null;

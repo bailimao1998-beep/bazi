@@ -56,7 +56,7 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
       matchedRules,
       fortuneAnalysis,
     });
-  const narrative = await createAiProvider(providerOptions).generate({ prompt, storyTags });
+  const narrative = await generateNarrativeWithFallback(providerOptions, { prompt, storyTags });
   return {
     aiMode,
     chart,
@@ -80,6 +80,15 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
     narrative,
     selection: { targetYear, selectedMonth, selectedLuckIndex: selectedLuck?.index ? selectedLuck.index - 1 : 0 },
   };
+}
+
+async function generateNarrativeWithFallback(providerOptions, payload) {
+  try {
+    return await createAiProvider(providerOptions).generate(payload);
+  } catch (error) {
+    const fallback = await createAiProvider({ provider: "mock" }).generate(payload);
+    return { ...fallback, fallbackReason: error.message };
+  }
 }
 
 function selectLuckPillar(luckCycles, selectedLuckIndex, targetYear) {

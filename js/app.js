@@ -1,5 +1,6 @@
-import { requestNarrative } from "./apiClient.js";
+import { getAiSettings, requestNarrative, saveAiSettings, testAiSettings } from "./apiClient.js";
 import { renderAiNarrativePanel } from "./components/aiNarrativePanel.js";
+import { renderAiSettingsPanel } from "./components/aiSettingsPanel.js";
 import { renderBirthForm } from "./components/birthForm.js";
 import { renderChartSummary } from "./components/chartSummary.js";
 import { renderDebugPanel } from "./components/debugPanel.js";
@@ -12,6 +13,7 @@ const roots = {
   chartSummary: document.querySelector("#chartSummary"),
   yearStory: document.querySelector("#yearStory"),
   evidenceCards: document.querySelector("#evidenceCards"),
+  aiSettings: document.querySelector("#aiSettings"),
   monthTimeline: document.querySelector("#monthTimeline"),
   aiNarrative: document.querySelector("#aiNarrative"),
   debug: document.querySelector("#debugPanel"),
@@ -19,6 +21,10 @@ const roots = {
 };
 
 let state = null;
+let aiSettingsState = {
+  settings: null,
+  status: "正在读取 AI 设置...",
+};
 let currentInput = {
   name: "测试用户",
   birthDate: "1949-10-01",
@@ -38,7 +44,21 @@ renderBirthForm(roots.birthForm, {
   },
 });
 
+initializeAiSettings();
 refresh();
+
+async function initializeAiSettings() {
+  renderAiSettings();
+  try {
+    aiSettingsState = {
+      settings: await getAiSettings(),
+      status: "AI 设置已读取。",
+    };
+  } catch (error) {
+    aiSettingsState = { settings: null, status: error.message };
+  }
+  renderAiSettings();
+}
 
 async function refresh() {
   roots.status.textContent = "本地计算中...";
@@ -49,6 +69,35 @@ async function refresh() {
   } catch (error) {
     roots.status.textContent = error.message;
   }
+}
+
+function renderAiSettings() {
+  renderAiSettingsPanel(roots.aiSettings, aiSettingsState, {
+    async onSave(payload) {
+      aiSettingsState = { ...aiSettingsState, status: "正在保存 AI 设置..." };
+      renderAiSettings();
+      try {
+        const result = await saveAiSettings(payload);
+        aiSettingsState = { settings: result.settings, status: "AI 设置已保存。" };
+        renderAiSettings();
+        await refresh();
+      } catch (error) {
+        aiSettingsState = { ...aiSettingsState, status: error.message };
+        renderAiSettings();
+      }
+    },
+    async onTest(payload) {
+      aiSettingsState = { ...aiSettingsState, status: "正在测试连接..." };
+      renderAiSettings();
+      try {
+        const result = await testAiSettings(payload);
+        aiSettingsState = { ...aiSettingsState, status: result.ok ? `测试通过：${result.message}` : `测试未通过：${result.message}` };
+      } catch (error) {
+        aiSettingsState = { ...aiSettingsState, status: error.message };
+      }
+      renderAiSettings();
+    },
+  });
 }
 
 function renderAll() {

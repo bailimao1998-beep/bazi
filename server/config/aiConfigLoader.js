@@ -1,9 +1,15 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { buildProviderOptionsFromAiSettings, getAiSettingsPath, readAiSettings } from "./aiSettingsStore.js";
 
-export function loadLocalAiProviderOptions(publicRoot = process.cwd()) {
+export function loadLocalAiProviderOptions(options = {}) {
+  const publicRoot = typeof options === "string" ? options : options.publicRoot ?? process.cwd();
+  const settingsOptions = typeof options === "string" ? { publicRoot } : { ...options, publicRoot };
+  if (existsSync(getAiSettingsPath(settingsOptions))) {
+    return buildProviderOptionsFromAiSettings(readAiSettings({ ...settingsOptions, includeSecret: true }));
+  }
   const filePath = path.resolve(publicRoot, "js/local-deepseek-config.local.js");
-  if (!existsSync(filePath)) return {};
+  if (!existsSync(filePath)) return { provider: "mock" };
   try {
     const source = readFileSync(filePath, "utf8");
     const apiKey = readStringSetting(source, "deepseekApiKey");
@@ -20,7 +26,7 @@ export function loadLocalAiProviderOptions(publicRoot = process.cwd()) {
       },
     };
   } catch {
-    return {};
+    return { provider: "mock" };
   }
 }
 

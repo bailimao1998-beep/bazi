@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { calculateBazi } from "./core/bazi/calculateBazi.js";
 import { branchMainStem, getTenGod } from "./core/bazi/tenGods.js";
 import { calculateYearInfluence } from "./core/liunian/calculateYearInfluence.js";
@@ -19,6 +21,8 @@ import { sanitizeChatText } from "./security/outputSanitizer.js";
 import { buildChatResponse } from "./services/chatService.js";
 import { buildNarrative } from "./services/narrativeService.js";
 import { createAppServer } from "./server.js";
+import { buildProviderOptionsFromAiSettings, readAiSettings, saveAiSettings } from "./config/aiSettingsStore.js";
+import { loadLocalAiProviderOptions } from "./config/aiConfigLoader.js";
 import { createAiProvider } from "./core/ai/aiProvider.js";
 import { loadJson } from "./utils/jsonLoader.js";
 import { formatLunarDate, lunarToSolar, solarToLunar } from "./utils/lunarCalendar.js";
@@ -41,11 +45,13 @@ const requiredPaths = [
   "js/components/yearStoryPanel.js",
   "js/components/monthTimeline.js",
   "js/components/aiNarrativePanel.js",
+  "js/components/aiSettingsPanel.js",
   "js/components/debugPanel.js",
   "js/components/evidenceCards.js",
   "server/server.js",
   "server/routes/narrativeRoute.js",
   "server/routes/chatRoute.js",
+  "server/routes/settingsRoute.js",
   "server/routes/staticRoute.js",
   "server/routes/requestBody.js",
   "server/services/narrativeService.js",
@@ -53,6 +59,7 @@ const requiredPaths = [
   "server/prompts/chatPromptBuilder.js",
   "server/security/outputSanitizer.js",
   "server/config/aiConfigLoader.js",
+  "server/config/aiSettingsStore.js",
   "server/core/bazi/calculateBazi.js",
   "server/core/bazi/pillarMath.js",
   "server/core/bazi/tenGods.js",
@@ -1377,6 +1384,8 @@ test("static index uses server-mode module entry and keeps old birth settings da
   const index = readFileSync("index.html", "utf8");
   const offlineIndex = readFileSync("index.offline.html", "utf8");
   const appSource = readFileSync("js/app.js", "utf8");
+  const apiClientSource = readFileSync("js/apiClient.js", "utf8");
+  const aiSettingsPanelSource = readFileSync("js/components/aiSettingsPanel.js", "utf8");
   const bundle = readFileSync("js/app.bundle.js", "utf8");
   const styles = readFileSync("styles/main.css", "utf8");
   const staticRouteSource = readFileSync("server/routes/staticRoute.js", "utf8");
@@ -1389,10 +1398,16 @@ test("static index uses server-mode module entry and keeps old birth settings da
   assert.ok(index.indexOf('id="coreSignals"') < index.indexOf('id="evidenceCards"'));
   assert.ok(index.indexOf('id="evidenceCards"') < index.indexOf('id="monthTimeline"'));
   assert.match(index, /id="evidenceCards"/);
+  assert.match(index, /id="aiSettings"/);
   assert.match(index, /id="aiNarrative"/);
   assert.match(index, /id="debugPanel"/);
   assert.match(appSource, /renderEvidenceCards/);
+  assert.match(appSource, /renderAiSettingsPanel/);
   assert.match(appSource, /state\.evidenceReport/);
+  assert.match(apiClientSource, /\/api\/settings\/ai/);
+  assert.match(apiClientSource, /\/api\/settings\/ai\/test/);
+  assert.match(aiSettingsPanelSource, /maskedApiKey/);
+  assert.match(aiSettingsPanelSource, /type="password"/);
   assert.match(bundle, /function renderEvidenceCards/);
   assert.match(bundle, /年度证据总览/);
   assert.match(bundle, /副线复核/);
@@ -1838,17 +1853,67 @@ test("local server can use ignored DeepSeek config without serving it to the bro
   const chatRouteSource = readFileSync("server/routes/chatRoute.js", "utf8");
   const staticRouteSource = readFileSync("server/routes/staticRoute.js", "utf8");
   const aiConfigSource = readFileSync("server/config/aiConfigLoader.js", "utf8");
+  const settingsRouteSource = readFileSync("server/routes/settingsRoute.js", "utf8");
+  const gitignore = readFileSync(".gitignore", "utf8");
 
   assert.match(aiConfigSource, /function loadLocalAiProviderOptions/);
   assert.match(narrativeRouteSource, /buildNarrative\(input, loadLocalAiProviderOptions\(\)\)/);
   assert.match(chatRouteSource, /buildChatResponse\(input, loadLocalAiProviderOptions\(\)\)/);
+  assert.match(settingsRouteSource, /\/api\/settings\/ai/);
+  assert.match(settingsRouteSource, /\/api\/settings\/ai\/test/);
   assert.match(staticRouteSource, /normalized === "\/js\/local-deepseek-config\.local\.js"/);
   assert.match(staticRouteSource, /response\.writeHead\(404\)/);
+  assert.match(gitignore, /config\/local-ai-settings\.json/);
   assert.match(serverSource, /narrativeRoute\(request, response, url\)/);
   assert.match(serverSource, /chatRoute\(request, response, url\)/);
+  assert.match(serverSource, /settingsRoute\(request, response, url\)/);
   assert.match(serverSource, /staticRoute\(url, response\)/);
   assert.doesNotMatch(serverSource, /calculateBazi|calculateZiwei|ruleEngine|buildAnnualEventReport|generateStoryTags|createAiProvider/);
   assert.doesNotMatch(aiConfigSource, /deepseekApiKey:\s*["']sk-/);
+});
+
+test("AI settings are saved locally and hide full API keys from public reads", async () => {
+  const settingsDir = mkdtempSync(path.join(os.tmpdir(), "fortune-ai-settings-"));
+  try {
+    const saved = saveAiSettings({
+      provider: "deepseek",
+      enabled: true,
+      deepseek: {
+        apiKey: "sk-test-secret-abcd",
+        endpoint: "https://api.deepseek.com/chat/completions",
+        model: "deepseek-chat",
+      },
+    }, { settingsDir });
+    const publicSettings = readAiSettings({ settingsDir });
+    const privateSettings = readAiSettings({ settingsDir, includeSecret: true });
+    const providerOptions = buildProviderOptionsFromAiSettings(privateSettings);
+
+    assert.equal(saved.deepseek.apiKey, undefined);
+    assert.equal(publicSettings.deepseek.apiKey, undefined);
+    assert.equal(publicSettings.deepseek.maskedApiKey, "sk-***abcd");
+    assert.equal(privateSettings.deepseek.apiKey, "sk-test-secret-abcd");
+    assert.equal(providerOptions.provider, "deepseek");
+    assert.equal(providerOptions.deepseek.apiKey, "sk-test-secret-abcd");
+    assert.doesNotMatch(JSON.stringify(publicSettings), /sk-test-secret-abcd/);
+
+    const noConfigDir = mkdtempSync(path.join(os.tmpdir(), "fortune-ai-empty-"));
+    try {
+      const fallbackOptions = loadLocalAiProviderOptions({ settingsDir: noConfigDir, publicRoot: noConfigDir });
+      assert.equal(fallbackOptions.provider, "mock");
+      const result = await buildNarrative({
+        birthDate: "1949-10-01",
+        birthTime: "00:00",
+        gender: "male",
+        targetYear: 2026,
+        selectedMonth: 1,
+      }, fallbackOptions);
+      assert.equal(result.narrative.provider, "mock");
+    } finally {
+      rmSync(noConfigDir, { recursive: true, force: true });
+    }
+  } finally {
+    rmSync(settingsDir, { recursive: true, force: true });
+  }
 });
 
 test("desktop shell can reuse the local server without exposing Node APIs to the renderer", () => {

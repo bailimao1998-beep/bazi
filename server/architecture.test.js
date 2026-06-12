@@ -6,13 +6,17 @@ import { branchMainStem, getTenGod } from "./core/bazi/tenGods.js";
 import { calculateYearInfluence } from "./core/liunian/calculateYearInfluence.js";
 import { calculateMonthInfluence } from "./core/liunian/calculateMonthInfluence.js";
 import { ruleEngine } from "./core/rules/ruleEngine.js";
+import { matchRules } from "./core/rules/matchRules.js";
 import { analyzeFortuneYear } from "./core/fortune-engine/index.js";
 import { buildAnnualEventReport } from "./core/fortune/buildAnnualEventReport.js";
 import { buildEventCandidateScenarios, buildReadableAiReportFromPrompt, collectEventCandidatesFromSignals } from "./core/story/eventCandidates.js";
 import { generateStoryTags } from "./core/story/generateStoryTags.js";
 import { buildNarrativePrompt, flowReportSchema } from "./core/story/buildNarrativePrompt.js";
 import { buildFlowNarrativePrompt } from "./core/story/buildNarrativePrompt.js";
-import { buildChatPrompt, buildChatResponse, buildNarrative, sanitizeChatText } from "./server.js";
+import { buildChatPrompt } from "./prompts/chatPromptBuilder.js";
+import { sanitizeChatText } from "./security/outputSanitizer.js";
+import { buildChatResponse } from "./services/chatService.js";
+import { buildNarrative } from "./services/narrativeService.js";
 import { createAiProvider } from "./core/ai/aiProvider.js";
 import { loadJson } from "./utils/jsonLoader.js";
 import { formatLunarDate, lunarToSolar, solarToLunar } from "./utils/lunarCalendar.js";
@@ -32,6 +36,15 @@ const requiredPaths = [
   "js/components/aiNarrativePanel.js",
   "js/components/debugPanel.js",
   "server/server.js",
+  "server/routes/narrativeRoute.js",
+  "server/routes/chatRoute.js",
+  "server/routes/staticRoute.js",
+  "server/routes/requestBody.js",
+  "server/services/narrativeService.js",
+  "server/services/chatService.js",
+  "server/prompts/chatPromptBuilder.js",
+  "server/security/outputSanitizer.js",
+  "server/config/aiConfigLoader.js",
   "server/core/bazi/calculateBazi.js",
   "server/core/bazi/pillarMath.js",
   "server/core/bazi/tenGods.js",
@@ -45,6 +58,12 @@ const requiredPaths = [
   "server/core/liunian/calculateMonthInfluence.js",
   "server/core/rules/ruleEngine.js",
   "server/core/rules/matchRules.js",
+  "server/core/rules/conditionMatcher.js",
+  "server/core/rules/evidenceBuilder.js",
+  "server/core/rules/scoreBuilder.js",
+  "server/core/rules/timingBuilder.js",
+  "server/core/rules/counterEvidenceBuilder.js",
+  "server/core/rules/normalizeRuleMatch.js",
   "server/core/fortune-engine/index.js",
   "server/core/fortune-engine/natal-signature.js",
   "server/core/fortune-engine/decade-theme.js",
@@ -706,6 +725,124 @@ test("fortune-engine rules keep required rule contract", () => {
   }
 });
 
+test("rule engine supports legacy when rules and v2 condition rule matches", () => {
+  const context = {
+    chart: {
+      input: { gender: "female" },
+      pillars: {
+        month: { label: "甲寅", stem: "甲", branch: "寅" },
+        day: { label: "戊子", stem: "戊", branch: "子" },
+      },
+      dayMaster: { element: "土" },
+      dominantElements: [{ element: "木" }],
+    },
+    selectedLuck: {
+      label: "乙丑",
+      stem: "乙",
+      branch: "丑",
+      tenGods: { stem: "正官", branch: "劫财" },
+    },
+    yearInfluence: {
+      year: 2026,
+      pillar: { label: "丙午", stem: "丙", branch: "午" },
+      tenGods: { stem: "偏印", branch: "正官" },
+    },
+    monthInfluences: [
+      { month: 5, pillar: { label: "癸巳", stem: "癸", branch: "巳" }, role: "推进期" },
+      { month: 6, pillar: { label: "甲午", stem: "甲", branch: "午" }, role: "落地期" },
+    ],
+  };
+  const matches = matchRules([
+    {
+      id: "legacy-career-officer-test",
+      topic: "career",
+      tag: "角色责任上升",
+      title: "旧规则官杀引动事业角色",
+      when: { yearTenGod: "正官" },
+      confidence: "medium",
+      needVerify: ["旧规则复核点"],
+    },
+    {
+      id: "relationship-v2-test",
+      topic: "relationship",
+      tag: "relationship_day_branch_trigger",
+      title: "流年引动夫妻宫",
+      condition: {
+        all: [
+          {
+            type: "relation",
+            source: "year",
+            target: "dayBranch",
+            relation: ["冲"],
+          },
+        ],
+        any: [
+          {
+            type: "tenGod",
+            source: "luckStem",
+            value: ["正官"],
+          },
+        ],
+      },
+      evidence: {
+        templates: [
+          "流年{yearPillar}与日支{dayBranch}形成{relation}，日支作为夫妻宫被引动。",
+          "当前规则命中关系宫位触发，需结合现实关系状态复核。",
+        ],
+      },
+      score: {
+        base: 40,
+        boost: [
+          { when: "targetIsDayBranch", value: 20 },
+          { when: "spouseStarTriggered", value: 20 },
+          { when: "luckAlsoTriggered", value: 15 },
+        ],
+        reduce: [
+          { when: "onlyWeakEvidence", value: -10 },
+        ],
+      },
+      timing: {
+        type: "annual",
+        windows: ["year", "matchedMonths"],
+        text: "全年观察关系互动，若流月再次触发日支，则该月更容易落地。",
+      },
+      counterEvidence: [
+        "若现实中没有对象、没有暧昧、没有合作绑定，则只作为关系主题被引动，不直接断感情事件。",
+      ],
+      needVerify: ["现实中是否已有对象或暧昧对象"],
+      confidence: "medium",
+    },
+  ], context);
+
+  const legacy = matches.find((rule) => rule.id === "legacy-career-officer-test");
+  assert.ok(legacy, "legacy when rule should still match");
+  assert.equal(legacy.version, "legacy-v1");
+  assert.equal(Array.isArray(legacy.evidence), true);
+  assert.equal(legacy.confidence, "medium");
+  assert.deepEqual(legacy.needVerify, ["旧规则复核点"]);
+  assert.equal(typeof legacy.score, "number");
+  assert.equal(Array.isArray(legacy.matchedFacts), true);
+
+  const v2 = matches.find((rule) => rule.id === "relationship-v2-test");
+  assert.ok(v2, "v2 condition rule should match");
+  assert.equal(v2.version, "rule-v2");
+  assert.equal(v2.conditionMatched, true);
+  assert.equal(v2.topic, "relationship");
+  assert.equal(Array.isArray(v2.evidence), true);
+  assert.match(v2.evidence.join(" "), /丙午|日支子|冲/);
+  assert.equal(v2.confidence, "medium");
+  assert.deepEqual(v2.needVerify, ["现实中是否已有对象或暧昧对象"]);
+  assert.equal(typeof v2.score, "number");
+  assert.ok(v2.score > 40);
+  assert.equal(typeof v2.scoreDetail.base, "number");
+  assert.ok(v2.scoreDetail.boost.some((item) => item.when === "targetIsDayBranch"));
+  assert.equal(v2.timing.type, "annual");
+  assert.ok(Array.isArray(v2.counterEvidence));
+  assert.ok(v2.counterEvidence.length > 0);
+  assert.ok(v2.matchedFacts.some((fact) => fact.type === "relation" && fact.relation === "冲"));
+  assert.ok(v2.matchedFacts.some((fact) => fact.type === "tenGod" && fact.value === "正官"));
+});
+
 test("chat prompt and fallback keep AI answers professional without leaking keys", async () => {
   const context = {
     chart: { pillars: { day: { label: "甲子" } } },
@@ -1044,7 +1181,7 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   const index = readFileSync("index.html", "utf8");
   const bundle = readFileSync("js/app.bundle.js", "utf8");
   const styles = readFileSync("styles/main.css", "utf8");
-  const serverSource = readFileSync("server/server.js", "utf8");
+  const staticRouteSource = readFileSync("server/routes/staticRoute.js", "utf8");
 
   assert.equal(global.window.FortuneLocationData.cities.length, 3337);
   assert.ok(index.indexOf('id="coreSignals"') < index.indexOf('id="monthTimeline"'));
@@ -1189,8 +1326,8 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.match(styles, /chat-window\[hidden\]/);
   assert.match(styles, /typing-caret/);
   assert.match(index, /js\/local-deepseek-config\.local\.js/);
-  assert.match(serverSource, /local-deepseek-config\.local\.js/);
-  assert.match(serverSource, /response\.writeHead\(404\)/);
+  assert.match(staticRouteSource, /local-deepseek-config\.local\.js/);
+  assert.match(staticRouteSource, /response\.writeHead\(404\)/);
   assert.match(bundle, /function getBrowserDeepseekConfig/);
   assert.match(bundle, /function requestBrowserDeepseekReport/);
   assert.match(bundle, /function buildBrowserFlowAiPrompt/);
@@ -1451,13 +1588,21 @@ test("birth form makes initial AI interpretation opt-in", () => {
 
 test("local server can use ignored DeepSeek config without serving it to the browser", () => {
   const serverSource = readFileSync("server/server.js", "utf8");
+  const narrativeRouteSource = readFileSync("server/routes/narrativeRoute.js", "utf8");
+  const chatRouteSource = readFileSync("server/routes/chatRoute.js", "utf8");
+  const staticRouteSource = readFileSync("server/routes/staticRoute.js", "utf8");
+  const aiConfigSource = readFileSync("server/config/aiConfigLoader.js", "utf8");
 
-  assert.match(serverSource, /function loadLocalAiProviderOptions/);
-  assert.match(serverSource, /buildNarrative\(input, loadLocalAiProviderOptions\(\)\)/);
-  assert.match(serverSource, /buildChatResponse\(input, loadLocalAiProviderOptions\(\)\)/);
-  assert.match(serverSource, /normalized === "\/js\/local-deepseek-config\.local\.js"/);
-  assert.match(serverSource, /response\.writeHead\(404\)/);
-  assert.doesNotMatch(serverSource, /deepseekApiKey:\s*["']sk-/);
+  assert.match(aiConfigSource, /function loadLocalAiProviderOptions/);
+  assert.match(narrativeRouteSource, /buildNarrative\(input, loadLocalAiProviderOptions\(\)\)/);
+  assert.match(chatRouteSource, /buildChatResponse\(input, loadLocalAiProviderOptions\(\)\)/);
+  assert.match(staticRouteSource, /normalized === "\/js\/local-deepseek-config\.local\.js"/);
+  assert.match(staticRouteSource, /response\.writeHead\(404\)/);
+  assert.match(serverSource, /narrativeRoute\(request, response, url\)/);
+  assert.match(serverSource, /chatRoute\(request, response, url\)/);
+  assert.match(serverSource, /staticRoute\(url, response\)/);
+  assert.doesNotMatch(serverSource, /calculateBazi|calculateZiwei|ruleEngine|buildAnnualEventReport|generateStoryTags|createAiProvider/);
+  assert.doesNotMatch(aiConfigSource, /deepseekApiKey:\s*["']sk-/);
 });
 
 function assertSignalContract(signal, label) {

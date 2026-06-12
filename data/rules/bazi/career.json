@@ -17,6 +17,107 @@
       "when": { "monthRole": "推进期" },
       "confidence": "medium",
       "needVerify": ["月份角色只描述节奏，不单独对应事件。"]
+    },
+    {
+      "id": "career_officer_pressure_001",
+      "topic": "career",
+      "tag": "career_officer_pressure",
+      "title": "官杀触发事业身份与规则压力",
+      "condition": {
+        "any": [
+          {
+            "type": "tenGod",
+            "source": "year",
+            "value": ["正官", "七杀"]
+          },
+          {
+            "type": "tenGod",
+            "source": "luck",
+            "value": ["正官", "七杀"]
+          }
+        ]
+      },
+      "evidence": {
+        "templates": [
+          "岁运出现{tenGod}，事业身份、岗位责任或规则压力被引动。",
+          "官杀触发需结合现实岗位、制度要求、考核与外部约束复核。"
+        ]
+      },
+      "score": {
+        "base": 40,
+        "boost": [
+          { "when": "careerStarTriggered", "value": 25 },
+          { "when": "luckAlsoTriggered", "value": 10 }
+        ],
+        "reduce": [
+          { "when": "onlyWeakEvidence", "value": -10 }
+        ]
+      },
+      "timing": {
+        "type": "annual",
+        "windows": ["year"],
+        "text": "全年观察岗位职责、制度约束、考核节点与外部要求。"
+      },
+      "counterEvidence": [
+        "若现实中没有岗位、项目、考试、考核或规则压力，则只作为身份责任主题背景。",
+        "若只有单一官杀而无大运、月柱或现实任务承接，不直接断职业变化。"
+      ],
+      "needVerify": [
+        "现实中是否有岗位调整、项目责任、考试考核或制度要求",
+        "大运是否同时承接官杀或事业宫位",
+        "流月是否出现具体交付、审批或考核节点"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "career_output_delivery_001",
+      "topic": "career",
+      "tag": "career_output_delivery",
+      "title": "食伤触发输出、项目与交付",
+      "condition": {
+        "any": [
+          {
+            "type": "tenGod",
+            "source": "year",
+            "value": ["食神", "伤官"]
+          },
+          {
+            "type": "tenGod",
+            "source": "month",
+            "value": ["食神", "伤官"]
+          }
+        ]
+      },
+      "evidence": {
+        "templates": [
+          "岁运或流月出现{tenGod}，输出、表达、作品、项目交付主题被看见。",
+          "食伤触发需结合实际项目、文书、作品、表达场景复核。"
+        ]
+      },
+      "score": {
+        "base": 35,
+        "boost": [
+          { "when": "outputStarTriggered", "value": 25 }
+        ],
+        "reduce": [
+          { "when": "onlyWeakEvidence", "value": -10 }
+        ]
+      },
+      "timing": {
+        "type": "annual-monthly",
+        "windows": ["year", "matchedMonths"],
+        "text": "流年看输出主题，流月再见食伤时更适合观察发表、交付、沟通与材料节点。"
+      },
+      "counterEvidence": [
+        "若现实中没有项目、作品、文书、表达或交付场景，则不直接断事业成果。",
+        "若食伤被看见但官杀规则压力不足，可能偏向学习表达或沟通任务。"
+      ],
+      "needVerify": [
+        "是否有项目交付、作品发布、材料提交或表达沟通任务",
+        "流月是否再次出现食伤或推进期",
+        "是否存在制度、客户或上级要求承接输出"
+      ],
+      "confidence": "medium"
     }
   ]
 }

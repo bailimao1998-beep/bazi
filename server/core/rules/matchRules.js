@@ -1,13 +1,27 @@
+import { matchCondition } from "./conditionMatcher.js";
+import { normalizeRuleMatch } from "./normalizeRuleMatch.js";
+
 export function matchRules(rules = [], context = {}) {
-  return rules.filter((rule) => matchesRule(rule, context)).map((rule) => ({
-    id: rule.id,
-    topic: rule.topic,
-    tag: rule.tag,
-    title: rule.title,
-    evidence: buildEvidence(rule, context),
-    confidence: rule.confidence ?? "medium",
-    needVerify: rule.needVerify ?? ["需要结合更多本地证据复核。"],
-  }));
+  return rules.flatMap((rule) => {
+    if (rule.condition) {
+      const result = matchCondition(rule.condition, context);
+      if (!result.matched) return [];
+      return [normalizeRuleMatch({
+        rule,
+        context,
+        matchedFacts: result.matchedFacts,
+        conditionMatched: true,
+        version: "rule-v2",
+      })];
+    }
+    if (!matchesRule(rule, context)) return [];
+    return [normalizeRuleMatch({
+      rule,
+      context,
+      matchedFacts: buildLegacyMatchedFacts(rule, context),
+      version: "legacy-v1",
+    })];
+  });
 }
 
 function matchesRule(rule, context) {
@@ -19,11 +33,11 @@ function matchesRule(rule, context) {
   return true;
 }
 
-function buildEvidence(rule, context) {
-  const evidence = [];
-  if (rule.when?.dayElement) evidence.push(`日主五行：${context.chart?.dayMaster?.element}`);
-  if (rule.when?.yearTenGod) evidence.push(`流年十神：${Object.values(context.yearInfluence?.tenGods ?? {}).join("、")}`);
-  if (rule.when?.monthRole) evidence.push(`流月角色：${rule.when.monthRole}`);
-  if (rule.when?.dominantElement) evidence.push(`突出五行：${context.chart?.dominantElements?.map((item) => item.element).join("、")}`);
-  return evidence.length ? evidence : [rule.title ?? rule.id];
+function buildLegacyMatchedFacts(rule, context) {
+  const facts = [];
+  if (rule.when?.dayElement) facts.push({ type: "dayElement", source: "chart", value: context.chart?.dayMaster?.element });
+  if (rule.when?.yearTenGod) facts.push({ type: "tenGod", source: "year", value: rule.when.yearTenGod });
+  if (rule.when?.monthRole) facts.push({ type: "monthRole", source: "monthInfluences", value: rule.when.monthRole });
+  if (rule.when?.dominantElement) facts.push({ type: "dominantElement", source: "chart", value: rule.when.dominantElement });
+  return facts;
 }

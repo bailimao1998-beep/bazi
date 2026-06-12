@@ -17,6 +17,118 @@
       "when": { "yearTenGod": "比肩" },
       "confidence": "low",
       "needVerify": ["比劫只提供互动风格观察点。"]
+    },
+    {
+      "id": "relationship_day_branch_trigger_001",
+      "topic": "relationship",
+      "tag": "relationship_day_branch_trigger",
+      "title": "流年引动夫妻宫",
+      "condition": {
+        "all": [
+          {
+            "type": "relation",
+            "source": "year",
+            "target": "dayBranch",
+            "relation": ["冲", "合", "刑", "穿", "害", "破", "同支", "伏吟"]
+          }
+        ],
+        "any": [
+          {
+            "type": "tenGod",
+            "source": "year",
+            "value": ["正财", "偏财", "正官", "七杀"]
+          },
+          {
+            "type": "relation",
+            "source": "luck",
+            "target": "dayBranch",
+            "relation": ["冲", "合", "刑", "穿", "害", "破", "同支", "伏吟"]
+          }
+        ]
+      },
+      "evidence": {
+        "templates": [
+          "流年{yearPillar}与日支{dayBranch}形成{relation}，日支作为夫妻宫被引动。",
+          "当前规则命中关系宫位触发，需结合现实关系状态复核。"
+        ]
+      },
+      "score": {
+        "base": 40,
+        "boost": [
+          { "when": "targetIsDayBranch", "value": 20 },
+          { "when": "spouseStarTriggered", "value": 20 },
+          { "when": "luckAlsoTriggered", "value": 15 }
+        ],
+        "reduce": [
+          { "when": "onlyWeakEvidence", "value": -10 }
+        ]
+      },
+      "timing": {
+        "type": "annual",
+        "windows": ["year", "matchedMonths"],
+        "text": "全年观察关系互动，若流月再次触发日支，则该月更容易落地。"
+      },
+      "counterEvidence": [
+        "若现实中没有对象、没有暧昧、没有合作绑定，则只作为关系主题被引动，不直接断感情事件。",
+        "若只有流月触发而无大运流年承接，则降级为短期情绪或沟通波动。"
+      ],
+      "needVerify": [
+        "现实中是否已有对象或暧昧对象",
+        "是否存在异地、冷战、确定关系、分手或关系重谈",
+        "流月是否再次触发日支"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "relationship_spouse_star_trigger_001",
+      "topic": "relationship",
+      "tag": "relationship_spouse_star_trigger",
+      "title": "配偶星被岁运引动",
+      "condition": {
+        "any": [
+          {
+            "type": "tenGod",
+            "source": "year",
+            "value": ["正财", "偏财", "正官", "七杀"]
+          },
+          {
+            "type": "tenGod",
+            "source": "luck",
+            "value": ["正财", "偏财", "正官", "七杀"]
+          }
+        ]
+      },
+      "evidence": {
+        "templates": [
+          "岁运出现{tenGod}，关系星被看见，可作为关系主题的观察入口。",
+          "配偶星只说明关系议题被触发，仍需结合日支与现实互动复核。"
+        ]
+      },
+      "score": {
+        "base": 35,
+        "boost": [
+          { "when": "spouseStarTriggered", "value": 20 },
+          { "when": "luckAlsoTriggered", "value": 10 }
+        ],
+        "reduce": [
+          { "when": "onlyWeakEvidence", "value": -10 }
+        ]
+      },
+      "timing": {
+        "type": "annual",
+        "windows": ["year"],
+        "text": "以流年为观察主轴，若大运同见关系星，则主题延续性更强。"
+      },
+      "counterEvidence": [
+        "若没有现实对象、合作绑定或关系互动，则仅作为关系主题背景，不直接落到感情事件。",
+        "若日支、流月和现实互动均无承接，需降级为人际或合作观察。"
+      ],
+      "needVerify": [
+        "命主性别与配偶星取法是否匹配",
+        "现实中是否已有关系对象或合作绑定",
+        "日支、流月是否有进一步触发"
+      ],
+      "confidence": "medium"
     }
   ]
 }

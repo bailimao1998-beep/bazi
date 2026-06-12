@@ -2,7 +2,7 @@ import { storyToneConfig } from "./storyToneConfig.js";
 
 const forbiddenWords = ["一定", "必定", "绝对", "必然", "必离婚", "必发财", "必有灾", "必坐牢", "必死亡"];
 
-export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [], storyTags = [], fortuneAnalysis, tone = "default" } = {}) {
+export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [], storyTags = [], matchedRules = [], fortuneAnalysis, tone = "default" } = {}) {
   const pickedFortuneAnalysis = pickFortuneAnalysis(getFortuneAnalysisByMode("year", fortuneAnalysis));
   return {
     schema: flowReportSchema,
@@ -19,6 +19,7 @@ export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [
         yearInfluence,
         monthInfluences,
         storyTags,
+        matchedRules: summarizeRuleMatches(matchedRules),
       },
       yearInfluence,
       output: {
@@ -124,6 +125,7 @@ export function buildFlowNarrativePrompt({
   selectedLuck,
   yearInfluence,
   selectedMonthInfluence,
+  matchedRules = [],
   fortuneAnalysis,
   tone = "default",
 } = {}) {
@@ -153,6 +155,7 @@ export function buildFlowNarrativePrompt({
         selectedLuck,
         yearInfluence,
         selectedMonthInfluence,
+        matchedRules: summarizeRuleMatches(matchedRules),
       },
       output: {
         schema: "title/coreConclusion/luckBackground/yearTrigger/likelyEvents/eventFocus/monthlyHighlights/overallAdvice/boundary",
@@ -192,6 +195,21 @@ function baseNarrativeSystemLines() {
     "禁止只说“事业、关系、情绪、注意沟通、保持积极、谨慎行事”这种空话。",
     "边界提醒必须服务于专业复核：说明什么现实条件下此断法成立，什么条件下应降级为背景象。",
   ];
+}
+
+function summarizeRuleMatches(matchedRules = []) {
+  return (Array.isArray(matchedRules) ? matchedRules : [])
+    .slice()
+    .sort((left, right) => Number(right.score || 0) - Number(left.score || 0))
+    .slice(0, 10)
+    .map((rule) => ({
+      title: rule.title,
+      topic: rule.topic,
+      score: Number(rule.score || 0),
+      evidence: Array.isArray(rule.evidence) ? rule.evidence.slice(0, 3) : [],
+      timing: rule.timing,
+      counterEvidence: Array.isArray(rule.counterEvidence) ? rule.counterEvidence.slice(0, 2) : [],
+    }));
 }
 
 export function getFortuneAnalysisByMode(mode, fortune = {}) {

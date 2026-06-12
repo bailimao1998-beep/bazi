@@ -3,9 +3,9 @@ import { buildTriggerChains } from "./buildTriggerChains.js";
 import { eventTaxonomy, unique } from "./eventTaxonomy.js";
 import { scoreEventCandidates } from "./scoreEventCandidates.js";
 
-export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences = [] } = {}) {
+export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences = [], matchedRules = [] } = {}) {
   const triggerChains = buildTriggerChains({ chart, selectedLuck, yearInfluence, monthInfluences });
-  const scored = scoreEventCandidates({ triggerChains, chart, selectedLuck, yearInfluence, monthInfluences });
+  const scored = scoreEventCandidates({ triggerChains, chart, selectedLuck, yearInfluence, monthInfluences, matchedRules });
   const monthlyHighlights = analyzeMonthlyWindows({
     triggerChains,
     monthInfluences,
@@ -42,6 +42,7 @@ export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, mon
       layer: "yearAnalysis",
       triggerChainCount: annualChains.length,
       mainEventCount: mainEvents.length,
+      ruleV2MatchCount: countRuleV2Matches(matchedRules),
     },
   };
   const luckAnalysis = {
@@ -62,6 +63,7 @@ export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, mon
       engine: "annual-fortune-event-engine",
       layer: "luckAnalysis",
       triggerChainCount: luckChains.length,
+      ruleV2MatchCount: countRuleV2Matches(matchedRules),
     },
   };
   const monthAnalysis = {
@@ -83,6 +85,7 @@ export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, mon
       layer: "monthAnalysis",
       triggerChainCount: monthChains.length,
       monthlyHighlightCount: monthlyHighlights.length,
+      ruleV2MatchCount: countRuleV2Matches(matchedRules),
     },
   };
 
@@ -109,8 +112,13 @@ export function buildAnnualEventReport({ chart, selectedLuck, yearInfluence, mon
       eventCandidateCount: scored.eventCandidates.length,
       mainEventCount: mainEvents.length,
       monthlyHighlightCount: monthlyHighlights.length,
+      ruleV2MatchCount: countRuleV2Matches(matchedRules),
     },
   };
+}
+
+function countRuleV2Matches(matchedRules = []) {
+  return (Array.isArray(matchedRules) ? matchedRules : []).filter((rule) => rule?.version === "rule-v2").length;
 }
 
 function buildAnnualTheme({ yearInfluence, mainEvents }) {

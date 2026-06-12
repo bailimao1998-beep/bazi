@@ -1,6 +1,7 @@
 import { chainsForEvent, createEventCandidate, evidenceFromChains, strongestChains, sumStrength, timingFromChains } from "../eventTaxonomy.js";
+import { getRuleEvidenceBoost } from "../ruleEvidenceUtils.js";
 
-export function detectRelationshipEvent({ triggerChains = [], chart } = {}) {
+export function detectRelationshipEvent({ triggerChains = [], chart, matchedRules = [] } = {}) {
   const gender = chart?.input?.gender || "unknown";
   const annualChains = triggerChains.filter((chain) => !String(chain.level || "").startsWith("month-"));
   const direct = chainsForEvent(annualChains, "relationship_marriage");
@@ -16,18 +17,21 @@ export function detectRelationshipEvent({ triggerChains = [], chart } = {}) {
   const relationMoodHits = dayBranchHits.filter((chain) => /冲|反吟|害|穿|刑|合|同支|伏吟/.test(chain.type));
   const annualBonus = getAnnualRelationshipBonus({ annualChains, chart, gender });
   const picked = strongestChains([...direct, ...dayBranchHits, ...spouseStarHits], 8);
+  const baseEvidence = [...annualBonus.evidence, ...evidenceFromChains(picked)];
+  const ruleEvidence = baseEvidence.length ? getRuleEvidenceBoost(matchedRules, "relationship") : emptyRuleEvidence();
   const score = 12
     + sumStrength(strongestChains(direct, 3)) * 0.45
     + dayBranchHits.length * 18
     + spouseStarHits.length * 12
     + relationMoodHits.length * 6
-    + annualBonus.score;
+    + annualBonus.score
+    + ruleEvidence.boostScore;
 
   return createEventCandidate({
     eventType: "relationship_marriage",
     score,
     confidence: dayBranchHits.length && spouseStarHits.length ? "high" : picked.length ? "medium" : "low",
-    evidenceChain: [...annualBonus.evidence, ...evidenceFromChains(picked)],
+    evidenceChain: [...baseEvidence, ...ruleEvidence.evidence],
     possibleManifestations: [
       annualBonus.score ? "感情或关系议题被带到台前，可能是初恋、暧昧、确定关系、旧关系启动或关系边界变化" : "",
       ...relationManifestations(relationMoodHits),
@@ -36,8 +40,12 @@ export function detectRelationshipEvent({ triggerChains = [], chart } = {}) {
       "旧关系议题或旧沟通方式回到台前",
     ],
     timing: timingFromChains([...timingChains, ...spouseStarHits], "全年看关系边界、合作承诺和现实反馈；若流月继续触发日支，再看当月。"),
-    debug: { direct: direct.length, dayBranchHits: dayBranchHits.length, spouseStarHits: spouseStarHits.length },
+    debug: { direct: direct.length, dayBranchHits: dayBranchHits.length, spouseStarHits: spouseStarHits.length, ruleEvidence },
   });
+}
+
+function emptyRuleEvidence() {
+  return { boostScore: 0, evidence: [], counterEvidence: [], rules: [] };
 }
 
 function getAnnualRelationshipBonus({ annualChains = [], chart, gender } = {}) {

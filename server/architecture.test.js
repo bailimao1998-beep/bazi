@@ -72,6 +72,7 @@ const requiredPaths = [
   "server/core/fortune-engine/event-score.js",
   "server/core/fortune-engine/narrative-builder.js",
   "server/core/fortune/relationUtils.js",
+  "server/core/fortune/ruleEvidenceUtils.js",
   "server/core/fortune/topicMapper.js",
   "server/core/fortune/eventTaxonomy.js",
   "server/core/fortune/buildTriggerChains.js",
@@ -497,6 +498,90 @@ test("annual fortune event engine returns ranked event candidates from trigger c
   assert.match(JSON.stringify(relationship.evidenceChain), /日支|日柱|酉|伏吟|同支|官|杀/);
 });
 
+test("annual fortune event engine accepts rule-v2 relationship evidence as bounded auxiliary boost", async () => {
+  const chart = createManualChart({
+    gender: "male",
+    pillars: {
+      year: "戊寅",
+      month: "辛酉",
+      day: "辛酉",
+      hour: "戊子",
+    },
+  });
+  const selectedLuck = { label: "丙申", stem: "丙", branch: "申", startYear: 2010, endYear: 2019, startAge: 20, endAge: 29 };
+  const yearInfluence = calculateYearInfluence({ chart, targetYear: 2017 });
+  const monthInfluences = Array.from({ length: 12 }, (_, index) =>
+    calculateMonthInfluence({ chart, targetYear: 2017, month: index + 1 }),
+  );
+  const baseline = buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences });
+  const baselineRelationship = baseline.eventCandidates.find((event) => event.eventType === "relationship_marriage");
+  const report = buildAnnualEventReport({
+    chart,
+    selectedLuck,
+    yearInfluence,
+    monthInfluences,
+    matchedRules: [{
+      id: "relationship-v2-boost-test",
+      version: "rule-v2",
+      topic: "relationship",
+      title: "流年引动夫妻宫",
+      score: 88,
+      evidence: ["流年丁酉与日支酉形成伏吟，日支作为夫妻宫被引动。", "当前规则命中关系宫位触发。"],
+      counterEvidence: ["若现实中没有对象或关系互动，则只作关系主题背景。"],
+    }],
+  });
+  const relationship = report.eventCandidates.find((event) => event.eventType === "relationship_marriage");
+
+  assert.ok(relationship, "relationship candidate should still come from original detector evidence");
+  assert.ok(relationship.score >= baselineRelationship.score);
+  assert.match(JSON.stringify(relationship.evidenceChain), /规则补强：流年引动夫妻宫/);
+  assert.ok(relationship.debug.ruleEvidence.boostScore > 0);
+  assert.deepEqual(relationship.debug.ruleEvidence.counterEvidence, ["若现实中没有对象或关系互动，则只作关系主题背景。"]);
+  assert.ok(relationship.debug.ruleEvidence.boostScore <= 20);
+});
+
+test("annual fortune event engine accepts rule-v2 career evidence as bounded auxiliary boost", async () => {
+  const chart = createManualChart({
+    gender: "female",
+    pillars: {
+      year: "戊寅",
+      month: "辛酉",
+      day: "辛酉",
+      hour: "戊子",
+    },
+  });
+  const selectedLuck = { label: "丙午", stem: "丙", branch: "午", startYear: 2020, endYear: 2029, startAge: 30, endAge: 39 };
+  const yearInfluence = calculateYearInfluence({ chart, targetYear: 2026 });
+  const monthInfluences = Array.from({ length: 12 }, (_, index) =>
+    calculateMonthInfluence({ chart, targetYear: 2026, month: index + 1 }),
+  );
+  const baseline = buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences });
+  const baselineCareer = baseline.eventCandidates.find((event) => event.eventType === "career_status");
+  const report = buildAnnualEventReport({
+    chart,
+    selectedLuck,
+    yearInfluence,
+    monthInfluences,
+    matchedRules: [{
+      id: "career-v2-boost-test",
+      version: "rule-v2",
+      topic: "career",
+      title: "官杀触发事业身份与规则压力",
+      score: 76,
+      evidence: ["岁运出现正官，事业身份、岗位责任或规则压力被引动。", "官杀触发需结合现实岗位复核。"],
+      counterEvidence: ["若现实中没有岗位、项目、考试、考核或规则压力，则只作为背景。"],
+    }],
+  });
+  const career = report.eventCandidates.find((event) => event.eventType === "career_status");
+
+  assert.ok(career, "career candidate should still come from original detector evidence");
+  assert.ok(career.score >= baselineCareer.score);
+  assert.match(JSON.stringify(career.evidenceChain), /规则补强：官杀触发事业身份与规则压力/);
+  assert.ok(career.debug.ruleEvidence.boostScore > 0);
+  assert.deepEqual(career.debug.ruleEvidence.counterEvidence, ["若现实中没有岗位、项目、考试、考核或规则压力，则只作为背景。"]);
+  assert.ok(career.debug.ruleEvidence.boostScore <= 20);
+});
+
 test("annual fortune event engine promotes 2017 male relationship trigger into year main events", async () => {
   const chart = createManualChart({
     gender: "male",
@@ -563,6 +648,10 @@ test("annual fortune event engine recognizes 2026 career or movement triggers fo
   assert.equal(response.fortuneAnalysis, response.annualEventReport);
   assert.equal(response.mainEvents, response.annualEventReport.mainEvents);
   assert.ok(response.mainEvents.length <= 3);
+  assert.ok(response.matchedRules.some((rule) => rule.version === "rule-v2"));
+  assert.match(JSON.stringify(response.annualEventReport.eventCandidates), /规则补强/);
+  assert.match(JSON.stringify(response.annualEventReport.debug), /ruleV2MatchCount/);
+  assert.doesNotMatch(JSON.stringify(Object.keys(response)), /ruleV2MatchCount/);
   assert.match(response.prompt.user, /fortuneAnalysis/);
   assert.match(response.prompt.user, /mainEvents/);
   assert.match(response.prompt.user, /eventCandidates/);

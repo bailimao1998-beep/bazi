@@ -21,7 +21,8 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
   );
   const selectedMonthInfluence = monthInfluences[Math.max(0, Math.min(11, selectedMonth - 1))];
   const selectedLuck = selectLuckPillar(chart.luckCycles, input.selectedLuckIndex, targetYear);
-  const annualEventReport = buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences });
+  const matchedRules = ruleEngine({ chart, ziwei, selectedLuck, yearInfluence, monthInfluences, selectedMonthInfluence });
+  const annualEventReport = buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences, matchedRules });
   const fortuneAnalysis = annualEventReport;
   const transitYears = Array.from({ length: 11 }, (_, index) => {
     const year = targetYear - 5 + index;
@@ -31,7 +32,6 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
     const month = index + 1;
     return { month, pillar: createMonthPillar(targetYear, month, "流月") };
   });
-  const matchedRules = ruleEngine({ chart, ziwei, selectedLuck, yearInfluence, monthInfluences });
   const storyTags = generateStoryTags({ chart, yearInfluence, monthInfluences, matchedRules });
   const prompt = aiMode === "default"
     ? buildNarrativePrompt({ chart, yearInfluence, monthInfluences, storyTags, matchedRules, fortuneAnalysis })

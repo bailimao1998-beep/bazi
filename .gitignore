@@ -5,7 +5,6 @@ dist/
 !.env.example
 js/local-deepseek-config.local.js
 config/local-ai-settings.json
-data/user-cases/
 npm-debug.log*
 .DS_Store
 .superpowers/

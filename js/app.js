@@ -1,11 +1,10 @@
-import { getAiSettings, requestNarrative, saveAiSettings, testAiSettings } from "./apiClient.js";
-import { renderAiNarrativePanel } from "./components/aiNarrativePanel.js";
+import { readAiSettings, saveAiSettings } from "./core/ai/aiSettingsClient.js";
+import { buildBaseBaziViewModel } from "./core/bazi/buildBaseBaziViewModel.js";
+import { calculateBazi } from "./core/bazi/calculateBazi.js";
 import { renderAiSettingsPanel } from "./components/aiSettingsPanel.js";
 import { renderBaseBaziPanel } from "./components/baseBaziPanel.js";
 import { renderBirthForm } from "./components/birthForm.js";
 import { renderDebugPanel } from "./components/debugPanel.js";
-import { renderEvidenceCards } from "./components/evidenceCards.js";
-import { renderMonthTimeline } from "./components/monthTimeline.js";
 
 const roots = {
   birthForm: document.querySelector("#birthForm"),
@@ -18,6 +17,7 @@ const roots = {
   yearAiNarrative: document.querySelector("#yearAiNarrative"),
   monthImagePanel: document.querySelector("#monthImagePanel"),
   monthAiNarrative: document.querySelector("#monthAiNarrative"),
+  aiChatPanel: document.querySelector("#aiChatPanel"),
   aiSettings: document.querySelector("#aiSettings"),
   debug: document.querySelector("#debugPanel"),
   status: document.querySelector("#status"),
@@ -25,8 +25,8 @@ const roots = {
 
 let state = null;
 let aiSettingsState = {
-  settings: null,
-  status: "正在读取 AI 设置...",
+  settings: readAiSettings(),
+  status: "AI 设置保存在当前浏览器 localStorage。",
 };
 let currentInput = {
   name: "测试用户",
@@ -41,103 +41,107 @@ let currentInput = {
 
 renderBirthForm(roots.birthForm, {
   initialValue: currentInput,
-  async onSubmit(payload) {
+  onSubmit(payload) {
     currentInput = { ...currentInput, ...payload };
-    await refresh();
+    refresh();
   },
 });
 
-initializeAiSettings();
+renderShell();
+renderAiSettings();
 refresh();
 
-async function initializeAiSettings() {
-  renderAiSettings();
+function refresh() {
+  roots.status.textContent = "正在前端排盘...";
   try {
-    aiSettingsState = {
-      settings: await getAiSettings(),
-      status: "AI 设置已读取。",
-    };
+    const chart = calculateBazi(currentInput);
+    const baseBaziViewModel = buildBaseBaziViewModel(chart);
+    state = { input: currentInput, chart, baseBaziViewModel };
+    renderBaseOnly();
+    roots.status.textContent = "基础排盘已完成。";
   } catch (error) {
-    aiSettingsState = { settings: null, status: error.message };
-  }
-  renderAiSettings();
-}
-
-async function refresh() {
-  roots.status.textContent = "本地计算中...";
-  try {
-    state = await requestNarrative(currentInput);
-    renderAll();
-    roots.status.textContent = "已完成后端排盘、规则匹配、证据报告和 AI 叙事。";
-  } catch (error) {
-    roots.status.textContent = error.message;
+    state = { input: currentInput, error: error.message };
+    renderBaseError(error);
+    roots.status.textContent = `基础排盘失败：${error.message}`;
   }
 }
 
 function renderAiSettings() {
   renderAiSettingsPanel(roots.aiSettings, aiSettingsState, {
     async onSave(payload) {
-      aiSettingsState = { ...aiSettingsState, status: "正在保存 AI 设置..." };
-      renderAiSettings();
       try {
         const result = await saveAiSettings(payload);
-        aiSettingsState = { settings: result.settings, status: "AI 设置已保存。" };
-        renderAiSettings();
-        await refresh();
+        aiSettingsState = { settings: result, status: "AI 设置已保存到浏览器 localStorage。" };
       } catch (error) {
         aiSettingsState = { ...aiSettingsState, status: error.message };
-        renderAiSettings();
       }
-    },
-    async onTest(payload) {
-      aiSettingsState = { ...aiSettingsState, status: "正在测试连接..." };
       renderAiSettings();
-      try {
-        const result = await testAiSettings(payload);
-        aiSettingsState = { ...aiSettingsState, status: result.ok ? `测试通过：${result.message}` : `测试未通过：${result.message}` };
-      } catch (error) {
-        aiSettingsState = { ...aiSettingsState, status: error.message };
-      }
+    },
+    onTest() {
+      aiSettingsState = { ...aiSettingsState, status: "AI 解读待接入。当前系统先保证纯前端排盘与取象。" };
       renderAiSettings();
     },
   });
 }
 
-function renderAll() {
-  renderBaseBaziPanel(roots.baseBaziPanel, state.baseBaziViewModel);
+function renderShell() {
+  renderBaseBaziPanel(roots.baseBaziPanel, null);
   renderPlaceholderPanel(roots.natalImagePanel, "原局取象");
-  renderPlaceholderPanel(roots.natalAiNarrative, "原局 AI 解读");
+  renderPlaceholderPanel(roots.natalAiNarrative, "原局 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.luckImagePanel, "大运取象");
-  renderPlaceholderPanel(roots.luckAiNarrative, "大运 AI 解读");
-  renderEvidenceCards(roots.yearImagePanel, state.evidenceReport);
-  renderAiNarrativePanel(roots.yearAiNarrative, state, { title: "流年 AI 解读" });
-  renderMonthTimeline(roots.monthImagePanel, state, {
-    onSelectMonth(month) {
-      currentInput = { ...currentInput, selectedMonth: month };
-      refresh();
-    },
-    onSelectLuck(luck) {
-      currentInput = {
-        ...currentInput,
-        targetYear: luck.startYear,
-        selectedMonth: 1,
-        selectedLuckIndex: luck.index - 1,
-      };
-      refresh();
-    },
-  });
-  renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 解读");
+  renderPlaceholderPanel(roots.luckAiNarrative, "大运 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderPlaceholderPanel(roots.yearImagePanel, "流年取象");
+  renderPlaceholderPanel(roots.yearAiNarrative, "流年 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderPlaceholderPanel(roots.monthImagePanel, "流月取象");
+  renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
   renderDebugPanel(roots.debug, state);
 }
 
-function renderPlaceholderPanel(root, title) {
+function renderBaseOnly() {
+  renderBaseBaziPanel(roots.baseBaziPanel, state.baseBaziViewModel);
+  renderPlaceholderPanel(roots.natalImagePanel, "原局取象");
+  renderPlaceholderPanel(roots.natalAiNarrative, "原局 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderPlaceholderPanel(roots.luckImagePanel, "大运取象");
+  renderPlaceholderPanel(roots.luckAiNarrative, "大运 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderPlaceholderPanel(roots.yearImagePanel, "流年取象");
+  renderPlaceholderPanel(roots.yearAiNarrative, "流年 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderPlaceholderPanel(roots.monthImagePanel, "流月取象");
+  renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
+  renderDebugPanel(roots.debug, state);
+}
+
+function renderBaseError(error) {
+  if (roots.baseBaziPanel) {
+    roots.baseBaziPanel.innerHTML = `
+      <div class="plugin-header">
+        <p class="eyebrow">基础排盘</p>
+        <h2>基础排盘</h2>
+      </div>
+      <p class="muted">基础排盘失败：${escapeHtml(error.message)}</p>
+    `;
+  }
+  renderPlaceholderPanel(roots.natalImagePanel, "原局取象");
+  renderPlaceholderPanel(roots.natalAiNarrative, "原局 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderPlaceholderPanel(roots.luckImagePanel, "大运取象");
+  renderPlaceholderPanel(roots.luckAiNarrative, "大运 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderPlaceholderPanel(roots.yearImagePanel, "流年取象");
+  renderPlaceholderPanel(roots.yearAiNarrative, "流年 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderPlaceholderPanel(roots.monthImagePanel, "流月取象");
+  renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
+  renderDebugPanel(roots.debug, state);
+}
+
+function renderPlaceholderPanel(root, title, message = "待实现。") {
   if (!root) return;
   root.innerHTML = `
     <div class="plugin-header">
       <p class="eyebrow">${escapeHtml(title)}</p>
       <h2>${escapeHtml(title)}</h2>
     </div>
-    <p class="muted">待实现。</p>
+    <p class="muted">${escapeHtml(message)}</p>
   `;
 }
 

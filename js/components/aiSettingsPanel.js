@@ -5,7 +5,7 @@ export function renderAiSettingsPanel(root, state = {}, actions = {}) {
   root.innerHTML = `
     <div class="plugin-header">
       <p class="eyebrow">AI 配置</p>
-      <h2>桌面 AI 设置</h2>
+      <h2>前端 AI 设置</h2>
     </div>
     <div class="settings-grid">
       <label class="checkbox-line">
@@ -35,7 +35,7 @@ export function renderAiSettingsPanel(root, state = {}, actions = {}) {
     <div class="form-actions">
       <button type="button" data-ai-save>保存</button>
       <button type="button" data-ai-test>测试连接</button>
-      <span class="muted">${escapeHtml(state.status ?? "API Key 只保存在本机后端配置中。")}</span>
+      <span class="muted">${escapeHtml(state.status ?? "API Key 只保存在当前浏览器 localStorage。")}</span>
     </div>
   `;
 

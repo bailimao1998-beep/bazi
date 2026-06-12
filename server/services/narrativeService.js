@@ -1,5 +1,6 @@
 import { calculateBazi } from "../core/bazi/calculateBazi.js";
 import { createMonthPillar, createPillarFromYear } from "../core/bazi/pillarMath.js";
+import { buildEvidenceReport } from "../core/evidence/buildEvidenceReport.js";
 import { buildAnnualEventReport } from "../core/fortune/buildAnnualEventReport.js";
 import { calculateMonthInfluence } from "../core/liunian/calculateMonthInfluence.js";
 import { calculateYearInfluence } from "../core/liunian/calculateYearInfluence.js";
@@ -23,6 +24,14 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
   const selectedLuck = selectLuckPillar(chart.luckCycles, input.selectedLuckIndex, targetYear);
   const matchedRules = ruleEngine({ chart, ziwei, selectedLuck, yearInfluence, monthInfluences, selectedMonthInfluence });
   const annualEventReport = buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences, matchedRules });
+  const evidenceReport = buildEvidenceReport({
+    chart,
+    selectedLuck,
+    yearInfluence,
+    selectedMonthInfluence,
+    annualEventReport,
+    matchedRules,
+  });
   const fortuneAnalysis = annualEventReport;
   const transitYears = Array.from({ length: 11 }, (_, index) => {
     const year = targetYear - 5 + index;
@@ -57,6 +66,7 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
     selectedMonthInfluence,
     selectedLuck,
     annualEventReport,
+    evidenceReport,
     fortuneAnalysis,
     eventCandidates: annualEventReport.eventCandidates,
     mainEvents: annualEventReport.mainEvents,

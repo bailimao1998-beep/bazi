@@ -23,6 +23,72 @@
   color: #1f2933;
 }
 
+.evidence-summary,
+.evidence-card-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.evidence-summary {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  margin-bottom: 18px;
+}
+
+.evidence-summary article,
+.evidence-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdf8;
+  padding: 14px;
+}
+
+.evidence-summary span,
+.evidence-card header span,
+.evidence-card h4 {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.evidence-summary strong,
+.evidence-card header strong {
+  display: block;
+  margin-top: 4px;
+}
+
+.evidence-card-section {
+  margin-top: 18px;
+}
+
+.evidence-card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.evidence-card header {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.evidence-card ul,
+.review-question-list {
+  margin: 8px 0 0;
+  padding-left: 1.15rem;
+}
+
+.evidence-card li,
+.review-question-list li {
+  margin: 6px 0;
+}
+
+.evidence-card.is-parallel {
+  border-color: #b58a30;
+}
+
+.evidence-boundary {
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
 body {
   margin: 0;
 }

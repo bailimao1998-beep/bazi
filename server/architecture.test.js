@@ -9,6 +9,7 @@ import { ruleEngine } from "./core/rules/ruleEngine.js";
 import { matchRules } from "./core/rules/matchRules.js";
 import { analyzeFortuneYear } from "./core/fortune-engine/index.js";
 import { buildAnnualEventReport } from "./core/fortune/buildAnnualEventReport.js";
+import { buildEvidenceReport } from "./core/evidence/buildEvidenceReport.js";
 import { buildEventCandidateScenarios, buildReadableAiReportFromPrompt, collectEventCandidatesFromSignals } from "./core/story/eventCandidates.js";
 import { generateStoryTags } from "./core/story/generateStoryTags.js";
 import { buildNarrativePrompt, flowReportSchema } from "./core/story/buildNarrativePrompt.js";
@@ -35,6 +36,7 @@ const requiredPaths = [
   "js/components/monthTimeline.js",
   "js/components/aiNarrativePanel.js",
   "js/components/debugPanel.js",
+  "js/components/evidenceCards.js",
   "server/server.js",
   "server/routes/narrativeRoute.js",
   "server/routes/chatRoute.js",
@@ -54,6 +56,7 @@ const requiredPaths = [
   "server/core/ziwei/calculateZiwei.js",
   "server/core/ziwei/palaces.js",
   "server/core/ziwei/transformations.js",
+  "server/core/evidence/buildEvidenceReport.js",
   "server/core/liunian/calculateYearInfluence.js",
   "server/core/liunian/calculateMonthInfluence.js",
   "server/core/rules/ruleEngine.js",
@@ -647,6 +650,11 @@ test("annual fortune event engine recognizes 2026 career or movement triggers fo
   assert.ok(Array.isArray(response.monthlyHighlights));
   assert.equal(response.fortuneAnalysis, response.annualEventReport);
   assert.equal(response.mainEvents, response.annualEventReport.mainEvents);
+  assert.ok(response.evidenceReport);
+  assert.equal(response.evidenceReport.summary.year, 2026);
+  assert.ok(Array.isArray(response.evidenceReport.mainEventCards));
+  assert.ok(Array.isArray(response.evidenceReport.ruleCards));
+  assert.ok(Array.isArray(response.evidenceReport.reviewQuestions));
   assert.ok(response.mainEvents.length <= 3);
   assert.ok(response.matchedRules.some((rule) => rule.version === "rule-v2"));
   assert.match(JSON.stringify(response.annualEventReport.eventCandidates), /规则补强/);
@@ -685,6 +693,99 @@ test("annual fortune event engine keeps 2026 male sample differentiated instead 
   assert.ok(scoreValues.some((score) => score < 70), "2026 不应所有领域都 high");
   assert.ok(scoreValues.some((score) => score < 100), "2026 不应所有分数都是 100");
   assert.doesNotMatch(JSON.stringify(report.mainEvents), /流年午合动日支酉/);
+});
+
+test("evidence report builds readable cards without mutating annual event data", () => {
+  const empty = buildEvidenceReport();
+  assert.equal(empty.summary.mainEventCount, 0);
+  assert.deepEqual(empty.mainEventCards, []);
+  assert.deepEqual(empty.reviewQuestions, []);
+
+  const annualEventReport = {
+    year: 2026,
+    mainEvents: [{
+      eventType: "career_status",
+      score: 72,
+      level: "medium",
+      confidence: "medium",
+      evidenceChain: ["官杀引动事业角色", "月柱被岁运触发", "第三条", "第四条", "第五条", "第六条", "第七条", "第八条", "第九条"],
+      possibleManifestations: ["岗位职责变化", "", "审批考核节点"],
+      timing: [],
+      debug: { source: "test" },
+    }],
+    parallelEvents: [{
+      eventType: "relationship_marriage",
+      score: 42,
+      level: "low",
+      confidence: "medium",
+      evidenceChain: ["日支被流年牵动"],
+      possibleManifestations: ["关系边界重谈"],
+      timing: ["8月再看流月触发"],
+      debug: {},
+    }],
+    monthlyHighlights: [{
+      month: 8,
+      pillar: "丙申",
+      level: "medium",
+      theme: "事业节点",
+      reasons: ["流月触发月柱"],
+    }],
+  };
+  const matchedRules = [
+    {
+      id: "career-v2",
+      title: "官杀触发事业身份与规则压力",
+      topic: "career",
+      source: "data/rules/bazi/career.json",
+      version: "rule-v2",
+      score: 76,
+      confidence: "medium",
+      evidence: ["岁运出现正官", "岗位责任被引动", "第三条", "第四条", "第五条"],
+      timing: { type: "annual", matchedMonths: [{ month: 9, pillar: "丁酉", reason: "规则应期" }] },
+      counterEvidence: ["若现实中没有岗位变化，则降级为背景。"],
+      needVerify: ["是否存在岗位调整、流程审核或证照材料"],
+      matchedFacts: [{ type: "tenGod", value: "正官" }],
+    },
+    {
+      id: "legacy-career",
+      title: "旧规则官杀引动事业角色",
+      topic: "career",
+      source: "data/rules/bazi/career.json",
+      version: "legacy-v1",
+      score: 0,
+      confidence: "medium",
+      evidence: ["流年十神：正官"],
+      needVerify: ["旧规则复核点"],
+      matchedFacts: [],
+    },
+  ];
+  const report = buildEvidenceReport({
+    selectedLuck: { label: "甲辰" },
+    yearInfluence: { year: 2026 },
+    annualEventReport,
+    matchedRules,
+  });
+
+  assert.equal(report.summary.year, 2026);
+  assert.equal(report.summary.selectedLuck, "甲辰");
+  assert.equal(report.summary.mainEventCount, 1);
+  assert.equal(report.summary.ruleV2Count, 1);
+  assert.ok(report.summary.topTopics.includes("career"));
+  assert.equal(report.mainEventCards[0].title, "禄与事业身份");
+  assert.equal(report.mainEventCards[0].evidence.length, 8);
+  assert.deepEqual(report.mainEventCards[0].timing, ["暂无明确流月，应等后续触发复核"]);
+  assert.deepEqual(report.mainEventCards[0].reality, ["岗位职责变化", "审批考核节点"]);
+  assert.equal(report.parallelEventCards[0].role, "副线复核");
+  assert.match(report.parallelEventCards[0].boundary, /未进入年度主断/);
+  assert.equal(report.ruleCards[0].version, "rule-v2");
+  assert.equal(report.ruleCards[0].evidence.length, 4);
+  assert.equal(report.ruleCards[0].counterEvidence.length, 1);
+  assert.equal(report.ruleCards[1].version, "legacy-v1");
+  assert.ok(report.timingCards.some((card) => card.month === 8 && card.source === "monthlyHighlights"));
+  assert.ok(report.timingCards.some((card) => card.month === 9 && card.source === "ruleTiming"));
+  assert.ok(report.reviewQuestions.includes("是否存在岗位调整、流程审核或证照材料？"));
+  assert.ok(report.reviewQuestions.some((question) => /降级为背景/.test(question)));
+  assert.equal(annualEventReport.mainEvents[0].evidenceChain.length, 9);
 });
 
 test("flow narrative prompt reads the requested fortuneAnalysis layer by mode", () => {
@@ -1268,14 +1369,24 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   const locationScript = readFileSync("js/locationData.js", "utf8");
   Function(locationScript)();
   const index = readFileSync("index.html", "utf8");
+  const appSource = readFileSync("js/app.js", "utf8");
   const bundle = readFileSync("js/app.bundle.js", "utf8");
   const styles = readFileSync("styles/main.css", "utf8");
   const staticRouteSource = readFileSync("server/routes/staticRoute.js", "utf8");
 
   assert.equal(global.window.FortuneLocationData.cities.length, 3337);
   assert.ok(index.indexOf('id="coreSignals"') < index.indexOf('id="monthTimeline"'));
+  assert.ok(index.indexOf('id="coreSignals"') < index.indexOf('id="evidenceCards"'));
+  assert.ok(index.indexOf('id="evidenceCards"') < index.indexOf('id="monthTimeline"'));
   assert.equal(index.includes('id="aiNarrative"'), false);
   assert.equal(index.includes('id="debugPanel"'), false);
+  assert.match(appSource, /renderEvidenceCards/);
+  assert.match(appSource, /state\.evidenceReport/);
+  assert.match(bundle, /function renderEvidenceCards/);
+  assert.match(bundle, /年度证据总览/);
+  assert.match(bundle, /副线复核/);
+  assert.match(bundle, /师傅复核问题/);
+  assert.match(bundle, /matchedFacts/);
   assert.equal(bundle.includes("<span>解读年份</span>"), false);
   assert.equal(bundle.includes("<span>解读月份</span>"), false);
   assert.match(bundle, /name="defaultAiYear"/);

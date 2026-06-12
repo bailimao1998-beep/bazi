@@ -3,6 +3,7 @@ import { renderAiNarrativePanel } from "./components/aiNarrativePanel.js";
 import { renderBirthForm } from "./components/birthForm.js";
 import { renderChartSummary } from "./components/chartSummary.js";
 import { renderDebugPanel } from "./components/debugPanel.js";
+import { renderEvidenceCards } from "./components/evidenceCards.js";
 import { renderMonthTimeline } from "./components/monthTimeline.js";
 import { renderYearStoryPanel } from "./components/yearStoryPanel.js";
 
@@ -10,6 +11,7 @@ const roots = {
   birthForm: document.querySelector("#birthForm"),
   chartSummary: document.querySelector("#chartSummary"),
   yearStory: document.querySelector("#yearStory"),
+  evidenceCards: document.querySelector("#evidenceCards"),
   monthTimeline: document.querySelector("#monthTimeline"),
   aiNarrative: document.querySelector("#aiNarrative"),
   debug: document.querySelector("#debugPanel"),
@@ -73,5 +75,6 @@ function renderAll() {
     },
   });
   renderAiNarrativePanel(roots.aiNarrative, state);
+  renderEvidenceCards(roots.evidenceCards, state.evidenceReport);
   renderDebugPanel(roots.debug, state);
 }

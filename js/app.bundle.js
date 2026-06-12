@@ -142,6 +142,7 @@
     renderBirthForm(data);
     renderChart(data);
     renderCoreSignals(data);
+    renderEvidenceCards(data.evidenceReport);
     renderYear(data);
     renderFortuneDebugPanel(data);
     renderMonth(data);
@@ -175,6 +176,13 @@
       transitSignals,
       monthSignals
     });
+    const evidenceReport = buildEvidenceReport({
+      selectedLuck,
+      yearInfluence,
+      selectedMonthInfluence,
+      annualEventReport: fortuneAnalysis,
+      matchedRules: []
+    });
     return {
       chart,
       yearInfluence,
@@ -186,6 +194,7 @@
       transitSignals,
       monthSignals,
       fortuneAnalysis,
+      evidenceReport,
       storyTags,
       narrative: { provider: "local-file", text: `年度主线：${storyTags.filter(t => t.period === "year").map(t => t.tag).join("、")}。这些只作为本地规则生成的观察点。` },
       selection: { targetYear, selectedMonth },
@@ -1565,7 +1574,7 @@
     return `<tr class="flow-signal-row"><td data-label="分组">${signal.group || groupTitle}</td><td data-label="观察点"><strong>${signal.title}</strong></td><td data-label="类型"><span class="badge">${signal.tag}</span></td><td data-label="原始依据">${signal.evidence}</td><td data-label="取象关键词">${signal.keywords}</td><td data-label="展开解释"><details class="inline-reading"><summary>展开</summary><dl><dt>怎么取的</dt><dd>${signal.evidence}</dd>${renderSignalEventCandidates(signal)}<dt>解释</dt><dd>${signal.plainReading} ${signal.realLifeMeaning} ${signal.caution}</dd></dl></details></td></tr>`;
   }
 
-  function buildLocalFortuneAnalysis({
+function buildLocalFortuneAnalysis({
   chart,
   selectedLuck,
   yearInfluence,
@@ -1667,6 +1676,134 @@
       "流月用于判断当前月份的短期应期。"
     ]
   };
+}
+
+function buildEvidenceReport({
+  selectedLuck,
+  yearInfluence,
+  annualEventReport = {},
+  matchedRules = []
+} = {}) {
+  const mainEventCards = buildEvidenceEventCards(annualEventReport.mainEvents, "main");
+  const parallelEventCards = buildEvidenceEventCards(annualEventReport.parallelEvents, "parallel");
+  const ruleCards = (Array.isArray(matchedRules) ? matchedRules : [])
+    .slice()
+    .sort((a, b) => (b.version === "rule-v2") - (a.version === "rule-v2") || Number(b.score || 0) - Number(a.score || 0))
+    .slice(0, 12)
+    .map(rule => ({
+      id: rule.id,
+      title: rule.title,
+      topic: rule.topic,
+      source: rule.source,
+      version: rule.version || "legacy-v1",
+      score: Number(rule.score || 0),
+      confidence: rule.confidence || "medium",
+      evidence: normalizeEvidenceList(rule.evidence).slice(0, 4),
+      timing: rule.timing || [],
+      counterEvidence: normalizeEvidenceList(rule.counterEvidence).slice(0, 3),
+      needVerify: normalizeEvidenceList(rule.needVerify),
+      matchedFacts: Array.isArray(rule.matchedFacts) ? rule.matchedFacts : []
+    }));
+  const timingCards = buildEvidenceTimingCards(annualEventReport.monthlyHighlights, ruleCards);
+  return {
+    summary: {
+      year: yearInfluence?.year || annualEventReport.year || null,
+      selectedLuck: selectedLuck?.label || selectedLuck || null,
+      mainEventCount: mainEventCards.length,
+      ruleV2Count: ruleCards.filter(rule => rule.version === "rule-v2").length,
+      topTopics: buildEvidenceTopTopics([...mainEventCards, ...parallelEventCards], ruleCards)
+    },
+    mainEventCards,
+    parallelEventCards,
+    ruleCards,
+    timingCards,
+    reviewQuestions: buildEvidenceReviewQuestions([...mainEventCards, ...parallelEventCards], ruleCards)
+  };
+}
+
+function buildEvidenceEventCards(events = [], role = "main") {
+  return (Array.isArray(events) ? events : []).map((event, index) => {
+    const reality = normalizeEvidenceList(event.possibleManifestations);
+    const ruleCounterEvidence = normalizeEvidenceList(event.debug?.ruleEvidence?.counterEvidence);
+    return {
+      id: `${role}-${event.eventType || "event"}-${index + 1}`,
+      eventType: event.eventType,
+      title: localEventLabel(event.eventType),
+      level: event.level,
+      score: Number(event.score || 0),
+      confidence: event.confidence || "medium",
+      evidence: normalizeEvidenceList(event.evidenceChain).slice(0, 8),
+      reality,
+      timing: normalizeEvidenceList(event.timing).length ? normalizeEvidenceList(event.timing) : ["暂无明确流月，应等后续触发复核"],
+      possibleManifestations: reality,
+      verifyBy: role === "parallel" ? ["有证据，但未进入年度主断，需结合现实背景判断是否承接。"] : [],
+      boundary: role === "parallel" ? "有证据，但未进入年度主断，需结合现实背景判断是否承接。" : ruleCounterEvidence.join("；") || "本地事件引擎只输出候选事件和证据链，需要结合现实反馈复核。",
+      debug: event.debug || {},
+      ...(role === "parallel" ? { role: "副线复核" } : {})
+    };
+  });
+}
+
+function buildEvidenceTimingCards(monthlyHighlights = [], ruleCards = []) {
+  const cards = [];
+  const seen = new Set();
+  (Array.isArray(monthlyHighlights) ? monthlyHighlights : []).forEach(month => pushEvidenceTiming(cards, seen, {
+    month: Number(month.month || 0) || null,
+    pillar: month.pillar,
+    level: month.level || month.intensity || "medium",
+    theme: month.theme || (month.eventTypes || []).join("、") || "流月触发",
+    evidence: normalizeEvidenceList(month.reasons || month.evidence).slice(0, 4),
+    source: "monthlyHighlights"
+  }));
+  ruleCards.forEach(rule => normalizeEvidenceList(rule.timing?.matchedMonths).forEach(month => pushEvidenceTiming(cards, seen, {
+    month: Number(month.month || 0) || null,
+    pillar: month.pillar,
+    level: "medium",
+    theme: rule.title || rule.topic || "规则应期",
+    evidence: normalizeEvidenceList(month.reason || rule.evidence).slice(0, 4),
+    source: "ruleTiming"
+  })));
+  return cards.slice(0, 12);
+}
+
+function pushEvidenceTiming(cards, seen, card) {
+  const key = `${card.month || ""}-${card.pillar || ""}`;
+  if (!card.month || seen.has(key)) return;
+  seen.add(key);
+  cards.push(card);
+}
+
+function buildEvidenceReviewQuestions(eventCards = [], ruleCards = []) {
+  return uniqueText([
+    ...eventCards.flatMap(card => [...normalizeEvidenceList(card.verifyBy), card.boundary]),
+    ...ruleCards.flatMap(rule => [...normalizeEvidenceList(rule.needVerify), ...normalizeEvidenceList(rule.counterEvidence)])
+  ].map(toEvidenceQuestion)).slice(0, 12);
+}
+
+function buildEvidenceTopTopics(eventCards = [], ruleCards = []) {
+  const counts = {};
+  eventCards.forEach(card => {
+    const topic = localScoreKeyForEventType(card.eventType);
+    counts[topic] = (counts[topic] || 0) + 1;
+  });
+  ruleCards.forEach(rule => {
+    if (!rule.topic) return;
+    counts[rule.topic] = (counts[rule.topic] || 0) + 1;
+  });
+  return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([topic]) => topic).slice(0, 5);
+}
+
+function toEvidenceQuestion(text = "") {
+  const value = String(text || "").trim();
+  if (!value) return "";
+  if (/若|如果/.test(value)) return value.replace(/^若/, "如果").replace(/[。；;]*$/, "？");
+  if (/[？?]$/.test(value)) return value;
+  return `${value}？`;
+}
+
+function normalizeEvidenceList(value) {
+  if (!value) return [];
+  return (Array.isArray(value) ? value : [value]).map(item => typeof item === "string" ? item.trim() : item).filter(Boolean);
 }
 
 function buildLayerFortuneAnalysis({
@@ -2198,6 +2335,54 @@ function chainHasSpecificEvidence(chain = {}) {
     `;
 
     bindFlowAiButtons();
+  }
+
+  function renderEvidenceCards(evidenceReport) {
+    const root = byId("evidenceCards");
+    if (!root) return;
+    const report = evidenceReport || {};
+    const summary = report.summary || {};
+    root.innerHTML = `
+      <div class="plugin-header"><p class="eyebrow">证据链</p><h2>EvidenceCards 证据卡片</h2></div>
+      <div class="board-title"><h3>年度证据总览</h3><span>${Number(summary.mainEventCount || 0)} 个主断</span></div>
+      <section class="evidence-summary">
+        <article><span>年份</span><strong>${escapeHtml(summary.year ?? "未定")}</strong></article>
+        <article><span>大运</span><strong>${escapeHtml(summary.selectedLuck ?? "未选")}</strong></article>
+        <article><span>主事件</span><strong>${Number(summary.mainEventCount || 0)}</strong></article>
+        <article><span>rule-v2</span><strong>${Number(summary.ruleV2Count || 0)}</strong></article>
+        <article><span>重点主题</span><strong>${escapeHtml((summary.topTopics || []).join("、") || "待复核")}</strong></article>
+      </section>
+      ${renderEvidenceEventSection("主断事件卡片", report.mainEventCards)}
+      ${renderEvidenceEventSection("副线复核卡片", report.parallelEventCards, true)}
+      ${renderEvidenceRuleCards(report.ruleCards)}
+      ${renderEvidenceReviewQuestions(report.reviewQuestions)}
+    `;
+  }
+
+  function renderEvidenceEventSection(title, cards = [], parallel = false) {
+    return `<section class="evidence-card-section"><div class="board-title"><h3>${title}</h3><span>${cards.length} 条</span></div><div class="evidence-card-grid">${cards.length ? cards.map(card => renderEvidenceEventCard(card, parallel)).join("") : `<p class="muted">暂无证据卡片。</p>`}</div></section>`;
+  }
+
+  function renderEvidenceEventCard(card = {}, parallel = false) {
+    return `<article class="evidence-card ${parallel ? "is-parallel" : ""}"><header><span>${parallel ? "副线复核" : "主断倾向"}</span><strong>${escapeHtml(card.title || card.eventType || "事件候选")}</strong><small>${escapeHtml(card.level || "low")} · ${Number(card.score || 0)} · ${escapeHtml(card.confidence || "medium")}</small></header>${renderEvidenceList("断法依据", card.evidence)}${renderEvidenceList("现实应象", card.reality || card.possibleManifestations)}${renderEvidenceList("应期观察", card.timing)}${parallel ? `<p class="evidence-boundary">${escapeHtml(card.boundary || "")}</p>` : ""}</article>`;
+  }
+
+  function renderEvidenceRuleCards(cards = []) {
+    return `<section class="evidence-card-section"><div class="board-title"><h3>规则证据卡片</h3><span>${cards.length} 条</span></div><div class="evidence-card-grid">${cards.length ? cards.map(renderEvidenceRuleCard).join("") : `<p class="muted">暂无规则证据。</p>`}</div></section>`;
+  }
+
+  function renderEvidenceRuleCard(card = {}) {
+    return `<article class="evidence-card rule"><header><span>${escapeHtml(card.version || "legacy-v1")} · ${escapeHtml(card.topic || "general")}</span><strong>${escapeHtml(card.title || card.id || "规则")}</strong><small>${Number(card.score || 0)} · ${escapeHtml(card.confidence || "medium")}</small></header>${renderEvidenceList("规则依据", card.evidence)}${renderEvidenceList("反证条件", card.counterEvidence)}${renderEvidenceList("师傅复核点", card.needVerify)}<details><summary>matchedFacts</summary><pre>${escapeHtml(JSON.stringify(card.matchedFacts || [], null, 2))}</pre></details></article>`;
+  }
+
+  function renderEvidenceReviewQuestions(questions = []) {
+    return `<section class="evidence-card-section"><div class="board-title"><h3>师傅复核问题</h3><span>${questions.length} 条</span></div>${questions.length ? `<ol class="review-question-list">${questions.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ol>` : `<p class="muted">暂无复核问题。</p>`}</section>`;
+  }
+
+  function renderEvidenceList(title, items = []) {
+    const rows = (Array.isArray(items) ? items : [items]).filter(Boolean);
+    if (!rows.length) return "";
+    return `<section><h4>${title}</h4><ul>${rows.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul></section>`;
   }
 
   function renderMonth(data) {

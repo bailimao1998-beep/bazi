@@ -47,7 +47,7 @@ npm run package:win
 `js/app.bundle.js` 保留为 legacy/offline 纯前端演示入口，只用于旧版本地展示，不参与专业师傅工作台主链路。需要离线演示时可打开 `index.offline.html`。
 
 桌面应用仍然通过本地后端读取配置或环境变量，浏览器页面不会直接读取 DeepSeek API Key。
-桌面版可在页面里的“AI 配置”面板保存 DeepSeek 设置；Key 写入 Electron `userData` 目录的 `ai-settings.json`，页面只读取脱敏后的 `maskedApiKey`。
+桌面版可在页面里的“AI 配置”面板保存 DeepSeek 设置；Key 写入 Electron `userData` 目录的 `ai-settings.json`，页面只读取脱敏后的 `maskedApiKey`，例如 `sk-****abcd`。
 
 ## 测试
 

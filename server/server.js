@@ -1,9 +1,9 @@
 import { createServer } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { aiSettingsRoute } from "./routes/aiSettingsRoute.js";
 import { chatRoute } from "./routes/chatRoute.js";
 import { narrativeRoute } from "./routes/narrativeRoute.js";
-import { settingsRoute } from "./routes/settingsRoute.js";
 import { staticRoute } from "./routes/staticRoute.js";
 import { logError, logInfo } from "./utils/logger.js";
 import { sendError } from "./utils/response.js";
@@ -15,9 +15,9 @@ export function createAppServer({ port = 3000, host = "127.0.0.1" } = {}) {
   const server = createServer(async (request, response) => {
     try {
       const url = new URL(request.url, `http://${request.headers.host}`);
-      if (await settingsRoute(request, response, url)) return;
       if (await narrativeRoute(request, response, url)) return;
       if (await chatRoute(request, response, url)) return;
+      if (await aiSettingsRoute(request, response, url)) return;
       staticRoute(url, response);
     } catch (error) {
       logError("request failed", error);

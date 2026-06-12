@@ -29,7 +29,7 @@ export function renderAiSettingsPanel(root, state = {}, actions = {}) {
       </label>
       <label>
         <span>Model</span>
-        <input name="model" value="${escapeHtml(deepseek.model ?? "deepseek-v4-flash")}" />
+        <input name="model" value="${escapeHtml(deepseek.model ?? "deepseek-chat")}" />
       </label>
     </div>
     <div class="form-actions">

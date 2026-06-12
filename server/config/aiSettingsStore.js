@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const defaultEndpoint = "https://api.deepseek.com/chat/completions";
-const defaultModel = "deepseek-v4-flash";
+const defaultModel = "deepseek-chat";
 
 export function getAiSettingsPath({ settingsDir, publicRoot = process.cwd() } = {}) {
   const baseDir = settingsDir ?? process.env.FORTUNE_AI_USER_DATA_DIR;
@@ -51,7 +51,7 @@ export function maskApiKey(apiKey = "") {
   if (!value) return "";
   const suffix = value.slice(-4);
   const prefix = value.startsWith("sk-") ? "sk-" : "";
-  return `${prefix}***${suffix}`;
+  return `${prefix}****${suffix}`;
 }
 
 function defaultAiSettings() {
@@ -89,6 +89,7 @@ function sanitizeSettings(settings, { includeSecret = false } = {}) {
     provider: normalized.provider,
     enabled: normalized.enabled,
     deepseek: {
+      hasApiKey: Boolean(normalized.deepseek.apiKey),
       endpoint: normalized.deepseek.endpoint,
       model: normalized.deepseek.model,
       maskedApiKey: maskApiKey(normalized.deepseek.apiKey),

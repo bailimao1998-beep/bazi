@@ -51,7 +51,7 @@ const requiredPaths = [
   "server/server.js",
   "server/routes/narrativeRoute.js",
   "server/routes/chatRoute.js",
-  "server/routes/settingsRoute.js",
+  "server/routes/aiSettingsRoute.js",
   "server/routes/staticRoute.js",
   "server/routes/requestBody.js",
   "server/services/narrativeService.js",
@@ -1853,7 +1853,7 @@ test("local server can use ignored DeepSeek config without serving it to the bro
   const chatRouteSource = readFileSync("server/routes/chatRoute.js", "utf8");
   const staticRouteSource = readFileSync("server/routes/staticRoute.js", "utf8");
   const aiConfigSource = readFileSync("server/config/aiConfigLoader.js", "utf8");
-  const settingsRouteSource = readFileSync("server/routes/settingsRoute.js", "utf8");
+  const settingsRouteSource = readFileSync("server/routes/aiSettingsRoute.js", "utf8");
   const gitignore = readFileSync(".gitignore", "utf8");
 
   assert.match(aiConfigSource, /function loadLocalAiProviderOptions/);
@@ -1866,7 +1866,10 @@ test("local server can use ignored DeepSeek config without serving it to the bro
   assert.match(gitignore, /config\/local-ai-settings\.json/);
   assert.match(serverSource, /narrativeRoute\(request, response, url\)/);
   assert.match(serverSource, /chatRoute\(request, response, url\)/);
-  assert.match(serverSource, /settingsRoute\(request, response, url\)/);
+  assert.match(serverSource, /aiSettingsRoute\(request, response, url\)/);
+  assert.ok(serverSource.indexOf("narrativeRoute(request, response, url)") < serverSource.indexOf("chatRoute(request, response, url)"));
+  assert.ok(serverSource.indexOf("chatRoute(request, response, url)") < serverSource.indexOf("aiSettingsRoute(request, response, url)"));
+  assert.ok(serverSource.indexOf("aiSettingsRoute(request, response, url)") < serverSource.indexOf("staticRoute(url, response)"));
   assert.match(serverSource, /staticRoute\(url, response\)/);
   assert.doesNotMatch(serverSource, /calculateBazi|calculateZiwei|ruleEngine|buildAnnualEventReport|generateStoryTags|createAiProvider/);
   assert.doesNotMatch(aiConfigSource, /deepseekApiKey:\s*["']sk-/);
@@ -1890,7 +1893,8 @@ test("AI settings are saved locally and hide full API keys from public reads", a
 
     assert.equal(saved.deepseek.apiKey, undefined);
     assert.equal(publicSettings.deepseek.apiKey, undefined);
-    assert.equal(publicSettings.deepseek.maskedApiKey, "sk-***abcd");
+    assert.equal(publicSettings.deepseek.hasApiKey, true);
+    assert.equal(publicSettings.deepseek.maskedApiKey, "sk-****abcd");
     assert.equal(privateSettings.deepseek.apiKey, "sk-test-secret-abcd");
     assert.equal(providerOptions.provider, "deepseek");
     assert.equal(providerOptions.deepseek.apiKey, "sk-test-secret-abcd");
@@ -1912,6 +1916,50 @@ test("AI settings are saved locally and hide full API keys from public reads", a
       rmSync(noConfigDir, { recursive: true, force: true });
     }
   } finally {
+    rmSync(settingsDir, { recursive: true, force: true });
+  }
+});
+
+test("AI settings GET route masks stored API keys", async () => {
+  const settingsDir = mkdtempSync(path.join(os.tmpdir(), "fortune-ai-route-settings-"));
+  const previousDir = process.env.FORTUNE_AI_USER_DATA_DIR;
+  process.env.FORTUNE_AI_USER_DATA_DIR = settingsDir;
+  try {
+    saveAiSettings({
+      provider: "deepseek",
+      enabled: true,
+      deepseek: {
+        apiKey: "sk-route-secret-abcd",
+        endpoint: "https://api.deepseek.com/chat/completions",
+        model: "deepseek-chat",
+      },
+    });
+    const { aiSettingsRoute } = await import("./routes/aiSettingsRoute.js");
+    let statusCode = 0;
+    let payload = "";
+    const response = {
+      writeHead(status) {
+        statusCode = status;
+      },
+      end(data) {
+        payload = data;
+      },
+    };
+    const handled = await aiSettingsRoute({ method: "GET" }, response, new URL("http://localhost/api/settings/ai"));
+    const body = JSON.parse(payload);
+
+    assert.equal(handled, true);
+    assert.equal(statusCode, 200);
+    assert.equal(body.deepseek.hasApiKey, true);
+    assert.equal(body.deepseek.maskedApiKey, "sk-****abcd");
+    assert.equal(body.deepseek.apiKey, undefined);
+    assert.doesNotMatch(payload, /sk-route-secret-abcd/);
+  } finally {
+    if (previousDir === undefined) {
+      delete process.env.FORTUNE_AI_USER_DATA_DIR;
+    } else {
+      process.env.FORTUNE_AI_USER_DATA_DIR = previousDir;
+    }
     rmSync(settingsDir, { recursive: true, force: true });
   }
 });

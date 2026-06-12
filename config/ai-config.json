@@ -6,6 +6,7 @@
     "model": "qwen2.5:7b"
   },
   "deepseek": {
+    "apiKey": "sk-1a9a73d451794af3b2586e9ce2c0de0b",
     "endpoint": "https://api.deepseek.com/chat/completions",
     "model": "deepseek-v4-flash"
   },

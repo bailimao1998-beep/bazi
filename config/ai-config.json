@@ -1,14 +1,13 @@
 {
-  "provider": "deepseek",
+  "provider": "mock",
   "mock": {},
   "ollama": {
     "endpoint": "http://localhost:11434/api/generate",
     "model": "qwen2.5:7b"
   },
   "deepseek": {
-    "apiKey": "sk-1a9a73d451794af3b2586e9ce2c0de0b",
     "endpoint": "https://api.deepseek.com/chat/completions",
-    "model": "deepseek-v4-flash"
+    "model": "deepseek-chat"
   },
   "openai": {
     "endpoint": "https://api.openai.com/v1/responses",

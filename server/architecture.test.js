@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { calculateBazi } from "./core/bazi/calculateBazi.js";
@@ -238,7 +238,7 @@ test("flow AI modes build structured prompts and mock reports without model-side
     const result = await buildNarrative({ ...input, mode });
     modeReports[mode] = result.narrative.report;
     assert.equal(result.aiMode, mode);
-    assert.equal(result.narrative.provider, "deepseek");
+    assert.equal(result.narrative.provider, "mock");
     assert.equal(result.narrative.isPlaceholder, true);
     assert.equal(typeof result.narrative.report.title, "string");
     assert.equal(typeof result.narrative.report.coreConclusion, "string");
@@ -1714,8 +1714,12 @@ test("static index uses server-mode module entry and keeps old birth settings da
   assert.match(deepseekProvider, /parseFlowReport/);
   assert.match(deepseekProvider, /deepseek-v4-flash/);
   const aiConfig = readFileSync("config/ai-config.json", "utf8");
-  assert.match(aiConfig, /"provider": "deepseek"/);
-  assert.match(aiConfig, /"model": "deepseek-v4-flash"/);
+  const aiConfigJson = JSON.parse(aiConfig);
+  assert.equal(aiConfigJson.provider, "mock");
+  assert.equal(aiConfigJson.deepseek.model, "deepseek-chat");
+  assert.equal(aiConfigJson.deepseek.apiKey, undefined);
+  assert.doesNotMatch(aiConfig, /apiKey/);
+  assert.doesNotMatch(aiConfig, /sk-/);
   assert.match(bundle, /地支六害/);
   assert.match(bundle, /\["子", "未"\]/);
   assert.match(bundle, /\["丑", "午"\]/);
@@ -1875,6 +1879,26 @@ test("local server can use ignored DeepSeek config without serving it to the bro
   assert.doesNotMatch(aiConfigSource, /deepseekApiKey:\s*["']sk-/);
 });
 
+test("default repository files do not contain committed API keys", () => {
+  const aiConfig = readFileSync("config/ai-config.json", "utf8");
+  const gitignore = readFileSync(".gitignore", "utf8");
+  const scannedFiles = collectTextFiles(["README.md", "js", "server"], {
+    exclude: new Set([
+      "js/local-deepseek-config.local.js",
+      "server/architecture.test.js",
+    ]),
+  });
+  const secretPattern = /sk-[A-Za-z0-9_-]{16,}/;
+  const hits = scannedFiles.filter((filePath) => secretPattern.test(readFileSync(filePath, "utf8")));
+
+  assert.doesNotMatch(aiConfig, /apiKey|sk-/);
+  assert.match(gitignore, /^config\/local-ai-settings\.json$/m);
+  assert.match(gitignore, /^js\/local-deepseek-config\.local\.js$/m);
+  assert.match(gitignore, /^\.env$/m);
+  assert.match(gitignore, /^\.env\.\*$/m);
+  assert.deepEqual(hits, []);
+});
+
 test("AI settings are saved locally and hide full API keys from public reads", async () => {
   const settingsDir = mkdtempSync(path.join(os.tmpdir(), "fortune-ai-settings-"));
   try {
@@ -2000,6 +2024,19 @@ test("desktop shell can reuse the local server without exposing Node APIs to the
   assert.doesNotMatch(desktopMainSource, /local-deepseek-config\.local\.js|deepseekApiKey|apiKey/);
   assert.doesNotMatch(preloadSource, /contextBridge\.exposeInMainWorld|ipcRenderer|require\(|node:/);
 });
+
+function collectTextFiles(entries, { exclude = new Set() } = {}) {
+  return entries.flatMap((entry) => {
+    if (!existsSync(entry)) return [];
+    const stat = statSync(entry);
+    if (stat.isDirectory()) {
+      return readdirSync(entry).flatMap((name) => collectTextFiles([path.join(entry, name)], { exclude }));
+    }
+    const normalized = entry.split(path.sep).join("/");
+    if (exclude.has(normalized)) return [];
+    return [entry];
+  });
+}
 
 function assertSignalContract(signal, label) {
   const evidence = Array.isArray(signal.evidence) ? signal.evidence : [signal.evidence].filter(Boolean);

@@ -1876,7 +1876,10 @@ test("desktop shell can reuse the local server without exposing Node APIs to the
 
   assert.match(desktopMainSource, /BrowserWindow/);
   assert.match(desktopMainSource, /createAppServer/);
+  assert.match(desktopMainSource, /3000,\s*3001,\s*3002,\s*3003,\s*3004,\s*3005/);
+  assert.match(desktopMainSource, /EADDRINUSE/);
   assert.match(desktopMainSource, /loadURL\(localUrl\)/);
+  assert.match(desktopMainSource, /console\.error\(error\)/);
   assert.match(desktopMainSource, /nodeIntegration:\s*false/);
   assert.match(desktopMainSource, /contextIsolation:\s*true/);
   assert.match(desktopMainSource, /preload:/);

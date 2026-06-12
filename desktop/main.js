@@ -9,12 +9,28 @@ const __dirname = path.dirname(__filename);
 let mainWindow = null;
 let appServer = null;
 
+const defaultDesktopPorts = [3000, 3001, 3002, 3003, 3004, 3005];
+
 async function startLocalServer() {
   if (appServer) return appServer.url;
-  const port = Number(process.env.FORTUNE_AI_DESKTOP_PORT ?? process.env.PORT ?? 3000);
-  appServer = createAppServer({ port });
-  await appServer.start();
-  return appServer.url;
+  const configuredPort = process.env.FORTUNE_AI_DESKTOP_PORT ?? process.env.PORT;
+  const ports = configuredPort ? [Number(configuredPort)] : defaultDesktopPorts;
+  let lastError = null;
+
+  for (const port of ports) {
+    try {
+      const candidate = createAppServer({ port });
+      await candidate.start();
+      appServer = candidate;
+      return appServer.url;
+    } catch (error) {
+      lastError = error;
+      appServer = null;
+      if (error?.code !== "EADDRINUSE") throw error;
+    }
+  }
+
+  throw lastError ?? new Error("本地服务端口不可用");
 }
 
 async function stopLocalServer() {
@@ -50,6 +66,7 @@ app.whenReady().then(async () => {
     const localUrl = await startLocalServer();
     createWindow(localUrl);
   } catch (error) {
+    console.error(error);
     dialog.showErrorBox("启动失败", `本地服务启动失败：${error.message}`);
     app.quit();
   }

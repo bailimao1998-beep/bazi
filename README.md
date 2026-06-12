@@ -33,9 +33,16 @@ npm run dev
 npm run desktop
 ```
 
+桌面版打包：
+
+```bash
+npm run package:mac
+npm run package:win
+```
+
 普通用户使用：
 
-下载打包后的 `命理断事系统.app` 或 `命理断事系统.exe`，双击打开即可，不需要安装 npm、Node、Git 或 VS Code。
+打开 `dist/` 中生成的 `命理断事系统.app` 或 `命理断事系统.exe`，双击即可使用，不需要安装 npm、Node、Git 或 VS Code。
 
 `js/app.bundle.js` 保留为 legacy/offline 纯前端演示入口，只用于旧版本地展示，不参与专业师傅工作台主链路。需要离线演示时可打开 `index.offline.html`。
 

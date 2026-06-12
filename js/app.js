@@ -1,8 +1,8 @@
 import { getAiSettings, requestNarrative, saveAiSettings, testAiSettings } from "./apiClient.js";
 import { renderAiNarrativePanel } from "./components/aiNarrativePanel.js";
 import { renderAiSettingsPanel } from "./components/aiSettingsPanel.js";
+import { renderBaseBaziPanel } from "./components/baseBaziPanel.js";
 import { renderBirthForm } from "./components/birthForm.js";
-import { renderChartSummary } from "./components/chartSummary.js";
 import { renderDebugPanel } from "./components/debugPanel.js";
 import { renderEvidenceCards } from "./components/evidenceCards.js";
 import { renderMonthTimeline } from "./components/monthTimeline.js";
@@ -10,12 +10,17 @@ import { renderYearStoryPanel } from "./components/yearStoryPanel.js";
 
 const roots = {
   birthForm: document.querySelector("#birthForm"),
-  chartSummary: document.querySelector("#chartSummary"),
-  yearStory: document.querySelector("#yearStory"),
-  evidenceCards: document.querySelector("#evidenceCards"),
+  baseChartPanel: document.querySelector("#baseChartPanel"),
+  natalImagePanel: document.querySelector("#natalImagePanel"),
+  natalAiNarrative: document.querySelector("#natalAiNarrative"),
+  luckImagePanel: document.querySelector("#luckImagePanel"),
+  luckAiNarrative: document.querySelector("#luckAiNarrative"),
+  yearImagePanel: document.querySelector("#yearImagePanel"),
+  yearAiNarrative: document.querySelector("#yearAiNarrative"),
+  monthImagePanel: document.querySelector("#monthImagePanel"),
+  monthAiNarrative: document.querySelector("#monthAiNarrative"),
+  aiChatPanel: document.querySelector("#aiChatPanel"),
   aiSettings: document.querySelector("#aiSettings"),
-  monthTimeline: document.querySelector("#monthTimeline"),
-  aiNarrative: document.querySelector("#aiNarrative"),
   debug: document.querySelector("#debugPanel"),
   status: document.querySelector("#status"),
 };
@@ -101,14 +106,19 @@ function renderAiSettings() {
 }
 
 function renderAll() {
-  renderChartSummary(roots.chartSummary, state);
-  renderYearStoryPanel(roots.yearStory, state, {
+  renderBaseBaziPanel(roots.baseChartPanel, state.baseBaziViewModel);
+  renderEvidenceCards(roots.natalImagePanel, state.evidenceReport);
+  renderAiNarrativePanel(roots.natalAiNarrative, state, { title: "原局 AI 解读" });
+  renderLuckImagePanel(roots.luckImagePanel, state);
+  renderAiNarrativePanel(roots.luckAiNarrative, state, { title: "大运 AI 解读" });
+  renderYearStoryPanel(roots.yearImagePanel, state, {
     onSelectYear(year) {
       currentInput = { ...currentInput, targetYear: year };
       refresh();
     },
   });
-  renderMonthTimeline(roots.monthTimeline, state, {
+  renderAiNarrativePanel(roots.yearAiNarrative, state, { title: "流年 AI 解读" });
+  renderMonthTimeline(roots.monthImagePanel, state, {
     onSelectMonth(month) {
       currentInput = { ...currentInput, selectedMonth: month };
       refresh();
@@ -123,7 +133,40 @@ function renderAll() {
       refresh();
     },
   });
-  renderAiNarrativePanel(roots.aiNarrative, state);
-  renderEvidenceCards(roots.evidenceCards, state.evidenceReport);
+  renderAiNarrativePanel(roots.monthAiNarrative, state, { title: "流月 AI 解读" });
+  renderChatPanel(roots.aiChatPanel);
   renderDebugPanel(roots.debug, state);
+}
+
+function renderLuckImagePanel(root, data) {
+  if (!root) return;
+  const luck = data?.selectedLuck;
+  root.innerHTML = `
+    <div class="plugin-header">
+      <p class="eyebrow">大运取象</p>
+      <h2>当前大运</h2>
+    </div>
+    <article class="story-card">
+      <strong>${escapeHtml(luck?.label ?? "大运待选")}</strong>
+      <p>${escapeHtml(luck ? `${luck.startYear}-${luck.endYear}，${luck.startAge}-${luck.endAge}岁。` : "等待排盘。")}</p>
+    </article>
+  `;
+}
+
+function renderChatPanel(root) {
+  if (!root) return;
+  root.innerHTML = `
+    <div class="plugin-header">
+      <p class="eyebrow">AI 问答</p>
+      <h2>师傅问答</h2>
+    </div>
+    <p class="muted">AI 问答接口已保留在后端，主页面问答交互将在后续阶段接入。</p>
+  `;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }

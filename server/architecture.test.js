@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { buildBaseBaziViewModel } from "./core/bazi/buildBaseBaziViewModel.js";
 import { calculateBazi } from "./core/bazi/calculateBazi.js";
 import { branchMainStem, getTenGod } from "./core/bazi/tenGods.js";
 import { calculateYearInfluence } from "./core/liunian/calculateYearInfluence.js";
@@ -36,22 +37,24 @@ const requiredPaths = [
   "desktop/preload.js",
   "styles/main.css",
   "js/app.js",
-  "js/app.bundle.js",
   "js/apiClient.js",
   "js/locationData.js",
   "js/lunarCalendar.js",
   "js/components/birthForm.js",
+  "js/components/baseBaziPanel.js",
   "js/components/chartSummary.js",
   "js/components/yearStoryPanel.js",
   "js/components/monthTimeline.js",
   "js/components/aiNarrativePanel.js",
   "js/components/aiSettingsPanel.js",
+  "js/components/casePanel.js",
   "js/components/debugPanel.js",
   "js/components/evidenceCards.js",
   "server/server.js",
   "server/routes/narrativeRoute.js",
   "server/routes/chatRoute.js",
   "server/routes/aiSettingsRoute.js",
+  "server/routes/caseRoute.js",
   "server/routes/staticRoute.js",
   "server/routes/requestBody.js",
   "server/services/narrativeService.js",
@@ -60,15 +63,14 @@ const requiredPaths = [
   "server/security/outputSanitizer.js",
   "server/config/aiConfigLoader.js",
   "server/config/aiSettingsStore.js",
+  "server/cases/caseStore.js",
+  "server/core/bazi/buildBaseBaziViewModel.js",
   "server/core/bazi/calculateBazi.js",
   "server/core/bazi/pillarMath.js",
   "server/core/bazi/tenGods.js",
   "server/core/bazi/fiveElements.js",
   "server/core/bazi/luckCycles.js",
   "server/core/bazi/shensha.js",
-  "server/core/ziwei/calculateZiwei.js",
-  "server/core/ziwei/palaces.js",
-  "server/core/ziwei/transformations.js",
   "server/core/evidence/buildEvidenceReport.js",
   "server/core/liunian/calculateYearInfluence.js",
   "server/core/liunian/calculateMonthInfluence.js",
@@ -130,9 +132,6 @@ const requiredPaths = [
   "data/rules/fortune-engine/clash-combo-penalty.json",
   "data/rules/fortune-engine/event-tags.json",
   "data/rules/fortune-engine/narrative-templates.json",
-  "data/rules/ziwei/palace-rules.json",
-  "data/rules/ziwei/sihua-rules.json",
-  "data/rules/ziwei/relationship-rules.json",
   "data/story-templates/year-themes.json",
   "data/story-templates/month-roles.json",
   "data/story-templates/relationship-stories.json",
@@ -222,6 +221,53 @@ test("local engines build chart, rules, story tags, prompt, and mock narrative w
   assert.ok(narrative.text.includes("年度主线"));
   assert.doesNotMatch(narrative.text, /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
   assert.doesNotMatch(JSON.stringify({ chart, matchedRules, storyTags }), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
+});
+
+test("base bazi view model exposes blind-style chart layers without re-calculating in the UI", async () => {
+  const input = {
+    name: "测试用户",
+    birthDate: "1992-08-18",
+    birthTime: "14:30",
+    birthplace: "北京",
+    gender: "female",
+    targetYear: 2030,
+  };
+  const chart = calculateBazi(input);
+  const viewModel = buildBaseBaziViewModel({ input, chart });
+  const narrative = await buildNarrative(input);
+
+  assert.equal(viewModel.birthInfo.name, "测试用户");
+  assert.equal(viewModel.birthInfo.birthplace, "北京");
+  assert.equal(viewModel.pillars.length, 4);
+  assert.deepEqual(viewModel.pillars.map((item) => item.key), ["year", "month", "day", "hour"]);
+  assert.ok(viewModel.pillars.every((item) => item.pillar && item.stem && item.branch));
+  assert.ok(viewModel.pillars.every((item) => Array.isArray(item.hiddenStems)));
+  assert.ok(viewModel.pillars.every((item) => item.nayin && item.twelveGrowth && Array.isArray(item.voidBranches)));
+  assert.ok(Object.keys(viewModel.fiveElements.visible.counts ?? viewModel.fiveElements.visible).length >= 5);
+  assert.ok(Object.keys(viewModel.fiveElements.hidden.counts ?? viewModel.fiveElements.hidden).length >= 5);
+  assert.ok(Array.isArray(viewModel.fiveElements.dominant));
+  assert.ok(Object.keys(viewModel.tenGods.mainQi).length > 0);
+  assert.ok(Object.keys(viewModel.tenGods.fullHidden).length > 0);
+  assert.ok(Array.isArray(viewModel.relations));
+  assert.ok(viewModel.auxiliary.fetalOrigin);
+  assert.ok(viewModel.auxiliary.lifePalace);
+  assert.ok(viewModel.auxiliary.bodyPalace);
+  assert.ok(Array.isArray(viewModel.luckCycles));
+  assert.ok(viewModel.luckCycles.length > 0);
+  assert.deepEqual(narrative.baseBaziViewModel.pillars.map((item) => item.pillar), viewModel.pillars.map((item) => item.pillar));
+  assert.equal(Object.hasOwn(narrative, "ziwei"), false);
+});
+
+test("project is scoped to blind bazi without ziwei imports or required rule files", () => {
+  const serverSources = collectTextFiles(["server", "scripts"], { exclude: new Set(["server/architecture.test.js"]) });
+  const joined = serverSources.map((filePath) => readFileSync(filePath, "utf8")).join("\n");
+  const importZiweiPattern = new RegExp("import\\s+.*calculate" + "Ziwei");
+
+  assert.doesNotMatch(joined, importZiweiPattern);
+  assert.equal(existsSync("server/core/ziwei"), false);
+  assert.equal(existsSync("data/rules/ziwei"), false);
+  assert.ok(requiredPaths.every((filePath) => !filePath.includes("ziwei")));
+  assert.ok(requiredPaths.every((filePath) => filePath !== "js/app.bundle.js"));
 });
 
 test("flow AI modes build structured prompts and mock reports without model-side divination", async () => {
@@ -1386,6 +1432,7 @@ test("static index uses server-mode module entry and keeps old birth settings da
   const appSource = readFileSync("js/app.js", "utf8");
   const apiClientSource = readFileSync("js/apiClient.js", "utf8");
   const aiSettingsPanelSource = readFileSync("js/components/aiSettingsPanel.js", "utf8");
+  const casePanelSource = readFileSync("js/components/casePanel.js", "utf8");
   const bundle = readFileSync("js/app.bundle.js", "utf8");
   const styles = readFileSync("styles/main.css", "utf8");
   const staticRouteSource = readFileSync("server/routes/staticRoute.js", "utf8");
@@ -1394,20 +1441,37 @@ test("static index uses server-mode module entry and keeps old birth settings da
   assert.doesNotMatch(index, /js\/app\.bundle\.js/);
   assert.doesNotMatch(index, /js\/local-deepseek-config\.local\.js/);
   assert.match(index, /<script\s+type="module"\s+src="js\/app\.js\?v=20260609g"><\/script>/);
-  assert.ok(index.indexOf('id="coreSignals"') < index.indexOf('id="monthTimeline"'));
-  assert.ok(index.indexOf('id="coreSignals"') < index.indexOf('id="evidenceCards"'));
-  assert.ok(index.indexOf('id="evidenceCards"') < index.indexOf('id="monthTimeline"'));
-  assert.match(index, /id="evidenceCards"/);
-  assert.match(index, /id="aiSettings"/);
-  assert.match(index, /id="aiNarrative"/);
-  assert.match(index, /id="debugPanel"/);
+  assert.doesNotMatch(index, /id="coreSignals"|id="yearStory"|id="monthTimeline"|id="casePanel"|id="chartSummary"|id="aiNarrative"/);
+  const orderedPanels = [
+    "birthForm",
+    "baseChartPanel",
+    "natalImagePanel",
+    "natalAiNarrative",
+    "luckImagePanel",
+    "luckAiNarrative",
+    "yearImagePanel",
+    "yearAiNarrative",
+    "monthImagePanel",
+    "monthAiNarrative",
+    "aiChatPanel",
+    "aiSettings",
+    "debugPanel",
+  ];
+  for (const id of orderedPanels) assert.match(index, new RegExp(`id="${id}"`));
+  for (let panelIndex = 1; panelIndex < orderedPanels.length; panelIndex += 1) {
+    assert.ok(index.indexOf(`id="${orderedPanels[panelIndex - 1]}"`) < index.indexOf(`id="${orderedPanels[panelIndex]}"`));
+  }
   assert.match(appSource, /renderEvidenceCards/);
   assert.match(appSource, /renderAiSettingsPanel/);
-  assert.match(appSource, /state\.evidenceReport/);
+  assert.match(appSource, /renderBaseBaziPanel/);
+  assert.match(appSource, /baseBaziViewModel/);
   assert.match(apiClientSource, /\/api\/settings\/ai/);
   assert.match(apiClientSource, /\/api\/settings\/ai\/test/);
+  assert.match(apiClientSource, /\/api\/cases/);
   assert.match(aiSettingsPanelSource, /maskedApiKey/);
   assert.match(aiSettingsPanelSource, /type="password"/);
+  assert.match(casePanelSource, /保存当前案例/);
+  assert.match(casePanelSource, /最近 10 个案例/);
   assert.match(bundle, /function renderEvidenceCards/);
   assert.match(bundle, /年度证据总览/);
   assert.match(bundle, /副线复核/);
@@ -1871,11 +1935,13 @@ test("local server can use ignored DeepSeek config without serving it to the bro
   assert.match(serverSource, /narrativeRoute\(request, response, url\)/);
   assert.match(serverSource, /chatRoute\(request, response, url\)/);
   assert.match(serverSource, /aiSettingsRoute\(request, response, url\)/);
+  assert.match(serverSource, /caseRoute\(request, response, url\)/);
   assert.ok(serverSource.indexOf("narrativeRoute(request, response, url)") < serverSource.indexOf("chatRoute(request, response, url)"));
   assert.ok(serverSource.indexOf("chatRoute(request, response, url)") < serverSource.indexOf("aiSettingsRoute(request, response, url)"));
-  assert.ok(serverSource.indexOf("aiSettingsRoute(request, response, url)") < serverSource.indexOf("staticRoute(url, response)"));
+  assert.ok(serverSource.indexOf("aiSettingsRoute(request, response, url)") < serverSource.indexOf("caseRoute(request, response, url)"));
+  assert.ok(serverSource.indexOf("caseRoute(request, response, url)") < serverSource.indexOf("staticRoute(url, response)"));
   assert.match(serverSource, /staticRoute\(url, response\)/);
-  assert.doesNotMatch(serverSource, /calculateBazi|calculateZiwei|ruleEngine|buildAnnualEventReport|generateStoryTags|createAiProvider/);
+  assert.doesNotMatch(serverSource, new RegExp(["calculateBazi", "calculate" + "Ziwei", "ruleEngine", "buildAnnualEventReport", "generateStoryTags", "createAiProvider"].join("|")));
   assert.doesNotMatch(aiConfigSource, /deepseekApiKey:\s*["']sk-/);
 });
 
@@ -1988,6 +2054,113 @@ test("AI settings GET route masks stored API keys", async () => {
   }
 });
 
+test("AI settings test route validates the selected provider without mock fallback", async () => {
+  const settingsDir = mkdtempSync(path.join(os.tmpdir(), "fortune-ai-test-route-"));
+  const previousDir = process.env.FORTUNE_AI_USER_DATA_DIR;
+  process.env.FORTUNE_AI_USER_DATA_DIR = settingsDir;
+  try {
+    const { aiSettingsRoute } = await import("./routes/aiSettingsRoute.js");
+    const missingKey = await postAiSettingsTest(aiSettingsRoute, {
+      enabled: true,
+      provider: "deepseek",
+      deepseek: {
+        apiKey: "",
+        endpoint: "https://api.deepseek.com/chat/completions",
+        model: "deepseek-chat",
+      },
+    });
+    const mockResult = await postAiSettingsTest(aiSettingsRoute, {
+      enabled: true,
+      provider: "mock",
+      deepseek: { apiKey: "", endpoint: "", model: "" },
+    });
+    const disabledResult = await postAiSettingsTest(aiSettingsRoute, {
+      enabled: false,
+      provider: "deepseek",
+      deepseek: { apiKey: "", endpoint: "", model: "" },
+    });
+
+    assert.equal(missingKey.ok, false);
+    assert.equal(missingKey.provider, "deepseek");
+    assert.match(missingKey.message, /API Key 为空/);
+    assert.equal(mockResult.ok, true);
+    assert.equal(mockResult.provider, "mock");
+    assert.match(mockResult.message, /无需连接测试/);
+    assert.equal(disabledResult.ok, true);
+    assert.equal(disabledResult.provider, "mock");
+    assert.match(disabledResult.message, /无需连接测试/);
+  } finally {
+    if (previousDir === undefined) {
+      delete process.env.FORTUNE_AI_USER_DATA_DIR;
+    } else {
+      process.env.FORTUNE_AI_USER_DATA_DIR = previousDir;
+    }
+    rmSync(settingsDir, { recursive: true, force: true });
+  }
+});
+
+test("case route stores local cases, returns summaries, filters secrets, and deletes cases", async () => {
+  const settingsDir = mkdtempSync(path.join(os.tmpdir(), "fortune-case-route-"));
+  const previousDir = process.env.FORTUNE_AI_USER_DATA_DIR;
+  process.env.FORTUNE_AI_USER_DATA_DIR = settingsDir;
+  try {
+    const { caseRoute } = await import("./routes/caseRoute.js");
+    const created = await callJsonRoute(caseRoute, "POST", "/api/cases", {
+      title: "2026 事业复核案例",
+      input: {
+        name: "测试用户",
+        birthDate: "1990-01-01",
+        deepseek: { apiKey: "sk-case-secret-abcd" },
+      },
+      selection: { targetYear: 2026, selectedMonth: 3 },
+      chartSummary: { dayMaster: "甲" },
+      evidenceReport: { summary: { year: 2026 }, mainEventCards: [{ title: "岗位复核" }] },
+      annualEventReport: { mainEvents: [{ eventType: "career", score: 72 }] },
+      narrative: {
+        text: "案例叙事中误带 apiKey=sk-case-secret-abcd 和 DEEPSEEK_API_KEY 字样。",
+        prompt: "sk-case-secret-abcd",
+      },
+      teacherNotes: "现实岗位变动待复核",
+      tags: "事业,2026",
+      feedback: "待验证",
+    });
+    const list = await callJsonRoute(caseRoute, "GET", "/api/cases");
+    const detail = await callJsonRoute(caseRoute, "GET", `/api/cases/${created.case.id}`);
+    const updated = await callJsonRoute(caseRoute, "PUT", `/api/cases/${created.case.id}`, {
+      teacherNotes: "已补充复核备注",
+      feedback: "较准",
+    });
+    const removed = await callJsonRoute(caseRoute, "DELETE", `/api/cases/${created.case.id}`);
+    const emptyList = await callJsonRoute(caseRoute, "GET", "/api/cases");
+
+    assert.equal(created.saved, true);
+    assert.ok(created.case.id);
+    assert.equal(list.cases.length, 1);
+    assert.equal(list.cases[0].id, created.case.id);
+    assert.equal(list.cases[0].title, "2026 事业复核案例");
+    assert.equal(list.cases[0].feedback, "待验证");
+    assert.equal(list.cases[0].evidenceReport, undefined);
+    assert.equal(list.cases[0].annualEventReport, undefined);
+    assert.equal(list.cases[0].narrative, undefined);
+    assert.equal(detail.case.id, created.case.id);
+    assert.equal(detail.case.evidenceReport.summary.year, 2026);
+    assert.equal(updated.case.teacherNotes, "已补充复核备注");
+    assert.equal(updated.case.feedback, "较准");
+    assert.equal(removed.deleted, true);
+    assert.equal(emptyList.cases.length, 0);
+    assert.doesNotMatch(JSON.stringify(created), /apiKey|sk-case-secret-abcd|DEEPSEEK_API_KEY/);
+    assert.doesNotMatch(JSON.stringify(detail), /apiKey|sk-case-secret-abcd|DEEPSEEK_API_KEY/);
+    assert.match(readFileSync(".gitignore", "utf8"), /^data\/user-cases\/$/m);
+  } finally {
+    if (previousDir === undefined) {
+      delete process.env.FORTUNE_AI_USER_DATA_DIR;
+    } else {
+      process.env.FORTUNE_AI_USER_DATA_DIR = previousDir;
+    }
+    rmSync(settingsDir, { recursive: true, force: true });
+  }
+});
+
 test("desktop shell can reuse the local server without exposing Node APIs to the renderer", () => {
   const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
   const serverSource = readFileSync("server/server.js", "utf8");
@@ -2036,6 +2209,52 @@ function collectTextFiles(entries, { exclude = new Set() } = {}) {
     if (exclude.has(normalized)) return [];
     return [entry];
   });
+}
+
+async function postAiSettingsTest(route, body) {
+  let payload = "";
+  const request = {
+    method: "POST",
+    on(event, callback) {
+      if (event === "data") callback(Buffer.from(JSON.stringify(body)));
+      if (event === "end") callback();
+      return request;
+    },
+  };
+  const response = {
+    writeHead() {},
+    end(data) {
+      payload = data;
+    },
+  };
+  const handled = await route(request, response, new URL("http://localhost/api/settings/ai/test"));
+  assert.equal(handled, true);
+  return JSON.parse(payload);
+}
+
+async function callJsonRoute(route, method, pathname, body = undefined) {
+  let statusCode = 0;
+  let payload = "";
+  const request = {
+    method,
+    on(event, callback) {
+      if (event === "data" && body !== undefined) callback(Buffer.from(JSON.stringify(body)));
+      if (event === "end") callback();
+      return request;
+    },
+  };
+  const response = {
+    writeHead(status) {
+      statusCode = status;
+    },
+    end(data) {
+      payload = data;
+    },
+  };
+  const handled = await route(request, response, new URL(`http://localhost${pathname}`));
+  assert.equal(handled, true);
+  assert.ok(statusCode >= 200 && statusCode < 300, `unexpected status ${statusCode}: ${payload}`);
+  return JSON.parse(payload || "{}");
 }
 
 function assertSignalContract(signal, label) {

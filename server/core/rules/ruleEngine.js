@@ -8,9 +8,6 @@ const ruleFiles = [
   "data/rules/bazi/wealth.json",
   "data/rules/bazi/liunian.json",
   "data/rules/bazi/liuyue.json",
-  "data/rules/ziwei/palace-rules.json",
-  "data/rules/ziwei/sihua-rules.json",
-  "data/rules/ziwei/relationship-rules.json",
 ];
 
 export function ruleEngine(context = {}) {

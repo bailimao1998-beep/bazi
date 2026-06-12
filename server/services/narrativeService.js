@@ -1,3 +1,4 @@
+import { buildBaseBaziViewModel } from "../core/bazi/buildBaseBaziViewModel.js";
 import { calculateBazi } from "../core/bazi/calculateBazi.js";
 import { createMonthPillar, createPillarFromYear } from "../core/bazi/pillarMath.js";
 import { buildEvidenceReport } from "../core/evidence/buildEvidenceReport.js";
@@ -8,21 +9,20 @@ import { ruleEngine } from "../core/rules/ruleEngine.js";
 import { createAiProvider } from "../core/ai/aiProvider.js";
 import { generateStoryTags } from "../core/story/generateStoryTags.js";
 import { buildFlowNarrativePrompt, buildNarrativePrompt } from "../core/story/buildNarrativePrompt.js";
-import { calculateZiwei } from "../core/ziwei/calculateZiwei.js";
 
 export async function buildNarrative(input = {}, providerOptions = {}) {
   const targetYear = Number(input.targetYear ?? new Date().getFullYear());
   const selectedMonth = Number(input.selectedMonth ?? new Date().getMonth() + 1);
   const aiMode = ["luck", "year", "month"].includes(input.mode) ? input.mode : "default";
   const chart = calculateBazi(input);
-  const ziwei = calculateZiwei(input, chart);
+  const baseBaziViewModel = buildBaseBaziViewModel({ input, chart });
   const yearInfluence = calculateYearInfluence({ chart, targetYear });
   const monthInfluences = Array.from({ length: 12 }, (_, index) =>
     calculateMonthInfluence({ chart, targetYear, month: index + 1 }),
   );
   const selectedMonthInfluence = monthInfluences[Math.max(0, Math.min(11, selectedMonth - 1))];
   const selectedLuck = selectLuckPillar(chart.luckCycles, input.selectedLuckIndex, targetYear);
-  const matchedRules = ruleEngine({ chart, ziwei, selectedLuck, yearInfluence, monthInfluences, selectedMonthInfluence });
+  const matchedRules = ruleEngine({ chart, selectedLuck, yearInfluence, monthInfluences, selectedMonthInfluence });
   const annualEventReport = buildAnnualEventReport({ chart, selectedLuck, yearInfluence, monthInfluences, matchedRules });
   const evidenceReport = buildEvidenceReport({
     chart,
@@ -43,10 +43,10 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
   });
   const storyTags = generateStoryTags({ chart, yearInfluence, monthInfluences, matchedRules });
   const prompt = aiMode === "default"
-    ? buildNarrativePrompt({ chart, yearInfluence, monthInfluences, storyTags, matchedRules, fortuneAnalysis })
+    ? buildNarrativePrompt({ baseBaziViewModel, yearInfluence, monthInfluences, storyTags, matchedRules, fortuneAnalysis })
     : buildFlowNarrativePrompt({
       mode: aiMode,
-      chart,
+      baseBaziViewModel,
       coreSignals: input.coreSignals,
       transitSignals: input.transitSignals,
       monthSignals: input.monthSignals,
@@ -60,7 +60,7 @@ export async function buildNarrative(input = {}, providerOptions = {}) {
   return {
     aiMode,
     chart,
-    ziwei,
+    baseBaziViewModel,
     yearInfluence,
     monthInfluences,
     selectedMonthInfluence,

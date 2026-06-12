@@ -38,23 +38,36 @@ function buildTestSettings(input = {}) {
 }
 
 async function testAiSettings(settings = {}) {
-  const providerOptions = buildProviderOptionsFromAiSettings(settings);
-  if (providerOptions.provider === "mock") {
-    return { ok: true, provider: "mock", message: "当前使用本地 mock AI。" };
+  if (!settings.enabled || settings.provider === "mock") {
+    return { ok: true, provider: "mock", message: "当前使用本地 mock AI，无需连接测试。" };
   }
-  try {
-    const result = await createAiProvider(providerOptions).generate({
-      prompt: {
-        system: "你只需要回复 OK。",
-        user: "请回复 OK，用于连接测试。",
-      },
-    });
-    return {
-      ok: Boolean(String(result?.text ?? "").trim()),
-      provider: result?.provider ?? providerOptions.provider,
-      message: "连接测试已返回结果。",
-    };
-  } catch (error) {
-    return { ok: false, provider: providerOptions.provider, message: error.message };
+  if (settings.provider === "deepseek") {
+    const apiKey = String(settings.deepseek?.apiKey ?? "").trim();
+    if (!apiKey) {
+      return { ok: false, provider: "deepseek", message: "DeepSeek API Key 为空，请先填写 API Key。" };
+    }
+    try {
+      const result = await createAiProvider({
+        provider: "deepseek",
+        deepseek: {
+          apiKey,
+          endpoint: settings.deepseek?.endpoint,
+          model: settings.deepseek?.model,
+        },
+      }).generate({
+        prompt: {
+          system: "你只需要回复 OK。",
+          user: "请回复 OK，用于连接测试。",
+        },
+      });
+      return {
+        ok: Boolean(String(result?.text ?? "").trim()),
+        provider: "deepseek",
+        message: "连接测试已返回结果。",
+      };
+    } catch (error) {
+      return { ok: false, provider: "deepseek", message: error.message };
+    }
   }
+  return { ok: false, provider: settings.provider ?? "unknown", message: "不支持的 AI provider。" };
 }

@@ -1,10 +1,10 @@
-# 命理剧情解读系统
+# 盲派八字断盘工作台
 
-本项目是本地优先的 AI 命理剧情解读系统。代码先完成排盘、规则匹配、流年流月触发和剧情标签生成，再把结构化标签交给可替换的 AI provider 扩写成故事化语言。
+本项目是本地优先的盲派八字断盘辅助工作台。代码先完成基础排盘、原局取象、岁运流月触发和证据报告，再把结构化证据交给可替换的 AI provider 整理成专业复核型叙事。
 
 ## 核心边界
 
-- 排盘由 `server/core/bazi` 和 `server/core/ziwei` 控制。
+- 排盘只由 `server/core/bazi` 控制。
 - 流年流月由 `server/core/liunian` 控制。
 - 规则由 `server/core/rules` 读取本地 JSON。
 - 剧情标签和 prompt 由 `server/core/story` 生成。
@@ -16,7 +16,7 @@
 Beta 主运行模式为 server 模式：
 
 ```text
-index.html → js/app.js → /api/narrative → 后端 buildNarrative → evidenceReport → EvidenceCards
+index.html → js/app.js → /api/narrative → 后端 buildNarrative → baseBaziViewModel / evidenceReport → 页面分层展示
 ```
 
 开发者调试：
@@ -44,7 +44,7 @@ npm run package:win
 
 打开 `dist/` 中生成的 `命理断事系统.app` 或 `命理断事系统.exe`，双击即可使用，不需要安装 npm、Node、Git 或 VS Code。
 
-`js/app.bundle.js` 保留为 legacy/offline 纯前端演示入口，只用于旧版本地展示，不参与专业师傅工作台主链路。需要离线演示时可打开 `index.offline.html`。
+`js/app.bundle.js` 和 `index.offline.html` 保留为 legacy/offline 纯前端演示入口，只用于旧版本地展示，不参与盲派八字断盘工作台主链路。
 
 桌面应用仍然通过本地后端读取配置或环境变量，浏览器页面不会直接读取 DeepSeek API Key。
 桌面版可在页面里的“AI 配置”面板保存 DeepSeek 设置；Key 写入 Electron `userData` 目录的 `ai-settings.json`，页面只读取脱敏后的 `maskedApiKey`，例如 `sk-****abcd`。
@@ -59,4 +59,4 @@ npm test
 
 ## 当前版本说明
 
-第一版重在架构闭环，八字和紫微算法为最小可用实现。所有输出都应保持“候选信号、观察点、继续验证”的学习型表达。
+当前版本方向已收口为盲派八字，不做紫微斗数或多体系混合。所有输出都应保持“候选信号、观察点、继续验证”的专业复核型表达。

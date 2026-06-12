@@ -147,6 +147,7 @@ label {
 
 input,
 select,
+textarea,
 button {
   min-height: 40px;
   border: 1px solid #c9c6bd;
@@ -155,10 +156,21 @@ button {
   font: inherit;
 }
 
+textarea {
+  min-height: 96px;
+  padding: 10px;
+  resize: vertical;
+}
+
 button {
   background: #243b53;
   color: #ffffff;
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .switch-row {
@@ -176,6 +188,34 @@ button {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.case-panel-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(180px, 1fr) minmax(140px, 0.6fr);
+  gap: 12px;
+}
+
+.case-list-section {
+  margin-top: 18px;
+}
+
+.case-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.case-list li {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+
+.case-list strong,
+.case-list span,
+.case-list small {
+  display: block;
 }
 
 .checkbox-line {
@@ -2651,6 +2691,10 @@ pre {
   }
 
   .debug-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .case-panel-grid {
     grid-template-columns: 1fr;
   }
 

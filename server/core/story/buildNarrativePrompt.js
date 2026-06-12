@@ -2,7 +2,7 @@ import { storyToneConfig } from "./storyToneConfig.js";
 
 const forbiddenWords = ["一定", "必定", "绝对", "必然", "必离婚", "必发财", "必有灾", "必坐牢", "必死亡"];
 
-export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [], storyTags = [], matchedRules = [], fortuneAnalysis, tone = "default" } = {}) {
+export function buildNarrativePrompt({ baseBaziViewModel, chart, yearInfluence, monthInfluences = [], storyTags = [], matchedRules = [], fortuneAnalysis, tone = "default" } = {}) {
   const pickedFortuneAnalysis = pickFortuneAnalysis(getFortuneAnalysisByMode("year", fortuneAnalysis));
   return {
     schema: flowReportSchema,
@@ -15,7 +15,7 @@ export function buildNarrativePrompt({ chart, yearInfluence, monthInfluences = [
       fortuneAnalysis: pickedFortuneAnalysis,
       evidencePackage: buildEvidencePackage(pickedFortuneAnalysis, { mode: "year" }),
       referenceOnly: {
-        chartJson: chart,
+        baseBaziViewModel: baseBaziViewModel ?? chart ?? {},
         yearInfluence,
         monthInfluences,
         storyTags,
@@ -118,6 +118,7 @@ export const flowReportSchema = {
 
 export function buildFlowNarrativePrompt({
   mode = "year",
+  baseBaziViewModel,
   chart,
   coreSignals,
   transitSignals,
@@ -148,7 +149,7 @@ export function buildFlowNarrativePrompt({
       fortuneAnalysis: pickedFortuneAnalysis,
       evidencePackage: buildEvidencePackage(pickedFortuneAnalysis, { mode, selectedMonthInfluence }),
       referenceOnly: {
-        chart,
+        baseBaziViewModel: baseBaziViewModel ?? chart ?? {},
         coreSignals,
         transitSignals,
         monthSignals,

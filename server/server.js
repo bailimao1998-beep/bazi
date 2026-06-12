@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { aiSettingsRoute } from "./routes/aiSettingsRoute.js";
+import { caseRoute } from "./routes/caseRoute.js";
 import { chatRoute } from "./routes/chatRoute.js";
 import { narrativeRoute } from "./routes/narrativeRoute.js";
 import { staticRoute } from "./routes/staticRoute.js";
@@ -18,6 +19,7 @@ export function createAppServer({ port = 3000, host = "127.0.0.1" } = {}) {
       if (await narrativeRoute(request, response, url)) return;
       if (await chatRoute(request, response, url)) return;
       if (await aiSettingsRoute(request, response, url)) return;
+      if (await caseRoute(request, response, url)) return;
       staticRoute(url, response);
     } catch (error) {
       logError("request failed", error);

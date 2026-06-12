@@ -1,4 +1,5 @@
 export function renderYearStoryPanel(root, data, actions = {}) {
+  if (!root) return;
   const year = data?.yearInfluence;
   const years = data?.transitYears ?? [];
   const yearTags = (data?.storyTags ?? []).filter((tag) => tag.period === "year");

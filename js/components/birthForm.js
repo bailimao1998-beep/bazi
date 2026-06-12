@@ -20,6 +20,7 @@ const commonCities = [
 ];
 
 export function renderBirthForm(root, { initialValue = {}, onSubmit }) {
+  if (!root) return;
   const lunar = solarToLunar(initialValue.birthDate ?? "1949-10-01");
   const state = {
     name: initialValue.name ?? "测试用户",

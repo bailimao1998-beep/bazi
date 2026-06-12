@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>命理剧情解读系统</title>
+    <title>命理剧情解读系统 · 离线演示</title>
     <link rel="stylesheet" href="styles/main.css" />
   </head>
   <body>
     <main class="app">
       <section class="hero">
         <h1>命理剧情解读系统</h1>
-        <p>后端完成排盘、规则匹配和证据报告，模型只负责叙事表达。</p>
+        <p>旧版纯前端离线演示，不接入后端 ruleEngine v2 证据链。</p>
         <strong id="status">等待输入。</strong>
       </section>
 
@@ -19,14 +19,12 @@
         <section class="panel span-8" id="chartSummary"></section>
         <section class="panel span-12" id="coreSignals"></section>
         <section class="panel span-12" id="evidenceCards"></section>
-        <section class="panel span-12" id="aiNarrative"></section>
         <section class="panel span-12" id="monthTimeline"></section>
         <section class="panel span-12" id="yearStory" hidden></section>
-        <section class="panel span-12" id="debugPanel"></section>
       </section>
     </main>
     <script src="js/locationData.js?v=20260609g"></script>
     <script src="js/local-deepseek-config.local.js?v=20260609g"></script>
-    <script type="module" src="js/app.js?v=20260609g"></script>
+    <script src="js/app.bundle.js?v=20260609g"></script>
   </body>
 </html>

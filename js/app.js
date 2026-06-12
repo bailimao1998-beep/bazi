@@ -45,7 +45,7 @@ async function refresh() {
   try {
     state = await requestNarrative(currentInput);
     renderAll();
-    roots.status.textContent = "已完成本地排盘、规则匹配和 mock 叙事。";
+    roots.status.textContent = "已完成后端排盘、规则匹配、证据报告和 AI 叙事。";
   } catch (error) {
     roots.status.textContent = error.message;
   }

@@ -13,11 +13,19 @@
 
 ## 运行
 
+Beta 主运行模式为 server 模式：
+
+```text
+index.html → js/app.js → /api/narrative → 后端 buildNarrative → evidenceReport → EvidenceCards
+```
+
 ```bash
 npm run dev
 ```
 
 打开 `http://localhost:3000`。
+
+`js/app.bundle.js` 保留为 legacy/offline 纯前端演示入口，只用于旧版本地展示，不参与专业师傅工作台主链路。需要离线演示时可打开 `index.offline.html`。
 
 ## 测试
 

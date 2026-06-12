@@ -10,6 +10,7 @@ const elementAttributes = {
 const polarityLabels = { yang: "阳", yin: "阴" };
 
 export function renderChartSummary(root, data) {
+  if (!root) return;
   const chart = data?.chart;
   if (!chart) {
     root.innerHTML = `<p class="muted">等待排盘。</p>`;

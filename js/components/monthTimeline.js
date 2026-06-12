@@ -1,4 +1,5 @@
 export function renderMonthTimeline(root, data, actions = {}) {
+  if (!root) return;
   const months = data?.monthInfluences ?? [];
   const selectedMonth = data?.selection?.selectedMonth ?? 1;
   const selectedLuck = data?.selectedLuck;

@@ -21,9 +21,11 @@ import { buildNarrative } from "./services/narrativeService.js";
 import { createAiProvider } from "./core/ai/aiProvider.js";
 import { loadJson } from "./utils/jsonLoader.js";
 import { formatLunarDate, lunarToSolar, solarToLunar } from "./utils/lunarCalendar.js";
+import { renderAiNarrativePanel } from "../js/components/aiNarrativePanel.js";
 
 const requiredPaths = [
   "index.html",
+  "index.offline.html",
   "styles/main.css",
   "js/app.js",
   "js/app.bundle.js",
@@ -1364,22 +1366,26 @@ test("date settings support lunar conversion and lunar chart input", () => {
   assert.equal(lunarChart.calendar.lunarDate, "农历壬申年七月二十");
 });
 
-test("static index bundle keeps old birth settings data and linkage fields", () => {
+test("static index uses server-mode module entry and keeps old birth settings data", () => {
   global.window = {};
   const locationScript = readFileSync("js/locationData.js", "utf8");
   Function(locationScript)();
   const index = readFileSync("index.html", "utf8");
+  const offlineIndex = readFileSync("index.offline.html", "utf8");
   const appSource = readFileSync("js/app.js", "utf8");
   const bundle = readFileSync("js/app.bundle.js", "utf8");
   const styles = readFileSync("styles/main.css", "utf8");
   const staticRouteSource = readFileSync("server/routes/staticRoute.js", "utf8");
 
   assert.equal(global.window.FortuneLocationData.cities.length, 3337);
+  assert.doesNotMatch(index, /js\/app\.bundle\.js/);
+  assert.match(index, /<script\s+type="module"\s+src="js\/app\.js\?v=20260609g"><\/script>/);
   assert.ok(index.indexOf('id="coreSignals"') < index.indexOf('id="monthTimeline"'));
   assert.ok(index.indexOf('id="coreSignals"') < index.indexOf('id="evidenceCards"'));
   assert.ok(index.indexOf('id="evidenceCards"') < index.indexOf('id="monthTimeline"'));
-  assert.equal(index.includes('id="aiNarrative"'), false);
-  assert.equal(index.includes('id="debugPanel"'), false);
+  assert.match(index, /id="evidenceCards"/);
+  assert.match(index, /id="aiNarrative"/);
+  assert.match(index, /id="debugPanel"/);
   assert.match(appSource, /renderEvidenceCards/);
   assert.match(appSource, /state\.evidenceReport/);
   assert.match(bundle, /function renderEvidenceCards/);
@@ -1546,7 +1552,7 @@ test("static index bundle keeps old birth settings data and linkage fields", () 
   assert.doesNotMatch(bundle, /function renderFortuneLikelyEvents/);
   assert.doesNotMatch(bundle, /likely-events-block/);
   assert.doesNotMatch(bundle, /renderFortuneLikelyEvents\(readableReport\)/);
-  assert.match(index, /app\.bundle\.js\?v=20260609g/);
+  assert.match(offlineIndex, /app\.bundle\.js\?v=20260609g/);
   assert.match(bundle, /function selectLocalReportContext/);
   assert.match(bundle, /function readableReportSectionTitles/);
   assert.match(bundle, /flowModeInstruction\(mode\)/);
@@ -1784,6 +1790,10 @@ test("birth form makes initial AI interpretation opt-in", () => {
   assert.match(birthForm, /name="preInterpretAi"/);
   assert.match(birthForm, /AI 预先解读/);
   assert.match(birthForm, /preInterpretAi: Boolean\(initialValue\.preInterpretAi\)/);
+});
+
+test("AI narrative panel tolerates missing root", () => {
+  assert.doesNotThrow(() => renderAiNarrativePanel(null, { narrative: { text: "测试" } }));
 });
 
 test("local server can use ignored DeepSeek config without serving it to the browser", () => {

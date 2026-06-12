@@ -1,4 +1,5 @@
 export function renderAiNarrativePanel(root, data) {
+  if (!root) return;
   const narrative = data?.narrative;
   root.innerHTML = `
     <h2>AI 剧情讲述</h2>

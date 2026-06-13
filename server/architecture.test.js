@@ -46,6 +46,7 @@ const requiredPaths = [
   "js/core/ai/deepseekClient.js",
   "js/core/ai/aiSettingsClient.js",
   "js/core/blind-bazi/buildNatalImageReport.js",
+  "js/core/blind-bazi/buildLuckImageReport.js",
   "js/core/bazi/buildBaseBaziViewModel.js",
   "js/core/bazi/buildBaziStructureAnalysis.js",
   "js/core/bazi/calculateBazi.js",
@@ -59,6 +60,7 @@ const requiredPaths = [
   "js/components/birthForm.js",
   "js/components/baseBaziPanel.js",
   "js/components/natalImagePanel.js",
+  "js/components/luckImagePanel.js",
   "js/components/natalAiNarrativePanel.js",
   "js/components/chartSummary.js",
   "js/components/yearStoryPanel.js",
@@ -345,6 +347,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   const { buildBaseBaziViewModel: buildFrontendBaseBaziViewModel } = await import("../js/core/bazi/buildBaseBaziViewModel.js");
   const { buildBaziRelations } = await import("../js/core/bazi/relations.js");
   const { buildNatalImageReport } = await import("../js/core/blind-bazi/buildNatalImageReport.js");
+  const { buildLuckImageReport } = await import("../js/core/blind-bazi/buildLuckImageReport.js");
   const { buildNatalAiPrompt } = await import("../js/core/ai/buildNatalAiPrompt.js");
   const { generateWithDeepSeek } = await import("../js/core/ai/deepseekClient.js");
   const appSource = readFileSync("js/app.js", "utf8");
@@ -353,6 +356,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   const deepseekClientSource = readFileSync("js/core/ai/deepseekClient.js", "utf8");
   const basePanelSource = readFileSync("js/components/baseBaziPanel.js", "utf8");
   const natalPanelSource = readFileSync("js/components/natalImagePanel.js", "utf8");
+  const luckPanelSource = readFileSync("js/components/luckImagePanel.js", "utf8");
   const natalAiPanelSource = readFileSync("js/components/natalAiNarrativePanel.js", "utf8");
   const chart = calculateFrontendBazi({
     name: "基础排盘用户",
@@ -363,6 +367,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   });
   const viewModel = buildFrontendBaseBaziViewModel(chart);
   const natalReport = buildNatalImageReport({ chart, baseBaziViewModel: viewModel });
+  const luckReport = buildLuckImageReport({ chart, baseBaziViewModel: viewModel, natalImageReport: natalReport });
   const natalPrompt = buildNatalAiPrompt({ baseBaziViewModel: viewModel, natalImageReport: natalReport });
 
   assert.equal(chart.input.name, "基础排盘用户");
@@ -423,6 +428,26 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.ok(natalReport.needVerify.length > 0);
   assert.doesNotMatch(JSON.stringify(natalReport), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
 
+  assert.ok(luckReport.summary);
+  assert.ok(Array.isArray(luckReport.luckItems));
+  assert.equal(luckReport.luckItems.length, viewModel.luckCycles.length);
+  assert.ok(luckReport.luckItems.every((item) => item.ageRange && item.yearRange && item.ganZhi));
+  assert.ok(luckReport.luckItems.every((item) => item.stem && item.branch && item.tenGod));
+  assert.ok(luckReport.luckItems.every((item) => Array.isArray(item.relationToNatal)));
+  assert.ok(luckReport.luckItems.every((item) => item.image && item.reality && item.boundary));
+  assert.ok(luckReport.luckItems.every((item) => /^(high|medium|low)$/.test(item.confidence)));
+  assert.ok(luckReport.keySignals.length > 0);
+  assert.ok(luckReport.needVerify.length > 0);
+  assert.doesNotMatch(JSON.stringify(luckReport), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡|流年|流月|AI 问答/);
+  const emptyLuckReport = buildLuckImageReport({
+    chart: { dayMaster: chart.dayMaster, pillars: chart.pillars, luckCycles: { pillars: [] }, structureAnalysis: chart.structureAnalysis },
+    baseBaziViewModel: { ...viewModel, luckCycles: [] },
+    natalImageReport: natalReport,
+  });
+  assert.equal(emptyLuckReport.summary.title, "暂无大运数据");
+  assert.equal(emptyLuckReport.luckItems.length, 0);
+  assert.match(emptyLuckReport.needVerify.join(" "), /暂无大运数据/);
+
   const overlappingTenGodReport = buildNatalImageReport({
     chart: {
       dayMaster: { label: "甲日主", element: "wood" },
@@ -461,6 +486,10 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(natalPanelSource, /原局整体取象/);
   assert.match(natalPanelSource, /keySignals/);
   assert.match(natalPanelSource, /needVerify/);
+  assert.match(luckPanelSource, /大运取象总览/);
+  assert.match(luckPanelSource, /暂无大运数据/);
+  assert.match(luckPanelSource, /relationToNatal/);
+  assert.doesNotMatch(luckPanelSource, /generateWithDeepSeek|buildNatalAiPrompt|AI 问答/);
   assert.match(natalPrompt.system, /解释层，不是排盘层/);
   assert.match(natalPrompt.system, /只能根据 natalImageReport 解读/);
   assert.match(natalPrompt.system, /不能重新排盘/);
@@ -512,13 +541,17 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(appSource, /import \{ calculateBazi \} from "\.\/core\/bazi\/calculateBazi\.js"/);
   assert.match(appSource, /import \{ buildBaseBaziViewModel \} from "\.\/core\/bazi\/buildBaseBaziViewModel\.js"/);
   assert.match(appSource, /import \{ buildNatalImageReport \} from "\.\/core\/blind-bazi\/buildNatalImageReport\.js"/);
+  assert.match(appSource, /import \{ buildLuckImageReport \} from "\.\/core\/blind-bazi\/buildLuckImageReport\.js"/);
   assert.match(appSource, /import \{ buildNatalAiPrompt \} from "\.\/core\/ai\/buildNatalAiPrompt\.js"/);
   assert.match(appSource, /import \{ loadRuntimeAiSettings, readAiSettings, saveAiSettings \} from "\.\/core\/ai\/aiSettingsClient\.js\?v=20260613c"/);
   assert.match(appSource, /import \{ generateWithDeepSeek \} from "\.\/core\/ai\/deepseekClient\.js\?v=20260613b"/);
   assert.match(appSource, /import \{ renderNatalImagePanel \} from "\.\/components\/natalImagePanel\.js"/);
+  assert.match(appSource, /import \{ renderLuckImagePanel \} from "\.\/components\/luckImagePanel\.js"/);
   assert.match(appSource, /import \{ renderNatalAiNarrativePanel \} from "\.\/components\/natalAiNarrativePanel\.js"/);
   assert.match(appSource, /buildNatalImageReport\(\{ chart, baseBaziViewModel \}\)/);
+  assert.match(appSource, /buildLuckImageReport\(\{\s*chart,\s*baseBaziViewModel,\s*natalImageReport,\s*\}\)/);
   assert.match(appSource, /renderNatalImagePanel\(roots\.natalImagePanel, state\.natalImageReport\)/);
+  assert.match(appSource, /renderLuckImagePanel\(roots\.luckImagePanel, state\.luckImageReport\)/);
   assert.match(appSource, /let natalAiState/);
   assert.match(appSource, /async function init/);
   assert.match(appSource, /await loadRuntimeAiSettings\(\)/);

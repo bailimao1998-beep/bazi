@@ -1,5 +1,6 @@
 import { loadRuntimeAiSettings, readAiSettings, saveAiSettings } from "./core/ai/aiSettingsClient.js?v=20260613c";
 import { buildLuckAiPrompt } from "./core/ai/buildLuckAiPrompt.js";
+import { buildMonthAiPrompt } from "./core/ai/buildMonthAiPrompt.js";
 import { buildNatalAiPrompt } from "./core/ai/buildNatalAiPrompt.js";
 import { buildYearAiPrompt } from "./core/ai/buildYearAiPrompt.js";
 import { generateWithDeepSeek } from "./core/ai/deepseekClient.js?v=20260613b";
@@ -15,6 +16,7 @@ import { renderBirthForm } from "./components/birthForm.js";
 import { renderDebugPanel } from "./components/debugPanel.js";
 import { renderLuckAiNarrativePanel } from "./components/luckAiNarrativePanel.js";
 import { renderLuckImagePanel } from "./components/luckImagePanel.js";
+import { renderMonthAiNarrativePanel } from "./components/monthAiNarrativePanel.js";
 import { renderMonthImagePanel } from "./components/monthImagePanel.js";
 import { renderNatalAiNarrativePanel } from "./components/natalAiNarrativePanel.js";
 import { renderNatalImagePanel } from "./components/natalImagePanel.js";
@@ -54,6 +56,11 @@ let luckAiState = {
   error: "",
 };
 let yearAiState = {
+  loading: false,
+  text: "",
+  error: "",
+};
+let monthAiState = {
   loading: false,
   text: "",
   error: "",
@@ -126,6 +133,7 @@ function refresh() {
     natalAiState = { loading: false, text: "", error: "" };
     luckAiState = { loading: false, text: "", error: "" };
     yearAiState = { loading: false, text: "", error: "" };
+    monthAiState = { loading: false, text: "", error: "" };
     renderBaseOnly();
     roots.status.textContent = "基础排盘已完成。";
   } catch (error) {
@@ -160,7 +168,11 @@ function renderShell() {
     onGenerate: generateYearAiNarrative,
   });
   renderMonthImagePanel(roots.monthImagePanel, null);
-  renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderMonthAiNarrativePanel(roots.monthAiNarrative, {
+    state: monthAiState,
+    hasReport: false,
+    onGenerate: generateMonthAiNarrative,
+  });
   renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
   renderDebugPanel(roots.debug, state);
 }
@@ -186,7 +198,11 @@ function renderBaseOnly() {
     onGenerate: generateYearAiNarrative,
   });
   renderMonthImagePanel(roots.monthImagePanel, state.monthImageReport);
-  renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderMonthAiNarrativePanel(roots.monthAiNarrative, {
+    state: monthAiState,
+    hasReport: Boolean(state.monthImageReport?.monthItem),
+    onGenerate: generateMonthAiNarrative,
+  });
   renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
   renderDebugPanel(roots.debug, state);
 }
@@ -241,6 +257,26 @@ async function generateYearAiNarrative() {
     yearAiState = { loading: false, text: result.text, error: "" };
   } catch (error) {
     yearAiState = { loading: false, text: "", error: error.message };
+  }
+  renderBaseOnly();
+}
+
+async function generateMonthAiNarrative() {
+  monthAiState = { loading: true, text: "", error: "" };
+  renderBaseOnly();
+  try {
+    const settings = readAiSettings({ includeSecret: true });
+    const prompt = buildMonthAiPrompt({
+      baseBaziViewModel: state.baseBaziViewModel,
+      natalImageReport: state.natalImageReport,
+      luckImageReport: state.luckImageReport,
+      yearImageReport: state.yearImageReport,
+      monthImageReport: state.monthImageReport,
+    });
+    const result = await generateWithDeepSeek({ settings, prompt });
+    monthAiState = { loading: false, text: result.text, error: "" };
+  } catch (error) {
+    monthAiState = { loading: false, text: "", error: error.message };
   }
   renderBaseOnly();
 }

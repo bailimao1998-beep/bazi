@@ -4,6 +4,7 @@ import { buildNatalAiPrompt } from "./core/ai/buildNatalAiPrompt.js";
 import { generateWithDeepSeek } from "./core/ai/deepseekClient.js?v=20260613b";
 import { buildLuckImageReport } from "./core/blind-bazi/buildLuckImageReport.js";
 import { buildNatalImageReport } from "./core/blind-bazi/buildNatalImageReport.js";
+import { buildYearImageReport } from "./core/blind-bazi/buildYearImageReport.js";
 import { buildBaseBaziViewModel } from "./core/bazi/buildBaseBaziViewModel.js";
 import { calculateBazi } from "./core/bazi/calculateBazi.js";
 import { renderAiSettingsPanel } from "./components/aiSettingsPanel.js?v=20260613c";
@@ -14,6 +15,7 @@ import { renderLuckAiNarrativePanel } from "./components/luckAiNarrativePanel.js
 import { renderLuckImagePanel } from "./components/luckImagePanel.js";
 import { renderNatalAiNarrativePanel } from "./components/natalAiNarrativePanel.js";
 import { renderNatalImagePanel } from "./components/natalImagePanel.js";
+import { renderYearImagePanel } from "./components/yearImagePanel.js";
 
 const roots = {
   birthForm: document.querySelector("#birthForm"),
@@ -95,7 +97,14 @@ function refresh() {
       natalImageReport,
       targetYear: currentInput.targetYear,
     });
-    state = { input: currentInput, chart, baseBaziViewModel, natalImageReport, luckImageReport };
+    const yearImageReport = buildYearImageReport({
+      chart,
+      baseBaziViewModel,
+      natalImageReport,
+      luckImageReport,
+      targetYear: currentInput.targetYear,
+    });
+    state = { input: currentInput, chart, baseBaziViewModel, natalImageReport, luckImageReport, yearImageReport };
     natalAiState = { loading: false, text: "", error: "" };
     luckAiState = { loading: false, text: "", error: "" };
     renderBaseOnly();
@@ -125,7 +134,7 @@ function renderShell() {
     hasReport: false,
     onGenerate: generateLuckAiNarrative,
   });
-  renderPlaceholderPanel(roots.yearImagePanel, "流年取象");
+  renderYearImagePanel(roots.yearImagePanel, null);
   renderPlaceholderPanel(roots.yearAiNarrative, "流年 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.monthImagePanel, "流月取象");
   renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
@@ -147,7 +156,7 @@ function renderBaseOnly() {
     hasReport: Boolean(state.luckImageReport?.luckItems?.length),
     onGenerate: generateLuckAiNarrative,
   });
-  renderPlaceholderPanel(roots.yearImagePanel, "流年取象");
+  renderYearImagePanel(roots.yearImagePanel, state.yearImageReport);
   renderPlaceholderPanel(roots.yearAiNarrative, "流年 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.monthImagePanel, "流月取象");
   renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");

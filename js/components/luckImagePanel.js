@@ -46,9 +46,9 @@ function renderLuckItems(items = []) {
 function renderLuckItem(item = {}) {
   const detailId = `luck-detail-${safeAttribute(item.index ?? item.ganZhi ?? "")}`;
   return `
-    <article class="natal-image-card">
+    <article class="natal-image-card${item.isCurrent ? " current-luck-card" : ""}">
       <div class="board-title">
-        <h3>${safe(item.ganZhi || "待查")}</h3>
+        <h3>${safe(item.ganZhi || "待查")}${item.isCurrent ? ` <span class="tag">当前大运</span>` : ""}</h3>
         <span>${safe(item.ageRange || "年龄待查")} · ${safe(item.yearRange || "年份待查")}</span>
       </div>
       <div class="evidence-summary">
@@ -72,7 +72,7 @@ function renderLuckItem(item = {}) {
 function renderRelationToNatal(relationToNatal = []) {
   const rows = Array.isArray(relationToNatal) ? relationToNatal : [];
   return rows.length
-    ? `<section><h4>原局关系触发</h4><ul>${rows.map((relation) => `<li>${safe(relation.natalPillar)}：${safe(relation.members)}${safe(relation.type)}，${safe(relation.effect)}</li>`).join("")}</ul></section>`
+    ? `<section><h4>原局关系触发</h4><ul>${rows.map((relation) => `<li>${safe(relation.description || `${relation.type}${relation.natalPillar}：${relation.effect}`)}</li>`).join("")}</ul></section>`
     : `<section><h4>原局关系触发</h4><p class="muted">暂未命中冲、合、刑、害、破。</p></section>`;
 }
 

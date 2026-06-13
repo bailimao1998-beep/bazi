@@ -77,6 +77,23 @@
   background: #fffdf8;
 }
 
+.natal-image-card.current-luck-card {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
 .natal-image-card h4 {
   margin: 10px 0 6px;
   color: var(--muted);

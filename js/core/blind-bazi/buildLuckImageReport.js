@@ -55,7 +55,22 @@ const pillarNames = {
   hour: "时支",
 };
 
-export function buildLuckImageReport({ chart, baseBaziViewModel, natalImageReport } = {}) {
+const pillarRoleMeanings = {
+  year: "早年、家庭、根基结构被牵动",
+  month: "事业环境、成长秩序、工作规则被牵动",
+  day: "关系宫、亲密关系、合作模式被牵动",
+  hour: "执行层、后期规划、子女/结果层被牵动",
+};
+
+const relationTypeMeanings = {
+  合: "牵连、合作、绑定",
+  冲: "变化、拉扯、动荡",
+  刑: "规则压力、摩擦、内耗",
+  害: "暗中牵制、不顺畅",
+  破: "反复、松动、破局",
+};
+
+export function buildLuckImageReport({ chart, baseBaziViewModel, natalImageReport, targetYear } = {}) {
   const luckPillars = normalizeLuckPillars(chart, baseBaziViewModel);
   if (!luckPillars.length) {
     return {
@@ -75,6 +90,7 @@ export function buildLuckImageReport({ chart, baseBaziViewModel, natalImageRepor
     chart: chart ?? {},
     dayStem: chart?.dayMaster?.stem,
     natalBranches: collectNatalBranches(chart),
+    targetYear: Number(targetYear ?? chart?.input?.targetYear ?? baseBaziViewModel?.birthInfo?.targetYear),
     usefulHint: pickUsefulHint(chart, natalImageReport),
   };
   const luckItems = luckPillars.map((pillar, index) => buildLuckItem(pillar, index, context));
@@ -107,6 +123,7 @@ function buildLuckItem(pillar, index, context) {
     stem,
     branch,
     tenGod,
+    isCurrent: isCurrentLuck(pillar, context.targetYear),
     relationToNatal,
     image: `${pillar.label ?? `${stem}${branch}`}大运天干为${tenGod}，阶段主题偏向${theme}；地支${branch}可看环境、落地场景与根气承接，地支主气十神为${branchTenGod}，偏向${branchTheme}。`,
     reality: `现实应象可先观察${theme}是否在这一步运中更常被提到，同时看${branch}所代表的环境与原局四支是否形成牵引。${relationText}`,
@@ -179,7 +196,19 @@ function findRelationToNatal(luckBranch, natalBranches) {
       luckBranch,
       members: members.join(""),
       effect,
+      description: describeRelation(type, pillar),
     })));
+}
+
+function describeRelation(type, pillar) {
+  const roleMeaning = pillarRoleMeanings[pillar.key] ?? "对应原局结构被牵动";
+  const typeMeaning = relationTypeMeanings[type] ?? "结构牵动需复核";
+  return `${type}${pillar.name}${pillar.branch}：${roleMeaning}，${typeMeaning}`;
+}
+
+function isCurrentLuck(pillar, targetYear) {
+  if (!Number.isFinite(targetYear)) return false;
+  return Number(pillar.startYear) <= targetYear && targetYear <= Number(pillar.endYear);
 }
 
 function pickUsefulHint(chart, natalImageReport) {

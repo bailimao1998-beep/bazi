@@ -368,7 +368,8 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   });
   const viewModel = buildFrontendBaseBaziViewModel(chart);
   const natalReport = buildNatalImageReport({ chart, baseBaziViewModel: viewModel });
-  const luckReport = buildLuckImageReport({ chart, baseBaziViewModel: viewModel, natalImageReport: natalReport });
+  const currentLuckYear = viewModel.luckCycles[1]?.startYear ?? 2030;
+  const luckReport = buildLuckImageReport({ chart, baseBaziViewModel: viewModel, natalImageReport: natalReport, targetYear: currentLuckYear });
   const natalPrompt = buildNatalAiPrompt({ baseBaziViewModel: viewModel, natalImageReport: natalReport });
 
   assert.equal(chart.input.name, "基础排盘用户");
@@ -437,9 +438,31 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.ok(luckReport.luckItems.every((item) => Array.isArray(item.relationToNatal)));
   assert.ok(luckReport.luckItems.every((item) => item.image && item.reality && item.boundary));
   assert.ok(luckReport.luckItems.every((item) => /^(high|medium|low)$/.test(item.confidence)));
+  assert.equal(luckReport.luckItems.filter((item) => item.isCurrent).length, 1);
+  assert.equal(luckReport.luckItems.find((item) => item.isCurrent)?.yearRange, `${viewModel.luckCycles[1].startYear}-${viewModel.luckCycles[1].endYear}`);
   assert.ok(luckReport.keySignals.length > 0);
   assert.ok(luckReport.needVerify.length > 0);
   assert.doesNotMatch(JSON.stringify(luckReport), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡|流年|流月|AI 问答/);
+  const relationLuckReport = buildLuckImageReport({
+    targetYear: 2005,
+    chart: {
+      dayMaster: { stem: "甲", label: "甲日主" },
+      pillars: {
+        year: { label: "己丑", branch: "丑" },
+        month: { label: "乙卯", branch: "卯" },
+        day: { label: "甲子", branch: "子" },
+        hour: { label: "丁巳", branch: "巳" },
+      },
+      luckCycles: {
+        pillars: [{ index: 1, label: "辛未", stem: "辛", branch: "未", startAge: 10, endAge: 19, startYear: 2000, endYear: 2009 }],
+      },
+      structureAnalysis: chart.structureAnalysis,
+    },
+    natalImageReport: natalReport,
+  });
+  assert.equal(relationLuckReport.luckItems[0].isCurrent, true);
+  assert.match(relationLuckReport.luckItems[0].relationToNatal.map((item) => item.description).join(" "), /冲年支丑：早年、家庭、根基结构被牵动，变化、拉扯、动荡/);
+  assert.match(relationLuckReport.luckItems[0].relationToNatal.map((item) => item.description).join(" "), /害日支子：关系宫、亲密关系、合作模式被牵动，暗中牵制、不顺畅/);
   const emptyLuckReport = buildLuckImageReport({
     chart: { dayMaster: chart.dayMaster, pillars: chart.pillars, luckCycles: { pillars: [] }, structureAnalysis: chart.structureAnalysis },
     baseBaziViewModel: { ...viewModel, luckCycles: [] },
@@ -503,6 +526,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
       stem: "甲",
       branch: "子",
       tenGod: "比肩",
+      isCurrent: true,
       relationToNatal: [{ natalPillar: "日支午", members: "子午", type: "冲", effect: "冲动" }],
       image: "简短取象测试",
       reality: "现实观察测试",
@@ -510,6 +534,8 @@ test("frontend bazi modules calculate and render base chart without server APIs"
       confidence: "medium",
     }],
   });
+  assert.match(luckPanelRoot.innerHTML, /current-luck-card/);
+  assert.match(luckPanelRoot.innerHTML, /当前大运/);
   assert.match(luckPanelRoot.innerHTML, /展开详情/);
   assert.match(luckPanelRoot.innerHTML, /data-luck-detail-toggle/);
   assert.match(luckPanelRoot.innerHTML, /data-luck-detail=/);
@@ -575,7 +601,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(appSource, /import \{ renderLuckImagePanel \} from "\.\/components\/luckImagePanel\.js"/);
   assert.match(appSource, /import \{ renderNatalAiNarrativePanel \} from "\.\/components\/natalAiNarrativePanel\.js"/);
   assert.match(appSource, /buildNatalImageReport\(\{ chart, baseBaziViewModel \}\)/);
-  assert.match(appSource, /buildLuckImageReport\(\{\s*chart,\s*baseBaziViewModel,\s*natalImageReport,\s*\}\)/);
+  assert.match(appSource, /buildLuckImageReport\(\{\s*chart,\s*baseBaziViewModel,\s*natalImageReport,\s*targetYear: currentInput\.targetYear,\s*\}\)/);
   assert.match(appSource, /renderNatalImagePanel\(roots\.natalImagePanel, state\.natalImageReport\)/);
   assert.match(appSource, /renderLuckImagePanel\(roots\.luckImagePanel, state\.luckImageReport\)/);
   assert.match(appSource, /let natalAiState/);

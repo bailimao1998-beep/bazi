@@ -86,6 +86,7 @@ function refresh() {
       chart,
       baseBaziViewModel,
       natalImageReport,
+      targetYear: currentInput.targetYear,
     });
     state = { input: currentInput, chart, baseBaziViewModel, natalImageReport, luckImageReport };
     natalAiState = { loading: false, text: "", error: "" };

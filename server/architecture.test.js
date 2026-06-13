@@ -1,8 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { Writable } from "node:stream";
 import { buildBaseBaziViewModel } from "./core/bazi/buildBaseBaziViewModel.js";
 import { calculateBazi } from "./core/bazi/calculateBazi.js";
 import { branchMainStem, getTenGod } from "./core/bazi/tenGods.js";
@@ -22,11 +23,13 @@ import { sanitizeChatText } from "./security/outputSanitizer.js";
 import { buildChatResponse } from "./services/chatService.js";
 import { buildNarrative } from "./services/narrativeService.js";
 import { createAppServer } from "./server.js";
+import { staticRoute } from "./routes/staticRoute.js";
 import { buildProviderOptionsFromAiSettings, readAiSettings, saveAiSettings } from "./config/aiSettingsStore.js";
 import { loadLocalAiProviderOptions } from "./config/aiConfigLoader.js";
 import { createAiProvider } from "./core/ai/aiProvider.js";
 import { loadJson } from "./utils/jsonLoader.js";
 import { formatLunarDate, lunarToSolar, solarToLunar } from "./utils/lunarCalendar.js";
+import { readAiSettings as readBrowserAiSettings } from "../js/core/ai/aiSettingsClient.js";
 import { renderAiNarrativePanel } from "../js/components/aiNarrativePanel.js";
 import { renderEvidenceCards } from "../js/components/evidenceCards.js";
 
@@ -192,6 +195,49 @@ test("project exposes the requested fortune-ai architecture", () => {
     assert.equal(existsSync(filePath), true, `${filePath} should exist`);
   }
   assert.equal(existsSync("src"), false, "legacy src directory should be removed");
+});
+
+test("browser AI generation can read local DeepSeek config before app startup", () => {
+  const html = readFileSync("index.html", "utf8");
+  const localConfigIndex = html.indexOf("js/local-deepseek-config.local.js");
+  const appIndex = html.indexOf("js/app.js");
+  assert.ok(localConfigIndex > -1, "index.html should load the local DeepSeek config");
+  assert.ok(appIndex > localConfigIndex, "local DeepSeek config should load before js/app.js");
+
+  const previousConfig = globalThis.LOCAL_DEEPSEEK_CONFIG;
+  const previousStorage = globalThis.localStorage;
+  delete globalThis.localStorage;
+  globalThis.LOCAL_DEEPSEEK_CONFIG = {
+    enabled: true,
+    provider: "deepseek",
+    apiKey: "sk-local-test-key",
+    endpoint: "https://example.test/chat/completions",
+    model: "deepseek-local-test",
+  };
+
+  try {
+    const settings = readBrowserAiSettings({ includeSecret: true });
+    const publicSettings = readBrowserAiSettings();
+    assert.equal(settings.enabled, true);
+    assert.equal(settings.provider, "deepseek");
+    assert.equal(settings.deepseek.apiKey, "sk-local-test-key");
+    assert.equal(settings.deepseek.endpoint, "https://example.test/chat/completions");
+    assert.equal(settings.deepseek.model, "deepseek-local-test");
+    assert.equal(publicSettings.deepseek.apiKey, undefined);
+    assert.equal(publicSettings.deepseek.hasApiKey, true);
+    assert.equal(publicSettings.deepseek.maskedApiKey, "sk-****-key");
+  } finally {
+    if (previousConfig === undefined) {
+      delete globalThis.LOCAL_DEEPSEEK_CONFIG;
+    } else {
+      globalThis.LOCAL_DEEPSEEK_CONFIG = previousConfig;
+    }
+    if (previousStorage === undefined) {
+      delete globalThis.localStorage;
+    } else {
+      globalThis.localStorage = previousStorage;
+    }
+  }
 });
 
 test("local engines build chart, rules, story tags, prompt, and mock narrative without model-side divination", async () => {
@@ -381,7 +427,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
       settings: { provider: "deepseek", enabled: true, deepseek: { apiKey: "", endpoint: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" } },
       prompt: natalPrompt,
     }),
-    /请先在 AI 设置中填写 DeepSeek API Key/,
+    /未检测到本地 DeepSeek Key/,
   );
   assert.match(deepseekClientSource, /fetch\(/);
   assert.doesNotMatch(deepseekClientSource, /sk-/);
@@ -417,13 +463,15 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(appSource, /import \{ buildBaseBaziViewModel \} from "\.\/core\/bazi\/buildBaseBaziViewModel\.js"/);
   assert.match(appSource, /import \{ buildNatalImageReport \} from "\.\/core\/blind-bazi\/buildNatalImageReport\.js"/);
   assert.match(appSource, /import \{ buildNatalAiPrompt \} from "\.\/core\/ai\/buildNatalAiPrompt\.js"/);
-  assert.match(appSource, /import \{ generateWithDeepSeek \} from "\.\/core\/ai\/deepseekClient\.js"/);
+  assert.match(appSource, /import \{ generateWithDeepSeek \} from "\.\/core\/ai\/deepseekClient\.js\?v=20260613b"/);
   assert.match(appSource, /import \{ renderNatalImagePanel \} from "\.\/components\/natalImagePanel\.js"/);
   assert.match(appSource, /import \{ renderNatalAiNarrativePanel \} from "\.\/components\/natalAiNarrativePanel\.js"/);
   assert.match(appSource, /buildNatalImageReport\(\{ chart, baseBaziViewModel \}\)/);
   assert.match(appSource, /renderNatalImagePanel\(roots\.natalImagePanel, state\.natalImageReport\)/);
   assert.match(appSource, /let natalAiState/);
   assert.match(appSource, /generateNatalAiNarrative/);
+  assert.match(appSource, /ensureLocalDeepSeekConfigLoaded/);
+  assert.ok(appSource.indexOf("await ensureLocalDeepSeekConfigLoaded()") < appSource.indexOf("readAiSettings({ includeSecret: true })"));
   assert.match(appSource, /readAiSettings\(\{ includeSecret: true \}\)/);
   assert.match(appSource, /renderNatalAiNarrativePanel\(roots\.natalAiNarrative/);
   assert.doesNotMatch(appSource, /requestNarrative|\.\/apiClient\.js|\/api\/narrative|\/api\/cases|casePanel/i);
@@ -1598,8 +1646,9 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
 
   assert.equal(global.window.FortuneLocationData.cities.length, 3337);
   assert.doesNotMatch(index, /js\/app\.bundle\.js/);
-  assert.doesNotMatch(index, /js\/local-deepseek-config\.local\.js/);
-  assert.match(index, /<script\s+type="module"\s+src="js\/app\.js\?v=20260612b"><\/script>/);
+  assert.match(index, /<script\s+src="js\/local-deepseek-config\.local\.js"><\/script>/);
+  assert.ok(index.indexOf("js/local-deepseek-config.local.js") < index.indexOf("js/app.js"));
+  assert.match(index, /<script\s+type="module"\s+src="js\/app\.js\?v=20260613b"><\/script>/);
   assert.doesNotMatch(index, /id="coreSignals"|id="yearStory"|id="monthTimeline"|id="casePanel"|id="chartSummary"|id="aiNarrative"/);
   const orderedPanels = [
     "birthForm",
@@ -1640,9 +1689,12 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.match(aiSettingsClientSource, /readAiSettings/);
   assert.match(aiSettingsClientSource, /saveAiSettings/);
   assert.match(aiSettingsClientSource, /maskApiKey/);
+  assert.match(aiSettingsClientSource, /LOCAL_DEEPSEEK_CONFIG/);
   assert.doesNotMatch(aiSettingsClientSource, /fetch\(|\/api\//);
-  assert.match(aiSettingsPanelSource, /maskedApiKey/);
-  assert.match(aiSettingsPanelSource, /type="password"/);
+  assert.match(aiSettingsPanelSource, /已检测到本地 DeepSeek Key/);
+  assert.match(aiSettingsPanelSource, /未检测到 js\/local-deepseek-config\.local\.js/);
+  assert.doesNotMatch(aiSettingsPanelSource, /type="password"/);
+  assert.doesNotMatch(aiSettingsPanelSource, /data-ai-save/);
   assert.match(bundle, /function renderEvidenceCards/);
   assert.match(bundle, /年度证据总览/);
   assert.match(bundle, /副线复核/);
@@ -1787,7 +1839,7 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.match(styles, /chat-window\[hidden\]/);
   assert.match(styles, /typing-caret/);
   assert.match(offlineIndex, /js\/local-deepseek-config\.local\.js/);
-  assert.match(staticRouteSource, /local-deepseek-config\.local\.js/);
+  assert.doesNotMatch(staticRouteSource, /normalized === "\/js\/local-deepseek-config\.local\.js"/);
   assert.match(staticRouteSource, /response\.writeHead\(404\)/);
   assert.match(bundle, /function getBrowserDeepseekConfig/);
   assert.match(bundle, /function requestBrowserDeepseekReport/);
@@ -2087,7 +2139,7 @@ test("EvidenceCards renders timing cards and tolerates empty timing data", () =>
   assert.match(root.innerHTML, /暂无明确应期卡片。/);
 });
 
-test("local server can use ignored DeepSeek config without serving it to the browser", () => {
+test("local server can serve ignored DeepSeek config to the browser when present", async () => {
   const serverSource = readFileSync("server/server.js", "utf8");
   const narrativeRouteSource = readFileSync("server/routes/narrativeRoute.js", "utf8");
   const chatRouteSource = readFileSync("server/routes/chatRoute.js", "utf8");
@@ -2095,24 +2147,40 @@ test("local server can use ignored DeepSeek config without serving it to the bro
   const aiConfigSource = readFileSync("server/config/aiConfigLoader.js", "utf8");
   const settingsRouteSource = readFileSync("server/routes/aiSettingsRoute.js", "utf8");
   const gitignore = readFileSync(".gitignore", "utf8");
+  const publicRoot = mkdtempSync(path.join(os.tmpdir(), "fortune-ai-static-"));
 
-  assert.match(aiConfigSource, /function loadLocalAiProviderOptions/);
-  assert.match(narrativeRouteSource, /buildNarrative\(input, loadLocalAiProviderOptions\(\)\)/);
-  assert.match(chatRouteSource, /buildChatResponse\(input, loadLocalAiProviderOptions\(\)\)/);
-  assert.match(settingsRouteSource, /\/api\/settings\/ai/);
-  assert.match(settingsRouteSource, /\/api\/settings\/ai\/test/);
-  assert.match(staticRouteSource, /normalized === "\/js\/local-deepseek-config\.local\.js"/);
-  assert.match(staticRouteSource, /response\.writeHead\(404\)/);
-  assert.match(gitignore, /config\/local-ai-settings\.json/);
-  assert.match(serverSource, /narrativeRoute\(request, response, url\)/);
-  assert.match(serverSource, /chatRoute\(request, response, url\)/);
-  assert.match(serverSource, /aiSettingsRoute\(request, response, url\)/);
-  assert.ok(serverSource.indexOf("narrativeRoute(request, response, url)") < serverSource.indexOf("chatRoute(request, response, url)"));
-  assert.ok(serverSource.indexOf("chatRoute(request, response, url)") < serverSource.indexOf("aiSettingsRoute(request, response, url)"));
-  assert.ok(serverSource.indexOf("aiSettingsRoute(request, response, url)") < serverSource.indexOf("staticRoute(url, response)"));
-  assert.match(serverSource, /staticRoute\(url, response\)/);
-  assert.doesNotMatch(serverSource, new RegExp(["calculateBazi", "calculate" + "Ziwei", "ruleEngine", "buildAnnualEventReport", "generateStoryTags", "createAiProvider"].join("|")));
-  assert.doesNotMatch(aiConfigSource, /deepseekApiKey:\s*["']sk-/);
+  mkdirSync(path.join(publicRoot, "js"));
+  writeFileSync(
+    path.join(publicRoot, "js/local-deepseek-config.local.js"),
+    'window.LOCAL_DEEPSEEK_CONFIG = { enabled: true, provider: "deepseek", apiKey: "sk-test-local", endpoint: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" };',
+  );
+
+  try {
+    const servedConfig = await captureStaticRoute("/js/local-deepseek-config.local.js", publicRoot);
+    const missingConfig = await captureStaticRoute("/js/missing-local-deepseek-config.local.js", publicRoot);
+
+    assert.equal(servedConfig.statusCode, 200);
+    assert.match(servedConfig.body, /LOCAL_DEEPSEEK_CONFIG/);
+    assert.equal(missingConfig.statusCode, 404);
+    assert.match(aiConfigSource, /function loadLocalAiProviderOptions/);
+    assert.match(narrativeRouteSource, /buildNarrative\(input, loadLocalAiProviderOptions\(\)\)/);
+    assert.match(chatRouteSource, /buildChatResponse\(input, loadLocalAiProviderOptions\(\)\)/);
+    assert.match(settingsRouteSource, /\/api\/settings\/ai/);
+    assert.match(settingsRouteSource, /\/api\/settings\/ai\/test/);
+    assert.doesNotMatch(staticRouteSource, /normalized === "\/js\/local-deepseek-config\.local\.js"/);
+    assert.match(gitignore, /config\/local-ai-settings\.json/);
+    assert.match(serverSource, /narrativeRoute\(request, response, url\)/);
+    assert.match(serverSource, /chatRoute\(request, response, url\)/);
+    assert.match(serverSource, /aiSettingsRoute\(request, response, url\)/);
+    assert.ok(serverSource.indexOf("narrativeRoute(request, response, url)") < serverSource.indexOf("chatRoute(request, response, url)"));
+    assert.ok(serverSource.indexOf("chatRoute(request, response, url)") < serverSource.indexOf("aiSettingsRoute(request, response, url)"));
+    assert.ok(serverSource.indexOf("aiSettingsRoute(request, response, url)") < serverSource.indexOf("staticRoute(url, response)"));
+    assert.match(serverSource, /staticRoute\(url, response\)/);
+    assert.doesNotMatch(serverSource, new RegExp(["calculateBazi", "calculate" + "Ziwei", "ruleEngine", "buildAnnualEventReport", "generateStoryTags", "createAiProvider"].join("|")));
+    assert.doesNotMatch(aiConfigSource, /deepseekApiKey:\s*["']sk-/);
+  } finally {
+    rmSync(publicRoot, { recursive: true, force: true });
+  }
 });
 
 test("default repository files do not contain committed API keys", () => {
@@ -2316,6 +2384,34 @@ function collectTextFiles(entries, { exclude = new Set() } = {}) {
     const normalized = entry.split(path.sep).join("/");
     if (exclude.has(normalized)) return [];
     return [entry];
+  });
+}
+
+function captureStaticRoute(pathname, publicRoot) {
+  return new Promise((resolve) => {
+    let settled = false;
+    let statusCode = 0;
+    const chunks = [];
+    const response = new Writable({
+      write(chunk, encoding, callback) {
+        chunks.push(Buffer.from(chunk));
+        callback();
+      },
+    });
+    const finish = (data) => {
+      if (data) chunks.push(Buffer.from(data));
+      if (settled) return;
+      settled = true;
+      resolve({ statusCode, body: Buffer.concat(chunks).toString("utf8") });
+    };
+    response.writeHead = (status) => {
+      statusCode = status;
+    };
+    response.end = (data) => {
+      finish(data);
+    };
+    response.on("finish", () => finish());
+    staticRoute(new URL(`http://localhost${pathname}`), response, publicRoot);
   });
 }
 

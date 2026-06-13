@@ -10,7 +10,7 @@ const defaultSettings = {
 };
 
 export function readAiSettings({ includeSecret = false } = {}) {
-  const settings = normalizeSettings(readStoredSettings());
+  const settings = normalizeSettings(readLocalDeepSeekSettings() ?? readStoredSettings());
   return includeSecret ? settings : publicSettings(settings);
 }
 
@@ -43,6 +43,42 @@ function readStoredSettings() {
   } catch {
     return defaultSettings;
   }
+}
+
+function readLocalDeepSeekSettings() {
+  const config = normalizeLocalDeepSeekConfig(getLocalDeepSeekConfig());
+  const apiKey = String(config?.apiKey ?? "").trim();
+  if (!apiKey) return null;
+  return {
+    enabled: true,
+    provider: "deepseek",
+    deepseek: {
+      apiKey,
+      endpoint: String(config.endpoint ?? defaultSettings.deepseek.endpoint).trim() || defaultSettings.deepseek.endpoint,
+      model: String(config.model ?? defaultSettings.deepseek.model).trim() || defaultSettings.deepseek.model,
+    },
+  };
+}
+
+function getLocalDeepSeekConfig() {
+  try {
+    return globalThis.LOCAL_DEEPSEEK_CONFIG
+      ?? globalThis.window?.LOCAL_DEEPSEEK_CONFIG
+      ?? globalThis.FortuneLocalAiConfig
+      ?? globalThis.window?.FortuneLocalAiConfig
+      ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeLocalDeepSeekConfig(config) {
+  if (!config) return null;
+  return {
+    apiKey: config.apiKey ?? config.deepseekApiKey,
+    endpoint: config.endpoint ?? config.deepseekEndpoint,
+    model: config.model ?? config.deepseekModel,
+  };
 }
 
 function normalizeSettings(input = {}, existing = defaultSettings) {

@@ -1,10 +1,10 @@
 export async function generateWithDeepSeek({ settings, prompt } = {}) {
   const deepseek = settings?.deepseek ?? {};
   if (!settings?.enabled || settings?.provider !== "deepseek") {
-    throw new Error("请先在 AI 设置中启用 DeepSeek。");
+    throw new Error("未检测到本地 DeepSeek Key");
   }
   if (!String(deepseek.apiKey ?? "").trim()) {
-    throw new Error("请先在 AI 设置中填写 DeepSeek API Key。");
+    throw new Error("未检测到本地 DeepSeek Key");
   }
   const endpoint = String(deepseek.endpoint ?? "https://api.deepseek.com/chat/completions").trim();
   const model = String(deepseek.model ?? "deepseek-chat").trim();

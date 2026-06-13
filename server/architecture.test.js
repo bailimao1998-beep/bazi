@@ -422,6 +422,42 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.ok(Array.isArray(natalReport.weakSignals));
   assert.ok(natalReport.needVerify.length > 0);
   assert.doesNotMatch(JSON.stringify(natalReport), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
+
+  const overlappingTenGodReport = buildNatalImageReport({
+    chart: {
+      dayMaster: { label: "甲日主", element: "wood" },
+      pillars: {
+        year: { label: "甲子" },
+        month: { label: "乙丑" },
+        day: { label: "甲寅", branch: "寅" },
+        hour: { label: "丙卯" },
+      },
+      pillarDetails: { day: { branchMainTenGod: "比肩" } },
+      dominantElements: [{ element: "wood", label: "木" }],
+      relations: [],
+      structureAnalysis: {
+        monthCommand: { branch: "丑", dayMasterElement: "wood", isDayMasterInSeason: false },
+        strength: { level: "medium", score: 50 },
+        roots: { dayMasterRootLevel: "medium" },
+        stems: {},
+        climate: {},
+        usefulGodHint: {},
+      },
+    },
+    baseBaziViewModel: {
+      tenGods: {
+        mainQi: { 正印: 1, 食神: 1 },
+        fullHidden: { 正印: 2, 食神: 3 },
+      },
+    },
+  });
+  const studySkillCard = overlappingTenGodReport.imageCards.find((card) => card.topic === "study_skill");
+  assert.ok(studySkillCard.evidence.includes("印星计数约3"));
+  assert.ok(studySkillCard.evidence.includes("食伤计数约4"));
+  assert.deepEqual(
+    overlappingTenGodReport.imageCards.map((card) => card.topic),
+    ["personality", "family", "study_skill", "career", "wealth", "relationship", "health", "movement", "life_pattern"],
+  );
   assert.match(natalPanelSource, /原局整体取象/);
   assert.match(natalPanelSource, /keySignals/);
   assert.match(natalPanelSource, /needVerify/);
@@ -429,6 +465,8 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(natalPrompt.system, /只能根据 natalImageReport 解读/);
   assert.match(natalPrompt.system, /不能重新排盘/);
   assert.match(natalPrompt.system, /不能新增 natalImageReport 之外的强判断/);
+  assert.match(natalPrompt.system, /每个主要判断都要引用 natalImageReport\.imageCards 里的 evidence/);
+  assert.doesNotMatch(natalAiPromptSource, /evidenceObjects/);
   assert.match(natalPrompt.system, /一定、必定、绝对、必然、必发财、必离婚、必有灾、必死亡/);
   assert.match(natalPrompt.user, /baseBaziViewModel/);
   assert.match(natalPrompt.user, /natalImageReport/);

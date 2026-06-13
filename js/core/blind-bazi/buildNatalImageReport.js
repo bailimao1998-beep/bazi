@@ -45,10 +45,10 @@ function createContext(chart, viewModel, structure) {
   const details = chart.pillarDetails ?? {};
   const dayMaster = chart.dayMaster ?? {};
   const dominantElements = chart.dominantElements ?? viewModel.fiveElements?.dominant ?? [];
-  const tenGodCounts = {
-    ...(viewModel.tenGods?.mainQi ?? chart.tenGodStats?.mainQi ?? {}),
-    ...(viewModel.tenGods?.fullHidden ?? chart.tenGodStats?.fullHidden ?? {}),
-  };
+  const tenGodCounts = sumCountMaps(
+    viewModel.tenGods?.mainQi ?? chart.tenGodStats?.mainQi ?? {},
+    viewModel.tenGods?.fullHidden ?? chart.tenGodStats?.fullHidden ?? {},
+  );
   const groupCounts = Object.fromEntries(Object.entries(tenGodGroups).map(([group, names]) => [
     group,
     names.reduce((sum, name) => sum + Number(tenGodCounts[name] ?? 0), 0),
@@ -86,6 +86,15 @@ function createContext(chart, viewModel, structure) {
     climate,
     usefulGodHint,
   };
+}
+
+function sumCountMaps(...maps) {
+  return maps.reduce((counts, map) => {
+    for (const [key, value] of Object.entries(map ?? {})) {
+      counts[key] = Number(counts[key] ?? 0) + Number(value ?? 0);
+    }
+    return counts;
+  }, {});
 }
 
 function buildSummary(context, cards) {

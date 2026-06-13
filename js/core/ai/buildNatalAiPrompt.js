@@ -6,6 +6,8 @@ export function buildNatalAiPrompt({ baseBaziViewModel, natalImageReport } = {})
       "你只能根据 natalImageReport 解读，可以引用 baseBaziViewModel 中的基础排盘字段作解释背景。",
       "不能重新排盘，不能推翻或替换前端已经生成的基础盘和原局取象。",
       "不能新增 natalImageReport 之外的强判断；只能把已有 imageCards、keySignals、weakSignals、needVerify 解释得更白话。",
+      "每个主要判断都要引用 natalImageReport.imageCards 里的 evidence，说明该判断来自哪张取象卡及其证据。",
+      "如果某个判断在 imageCards.evidence 中没有对应证据，只能写成待复核线索，不能展开成结论。",
       "不能使用确定性断语。",
       "禁止：一定、必定、绝对、必然、必发财、必离婚、必有灾、必死亡。",
       "输出要白话、结构清晰、像命理师解释给普通用户听。",

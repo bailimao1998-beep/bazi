@@ -39,6 +39,8 @@ const requiredPaths = [
   "js/app.js",
   "js/locationData.js",
   "js/lunarCalendar.js",
+  "js/core/ai/buildNatalAiPrompt.js",
+  "js/core/ai/deepseekClient.js",
   "js/core/ai/aiSettingsClient.js",
   "js/core/blind-bazi/buildNatalImageReport.js",
   "js/core/bazi/buildBaseBaziViewModel.js",
@@ -54,6 +56,7 @@ const requiredPaths = [
   "js/components/birthForm.js",
   "js/components/baseBaziPanel.js",
   "js/components/natalImagePanel.js",
+  "js/components/natalAiNarrativePanel.js",
   "js/components/chartSummary.js",
   "js/components/yearStoryPanel.js",
   "js/components/monthTimeline.js",
@@ -284,10 +287,15 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   const { buildBaseBaziViewModel: buildFrontendBaseBaziViewModel } = await import("../js/core/bazi/buildBaseBaziViewModel.js");
   const { buildBaziRelations } = await import("../js/core/bazi/relations.js");
   const { buildNatalImageReport } = await import("../js/core/blind-bazi/buildNatalImageReport.js");
+  const { buildNatalAiPrompt } = await import("../js/core/ai/buildNatalAiPrompt.js");
+  const { generateWithDeepSeek } = await import("../js/core/ai/deepseekClient.js");
   const appSource = readFileSync("js/app.js", "utf8");
   const aiSettingsClientSource = readFileSync("js/core/ai/aiSettingsClient.js", "utf8");
+  const natalAiPromptSource = readFileSync("js/core/ai/buildNatalAiPrompt.js", "utf8");
+  const deepseekClientSource = readFileSync("js/core/ai/deepseekClient.js", "utf8");
   const basePanelSource = readFileSync("js/components/baseBaziPanel.js", "utf8");
   const natalPanelSource = readFileSync("js/components/natalImagePanel.js", "utf8");
+  const natalAiPanelSource = readFileSync("js/components/natalAiNarrativePanel.js", "utf8");
   const chart = calculateFrontendBazi({
     name: "基础排盘用户",
     birthDate: "1992-08-18",
@@ -297,6 +305,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   });
   const viewModel = buildFrontendBaseBaziViewModel(chart);
   const natalReport = buildNatalImageReport({ chart, baseBaziViewModel: viewModel });
+  const natalPrompt = buildNatalAiPrompt({ baseBaziViewModel: viewModel, natalImageReport: natalReport });
 
   assert.equal(chart.input.name, "基础排盘用户");
   assert.equal(viewModel.birthInfo.name, "基础排盘用户");
@@ -358,6 +367,31 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(natalPanelSource, /原局整体取象/);
   assert.match(natalPanelSource, /keySignals/);
   assert.match(natalPanelSource, /needVerify/);
+  assert.match(natalPrompt.system, /解释层，不是排盘层/);
+  assert.match(natalPrompt.system, /只能根据 natalImageReport 解读/);
+  assert.match(natalPrompt.system, /不能重新排盘/);
+  assert.match(natalPrompt.system, /不能新增 natalImageReport 之外的强判断/);
+  assert.match(natalPrompt.system, /一定、必定、绝对、必然、必发财、必离婚、必有灾、必死亡/);
+  assert.match(natalPrompt.user, /baseBaziViewModel/);
+  assert.match(natalPrompt.user, /natalImageReport/);
+  assert.match(natalPrompt.user, /imageCards/);
+  assert.doesNotMatch(natalPrompt.user, /apiKey|DEEPSEEK_API_KEY|sk-/i);
+  await assert.rejects(
+    () => generateWithDeepSeek({
+      settings: { provider: "deepseek", enabled: true, deepseek: { apiKey: "", endpoint: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" } },
+      prompt: natalPrompt,
+    }),
+    /请先在 AI 设置中填写 DeepSeek API Key/,
+  );
+  assert.match(deepseekClientSource, /fetch\(/);
+  assert.doesNotMatch(deepseekClientSource, /sk-/);
+  assert.doesNotMatch(deepseekClientSource, /\/api\//);
+  assert.match(natalAiPanelSource, /原局 AI 分析/);
+  assert.match(natalAiPanelSource, /生成原局 AI 分析/);
+  assert.match(natalAiPanelSource, /AI 只解释原局取象，不参与排盘和取象/);
+  assert.match(natalAiPanelSource, /loading/);
+  assert.match(natalAiPanelSource, /error/);
+  assert.match(natalAiPanelSource, /text/);
 
   const relationFixtures = [
     { year: "甲子", month: "己丑", day: "丙寅", hour: "辛卯" },
@@ -382,9 +416,16 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(appSource, /import \{ calculateBazi \} from "\.\/core\/bazi\/calculateBazi\.js"/);
   assert.match(appSource, /import \{ buildBaseBaziViewModel \} from "\.\/core\/bazi\/buildBaseBaziViewModel\.js"/);
   assert.match(appSource, /import \{ buildNatalImageReport \} from "\.\/core\/blind-bazi\/buildNatalImageReport\.js"/);
+  assert.match(appSource, /import \{ buildNatalAiPrompt \} from "\.\/core\/ai\/buildNatalAiPrompt\.js"/);
+  assert.match(appSource, /import \{ generateWithDeepSeek \} from "\.\/core\/ai\/deepseekClient\.js"/);
   assert.match(appSource, /import \{ renderNatalImagePanel \} from "\.\/components\/natalImagePanel\.js"/);
+  assert.match(appSource, /import \{ renderNatalAiNarrativePanel \} from "\.\/components\/natalAiNarrativePanel\.js"/);
   assert.match(appSource, /buildNatalImageReport\(\{ chart, baseBaziViewModel \}\)/);
   assert.match(appSource, /renderNatalImagePanel\(roots\.natalImagePanel, state\.natalImageReport\)/);
+  assert.match(appSource, /let natalAiState/);
+  assert.match(appSource, /generateNatalAiNarrative/);
+  assert.match(appSource, /readAiSettings\(\{ includeSecret: true \}\)/);
+  assert.match(appSource, /renderNatalAiNarrativePanel\(roots\.natalAiNarrative/);
   assert.doesNotMatch(appSource, /requestNarrative|\.\/apiClient\.js|\/api\/narrative|\/api\/cases|casePanel/i);
   assert.doesNotMatch(aiSettingsClientSource, /fetch\(|\/api\//);
 });

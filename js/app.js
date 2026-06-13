@@ -1,4 +1,6 @@
 import { readAiSettings, saveAiSettings } from "./core/ai/aiSettingsClient.js";
+import { buildNatalAiPrompt } from "./core/ai/buildNatalAiPrompt.js";
+import { generateWithDeepSeek } from "./core/ai/deepseekClient.js";
 import { buildNatalImageReport } from "./core/blind-bazi/buildNatalImageReport.js";
 import { buildBaseBaziViewModel } from "./core/bazi/buildBaseBaziViewModel.js";
 import { calculateBazi } from "./core/bazi/calculateBazi.js";
@@ -6,6 +8,7 @@ import { renderAiSettingsPanel } from "./components/aiSettingsPanel.js";
 import { renderBaseBaziPanel } from "./components/baseBaziPanel.js";
 import { renderBirthForm } from "./components/birthForm.js";
 import { renderDebugPanel } from "./components/debugPanel.js";
+import { renderNatalAiNarrativePanel } from "./components/natalAiNarrativePanel.js";
 import { renderNatalImagePanel } from "./components/natalImagePanel.js";
 
 const roots = {
@@ -29,6 +32,11 @@ let state = null;
 let aiSettingsState = {
   settings: readAiSettings(),
   status: "AI 设置保存在当前浏览器 localStorage。",
+};
+let natalAiState = {
+  loading: false,
+  text: "",
+  error: "",
 };
 let currentInput = {
   name: "测试用户",
@@ -60,6 +68,7 @@ function refresh() {
     const baseBaziViewModel = buildBaseBaziViewModel(chart);
     const natalImageReport = buildNatalImageReport({ chart, baseBaziViewModel });
     state = { input: currentInput, chart, baseBaziViewModel, natalImageReport };
+    natalAiState = { loading: false, text: "", error: "" };
     renderBaseOnly();
     roots.status.textContent = "基础排盘已完成。";
   } catch (error) {
@@ -90,7 +99,11 @@ function renderAiSettings() {
 function renderShell() {
   renderBaseBaziPanel(roots.baseBaziPanel, null);
   renderNatalImagePanel(roots.natalImagePanel, null);
-  renderPlaceholderPanel(roots.natalAiNarrative, "原局 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderNatalAiNarrativePanel(roots.natalAiNarrative, {
+    state: natalAiState,
+    hasReport: false,
+    onGenerate: generateNatalAiNarrative,
+  });
   renderPlaceholderPanel(roots.luckImagePanel, "大运取象");
   renderPlaceholderPanel(roots.luckAiNarrative, "大运 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.yearImagePanel, "流年取象");
@@ -104,7 +117,11 @@ function renderShell() {
 function renderBaseOnly() {
   renderBaseBaziPanel(roots.baseBaziPanel, state.baseBaziViewModel);
   renderNatalImagePanel(roots.natalImagePanel, state.natalImageReport);
-  renderPlaceholderPanel(roots.natalAiNarrative, "原局 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
+  renderNatalAiNarrativePanel(roots.natalAiNarrative, {
+    state: natalAiState,
+    hasReport: Boolean(state.natalImageReport),
+    onGenerate: generateNatalAiNarrative,
+  });
   renderPlaceholderPanel(roots.luckImagePanel, "大运取象");
   renderPlaceholderPanel(roots.luckAiNarrative, "大运 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.yearImagePanel, "流年取象");
@@ -113,6 +130,23 @@ function renderBaseOnly() {
   renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
   renderDebugPanel(roots.debug, state);
+}
+
+async function generateNatalAiNarrative() {
+  natalAiState = { loading: true, text: "", error: "" };
+  renderBaseOnly();
+  try {
+    const settings = readAiSettings({ includeSecret: true });
+    const prompt = buildNatalAiPrompt({
+      baseBaziViewModel: state.baseBaziViewModel,
+      natalImageReport: state.natalImageReport,
+    });
+    const result = await generateWithDeepSeek({ settings, prompt });
+    natalAiState = { loading: false, text: result.text, error: "" };
+  } catch (error) {
+    natalAiState = { loading: false, text: "", error: error.message };
+  }
+  renderBaseOnly();
 }
 
 function renderBaseError(error) {

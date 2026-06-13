@@ -1,7 +1,10 @@
 import { createReadStream, existsSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-export function staticRoute(url, response, publicRoot = process.cwd()) {
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+
+export function staticRoute(url, response, publicRoot = projectRoot) {
   serveStatic(url.pathname, response, publicRoot);
   return true;
 }

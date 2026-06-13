@@ -9,7 +9,7 @@
 - 规则由 `server/core/rules` 读取本地 JSON。
 - 剧情标签和 prompt 由 `server/core/story` 生成。
 - AI provider 只负责叙事，不参与排盘、取象或触发判断。
-- 默认 provider 是 `mock`，配置在 `config/ai-config.json`。
+- 默认提交配置模板是 `config/ai-config.example.json`，本机真实配置放在 ignored 的 `config/ai-config.json`。
 
 ## 使用方式
 
@@ -46,9 +46,7 @@ npm run package:win
 
 `js/app.bundle.js` 和 `index.offline.html` 保留为 legacy/offline 纯前端演示入口，只用于旧版本地展示，不参与盲派八字断盘工作台主链路。
 
-桌面应用仍然通过本地后端读取配置或环境变量，浏览器页面不会直接读取 DeepSeek API Key。
-桌面版可在页面里的“AI 配置”面板保存 DeepSeek 设置；Key 写入 Electron `userData` 目录的 `ai-settings.json`，页面只读取脱敏后的 `maskedApiKey`，例如 `sk-****abcd`。
-不要把 API Key 写入 `config/ai-config.json`。本地测试请使用 AI 设置页，或使用 `config/local-ai-settings.json`；`config/local-ai-settings.json` 已在 `.gitignore` 中，不应提交到 GitHub。
+页面启动时会尝试读取本机 `config/ai-config.json`。该文件已加入 `.gitignore`，不要提交真实 DeepSeek Key；仓库只保留 `config/ai-config.example.json` 作为格式示例。
 
 ## 测试
 

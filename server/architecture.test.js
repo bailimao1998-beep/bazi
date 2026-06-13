@@ -29,7 +29,7 @@ import { loadLocalAiProviderOptions } from "./config/aiConfigLoader.js";
 import { createAiProvider } from "./core/ai/aiProvider.js";
 import { loadJson } from "./utils/jsonLoader.js";
 import { formatLunarDate, lunarToSolar, solarToLunar } from "./utils/lunarCalendar.js";
-import { readAiSettings as readBrowserAiSettings } from "../js/core/ai/aiSettingsClient.js";
+import { loadRuntimeAiSettings as loadBrowserRuntimeAiSettings, readAiSettings as readBrowserAiSettings } from "../js/core/ai/aiSettingsClient.js";
 import { renderAiNarrativePanel } from "../js/components/aiNarrativePanel.js";
 import { renderEvidenceCards } from "../js/components/evidenceCards.js";
 
@@ -155,7 +155,7 @@ const requiredPaths = [
   "data/mock/mock-chart.json",
   "data/mock/mock-year-story-tags.json",
   "data/mock/mock-ai-response.json",
-  "config/ai-config.json",
+  "config/ai-config.example.json",
   "README.md",
 ];
 
@@ -197,40 +197,52 @@ test("project exposes the requested fortune-ai architecture", () => {
   assert.equal(existsSync("src"), false, "legacy src directory should be removed");
 });
 
-test("browser AI generation can read local DeepSeek config before app startup", () => {
+test("browser AI generation can read runtime DeepSeek config before app startup", async () => {
   const html = readFileSync("index.html", "utf8");
-  const localConfigIndex = html.indexOf("js/local-deepseek-config.local.js");
   const appIndex = html.indexOf("js/app.js");
-  assert.ok(localConfigIndex > -1, "index.html should load the local DeepSeek config");
-  assert.ok(appIndex > localConfigIndex, "local DeepSeek config should load before js/app.js");
+  assert.ok(appIndex > -1, "index.html should load js/app.js");
+  assert.doesNotMatch(html, /js\/local-deepseek-config\.local\.js/);
 
-  const previousConfig = globalThis.LOCAL_DEEPSEEK_CONFIG;
+  const previousFetch = globalThis.fetch;
   const previousStorage = globalThis.localStorage;
   delete globalThis.localStorage;
-  globalThis.LOCAL_DEEPSEEK_CONFIG = {
-    enabled: true,
-    provider: "deepseek",
-    apiKey: "sk-local-test-key",
-    endpoint: "https://example.test/chat/completions",
-    model: "deepseek-local-test",
+  globalThis.fetch = async (url, options) => {
+    assert.equal(url, "/config/ai-config.json");
+    assert.equal(options.cache, "no-store");
+    return {
+      ok: true,
+      async json() {
+        return {
+          enabled: true,
+          provider: "deepseek",
+          deepseek: {
+            apiKey: "sk-runtime-test-key",
+            endpoint: "https://example.test/chat/completions",
+            model: "deepseek-runtime-test",
+          },
+        };
+      },
+    };
   };
 
   try {
+    const runtimeSettings = await loadBrowserRuntimeAiSettings();
     const settings = readBrowserAiSettings({ includeSecret: true });
     const publicSettings = readBrowserAiSettings();
+    assert.equal(runtimeSettings.deepseek.apiKey, "sk-runtime-test-key");
     assert.equal(settings.enabled, true);
     assert.equal(settings.provider, "deepseek");
-    assert.equal(settings.deepseek.apiKey, "sk-local-test-key");
+    assert.equal(settings.deepseek.apiKey, "sk-runtime-test-key");
     assert.equal(settings.deepseek.endpoint, "https://example.test/chat/completions");
-    assert.equal(settings.deepseek.model, "deepseek-local-test");
+    assert.equal(settings.deepseek.model, "deepseek-runtime-test");
     assert.equal(publicSettings.deepseek.apiKey, undefined);
     assert.equal(publicSettings.deepseek.hasApiKey, true);
     assert.equal(publicSettings.deepseek.maskedApiKey, "sk-****-key");
   } finally {
-    if (previousConfig === undefined) {
-      delete globalThis.LOCAL_DEEPSEEK_CONFIG;
+    if (previousFetch === undefined) {
+      delete globalThis.fetch;
     } else {
-      globalThis.LOCAL_DEEPSEEK_CONFIG = previousConfig;
+      globalThis.fetch = previousFetch;
     }
     if (previousStorage === undefined) {
       delete globalThis.localStorage;
@@ -463,19 +475,22 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(appSource, /import \{ buildBaseBaziViewModel \} from "\.\/core\/bazi\/buildBaseBaziViewModel\.js"/);
   assert.match(appSource, /import \{ buildNatalImageReport \} from "\.\/core\/blind-bazi\/buildNatalImageReport\.js"/);
   assert.match(appSource, /import \{ buildNatalAiPrompt \} from "\.\/core\/ai\/buildNatalAiPrompt\.js"/);
+  assert.match(appSource, /import \{ loadRuntimeAiSettings, readAiSettings, saveAiSettings \} from "\.\/core\/ai\/aiSettingsClient\.js\?v=20260613c"/);
   assert.match(appSource, /import \{ generateWithDeepSeek \} from "\.\/core\/ai\/deepseekClient\.js\?v=20260613b"/);
   assert.match(appSource, /import \{ renderNatalImagePanel \} from "\.\/components\/natalImagePanel\.js"/);
   assert.match(appSource, /import \{ renderNatalAiNarrativePanel \} from "\.\/components\/natalAiNarrativePanel\.js"/);
   assert.match(appSource, /buildNatalImageReport\(\{ chart, baseBaziViewModel \}\)/);
   assert.match(appSource, /renderNatalImagePanel\(roots\.natalImagePanel, state\.natalImageReport\)/);
   assert.match(appSource, /let natalAiState/);
+  assert.match(appSource, /async function init/);
+  assert.match(appSource, /await loadRuntimeAiSettings\(\)/);
   assert.match(appSource, /generateNatalAiNarrative/);
-  assert.match(appSource, /ensureLocalDeepSeekConfigLoaded/);
-  assert.ok(appSource.indexOf("await ensureLocalDeepSeekConfigLoaded()") < appSource.indexOf("readAiSettings({ includeSecret: true })"));
+  assert.doesNotMatch(appSource, /ensureLocalDeepSeekConfigLoaded|localDeepSeekConfigLoadingPromise|local-deepseek-config\.local\.js|FortuneLocalAiConfig|LOCAL_DEEPSEEK_CONFIG/);
   assert.match(appSource, /readAiSettings\(\{ includeSecret: true \}\)/);
   assert.match(appSource, /renderNatalAiNarrativePanel\(roots\.natalAiNarrative/);
   assert.doesNotMatch(appSource, /requestNarrative|\.\/apiClient\.js|\/api\/narrative|\/api\/cases|casePanel/i);
-  assert.doesNotMatch(aiSettingsClientSource, /fetch\(|\/api\//);
+  assert.match(aiSettingsClientSource, /fetch\("\/config\/ai-config\.json", \{ cache: "no-store" \}\)/);
+  assert.doesNotMatch(aiSettingsClientSource, /\/api\//);
 });
 
 test("flow AI modes build structured prompts and mock reports without model-side divination", async () => {
@@ -1646,9 +1661,8 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
 
   assert.equal(global.window.FortuneLocationData.cities.length, 3337);
   assert.doesNotMatch(index, /js\/app\.bundle\.js/);
-  assert.match(index, /<script\s+src="js\/local-deepseek-config\.local\.js"><\/script>/);
-  assert.ok(index.indexOf("js/local-deepseek-config.local.js") < index.indexOf("js/app.js"));
-  assert.match(index, /<script\s+type="module"\s+src="js\/app\.js\?v=20260613b"><\/script>/);
+  assert.doesNotMatch(index, /js\/local-deepseek-config\.local\.js/);
+  assert.match(index, /<script\s+type="module"\s+src="js\/app\.js\?v=20260613c"><\/script>/);
   assert.doesNotMatch(index, /id="coreSignals"|id="yearStory"|id="monthTimeline"|id="casePanel"|id="chartSummary"|id="aiNarrative"/);
   const orderedPanels = [
     "birthForm",
@@ -1687,12 +1701,15 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.doesNotMatch(appSource, /renderChatPanel/);
   assert.match(aiSettingsClientSource, /localStorage/);
   assert.match(aiSettingsClientSource, /readAiSettings/);
+  assert.match(aiSettingsClientSource, /loadRuntimeAiSettings/);
+  assert.match(aiSettingsClientSource, /\/config\/ai-config\.json/);
   assert.match(aiSettingsClientSource, /saveAiSettings/);
   assert.match(aiSettingsClientSource, /maskApiKey/);
-  assert.match(aiSettingsClientSource, /LOCAL_DEEPSEEK_CONFIG/);
-  assert.doesNotMatch(aiSettingsClientSource, /fetch\(|\/api\//);
-  assert.match(aiSettingsPanelSource, /已检测到本地 DeepSeek Key/);
-  assert.match(aiSettingsPanelSource, /未检测到 js\/local-deepseek-config\.local\.js/);
+  assert.doesNotMatch(aiSettingsClientSource, /LOCAL_DEEPSEEK_CONFIG|FortuneLocalAiConfig|local-deepseek-config\.local\.js/);
+  assert.match(aiSettingsClientSource, /fetch\("\/config\/ai-config\.json", \{ cache: "no-store" \}\)/);
+  assert.doesNotMatch(aiSettingsClientSource, /\/api\//);
+  assert.match(aiSettingsPanelSource, /已读取 config\/ai-config\.json/);
+  assert.match(aiSettingsPanelSource, /未检测到 config\/ai-config\.json/);
   assert.doesNotMatch(aiSettingsPanelSource, /type="password"/);
   assert.doesNotMatch(aiSettingsPanelSource, /data-ai-save/);
   assert.match(bundle, /function renderEvidenceCards/);
@@ -1838,7 +1855,7 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.match(styles, /chat-widget\.is-open \.chat-toggle/);
   assert.match(styles, /chat-window\[hidden\]/);
   assert.match(styles, /typing-caret/);
-  assert.match(offlineIndex, /js\/local-deepseek-config\.local\.js/);
+  assert.doesNotMatch(offlineIndex, /js\/local-deepseek-config\.local\.js/);
   assert.doesNotMatch(staticRouteSource, /normalized === "\/js\/local-deepseek-config\.local\.js"/);
   assert.match(staticRouteSource, /response\.writeHead\(404\)/);
   assert.match(bundle, /function getBrowserDeepseekConfig/);
@@ -1847,7 +1864,6 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.match(bundle, /DEEPSEEK_BROWSER_DIRECT/);
   assert.match(bundle, /response_format/);
   assert.match(bundle, /json_object/);
-  assert.match(bundle, /window\.FortuneLocalAiConfig/);
   assert.match(bundle, /location\.protocol === "file:"/);
   assert.match(bundle, /文件模式：使用本地占位 AI 辅助取象/);
   assert.match(bundle, /engine: "transitSignalEngine"/);
@@ -2001,12 +2017,11 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.match(deepseekProvider, /json_object/);
   assert.match(deepseekProvider, /parseFlowReport/);
   assert.match(deepseekProvider, /deepseek-v4-flash/);
-  const aiConfig = readFileSync("config/ai-config.json", "utf8");
+  const aiConfig = readFileSync("config/ai-config.example.json", "utf8");
   const aiConfigJson = JSON.parse(aiConfig);
-  assert.equal(aiConfigJson.provider, "mock");
+  assert.equal(aiConfigJson.provider, "deepseek");
   assert.equal(aiConfigJson.deepseek.model, "deepseek-chat");
-  assert.equal(aiConfigJson.deepseek.apiKey, undefined);
-  assert.doesNotMatch(aiConfig, /apiKey/);
+  assert.equal(aiConfigJson.deepseek.apiKey, "");
   assert.doesNotMatch(aiConfig, /sk-/);
   assert.match(bundle, /地支六害/);
   assert.match(bundle, /\["子", "未"\]/);
@@ -2139,7 +2154,29 @@ test("EvidenceCards renders timing cards and tolerates empty timing data", () =>
   assert.match(root.innerHTML, /暂无明确应期卡片。/);
 });
 
-test("local server can serve ignored DeepSeek config to the browser when present", async () => {
+test("static route default public root is project root even when cwd changes", async () => {
+  const originalCwd = process.cwd();
+  const tempCwd = mkdtempSync(path.join(os.tmpdir(), "fortune-ai-cwd-"));
+  const hasRuntimeAiConfig = existsSync(path.join(originalCwd, "config/ai-config.json"));
+
+  try {
+    process.chdir(tempCwd);
+    const indexResponse = await captureStaticRoute("/index.html");
+    const appResponse = await captureStaticRoute("/js/app.js");
+    const runtimeConfigResponse = await captureStaticRoute("/config/ai-config.json");
+
+    assert.equal(indexResponse.statusCode, 200);
+    assert.match(indexResponse.body, /js\/app\.js/);
+    assert.equal(appResponse.statusCode, 200);
+    assert.match(appResponse.body, /generateNatalAiNarrative/);
+    assert.equal(runtimeConfigResponse.statusCode, hasRuntimeAiConfig ? 200 : 404);
+  } finally {
+    process.chdir(originalCwd);
+    rmSync(tempCwd, { recursive: true, force: true });
+  }
+});
+
+test("local server can serve ignored ai config to the browser when present", async () => {
   const serverSource = readFileSync("server/server.js", "utf8");
   const narrativeRouteSource = readFileSync("server/routes/narrativeRoute.js", "utf8");
   const chatRouteSource = readFileSync("server/routes/chatRoute.js", "utf8");
@@ -2149,26 +2186,35 @@ test("local server can serve ignored DeepSeek config to the browser when present
   const gitignore = readFileSync(".gitignore", "utf8");
   const publicRoot = mkdtempSync(path.join(os.tmpdir(), "fortune-ai-static-"));
 
-  mkdirSync(path.join(publicRoot, "js"));
+  mkdirSync(path.join(publicRoot, "config"));
   writeFileSync(
-    path.join(publicRoot, "js/local-deepseek-config.local.js"),
-    'window.LOCAL_DEEPSEEK_CONFIG = { enabled: true, provider: "deepseek", apiKey: "sk-test-local", endpoint: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" };',
+    path.join(publicRoot, "config/ai-config.json"),
+    JSON.stringify({
+      enabled: true,
+      provider: "deepseek",
+      deepseek: {
+        apiKey: "sk-test-local",
+        endpoint: "https://api.deepseek.com/chat/completions",
+        model: "deepseek-chat",
+      },
+    }),
   );
 
   try {
-    const servedConfig = await captureStaticRoute("/js/local-deepseek-config.local.js", publicRoot);
-    const missingConfig = await captureStaticRoute("/js/missing-local-deepseek-config.local.js", publicRoot);
+    const servedConfig = await captureStaticRoute("/config/ai-config.json", publicRoot);
+    const missingConfig = await captureStaticRoute("/config/missing-ai-config.json", publicRoot);
 
     assert.equal(servedConfig.statusCode, 200);
-    assert.match(servedConfig.body, /LOCAL_DEEPSEEK_CONFIG/);
+    assert.match(servedConfig.body, /deepseek/);
     assert.equal(missingConfig.statusCode, 404);
     assert.match(aiConfigSource, /function loadLocalAiProviderOptions/);
     assert.match(narrativeRouteSource, /buildNarrative\(input, loadLocalAiProviderOptions\(\)\)/);
     assert.match(chatRouteSource, /buildChatResponse\(input, loadLocalAiProviderOptions\(\)\)/);
     assert.match(settingsRouteSource, /\/api\/settings\/ai/);
     assert.match(settingsRouteSource, /\/api\/settings\/ai\/test/);
-    assert.doesNotMatch(staticRouteSource, /normalized === "\/js\/local-deepseek-config\.local\.js"/);
+    assert.doesNotMatch(staticRouteSource, /process\.cwd\(\)/);
     assert.match(gitignore, /config\/local-ai-settings\.json/);
+    assert.match(gitignore, /^config\/ai-config\.json$/m);
     assert.match(serverSource, /narrativeRoute\(request, response, url\)/);
     assert.match(serverSource, /chatRoute\(request, response, url\)/);
     assert.match(serverSource, /aiSettingsRoute\(request, response, url\)/);
@@ -2184,7 +2230,7 @@ test("local server can serve ignored DeepSeek config to the browser when present
 });
 
 test("default repository files do not contain committed API keys", () => {
-  const aiConfig = readFileSync("config/ai-config.json", "utf8");
+  const aiConfig = readFileSync("config/ai-config.example.json", "utf8");
   const gitignore = readFileSync(".gitignore", "utf8");
   const scannedFiles = collectTextFiles(["README.md", "js", "server"], {
     exclude: new Set([
@@ -2195,7 +2241,9 @@ test("default repository files do not contain committed API keys", () => {
   const secretPattern = /sk-[A-Za-z0-9_-]{16,}/;
   const hits = scannedFiles.filter((filePath) => secretPattern.test(readFileSync(filePath, "utf8")));
 
-  assert.doesNotMatch(aiConfig, /apiKey|sk-/);
+  assert.doesNotMatch(aiConfig, /sk-/);
+  assert.match(aiConfig, /"apiKey": ""/);
+  assert.match(gitignore, /^config\/ai-config\.json$/m);
   assert.match(gitignore, /^config\/local-ai-settings\.json$/m);
   assert.match(gitignore, /^js\/local-deepseek-config\.local\.js$/m);
   assert.match(gitignore, /^\.env$/m);

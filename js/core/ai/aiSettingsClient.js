@@ -8,9 +8,32 @@ const defaultSettings = {
     model: "deepseek-chat",
   },
 };
+let runtimeAiSettings = null;
+
+export async function loadRuntimeAiSettings() {
+  try {
+    const response = await fetch("/config/ai-config.json", { cache: "no-store" });
+    if (!response.ok) return null;
+    const config = await response.json();
+    const apiKey = String(config?.deepseek?.apiKey ?? config?.apiKey ?? "").trim();
+    if (!apiKey) return null;
+    runtimeAiSettings = normalizeSettings({
+      enabled: true,
+      provider: "deepseek",
+      deepseek: {
+        apiKey,
+        endpoint: config.deepseek?.endpoint ?? config.endpoint ?? defaultSettings.deepseek.endpoint,
+        model: config.deepseek?.model ?? config.model ?? defaultSettings.deepseek.model,
+      },
+    });
+    return runtimeAiSettings;
+  } catch {
+    return null;
+  }
+}
 
 export function readAiSettings({ includeSecret = false } = {}) {
-  const settings = normalizeSettings(readLocalDeepSeekSettings() ?? readStoredSettings());
+  const settings = normalizeSettings(runtimeAiSettings ?? readStoredSettings());
   return includeSecret ? settings : publicSettings(settings);
 }
 
@@ -43,42 +66,6 @@ function readStoredSettings() {
   } catch {
     return defaultSettings;
   }
-}
-
-function readLocalDeepSeekSettings() {
-  const config = normalizeLocalDeepSeekConfig(getLocalDeepSeekConfig());
-  const apiKey = String(config?.apiKey ?? "").trim();
-  if (!apiKey) return null;
-  return {
-    enabled: true,
-    provider: "deepseek",
-    deepseek: {
-      apiKey,
-      endpoint: String(config.endpoint ?? defaultSettings.deepseek.endpoint).trim() || defaultSettings.deepseek.endpoint,
-      model: String(config.model ?? defaultSettings.deepseek.model).trim() || defaultSettings.deepseek.model,
-    },
-  };
-}
-
-function getLocalDeepSeekConfig() {
-  try {
-    return globalThis.LOCAL_DEEPSEEK_CONFIG
-      ?? globalThis.window?.LOCAL_DEEPSEEK_CONFIG
-      ?? globalThis.FortuneLocalAiConfig
-      ?? globalThis.window?.FortuneLocalAiConfig
-      ?? null;
-  } catch {
-    return null;
-  }
-}
-
-function normalizeLocalDeepSeekConfig(config) {
-  if (!config) return null;
-  return {
-    apiKey: config.apiKey ?? config.deepseekApiKey,
-    endpoint: config.endpoint ?? config.deepseekEndpoint,
-    model: config.model ?? config.deepseekModel,
-  };
 }
 
 function normalizeSettings(input = {}, existing = defaultSettings) {

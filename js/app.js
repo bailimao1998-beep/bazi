@@ -1,10 +1,10 @@
-import { readAiSettings, saveAiSettings } from "./core/ai/aiSettingsClient.js?v=20260613b";
+import { loadRuntimeAiSettings, readAiSettings, saveAiSettings } from "./core/ai/aiSettingsClient.js?v=20260613c";
 import { buildNatalAiPrompt } from "./core/ai/buildNatalAiPrompt.js";
 import { generateWithDeepSeek } from "./core/ai/deepseekClient.js?v=20260613b";
 import { buildNatalImageReport } from "./core/blind-bazi/buildNatalImageReport.js";
 import { buildBaseBaziViewModel } from "./core/bazi/buildBaseBaziViewModel.js";
 import { calculateBazi } from "./core/bazi/calculateBazi.js";
-import { renderAiSettingsPanel } from "./components/aiSettingsPanel.js?v=20260613b";
+import { renderAiSettingsPanel } from "./components/aiSettingsPanel.js?v=20260613c";
 import { renderBaseBaziPanel } from "./components/baseBaziPanel.js";
 import { renderBirthForm } from "./components/birthForm.js";
 import { renderDebugPanel } from "./components/debugPanel.js";
@@ -31,14 +31,13 @@ const roots = {
 let state = null;
 let aiSettingsState = {
   settings: readAiSettings(),
-  status: "AI 设置保存在当前浏览器 localStorage。",
+  status: "正在读取 config/ai-config.json。",
 };
 let natalAiState = {
   loading: false,
   text: "",
   error: "",
 };
-let localDeepSeekConfigLoadingPromise = null;
 let currentInput = {
   name: "测试用户",
   birthDate: "1949-10-01",
@@ -50,17 +49,30 @@ let currentInput = {
   trueSolarTime: false,
 };
 
-renderBirthForm(roots.birthForm, {
-  initialValue: currentInput,
-  onSubmit(payload) {
-    currentInput = { ...currentInput, ...payload };
-    refresh();
-  },
-});
+init();
 
-renderShell();
-renderAiSettings();
-refresh();
+async function init() {
+  await loadRuntimeAiSettings();
+  const settings = readAiSettings();
+  aiSettingsState = {
+    settings,
+    status: settings.deepseek?.hasApiKey
+      ? "已读取 config/ai-config.json 中的 DeepSeek Key。"
+      : "未检测到 config/ai-config.json 中的 DeepSeek Key。",
+  };
+
+  renderBirthForm(roots.birthForm, {
+    initialValue: currentInput,
+    onSubmit(payload) {
+      currentInput = { ...currentInput, ...payload };
+      refresh();
+    },
+  });
+
+  renderShell();
+  renderAiSettings();
+  refresh();
+}
 
 function refresh() {
   roots.status.textContent = "正在前端排盘...";
@@ -80,21 +92,7 @@ function refresh() {
 }
 
 function renderAiSettings() {
-  renderAiSettingsPanel(roots.aiSettings, aiSettingsState, {
-    async onSave(payload) {
-      try {
-        const result = await saveAiSettings(payload);
-        aiSettingsState = { settings: result, status: "AI 设置已保存到浏览器 localStorage。" };
-      } catch (error) {
-        aiSettingsState = { ...aiSettingsState, status: error.message };
-      }
-      renderAiSettings();
-    },
-    onTest() {
-      aiSettingsState = { ...aiSettingsState, status: "AI 解读待接入。当前系统先保证纯前端排盘与取象。" };
-      renderAiSettings();
-    },
-  });
+  renderAiSettingsPanel(roots.aiSettings, aiSettingsState);
 }
 
 function renderShell() {
@@ -137,7 +135,6 @@ async function generateNatalAiNarrative() {
   natalAiState = { loading: true, text: "", error: "" };
   renderBaseOnly();
   try {
-    await ensureLocalDeepSeekConfigLoaded();
     const settings = readAiSettings({ includeSecret: true });
     const prompt = buildNatalAiPrompt({
       baseBaziViewModel: state.baseBaziViewModel,
@@ -149,24 +146,6 @@ async function generateNatalAiNarrative() {
     natalAiState = { loading: false, text: "", error: error.message };
   }
   renderBaseOnly();
-}
-
-function ensureLocalDeepSeekConfigLoaded() {
-  if (hasLocalDeepSeekConfig()) return Promise.resolve();
-  if (localDeepSeekConfigLoadingPromise) return localDeepSeekConfigLoadingPromise;
-  localDeepSeekConfigLoadingPromise = new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = `js/local-deepseek-config.local.js?v=${Date.now()}`;
-    script.onload = () => resolve();
-    script.onerror = () => resolve();
-    document.head.append(script);
-  });
-  return localDeepSeekConfigLoadingPromise;
-}
-
-function hasLocalDeepSeekConfig() {
-  const config = globalThis.LOCAL_DEEPSEEK_CONFIG ?? globalThis.FortuneLocalAiConfig ?? null;
-  return Boolean(config?.apiKey || config?.deepseekApiKey);
 }
 
 function renderBaseError(error) {

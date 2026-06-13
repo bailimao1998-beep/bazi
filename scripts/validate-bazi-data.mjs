@@ -17,7 +17,7 @@ const required = [
   "data/mock/mock-chart.json",
   "data/mock/mock-year-story-tags.json",
   "data/mock/mock-ai-response.json",
-  "config/ai-config.json",
+  "config/ai-config.example.json",
 ];
 
 const forbidden = /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/;

@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "provider": "deepseek",
+  "deepseek": {
+    "apiKey": "sk-3ce35c3323bb4dff9ed5c732a60d0d0b",
+    "endpoint": "https://api.deepseek.com/chat/completions",
+    "model": "deepseek-chat"
+  }
+}

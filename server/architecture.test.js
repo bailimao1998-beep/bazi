@@ -436,7 +436,9 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.ok(luckReport.luckItems.every((item) => item.ageRange && item.yearRange && item.ganZhi));
   assert.ok(luckReport.luckItems.every((item) => item.stem && item.branch && item.tenGod));
   assert.ok(luckReport.luckItems.every((item) => Array.isArray(item.relationToNatal)));
-  assert.ok(luckReport.luckItems.every((item) => item.image && item.reality && item.boundary));
+  assert.ok(luckReport.luckItems.every((item) => item.image && item.structureImage && item.reality && item.boundary));
+  assert.ok(luckReport.luckItems.every((item) => !/地支主气|原局关系触发/.test(item.image)));
+  assert.ok(luckReport.luckItems.every((item) => /地支主气十神|原局关系触发/.test(item.structureImage)));
   assert.ok(luckReport.luckItems.every((item) => /^(high|medium|low)$/.test(item.confidence)));
   assert.equal(luckReport.luckItems.filter((item) => item.isCurrent).length, 1);
   assert.equal(luckReport.luckItems.find((item) => item.isCurrent)?.yearRange, `${viewModel.luckCycles[1].startYear}-${viewModel.luckCycles[1].endYear}`);
@@ -458,11 +460,43 @@ test("frontend bazi modules calculate and render base chart without server APIs"
       },
       structureAnalysis: chart.structureAnalysis,
     },
-    natalImageReport: natalReport,
+    natalImageReport: { summary: { usefulHint: "当前强弱初判为weak，这里只作为后续取象的元素方向提示。" } },
   });
   assert.equal(relationLuckReport.luckItems[0].isCurrent, true);
+  assert.equal(relationLuckReport.luckItems[0].confidence, "high");
+  assert.doesNotMatch(relationLuckReport.luckItems[0].boundary, /\bweak\b|\bstrong\b|\bbalanced\b|\bmedium\b|\bmixed\b/);
+  assert.match(relationLuckReport.luckItems[0].boundary, /偏弱/);
+  assert.match(relationLuckReport.luckItems[0].image, /^辛未大运偏向正官/);
+  assert.doesNotMatch(relationLuckReport.luckItems[0].image, /地支主气十神|原局关系触发/);
+  assert.match(relationLuckReport.luckItems[0].structureImage, /地支主气十神/);
+  assert.match(relationLuckReport.luckItems[0].structureImage, /原局关系触发/);
   assert.match(relationLuckReport.luckItems[0].relationToNatal.map((item) => item.description).join(" "), /冲年支丑：早年、家庭、根基结构被牵动，变化、拉扯、动荡/);
   assert.match(relationLuckReport.luckItems[0].relationToNatal.map((item) => item.description).join(" "), /害日支子：关系宫、亲密关系、合作模式被牵动，暗中牵制、不顺畅/);
+  const currentNoRelationReport = buildLuckImageReport({
+    targetYear: 2025,
+    chart: {
+      dayMaster: { stem: "甲", label: "甲日主" },
+      pillars: { year: { label: "己丑", branch: "丑" } },
+      luckCycles: {
+        pillars: [{ index: 1, label: "壬申", stem: "壬", branch: "申", startAge: 10, endAge: 19, startYear: 2020, endYear: 2029 }],
+      },
+      structureAnalysis: { usefulGodHint: { reasoning: "当前强弱初判为strong，mixed仍需复核。" } },
+    },
+  });
+  assert.equal(currentNoRelationReport.luckItems[0].confidence, "medium");
+  assert.match(currentNoRelationReport.luckItems[0].boundary, /偏强/);
+  assert.match(currentNoRelationReport.luckItems[0].boundary, /需复核/);
+  const relationNotCurrentReport = buildLuckImageReport({
+    targetYear: 1999,
+    chart: {
+      dayMaster: { stem: "甲", label: "甲日主" },
+      pillars: { year: { label: "己丑", branch: "丑" } },
+      luckCycles: {
+        pillars: [{ index: 1, label: "辛未", stem: "辛", branch: "未", startAge: 10, endAge: 19, startYear: 2000, endYear: 2009 }],
+      },
+    },
+  });
+  assert.equal(relationNotCurrentReport.luckItems[0].confidence, "medium");
   const emptyLuckReport = buildLuckImageReport({
     chart: { dayMaster: chart.dayMaster, pillars: chart.pillars, luckCycles: { pillars: [] }, structureAnalysis: chart.structureAnalysis },
     baseBaziViewModel: { ...viewModel, luckCycles: [] },
@@ -529,6 +563,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
       isCurrent: true,
       relationToNatal: [{ natalPillar: "日支午", members: "子午", type: "冲", effect: "冲动" }],
       image: "简短取象测试",
+      structureImage: "结构取象测试",
       reality: "现实观察测试",
       boundary: "边界提醒测试",
       confidence: "medium",
@@ -537,6 +572,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(luckPanelRoot.innerHTML, /current-luck-card/);
   assert.match(luckPanelRoot.innerHTML, /当前大运/);
   assert.match(luckPanelRoot.innerHTML, /展开详情/);
+  assert.match(luckPanelRoot.innerHTML, /结构取象测试/);
   assert.match(luckPanelRoot.innerHTML, /data-luck-detail-toggle/);
   assert.match(luckPanelRoot.innerHTML, /data-luck-detail=/);
   assert.match(luckPanelRoot.innerHTML, /hidden/);

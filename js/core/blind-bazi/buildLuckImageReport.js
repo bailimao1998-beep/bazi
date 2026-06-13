@@ -111,6 +111,8 @@ function buildLuckItem(pillar, index, context) {
   const relationToNatal = findRelationToNatal(branch, context.natalBranches);
   const theme = tenGodThemes[tenGod] ?? "阶段主题待复核";
   const branchTheme = tenGodThemes[branchTenGod] ?? "地支环境待复核";
+  const isCurrent = isCurrentLuck(pillar, context.targetYear);
+  const label = pillar.label ?? `${stem}${branch}`;
   const relationText = relationToNatal.length
     ? `与原局${relationToNatal.map((item) => `${item.natalPillar}${item.type}`).join("、")}，这步运容易触发原局对应结构。`
     : "与原局四支暂未命中冲、合、刑、害、破，先以十神和地支环境观察。";
@@ -119,16 +121,17 @@ function buildLuckItem(pillar, index, context) {
     index: pillar.index ?? index + 1,
     ageRange: `${pillar.startAge ?? ""}-${pillar.endAge ?? ""}岁`,
     yearRange: `${pillar.startYear ?? ""}-${pillar.endYear ?? ""}`,
-    ganZhi: pillar.label ?? `${stem}${branch}`,
+    ganZhi: label,
     stem,
     branch,
     tenGod,
-    isCurrent: isCurrentLuck(pillar, context.targetYear),
+    isCurrent,
     relationToNatal,
-    image: `${pillar.label ?? `${stem}${branch}`}大运天干为${tenGod}，阶段主题偏向${theme}；地支${branch}可看环境、落地场景与根气承接，地支主气十神为${branchTenGod}，偏向${branchTheme}。`,
+    image: `${label}大运偏向${tenGod}${theme.split("、")[0]}，重点看${theme}。`,
+    structureImage: `${label}大运天干为${tenGod}，阶段主题偏向${theme}；地支${branch}可看环境、落地场景与根气承接，地支主气十神为${branchTenGod}，偏向${branchTheme}。原局关系触发：${relationText}`,
     reality: `现实应象可先观察${theme}是否在这一步运中更常被提到，同时看${branch}所代表的环境与原局四支是否形成牵引。${relationText}`,
-    boundary: `大运只作十年阶段背景，不直接断事件；${context.usefulHint}，此处只写偏顺、偏压或需复核的观察方向。`,
-    confidence: relationToNatal.length ? "medium" : "low",
+    boundary: `大运只作十年阶段背景，不直接断事件；${localizeStrengthTerms(context.usefulHint)}，此处只写偏顺、偏压或需复核的观察方向。`,
+    confidence: confidenceForLuckItem({ isCurrent, relationToNatal }),
   };
 }
 
@@ -212,9 +215,26 @@ function isCurrentLuck(pillar, targetYear) {
 }
 
 function pickUsefulHint(chart, natalImageReport) {
-  return natalImageReport?.summary?.usefulHint
+  return localizeStrengthTerms(natalImageReport?.summary?.usefulHint
     ?? chart?.structureAnalysis?.usefulGodHint?.reasoning
-    ?? "用忌神初步倾向需结合格局、通关、调候复核";
+    ?? "用忌神初步倾向需结合格局、通关、调候复核");
+}
+
+function confidenceForLuckItem({ isCurrent, relationToNatal }) {
+  const hasRelation = relationToNatal.length > 0;
+  if (isCurrent && hasRelation) return "high";
+  if (isCurrent) return "medium";
+  if (hasRelation) return "medium";
+  return "low";
+}
+
+function localizeStrengthTerms(text = "") {
+  return String(text)
+    .replaceAll(/\bweak\b/g, "偏弱")
+    .replaceAll(/\bstrong\b/g, "偏强")
+    .replaceAll(/\bbalanced\b/g, "平衡")
+    .replaceAll(/\bmedium\b/g, "中和")
+    .replaceAll(/\bmixed\b/g, "需复核");
 }
 
 function samePair(left, right) {

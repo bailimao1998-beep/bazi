@@ -60,7 +60,7 @@ function renderLuckItem(item = {}) {
       <button type="button" class="secondary-button" data-luck-detail-toggle="${detailId}" aria-expanded="false" aria-controls="${detailId}">展开详情</button>
       <div id="${detailId}" data-luck-detail="${detailId}" hidden>
         ${renderRelationToNatal(item.relationToNatal)}
-        <section><h4>结构取象</h4><p>${safe(item.image)}</p></section>
+        <section><h4>结构取象</h4><p>${safe(item.structureImage || item.image)}</p></section>
         <section><h4>现实应象</h4><p>${safe(item.reality)}</p></section>
         <section><h4>成立边界</h4><p>${safe(item.boundary)}</p></section>
         <p class="fine-print">置信度：${safe(item.confidence || "medium")}</p>

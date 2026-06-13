@@ -2,6 +2,8 @@ import { branchElements, countElements, dominantElements, elementLabels, hiddenS
 import { branches, branchMainStem, buildTenGodSummary, getTenGod, stems } from "./tenGods.js";
 import { buildLuckCycles } from "./luckCycles.js";
 import { buildShensha } from "./shensha.js";
+import { buildBaziRelations } from "./relations.js";
+import { buildBaziStructureAnalysis } from "./buildBaziStructureAnalysis.js";
 import {
   buildNatalPillars,
   createPillarByIndex,
@@ -38,32 +40,6 @@ const twelveStageMatrix = {
   壬: { 子: "帝旺", 丑: "衰", 寅: "病", 卯: "死", 辰: "墓", 巳: "绝", 午: "胎", 未: "养", 申: "长生", 酉: "沐浴", 戌: "冠带", 亥: "临官" },
   癸: { 子: "临官", 丑: "冠带", 寅: "沐浴", 卯: "长生", 辰: "养", 巳: "胎", 午: "绝", 未: "墓", 申: "死", 酉: "病", 戌: "衰", 亥: "帝旺" },
 };
-const comboRules = [
-  ["天干五合", ["甲", "己"], "土象牵连"],
-  ["天干五合", ["乙", "庚"], "金象牵连"],
-  ["天干五合", ["丙", "辛"], "水象牵连"],
-  ["天干五合", ["丁", "壬"], "木象牵连"],
-  ["天干五合", ["戊", "癸"], "火象牵连"],
-  ["地支六合", ["子", "丑"], "土象牵连"],
-  ["地支六合", ["寅", "亥"], "木象牵连"],
-  ["地支六合", ["卯", "戌"], "火象牵连"],
-  ["地支六合", ["辰", "酉"], "金象牵连"],
-  ["地支六合", ["巳", "申"], "水象牵连"],
-  ["地支六合", ["午", "未"], "土象牵连"],
-  ["地支六冲", ["子", "午"], "冲"],
-  ["地支六冲", ["丑", "未"], "冲"],
-  ["地支六冲", ["寅", "申"], "冲"],
-  ["地支六冲", ["卯", "酉"], "冲"],
-  ["地支六冲", ["辰", "戌"], "冲"],
-  ["地支六冲", ["巳", "亥"], "冲"],
-  ["地支六害", ["子", "未"], "害"],
-  ["地支六害", ["丑", "午"], "害"],
-  ["地支六害", ["寅", "巳"], "害"],
-  ["地支六害", ["卯", "辰"], "害"],
-  ["地支六害", ["申", "亥"], "害"],
-  ["地支六害", ["酉", "戌"], "害"],
-];
-
 export function calculateBazi(input = {}, datasets = {}) {
   const birth = parseBirth(input, datasets);
   const pillars = buildNatalPillars(birth);
@@ -77,6 +53,7 @@ export function calculateBazi(input = {}, datasets = {}) {
   });
   const shensha = buildShensha(pillars, input);
   const pillarDetails = buildPillarDetails(pillars, shensha.byPillar);
+  const relations = buildBaziRelations(pillars);
   const calendar = {
     solarDate: formatBirthDate(birth),
     time: formatBirthTime(birth),
@@ -92,8 +69,7 @@ export function calculateBazi(input = {}, datasets = {}) {
     hourPillarRule: "按最终排盘时间取时辰，晚子时使用次日日干起时柱。",
   };
   const auxiliary = buildAuxiliaryChart(pillars);
-
-  return {
+  const chart = {
     input: {
       name: input.name ?? "",
       birthDate: input.birthDate ?? input.date,
@@ -114,7 +90,7 @@ export function calculateBazi(input = {}, datasets = {}) {
     tenGodStats: buildTenGodStats(pillarDetails),
     elementStats: buildElementStats(pillars),
     pillarDetails,
-    relations: findRelations(pillars),
+    relations,
     shensha,
     auxiliary,
     luckCycles,
@@ -130,6 +106,10 @@ export function calculateBazi(input = {}, datasets = {}) {
       confidence: "medium",
       needVerify: ["节气时刻、真太阳时和起运口径仍建议保留人工复核入口。"],
     },
+  };
+  return {
+    ...chart,
+    structureAnalysis: buildBaziStructureAnalysis(chart),
   };
 }
 
@@ -202,51 +182,6 @@ function buildElementStats(pillars) {
     visible: { label: "明面五行", note: "按四柱天干地支统计", counts: visible },
     hidden: { label: "藏干五行", note: "按地支藏干统计", counts: hidden },
   };
-}
-
-function findRelations(pillars) {
-  const items = Object.values(pillars);
-  const relations = [];
-  for (let leftIndex = 0; leftIndex < items.length; leftIndex += 1) {
-    for (let rightIndex = leftIndex + 1; rightIndex < items.length; rightIndex += 1) {
-      const left = items[leftIndex];
-      const right = items[rightIndex];
-      for (const [type, members, effect] of comboRules) {
-        if (samePair(members, [left.stem, right.stem]) || samePair(members, [left.branch, right.branch])) {
-          relations.push({
-            type,
-            effect,
-            pillars: [left.role, right.role],
-            members,
-            ganzhi: [left.label, right.label],
-            evidence: relationEvidence(left, right, type, members, effect),
-            confidence: "medium",
-            needVerify: ["干支关系只作为结构观察点，具体作用需要结合柱位、月令、透干、根气与岁运验证。"],
-          });
-        }
-      }
-    }
-  }
-  return relations;
-}
-
-function relationEvidence(left, right, type, members, effect) {
-  const pair = members.join("");
-  const prefix = `${left.role}${left.label} 与 ${right.role}${right.label}`;
-  if (type.includes("合")) {
-    return `${prefix}：命局见${pair}${type}，有合象、牵连、合绊之象，偏向${effect}；是否成化需要结合月令、透干、根气和整体力量判断。`;
-  }
-  if (type.includes("冲")) {
-    return `${prefix}：命局见${pair}${type}，有冲动、变化、拉扯之象；作用轻重需要结合柱位、月令和岁运触发观察。`;
-  }
-  if (type.includes("害")) {
-    return `${prefix}：命局见${pair}${type}，有牵连、合绊、互动不顺之象；具体表现需要结合柱位、月令和岁运触发观察。`;
-  }
-  return `${prefix}：命局见${pair}${type}${effect}，作为结构观察点。`;
-}
-
-function samePair(left, right) {
-  return left.length === right.length && left.every((item) => right.includes(item));
 }
 
 function createFetalOrigin(monthPillar) {

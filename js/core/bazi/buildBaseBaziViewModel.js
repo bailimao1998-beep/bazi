@@ -34,6 +34,7 @@ export function buildBaseBaziViewModel(chart = {}) {
       fullHidden: chart.tenGodStats?.fullHidden ?? {},
     },
     relations: Array.isArray(chart.relations) ? chart.relations : [],
+    structureAnalysis: chart.structureAnalysis ?? null,
     auxiliary: chart.auxiliary ?? {},
     luckCycles: Array.isArray(chart.luckCycles?.pillars) ? chart.luckCycles.pillars : [],
   };

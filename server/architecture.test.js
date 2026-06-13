@@ -41,11 +41,13 @@ const requiredPaths = [
   "js/lunarCalendar.js",
   "js/core/ai/aiSettingsClient.js",
   "js/core/bazi/buildBaseBaziViewModel.js",
+  "js/core/bazi/buildBaziStructureAnalysis.js",
   "js/core/bazi/calculateBazi.js",
   "js/core/bazi/pillarMath.js",
   "js/core/bazi/tenGods.js",
   "js/core/bazi/fiveElements.js",
   "js/core/bazi/luckCycles.js",
+  "js/core/bazi/relations.js",
   "js/core/bazi/shensha.js",
   "js/core/bazi/shenshaRules.js",
   "js/components/birthForm.js",
@@ -278,8 +280,10 @@ test("project is scoped to blind bazi without ziwei imports or required rule fil
 test("frontend bazi modules calculate and render base chart without server APIs", async () => {
   const { calculateBazi: calculateFrontendBazi } = await import("../js/core/bazi/calculateBazi.js");
   const { buildBaseBaziViewModel: buildFrontendBaseBaziViewModel } = await import("../js/core/bazi/buildBaseBaziViewModel.js");
+  const { buildBaziRelations } = await import("../js/core/bazi/relations.js");
   const appSource = readFileSync("js/app.js", "utf8");
   const aiSettingsClientSource = readFileSync("js/core/ai/aiSettingsClient.js", "utf8");
+  const basePanelSource = readFileSync("js/components/baseBaziPanel.js", "utf8");
   const chart = calculateFrontendBazi({
     name: "基础排盘用户",
     birthDate: "1992-08-18",
@@ -294,6 +298,54 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.equal(viewModel.pillars.length, 4);
   assert.ok(viewModel.pillars.every((item) => item.pillar && item.hiddenStems));
   assert.ok(viewModel.luckCycles.length > 0);
+  assert.ok(chart.structureAnalysis);
+  assert.equal(viewModel.structureAnalysis, chart.structureAnalysis);
+  assert.ok(chart.structureAnalysis.monthCommand.branch);
+  assert.ok(["spring", "summer", "autumn", "winter", "earth"].includes(chart.structureAnalysis.monthCommand.season));
+  assert.equal(typeof chart.structureAnalysis.monthCommand.isDayMasterInSeason, "boolean");
+  assert.ok(Array.isArray(chart.structureAnalysis.roots.byPillar));
+  assert.equal(chart.structureAnalysis.roots.byPillar.length, 4);
+  assert.ok(["strong", "medium", "weak", "none"].includes(chart.structureAnalysis.roots.dayMasterRootLevel));
+  assert.ok(Array.isArray(chart.structureAnalysis.stems.revealedTenGods));
+  assert.equal(typeof chart.structureAnalysis.stems.hasPeer, "boolean");
+  assert.ok(["strong", "balanced", "weak", "mixed"].includes(chart.structureAnalysis.strength.level));
+  assert.equal(typeof chart.structureAnalysis.strength.score, "number");
+  assert.ok(chart.structureAnalysis.strength.reasons.length > 0);
+  assert.ok(Array.isArray(chart.structureAnalysis.strength.counterReasons));
+  assert.match(chart.structureAnalysis.usefulGodHint.reasoning, /初步倾向，需结合格局、通关、调候复核/);
+  assert.ok(Array.isArray(chart.structureAnalysis.climate.reasons));
+  assert.ok(chart.structureAnalysis.palaceBasics.day);
+  assert.ok(Array.isArray(chart.structureAnalysis.relationCompleteness.existing));
+  assert.ok(Array.isArray(chart.structureAnalysis.relationCompleteness.missing));
+  assert.doesNotMatch(JSON.stringify(chart.structureAnalysis), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
+  assert.match(basePanelSource, /月令与日主状态/);
+  assert.match(basePanelSource, /通根与根气/);
+  assert.match(basePanelSource, /透干十神/);
+  assert.match(basePanelSource, /日主强弱初判/);
+  assert.match(basePanelSource, /寒暖燥湿/);
+  assert.match(basePanelSource, /用忌神初判/);
+  assert.match(basePanelSource, /干支关系完整性/);
+
+  const relationFixtures = [
+    { year: "甲子", month: "己丑", day: "丙寅", hour: "辛卯" },
+    { year: "甲子", month: "庚午", day: "甲子", hour: "庚午" },
+    { year: "甲申", month: "丙子", day: "戊辰", hour: "庚酉" },
+    { year: "甲寅", month: "乙卯", day: "丙辰", hour: "丁巳" },
+    { year: "乙丑", month: "丁戌", day: "己未", hour: "辛亥" },
+    { year: "甲子", month: "乙酉", day: "丙午", hour: "丁卯" },
+    { year: "甲辰", month: "乙辰", day: "丙申", hour: "丁亥" },
+  ].flatMap((pillars) => buildBaziRelations(createManualChart({ pillars }).pillars));
+  const relationTypes = new Set(relationFixtures.map((relation) => relation.type));
+  for (const type of ["天干五合", "地支六合", "地支六冲", "地支六害", "地支三合", "地支三会", "地支三刑", "地支自刑", "地支六破", "地支穿", "伏吟", "反吟", "天克地冲"]) {
+    assert.ok(relationTypes.has(type), `missing relation type ${type}`);
+  }
+  for (const relation of relationFixtures) {
+    assertSignalContract(relation, `frontend relation ${relation.type}`);
+    assert.ok(Array.isArray(relation.members));
+    assert.ok(Array.isArray(relation.pillars));
+    assert.ok(Array.isArray(relation.ganzhi));
+  }
+
   assert.match(appSource, /import \{ calculateBazi \} from "\.\/core\/bazi\/calculateBazi\.js"/);
   assert.match(appSource, /import \{ buildBaseBaziViewModel \} from "\.\/core\/bazi\/buildBaseBaziViewModel\.js"/);
   assert.doesNotMatch(appSource, /requestNarrative|\.\/apiClient\.js|\/api\/narrative|\/api\/cases|casePanel/i);

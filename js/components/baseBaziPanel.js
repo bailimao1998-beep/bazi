@@ -19,9 +19,150 @@ export function renderBaseBaziPanel(root, viewModel) {
       ${renderElementStats(viewModel.fiveElements)}
       ${renderTenGodStats(viewModel.tenGods)}
     </div>
+    ${renderStructureAnalysis(viewModel.structureAnalysis)}
     ${renderRelations(viewModel.relations)}
     ${renderAuxiliary(viewModel)}
     ${renderLuckCycles(viewModel.luckCycles)}
+  `;
+}
+
+function renderStructureAnalysis(analysis) {
+  if (!analysis) {
+    return `
+      <section class="base-bazi-section">
+        <div class="board-title"><h3>基础结构分析</h3><span>待生成</span></div>
+        <p class="muted">等待月令、通根、透干、强弱与调候基础数据。</p>
+      </section>
+    `;
+  }
+  return `
+    ${renderMonthCommand(analysis.monthCommand)}
+    ${renderRoots(analysis.roots)}
+    ${renderStemReveal(analysis.stems)}
+    ${renderStrength(analysis.strength)}
+    ${renderClimate(analysis.climate)}
+    ${renderUsefulGodHint(analysis.usefulGodHint)}
+    ${renderRelationCompleteness(analysis.relationCompleteness)}
+  `;
+}
+
+function renderMonthCommand(monthCommand = {}) {
+  return `
+    <section class="base-bazi-section">
+      <div class="board-title"><h3>月令与日主状态</h3><span>${safe(monthCommand.branch || "待查")}月</span></div>
+      <div class="evidence-summary">
+        <article><span>季节</span><strong>${safe(monthCommand.seasonLabel || monthCommand.season || "待查")}</strong></article>
+        <article><span>当令五行</span><strong>${safe(monthCommand.elementLabel || monthCommand.element || "待查")}</strong></article>
+        <article><span>日主五行</span><strong>${safe(monthCommand.dayMasterElementLabel || monthCommand.dayMasterElement || "待查")}</strong></article>
+        <article><span>是否得令</span><strong>${monthCommand.isDayMasterInSeason ? "得令" : "未直接得令"}</strong></article>
+      </div>
+      <p class="fine-print">${safe(monthCommand.description || "月令信息待复核。")}</p>
+    </section>
+  `;
+}
+
+function renderRoots(roots = {}) {
+  const rows = Array.isArray(roots.byPillar) ? roots.byPillar : [];
+  return `
+    <section class="base-bazi-section">
+      <div class="board-title"><h3>通根与根气</h3><span>综合：${safe(roots.dayMasterRootLevel || "待查")}</span></div>
+      <div class="compact-table">
+        <div class="compact-row compact-head"><span>柱位</span><span>地支</span><span>根气</span><span>依据</span></div>
+        ${rows.map((item) => `
+          <div class="compact-row">
+            <span>${safe(item.name)}</span>
+            <strong>${safe(item.branch)}</strong>
+            <span>${safe(item.level)}</span>
+            <small>${safe(item.evidence)}</small>
+          </div>
+        `).join("")}
+      </div>
+      ${renderList("根气摘要", roots.summary)}
+    </section>
+  `;
+}
+
+function renderStemReveal(stems = {}) {
+  const rows = Array.isArray(stems.revealedTenGods) ? stems.revealedTenGods : [];
+  const flags = [
+    ["比劫", stems.hasPeer],
+    ["印", stems.hasResource],
+    ["食伤", stems.hasOutput],
+    ["财", stems.hasWealth],
+    ["官杀", stems.hasOfficerKilling],
+  ];
+  return `
+    <section class="base-bazi-section">
+      <div class="board-title"><h3>透干十神</h3><span>${rows.length} 个天干</span></div>
+      <div class="stat-chip-row">${flags.map(([label, value]) => `<span><b>${safe(label)}</b>${value ? "有" : "未见"}</span>`).join("")}</div>
+      <div class="compact-table">
+        <div class="compact-row compact-head"><span>柱位</span><span>天干</span><span>十神</span><span>五行</span></div>
+        ${rows.map((item) => `
+          <div class="compact-row">
+            <span>${safe(item.name)}</span>
+            <strong>${safe(item.stem)}</strong>
+            <span>${safe(item.tenGod)}</span>
+            <span>${safe(elementLabels[item.element] ?? item.element)}</span>
+          </div>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderStrength(strength = {}) {
+  return `
+    <section class="base-bazi-section">
+      <div class="board-title"><h3>日主强弱初判</h3><span>${safe(strength.level || "待查")} · ${safe(strength.score ?? "待查")}</span></div>
+      <div class="stats-two-col">
+        <article class="stats-box">
+          <span>支持依据</span>
+          ${renderList("", strength.reasons)}
+        </article>
+        <article class="stats-box">
+          <span>反向依据</span>
+          ${renderList("", strength.counterReasons)}
+        </article>
+      </div>
+      <p class="fine-print">置信度：${safe(strength.confidence || "low")}。这里只作基础结构初判，后续取象仍需复核。</p>
+    </section>
+  `;
+}
+
+function renderClimate(climate = {}) {
+  return `
+    <section class="base-bazi-section">
+      <div class="board-title"><h3>寒暖燥湿</h3><span>${safe(climate.coldWarm || "平")} / ${safe(climate.dryWet || "平")}</span></div>
+      ${renderList("判断依据", climate.reasons)}
+      <p class="fine-print">${safe(climate.adjustmentHint || "寒暖燥湿只作调候提示。")}</p>
+    </section>
+  `;
+}
+
+function renderUsefulGodHint(hint = {}) {
+  return `
+    <section class="base-bazi-section">
+      <div class="board-title"><h3>用忌神初判</h3><span>基础提示</span></div>
+      <div class="evidence-summary">
+        <article><span>倾向有利五行</span><strong>${safe(renderElementNames(hint.favorableElements))}</strong></article>
+        <article><span>倾向不利五行</span><strong>${safe(renderElementNames(hint.unfavorableElements))}</strong></article>
+        <article><span>置信度</span><strong>${safe(hint.confidence || "low")}</strong></article>
+      </div>
+      <p class="fine-print">${safe(hint.reasoning || "初步倾向，需结合格局、通关、调候复核。")}</p>
+    </section>
+  `;
+}
+
+function renderRelationCompleteness(completeness = {}) {
+  return `
+    <section class="base-bazi-section">
+      <div class="board-title"><h3>干支关系完整性</h3><span>${safe((completeness.existing ?? []).length)} 类命中</span></div>
+      <div class="evidence-summary">
+        <article><span>已见关系</span><strong>${safe((completeness.existing ?? []).join("、") || "未列")}</strong></article>
+        <article><span>未见关系</span><strong>${safe((completeness.missing ?? []).slice(0, 8).join("、") || "未列")}</strong></article>
+      </div>
+      ${renderList("说明", completeness.notes)}
+    </section>
   `;
 }
 
@@ -169,7 +310,14 @@ function renderCountChips(counts = {}, labels = {}) {
 
 function renderList(title, items = []) {
   const rows = (Array.isArray(items) ? items : [items]).filter(Boolean);
-  return rows.length ? `<section><h4>${title}</h4><ul>${rows.map((item) => `<li>${safe(item)}</li>`).join("")}</ul></section>` : "";
+  return rows.length ? `<section>${title ? `<h4>${title}</h4>` : ""}<ul>${rows.map((item) => `<li>${safe(item)}</li>`).join("")}</ul></section>` : "";
+}
+
+function renderElementNames(items = []) {
+  const labels = (Array.isArray(items) ? items : [])
+    .map((item) => item?.label ?? item?.element ?? item)
+    .filter(Boolean);
+  return labels.length ? labels.join("、") : "待复核";
 }
 
 function safe(value) {

@@ -88,15 +88,6 @@ function createContext(chart, viewModel, structure) {
   };
 }
 
-function sumCountMaps(...maps) {
-  return maps.reduce((counts, map) => {
-    for (const [key, value] of Object.entries(map ?? {})) {
-      counts[key] = Number(counts[key] ?? 0) + Number(value ?? 0);
-    }
-    return counts;
-  }, {});
-}
-
 function buildSummary(context, cards) {
   const strengthText = context.strength.level ?? "mixed";
   const mainStructure = `${context.dayMaster.label ?? "日主"}，月令${context.monthCommand.branch ?? "待查"}，强弱初判为${strengthText}`;
@@ -349,6 +340,16 @@ function normalizeCard(card) {
     boundary: card.boundary || "此卡只作结构观察，不作事件结论。",
     confidence: ["high", "medium", "low"].includes(card.confidence) ? card.confidence : "medium",
   };
+}
+
+function sumCountMaps(...maps) {
+  const result = {};
+  for (const map of maps) {
+    for (const [key, value] of Object.entries(map || {})) {
+      result[key] = (result[key] || 0) + Number(value || 0);
+    }
+  }
+  return result;
 }
 
 function compact(items = []) {

@@ -113,6 +113,7 @@ function buildLuckItem(pillar, index, context) {
   const branchTheme = tenGodThemes[branchTenGod] ?? "地支环境待复核";
   const isCurrent = isCurrentLuck(pillar, context.targetYear);
   const label = pillar.label ?? `${stem}${branch}`;
+  const shortImage = `${label}大运偏向${tenGod}${theme.split("、")[0]}，重点看${theme}。`;
   const relationText = relationToNatal.length
     ? `与原局${relationToNatal.map((item) => `${item.natalPillar}${item.type}`).join("、")}，这步运容易触发原局对应结构。`
     : "与原局四支暂未命中冲、合、刑、害、破，先以十神和地支环境观察。";
@@ -127,7 +128,8 @@ function buildLuckItem(pillar, index, context) {
     tenGod,
     isCurrent,
     relationToNatal,
-    image: `${label}大运偏向${tenGod}${theme.split("、")[0]}，重点看${theme}。`,
+    shortImage,
+    image: shortImage,
     structureImage: `${label}大运天干为${tenGod}，阶段主题偏向${theme}；地支${branch}可看环境、落地场景与根气承接，地支主气十神为${branchTenGod}，偏向${branchTheme}。原局关系触发：${relationText}`,
     reality: `现实应象可先观察${theme}是否在这一步运中更常被提到，同时看${branch}所代表的环境与原局四支是否形成牵引。${relationText}`,
     boundary: `大运只作十年阶段背景，不直接断事件；${localizeStrengthTerms(context.usefulHint)}，此处只写偏顺、偏压或需复核的观察方向。`,

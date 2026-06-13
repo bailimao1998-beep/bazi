@@ -436,8 +436,9 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.ok(luckReport.luckItems.every((item) => item.ageRange && item.yearRange && item.ganZhi));
   assert.ok(luckReport.luckItems.every((item) => item.stem && item.branch && item.tenGod));
   assert.ok(luckReport.luckItems.every((item) => Array.isArray(item.relationToNatal)));
-  assert.ok(luckReport.luckItems.every((item) => item.image && item.structureImage && item.reality && item.boundary));
-  assert.ok(luckReport.luckItems.every((item) => !/地支主气|原局关系触发/.test(item.image)));
+  assert.ok(luckReport.luckItems.every((item) => item.shortImage && item.image && item.structureImage && item.reality && item.boundary));
+  assert.ok(luckReport.luckItems.every((item) => item.shortImage === item.image));
+  assert.ok(luckReport.luckItems.every((item) => !/地支主气|原局关系触发/.test(item.shortImage)));
   assert.ok(luckReport.luckItems.every((item) => /地支主气十神|原局关系触发/.test(item.structureImage)));
   assert.ok(luckReport.luckItems.every((item) => /^(high|medium|low)$/.test(item.confidence)));
   assert.equal(luckReport.luckItems.filter((item) => item.isCurrent).length, 1);
@@ -466,8 +467,8 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.equal(relationLuckReport.luckItems[0].confidence, "high");
   assert.doesNotMatch(relationLuckReport.luckItems[0].boundary, /\bweak\b|\bstrong\b|\bbalanced\b|\bmedium\b|\bmixed\b/);
   assert.match(relationLuckReport.luckItems[0].boundary, /偏弱/);
-  assert.match(relationLuckReport.luckItems[0].image, /^辛未大运偏向正官/);
-  assert.doesNotMatch(relationLuckReport.luckItems[0].image, /地支主气十神|原局关系触发/);
+  assert.match(relationLuckReport.luckItems[0].shortImage, /^辛未大运偏向正官/);
+  assert.doesNotMatch(relationLuckReport.luckItems[0].shortImage, /地支主气十神|原局关系触发/);
   assert.match(relationLuckReport.luckItems[0].structureImage, /地支主气十神/);
   assert.match(relationLuckReport.luckItems[0].structureImage, /原局关系触发/);
   assert.match(relationLuckReport.luckItems[0].relationToNatal.map((item) => item.description).join(" "), /冲年支丑：早年、家庭、根基结构被牵动，变化、拉扯、动荡/);
@@ -563,6 +564,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
       isCurrent: true,
       relationToNatal: [{ natalPillar: "日支午", members: "子午", type: "冲", effect: "冲动" }],
       image: "简短取象测试",
+      shortImage: "优先简短取象测试",
       structureImage: "结构取象测试",
       reality: "现实观察测试",
       boundary: "边界提醒测试",
@@ -572,11 +574,12 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(luckPanelRoot.innerHTML, /current-luck-card/);
   assert.match(luckPanelRoot.innerHTML, /当前大运/);
   assert.match(luckPanelRoot.innerHTML, /展开详情/);
+  assert.match(luckPanelRoot.innerHTML, /优先简短取象测试/);
   assert.match(luckPanelRoot.innerHTML, /结构取象测试/);
   assert.match(luckPanelRoot.innerHTML, /data-luck-detail-toggle/);
   assert.match(luckPanelRoot.innerHTML, /data-luck-detail=/);
   assert.match(luckPanelRoot.innerHTML, /hidden/);
-  assert.ok(luckPanelRoot.innerHTML.indexOf("简短取象测试") < luckPanelRoot.innerHTML.indexOf("展开详情"));
+  assert.ok(luckPanelRoot.innerHTML.indexOf("优先简短取象测试") < luckPanelRoot.innerHTML.indexOf("展开详情"));
   assert.doesNotMatch(luckPanelSource, /generateWithDeepSeek|buildNatalAiPrompt|AI 问答/);
   assert.match(natalPrompt.system, /解释层，不是排盘层/);
   assert.match(natalPrompt.system, /只能根据 natalImageReport 解读/);

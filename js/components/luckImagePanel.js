@@ -56,7 +56,7 @@ function renderLuckItem(item = {}) {
         <article><span>地支</span><strong>${safe(item.branch || "待查")}</strong></article>
         <article><span>十神</span><strong>${safe(item.tenGod || "待查")}</strong></article>
       </div>
-      <section><h4>简短取象</h4><p>${safe(item.image)}</p></section>
+      <section><h4>简短取象</h4><p>${safe(item.shortImage || item.image)}</p></section>
       <button type="button" class="secondary-button" data-luck-detail-toggle="${detailId}" aria-expanded="false" aria-controls="${detailId}">展开详情</button>
       <div id="${detailId}" data-luck-detail="${detailId}" hidden>
         ${renderRelationToNatal(item.relationToNatal)}

@@ -4,6 +4,7 @@ import { buildNatalAiPrompt } from "./core/ai/buildNatalAiPrompt.js";
 import { buildYearAiPrompt } from "./core/ai/buildYearAiPrompt.js";
 import { generateWithDeepSeek } from "./core/ai/deepseekClient.js?v=20260613b";
 import { buildLuckImageReport } from "./core/blind-bazi/buildLuckImageReport.js";
+import { buildMonthImageReport } from "./core/blind-bazi/buildMonthImageReport.js";
 import { buildNatalImageReport } from "./core/blind-bazi/buildNatalImageReport.js";
 import { buildYearImageReport } from "./core/blind-bazi/buildYearImageReport.js";
 import { buildBaseBaziViewModel } from "./core/bazi/buildBaseBaziViewModel.js";
@@ -14,6 +15,7 @@ import { renderBirthForm } from "./components/birthForm.js";
 import { renderDebugPanel } from "./components/debugPanel.js";
 import { renderLuckAiNarrativePanel } from "./components/luckAiNarrativePanel.js";
 import { renderLuckImagePanel } from "./components/luckImagePanel.js";
+import { renderMonthImagePanel } from "./components/monthImagePanel.js";
 import { renderNatalAiNarrativePanel } from "./components/natalAiNarrativePanel.js";
 import { renderNatalImagePanel } from "./components/natalImagePanel.js";
 import { renderYearAiNarrativePanel } from "./components/yearAiNarrativePanel.js";
@@ -111,7 +113,16 @@ function refresh() {
       luckImageReport,
       targetYear: currentInput.targetYear,
     });
-    state = { input: currentInput, chart, baseBaziViewModel, natalImageReport, luckImageReport, yearImageReport };
+    const monthImageReport = buildMonthImageReport({
+      chart,
+      baseBaziViewModel,
+      natalImageReport,
+      luckImageReport,
+      yearImageReport,
+      targetYear: currentInput.targetYear,
+      selectedMonth: currentInput.selectedMonth,
+    });
+    state = { input: currentInput, chart, baseBaziViewModel, natalImageReport, luckImageReport, yearImageReport, monthImageReport };
     natalAiState = { loading: false, text: "", error: "" };
     luckAiState = { loading: false, text: "", error: "" };
     yearAiState = { loading: false, text: "", error: "" };
@@ -148,7 +159,7 @@ function renderShell() {
     hasReport: false,
     onGenerate: generateYearAiNarrative,
   });
-  renderPlaceholderPanel(roots.monthImagePanel, "流月取象");
+  renderMonthImagePanel(roots.monthImagePanel, null);
   renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
   renderDebugPanel(roots.debug, state);
@@ -174,7 +185,7 @@ function renderBaseOnly() {
     hasReport: Boolean(state.yearImageReport?.yearItem),
     onGenerate: generateYearAiNarrative,
   });
-  renderPlaceholderPanel(roots.monthImagePanel, "流月取象");
+  renderMonthImagePanel(roots.monthImagePanel, state.monthImageReport);
   renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
   renderDebugPanel(roots.debug, state);

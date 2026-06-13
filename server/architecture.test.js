@@ -50,6 +50,7 @@ const requiredPaths = [
   "js/core/blind-bazi/buildNatalImageReport.js",
   "js/core/blind-bazi/buildLuckImageReport.js",
   "js/core/blind-bazi/buildYearImageReport.js",
+  "js/core/blind-bazi/buildMonthImageReport.js",
   "js/core/bazi/buildBaseBaziViewModel.js",
   "js/core/bazi/buildBaziStructureAnalysis.js",
   "js/core/bazi/calculateBazi.js",
@@ -65,6 +66,7 @@ const requiredPaths = [
   "js/components/natalImagePanel.js",
   "js/components/luckImagePanel.js",
   "js/components/yearImagePanel.js",
+  "js/components/monthImagePanel.js",
   "js/components/luckAiNarrativePanel.js",
   "js/components/yearAiNarrativePanel.js",
   "js/components/natalAiNarrativePanel.js",
@@ -355,12 +357,14 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   const { buildNatalImageReport } = await import("../js/core/blind-bazi/buildNatalImageReport.js");
   const { buildLuckImageReport } = await import("../js/core/blind-bazi/buildLuckImageReport.js");
   const { buildYearImageReport } = await import("../js/core/blind-bazi/buildYearImageReport.js");
+  const { buildMonthImageReport } = await import("../js/core/blind-bazi/buildMonthImageReport.js");
   const { buildNatalAiPrompt } = await import("../js/core/ai/buildNatalAiPrompt.js");
   const { buildLuckAiPrompt } = await import("../js/core/ai/buildLuckAiPrompt.js");
   const { buildYearAiPrompt } = await import("../js/core/ai/buildYearAiPrompt.js");
   const { generateWithDeepSeek } = await import("../js/core/ai/deepseekClient.js");
   const { renderLuckImagePanel } = await import("../js/components/luckImagePanel.js");
   const { renderYearImagePanel } = await import("../js/components/yearImagePanel.js");
+  const { renderMonthImagePanel } = await import("../js/components/monthImagePanel.js");
   const { renderLuckAiNarrativePanel } = await import("../js/components/luckAiNarrativePanel.js");
   const { renderYearAiNarrativePanel } = await import("../js/components/yearAiNarrativePanel.js");
   const appSource = readFileSync("js/app.js", "utf8");
@@ -372,6 +376,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   const natalPanelSource = readFileSync("js/components/natalImagePanel.js", "utf8");
   const luckPanelSource = readFileSync("js/components/luckImagePanel.js", "utf8");
   const yearPanelSource = readFileSync("js/components/yearImagePanel.js", "utf8");
+  const monthPanelSource = readFileSync("js/components/monthImagePanel.js", "utf8");
   const natalAiPanelSource = readFileSync("js/components/natalAiNarrativePanel.js", "utf8");
   const luckAiPanelSource = readFileSync("js/components/luckAiNarrativePanel.js", "utf8");
   const yearAiPanelSource = readFileSync("js/components/yearAiNarrativePanel.js", "utf8");
@@ -387,6 +392,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   const currentLuckYear = viewModel.luckCycles[1]?.startYear ?? 2030;
   const luckReport = buildLuckImageReport({ chart, baseBaziViewModel: viewModel, natalImageReport: natalReport, targetYear: currentLuckYear });
   const yearReport = buildYearImageReport({ chart, baseBaziViewModel: viewModel, natalImageReport: natalReport, luckImageReport: luckReport, targetYear: currentLuckYear });
+  const monthReport = buildMonthImageReport({ chart, baseBaziViewModel: viewModel, natalImageReport: natalReport, luckImageReport: luckReport, yearImageReport: yearReport, targetYear: currentLuckYear, selectedMonth: 6 });
   const natalPrompt = buildNatalAiPrompt({ baseBaziViewModel: viewModel, natalImageReport: natalReport });
   const luckPrompt = buildLuckAiPrompt({ baseBaziViewModel: viewModel, natalImageReport: natalReport, luckImageReport: luckReport });
   const yearPrompt = buildYearAiPrompt({ baseBaziViewModel: viewModel, natalImageReport: natalReport, luckImageReport: luckReport, yearImageReport: yearReport });
@@ -553,6 +559,42 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.equal(fallbackYearReport.yearItem.currentLuckItem.ganZhi, "甲子");
   assert.match(fallbackYearReport.needVerify.join(" "), /当前大运未能根据目标年份定位/);
 
+  assert.ok(monthReport.summary);
+  assert.equal(monthReport.monthItem.year, currentLuckYear);
+  assert.equal(monthReport.monthItem.month, 6);
+  assert.ok(monthReport.monthItem.ganZhi);
+  assert.ok(monthReport.monthItem.stem && monthReport.monthItem.branch);
+  assert.ok(monthReport.monthItem.stemTenGod && monthReport.monthItem.branchTenGod);
+  assert.ok(monthReport.monthItem.currentLuckItem?.isCurrent);
+  assert.deepEqual(monthReport.monthItem.yearItem, yearReport.yearItem);
+  assert.ok(Array.isArray(monthReport.monthItem.relationToNatal));
+  assert.ok(Array.isArray(monthReport.monthItem.relationToLuck));
+  assert.ok(Array.isArray(monthReport.monthItem.relationToYear));
+  assert.ok(monthReport.monthItem.image);
+  assert.ok(monthReport.monthItem.reality);
+  assert.ok(monthReport.monthItem.boundary);
+  assert.match(monthReport.monthItem.confidence, /^(high|medium|low)$/);
+  assert.ok(monthReport.keySignals.length > 0);
+  assert.ok(monthReport.needVerify.length > 0);
+  assert.match(monthReport.summary.overview, new RegExp(`${currentLuckYear}年6月`));
+  assert.match(monthReport.summary.overview, new RegExp(monthReport.monthItem.currentLuckItem.ganZhi));
+  assert.match(monthReport.summary.overview, new RegExp(yearReport.yearItem.ganZhi));
+  assert.match(monthReport.monthItem.image, /当前大运背景/);
+  assert.match(monthReport.monthItem.image, /当前流年背景/);
+  assert.doesNotMatch(JSON.stringify(monthReport), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡|AI 问答/);
+  const fallbackMonthReport = buildMonthImageReport({
+    chart,
+    baseBaziViewModel: viewModel,
+    natalImageReport: natalReport,
+    luckImageReport: { summary: { title: "大运取象总览" }, luckItems: [{ ganZhi: "甲子", branch: "子", image: "第一步大运", reality: "观察", boundary: "边界", relationToNatal: [] }] },
+    yearImageReport: { summary: { title: "流年取象总览" }, yearItem: { year: 2040, ganZhi: "庚申", branch: "申", image: "流年背景", reality: "观察", boundary: "边界" } },
+    targetYear: 2040,
+    selectedMonth: 13,
+  });
+  assert.equal(fallbackMonthReport.monthItem.currentLuckItem.ganZhi, "甲子");
+  assert.equal(fallbackMonthReport.monthItem.month, 12);
+  assert.match(fallbackMonthReport.needVerify.join(" "), /当前大运未能根据目标年份定位/);
+
   const overlappingTenGodReport = buildNatalImageReport({
     chart: {
       dayMaster: { label: "甲日主", element: "wood" },
@@ -599,6 +641,13 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(yearPanelSource, /流年与原局触发/);
   assert.match(yearPanelSource, /流年与大运触发/);
   assert.doesNotMatch(yearPanelSource, /generateWithDeepSeek|buildLuckAiPrompt|buildNatalAiPrompt|AI 问答|流月/);
+  assert.match(monthPanelSource, /流月取象总览/);
+  assert.match(monthPanelSource, /当前大运背景/);
+  assert.match(monthPanelSource, /当前流年背景/);
+  assert.match(monthPanelSource, /流月与原局触发/);
+  assert.match(monthPanelSource, /流月与大运触发/);
+  assert.match(monthPanelSource, /流月与流年触发/);
+  assert.doesNotMatch(monthPanelSource, /generateWithDeepSeek|buildLuckAiPrompt|buildNatalAiPrompt|buildYearAiPrompt|AI 问答/);
   const yearPanelRoot = { innerHTML: "" };
   renderYearImagePanel(yearPanelRoot, yearReport);
   assert.match(yearPanelRoot.innerHTML, /流年取象总览/);
@@ -606,6 +655,14 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(yearPanelRoot.innerHTML, /当前大运背景/);
   assert.match(yearPanelRoot.innerHTML, /结构取象/);
   assert.match(yearPanelRoot.innerHTML, /复核提醒/);
+  const monthPanelRoot = { innerHTML: "" };
+  renderMonthImagePanel(monthPanelRoot, monthReport);
+  assert.match(monthPanelRoot.innerHTML, /流月取象总览/);
+  assert.match(monthPanelRoot.innerHTML, new RegExp(`${currentLuckYear}年6月`));
+  assert.match(monthPanelRoot.innerHTML, /当前大运背景/);
+  assert.match(monthPanelRoot.innerHTML, /当前流年背景/);
+  assert.match(monthPanelRoot.innerHTML, /结构取象/);
+  assert.match(monthPanelRoot.innerHTML, /复核提醒/);
   const luckPanelRoot = { innerHTML: "", querySelectorAll: () => [] };
   renderLuckImagePanel(luckPanelRoot, {
     summary: { title: "大运取象总览", overview: "测试总览", confidence: "medium" },
@@ -758,6 +815,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(appSource, /import \{ buildNatalImageReport \} from "\.\/core\/blind-bazi\/buildNatalImageReport\.js"/);
   assert.match(appSource, /import \{ buildLuckImageReport \} from "\.\/core\/blind-bazi\/buildLuckImageReport\.js"/);
   assert.match(appSource, /import \{ buildYearImageReport \} from "\.\/core\/blind-bazi\/buildYearImageReport\.js"/);
+  assert.match(appSource, /import \{ buildMonthImageReport \} from "\.\/core\/blind-bazi\/buildMonthImageReport\.js"/);
   assert.match(appSource, /import \{ buildLuckAiPrompt \} from "\.\/core\/ai\/buildLuckAiPrompt\.js"/);
   assert.match(appSource, /import \{ buildYearAiPrompt \} from "\.\/core\/ai\/buildYearAiPrompt\.js"/);
   assert.match(appSource, /import \{ buildNatalAiPrompt \} from "\.\/core\/ai\/buildNatalAiPrompt\.js"/);
@@ -766,15 +824,18 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(appSource, /import \{ renderNatalImagePanel \} from "\.\/components\/natalImagePanel\.js"/);
   assert.match(appSource, /import \{ renderLuckImagePanel \} from "\.\/components\/luckImagePanel\.js"/);
   assert.match(appSource, /import \{ renderYearImagePanel \} from "\.\/components\/yearImagePanel\.js"/);
+  assert.match(appSource, /import \{ renderMonthImagePanel \} from "\.\/components\/monthImagePanel\.js"/);
   assert.match(appSource, /import \{ renderLuckAiNarrativePanel \} from "\.\/components\/luckAiNarrativePanel\.js"/);
   assert.match(appSource, /import \{ renderYearAiNarrativePanel \} from "\.\/components\/yearAiNarrativePanel\.js"/);
   assert.match(appSource, /import \{ renderNatalAiNarrativePanel \} from "\.\/components\/natalAiNarrativePanel\.js"/);
   assert.match(appSource, /buildNatalImageReport\(\{ chart, baseBaziViewModel \}\)/);
   assert.match(appSource, /buildLuckImageReport\(\{\s*chart,\s*baseBaziViewModel,\s*natalImageReport,\s*targetYear: currentInput\.targetYear,\s*\}\)/);
   assert.match(appSource, /buildYearImageReport\(\{\s*chart,\s*baseBaziViewModel,\s*natalImageReport,\s*luckImageReport,\s*targetYear: currentInput\.targetYear,\s*\}\)/);
+  assert.match(appSource, /buildMonthImageReport\(\{\s*chart,\s*baseBaziViewModel,\s*natalImageReport,\s*luckImageReport,\s*yearImageReport,\s*targetYear: currentInput\.targetYear,\s*selectedMonth: currentInput\.selectedMonth,\s*\}\)/);
   assert.match(appSource, /renderNatalImagePanel\(roots\.natalImagePanel, state\.natalImageReport\)/);
   assert.match(appSource, /renderLuckImagePanel\(roots\.luckImagePanel, state\.luckImageReport\)/);
   assert.match(appSource, /renderYearImagePanel\(roots\.yearImagePanel, state\.yearImageReport\)/);
+  assert.match(appSource, /renderMonthImagePanel\(roots\.monthImagePanel, state\.monthImageReport\)/);
   assert.match(appSource, /let luckAiState/);
   assert.match(appSource, /let yearAiState/);
   assert.match(appSource, /generateLuckAiNarrative/);
@@ -1997,7 +2058,7 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.match(appSource, /大运取象[\s\S]*待实现/);
   assert.match(appSource, /renderYearImagePanel\(roots\.yearImagePanel/);
   assert.match(appSource, /renderYearAiNarrativePanel\(roots\.yearAiNarrative/);
-  assert.match(appSource, /流月取象[\s\S]*待实现/);
+  assert.match(appSource, /renderMonthImagePanel\(roots\.monthImagePanel/);
   assert.match(appSource, /流月 AI 分析[\s\S]*AI 解读待接入/);
   assert.match(appSource, /AI 问答[\s\S]*AI 问答待接入/);
   assert.doesNotMatch(appSource, /renderChatPanel/);

@@ -46,6 +46,7 @@ const requiredPaths = [
   "js/core/ai/buildLuckAiPrompt.js",
   "js/core/ai/buildYearAiPrompt.js",
   "js/core/ai/buildMonthAiPrompt.js",
+  "js/core/ai/buildChatPrompt.js",
   "js/core/ai/deepseekClient.js",
   "js/core/ai/aiSettingsClient.js",
   "js/core/blind-bazi/buildNatalImageReport.js",
@@ -71,6 +72,7 @@ const requiredPaths = [
   "js/components/luckAiNarrativePanel.js",
   "js/components/yearAiNarrativePanel.js",
   "js/components/monthAiNarrativePanel.js",
+  "js/components/aiChatPanel.js",
   "js/components/natalAiNarrativePanel.js",
   "js/components/chartSummary.js",
   "js/components/yearStoryPanel.js",
@@ -364,6 +366,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   const { buildLuckAiPrompt } = await import("../js/core/ai/buildLuckAiPrompt.js");
   const { buildYearAiPrompt } = await import("../js/core/ai/buildYearAiPrompt.js");
   const { buildMonthAiPrompt } = await import("../js/core/ai/buildMonthAiPrompt.js");
+  const { buildChatPrompt: buildBrowserChatPrompt } = await import("../js/core/ai/buildChatPrompt.js");
   const { generateWithDeepSeek } = await import("../js/core/ai/deepseekClient.js");
   const { renderLuckImagePanel } = await import("../js/components/luckImagePanel.js");
   const { renderYearImagePanel } = await import("../js/components/yearImagePanel.js");
@@ -371,6 +374,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   const { renderLuckAiNarrativePanel } = await import("../js/components/luckAiNarrativePanel.js");
   const { renderYearAiNarrativePanel } = await import("../js/components/yearAiNarrativePanel.js");
   const { renderMonthAiNarrativePanel } = await import("../js/components/monthAiNarrativePanel.js");
+  const { renderAiChatPanel } = await import("../js/components/aiChatPanel.js");
   const appSource = readFileSync("js/app.js", "utf8");
   const aiSettingsClientSource = readFileSync("js/core/ai/aiSettingsClient.js", "utf8");
   const natalAiPromptSource = readFileSync("js/core/ai/buildNatalAiPrompt.js", "utf8");
@@ -385,6 +389,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   const luckAiPanelSource = readFileSync("js/components/luckAiNarrativePanel.js", "utf8");
   const yearAiPanelSource = readFileSync("js/components/yearAiNarrativePanel.js", "utf8");
   const monthAiPanelSource = readFileSync("js/components/monthAiNarrativePanel.js", "utf8");
+  const aiChatPanelSource = readFileSync("js/components/aiChatPanel.js", "utf8");
   const chart = calculateFrontendBazi({
     name: "基础排盘用户",
     birthDate: "1992-08-18",
@@ -402,6 +407,14 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   const luckPrompt = buildLuckAiPrompt({ baseBaziViewModel: viewModel, natalImageReport: natalReport, luckImageReport: luckReport });
   const yearPrompt = buildYearAiPrompt({ baseBaziViewModel: viewModel, natalImageReport: natalReport, luckImageReport: luckReport, yearImageReport: yearReport });
   const monthPrompt = buildMonthAiPrompt({ baseBaziViewModel: viewModel, natalImageReport: natalReport, luckImageReport: luckReport, yearImageReport: yearReport, monthImageReport: monthReport });
+  const chatPrompt = buildBrowserChatPrompt({
+    question: "这个月事业要注意什么？",
+    baseBaziViewModel: viewModel,
+    natalImageReport: natalReport,
+    luckImageReport: luckReport,
+    yearImageReport: yearReport,
+    monthImageReport: monthReport,
+  });
 
   assert.equal(chart.input.name, "基础排盘用户");
   assert.equal(viewModel.birthInfo.name, "基础排盘用户");
@@ -799,6 +812,47 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(monthAiRoot.innerHTML, /AI 流月文本/);
   assert.match(monthAiPanelSource, /data-month-ai-generate/);
   assert.doesNotMatch(monthAiPanelSource, /API Key|保存 Key|AI 问答/);
+  assert.match(chatPrompt.system, /问答解释层，不是排盘层/);
+  assert.match(chatPrompt.system, /不能重新排盘/);
+  assert.match(chatPrompt.system, /不能推翻已有取象/);
+  assert.match(chatPrompt.system, /回答只能基于当前页面已有数据/);
+  assert.match(chatPrompt.system, /当前数据不足，需要补充\/切换年份月份\/后续功能支持/);
+  assert.match(chatPrompt.system, /不能使用一定、必然、注定/);
+  assert.match(chatPrompt.system, /回答要短，不要生成长篇报告/);
+  assert.match(chatPrompt.system, /直接回答/);
+  assert.match(chatPrompt.system, /现实验证点/);
+  const chatPromptUser = JSON.parse(chatPrompt.user);
+  assert.equal(chatPromptUser.question, "这个月事业要注意什么？");
+  assert.ok(chatPromptUser.baseBaziViewModel);
+  assert.ok(chatPromptUser.natalImageReport);
+  assert.ok(chatPromptUser.luckImageReport?.summary);
+  assert.ok(chatPromptUser.yearImageReport?.summary);
+  assert.ok(chatPromptUser.monthImageReport?.summary);
+  assert.equal(Object.hasOwn(chatPromptUser, "apiKey"), false);
+  assert.doesNotMatch(chatPrompt.user, /apiKey|DEEPSEEK_API_KEY|sk-/i);
+  const chatRoot = { innerHTML: "", querySelector: () => null };
+  renderAiChatPanel(chatRoot, {
+    state: {
+      question: "",
+      loading: false,
+      error: "",
+      messages: [
+        { question: "问题1", answer: "回答1" },
+        { question: "问题2", answer: "回答2" },
+        { question: "问题3", answer: "回答3" },
+      ],
+    },
+    hasReport: true,
+    onAsk() {},
+  });
+  assert.match(chatRoot.innerHTML, /AI 问答/);
+  assert.match(chatRoot.innerHTML, /textarea/);
+  assert.match(chatRoot.innerHTML, /提问/);
+  assert.match(chatRoot.innerHTML, /最近 3 条/);
+  assert.match(chatRoot.innerHTML, /问题3/);
+  assert.match(aiChatPanelSource, /data-ai-chat-form/);
+  assert.match(aiChatPanelSource, /data-ai-chat-question/);
+  assert.doesNotMatch(aiChatPanelSource, /\/api\/|localStorage|caseStore/);
   assert.match(natalPrompt.system, /解释层，不是排盘层/);
   assert.match(natalPrompt.system, /只能根据 natalImageReport 解读/);
   assert.match(natalPrompt.system, /不能重新排盘/);
@@ -856,6 +910,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(appSource, /import \{ buildLuckAiPrompt \} from "\.\/core\/ai\/buildLuckAiPrompt\.js"/);
   assert.match(appSource, /import \{ buildYearAiPrompt \} from "\.\/core\/ai\/buildYearAiPrompt\.js"/);
   assert.match(appSource, /import \{ buildMonthAiPrompt \} from "\.\/core\/ai\/buildMonthAiPrompt\.js"/);
+  assert.match(appSource, /import \{ buildChatPrompt \} from "\.\/core\/ai\/buildChatPrompt\.js"/);
   assert.match(appSource, /import \{ buildNatalAiPrompt \} from "\.\/core\/ai\/buildNatalAiPrompt\.js"/);
   assert.match(appSource, /import \{ loadRuntimeAiSettings, readAiSettings, saveAiSettings \} from "\.\/core\/ai\/aiSettingsClient\.js\?v=20260613c"/);
   assert.match(appSource, /import \{ generateWithDeepSeek \} from "\.\/core\/ai\/deepseekClient\.js\?v=20260613b"/);
@@ -866,6 +921,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(appSource, /import \{ renderLuckAiNarrativePanel \} from "\.\/components\/luckAiNarrativePanel\.js"/);
   assert.match(appSource, /import \{ renderYearAiNarrativePanel \} from "\.\/components\/yearAiNarrativePanel\.js"/);
   assert.match(appSource, /import \{ renderMonthAiNarrativePanel \} from "\.\/components\/monthAiNarrativePanel\.js"/);
+  assert.match(appSource, /import \{ renderAiChatPanel \} from "\.\/components\/aiChatPanel\.js"/);
   assert.match(appSource, /import \{ renderNatalAiNarrativePanel \} from "\.\/components\/natalAiNarrativePanel\.js"/);
   assert.match(appSource, /buildNatalImageReport\(\{ chart, baseBaziViewModel \}\)/);
   assert.match(appSource, /buildLuckImageReport\(\{\s*chart,\s*baseBaziViewModel,\s*natalImageReport,\s*targetYear: currentInput\.targetYear,\s*\}\)/);
@@ -878,15 +934,20 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(appSource, /let luckAiState/);
   assert.match(appSource, /let yearAiState/);
   assert.match(appSource, /let monthAiState/);
+  assert.match(appSource, /let chatState/);
   assert.match(appSource, /generateLuckAiNarrative/);
   assert.match(appSource, /generateYearAiNarrative/);
   assert.match(appSource, /generateMonthAiNarrative/);
+  assert.match(appSource, /askAiQuestion/);
   assert.match(appSource, /buildLuckAiPrompt\(\{\s*baseBaziViewModel: state\.baseBaziViewModel,\s*natalImageReport: state\.natalImageReport,\s*luckImageReport: state\.luckImageReport,\s*\}\)/);
   assert.match(appSource, /buildYearAiPrompt\(\{\s*baseBaziViewModel: state\.baseBaziViewModel,\s*natalImageReport: state\.natalImageReport,\s*luckImageReport: state\.luckImageReport,\s*yearImageReport: state\.yearImageReport,\s*\}\)/);
   assert.match(appSource, /buildMonthAiPrompt\(\{\s*baseBaziViewModel: state\.baseBaziViewModel,\s*natalImageReport: state\.natalImageReport,\s*luckImageReport: state\.luckImageReport,\s*yearImageReport: state\.yearImageReport,\s*monthImageReport: state\.monthImageReport,\s*\}\)/);
+  assert.match(appSource, /buildChatPrompt\(\{\s*question: trimmedQuestion,\s*baseBaziViewModel: state\.baseBaziViewModel,\s*natalImageReport: state\.natalImageReport,\s*luckImageReport: state\.luckImageReport,\s*yearImageReport: state\.yearImageReport,\s*monthImageReport: state\.monthImageReport,\s*\}\)/);
+  assert.match(appSource, /\.slice\(-3\)/);
   assert.match(appSource, /renderLuckAiNarrativePanel\(roots\.luckAiNarrative/);
   assert.match(appSource, /renderYearAiNarrativePanel\(roots\.yearAiNarrative/);
   assert.match(appSource, /renderMonthAiNarrativePanel\(roots\.monthAiNarrative/);
+  assert.match(appSource, /renderAiChatPanel\(roots\.aiChatPanel/);
   assert.match(appSource, /let natalAiState/);
   assert.match(appSource, /async function init/);
   assert.match(appSource, /await loadRuntimeAiSettings\(\)/);
@@ -2103,8 +2164,7 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.match(appSource, /renderYearAiNarrativePanel\(roots\.yearAiNarrative/);
   assert.match(appSource, /renderMonthImagePanel\(roots\.monthImagePanel/);
   assert.match(appSource, /renderMonthAiNarrativePanel\(roots\.monthAiNarrative/);
-  assert.match(appSource, /AI 问答[\s\S]*AI 问答待接入/);
-  assert.doesNotMatch(appSource, /renderChatPanel/);
+  assert.match(appSource, /renderAiChatPanel\(roots\.aiChatPanel/);
   assert.match(aiSettingsClientSource, /localStorage/);
   assert.match(aiSettingsClientSource, /readAiSettings/);
   assert.match(aiSettingsClientSource, /loadRuntimeAiSettings/);

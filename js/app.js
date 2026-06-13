@@ -1,4 +1,5 @@
 import { loadRuntimeAiSettings, readAiSettings, saveAiSettings } from "./core/ai/aiSettingsClient.js?v=20260613c";
+import { buildChatPrompt } from "./core/ai/buildChatPrompt.js";
 import { buildLuckAiPrompt } from "./core/ai/buildLuckAiPrompt.js";
 import { buildMonthAiPrompt } from "./core/ai/buildMonthAiPrompt.js";
 import { buildNatalAiPrompt } from "./core/ai/buildNatalAiPrompt.js";
@@ -11,6 +12,7 @@ import { buildYearImageReport } from "./core/blind-bazi/buildYearImageReport.js"
 import { buildBaseBaziViewModel } from "./core/bazi/buildBaseBaziViewModel.js";
 import { calculateBazi } from "./core/bazi/calculateBazi.js";
 import { renderAiSettingsPanel } from "./components/aiSettingsPanel.js?v=20260613c";
+import { renderAiChatPanel } from "./components/aiChatPanel.js";
 import { renderBaseBaziPanel } from "./components/baseBaziPanel.js";
 import { renderBirthForm } from "./components/birthForm.js";
 import { renderDebugPanel } from "./components/debugPanel.js";
@@ -64,6 +66,12 @@ let monthAiState = {
   loading: false,
   text: "",
   error: "",
+};
+let chatState = {
+  question: "",
+  loading: false,
+  error: "",
+  messages: [],
 };
 let currentInput = {
   name: "测试用户",
@@ -134,6 +142,7 @@ function refresh() {
     luckAiState = { loading: false, text: "", error: "" };
     yearAiState = { loading: false, text: "", error: "" };
     monthAiState = { loading: false, text: "", error: "" };
+    chatState = { question: "", loading: false, error: "", messages: [] };
     renderBaseOnly();
     roots.status.textContent = "基础排盘已完成。";
   } catch (error) {
@@ -173,7 +182,11 @@ function renderShell() {
     hasReport: false,
     onGenerate: generateMonthAiNarrative,
   });
-  renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
+  renderAiChatPanel(roots.aiChatPanel, {
+    state: chatState,
+    hasReport: false,
+    onAsk: askAiQuestion,
+  });
   renderDebugPanel(roots.debug, state);
 }
 
@@ -203,7 +216,11 @@ function renderBaseOnly() {
     hasReport: Boolean(state.monthImageReport?.monthItem),
     onGenerate: generateMonthAiNarrative,
   });
-  renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
+  renderAiChatPanel(roots.aiChatPanel, {
+    state: chatState,
+    hasReport: Boolean(state.monthImageReport?.monthItem),
+    onAsk: askAiQuestion,
+  });
   renderDebugPanel(roots.debug, state);
 }
 
@@ -277,6 +294,34 @@ async function generateMonthAiNarrative() {
     monthAiState = { loading: false, text: result.text, error: "" };
   } catch (error) {
     monthAiState = { loading: false, text: "", error: error.message };
+  }
+  renderBaseOnly();
+}
+
+async function askAiQuestion(question) {
+  const trimmedQuestion = String(question ?? "").trim();
+  if (!trimmedQuestion) return;
+  chatState = { ...chatState, question: trimmedQuestion, loading: true, error: "" };
+  renderBaseOnly();
+  try {
+    const settings = readAiSettings({ includeSecret: true });
+    const prompt = buildChatPrompt({
+      question: trimmedQuestion,
+      baseBaziViewModel: state.baseBaziViewModel,
+      natalImageReport: state.natalImageReport,
+      luckImageReport: state.luckImageReport,
+      yearImageReport: state.yearImageReport,
+      monthImageReport: state.monthImageReport,
+    });
+    const result = await generateWithDeepSeek({ settings, prompt });
+    chatState = {
+      question: "",
+      loading: false,
+      error: "",
+      messages: [...chatState.messages, { question: trimmedQuestion, answer: result.text }].slice(-3),
+    };
+  } catch (error) {
+    chatState = { ...chatState, loading: false, error: error.message };
   }
   renderBaseOnly();
 }

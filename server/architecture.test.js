@@ -40,6 +40,7 @@ const requiredPaths = [
   "js/locationData.js",
   "js/lunarCalendar.js",
   "js/core/ai/aiSettingsClient.js",
+  "js/core/blind-bazi/buildNatalImageReport.js",
   "js/core/bazi/buildBaseBaziViewModel.js",
   "js/core/bazi/buildBaziStructureAnalysis.js",
   "js/core/bazi/calculateBazi.js",
@@ -52,6 +53,7 @@ const requiredPaths = [
   "js/core/bazi/shenshaRules.js",
   "js/components/birthForm.js",
   "js/components/baseBaziPanel.js",
+  "js/components/natalImagePanel.js",
   "js/components/chartSummary.js",
   "js/components/yearStoryPanel.js",
   "js/components/monthTimeline.js",
@@ -281,9 +283,11 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   const { calculateBazi: calculateFrontendBazi } = await import("../js/core/bazi/calculateBazi.js");
   const { buildBaseBaziViewModel: buildFrontendBaseBaziViewModel } = await import("../js/core/bazi/buildBaseBaziViewModel.js");
   const { buildBaziRelations } = await import("../js/core/bazi/relations.js");
+  const { buildNatalImageReport } = await import("../js/core/blind-bazi/buildNatalImageReport.js");
   const appSource = readFileSync("js/app.js", "utf8");
   const aiSettingsClientSource = readFileSync("js/core/ai/aiSettingsClient.js", "utf8");
   const basePanelSource = readFileSync("js/components/baseBaziPanel.js", "utf8");
+  const natalPanelSource = readFileSync("js/components/natalImagePanel.js", "utf8");
   const chart = calculateFrontendBazi({
     name: "基础排盘用户",
     birthDate: "1992-08-18",
@@ -292,6 +296,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
     gender: "female",
   });
   const viewModel = buildFrontendBaseBaziViewModel(chart);
+  const natalReport = buildNatalImageReport({ chart, baseBaziViewModel: viewModel });
 
   assert.equal(chart.input.name, "基础排盘用户");
   assert.equal(viewModel.birthInfo.name, "基础排盘用户");
@@ -325,6 +330,34 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(basePanelSource, /寒暖燥湿/);
   assert.match(basePanelSource, /用忌神初判/);
   assert.match(basePanelSource, /干支关系完整性/);
+  assert.ok(natalReport.summary);
+  assert.equal(natalReport.summary.dayMaster, chart.dayMaster.label);
+  assert.ok(natalReport.summary.mainStructure);
+  assert.ok(natalReport.summary.mainImage);
+  assert.ok(natalReport.summary.boundary);
+  assert.match(natalReport.summary.usefulHint, /复核|初步|倾向/);
+  assert.ok(Array.isArray(natalReport.imageCards));
+  assert.ok(natalReport.imageCards.length >= 9);
+  assert.deepEqual(
+    natalReport.imageCards.map((card) => card.topic),
+    ["personality", "family", "study_skill", "career", "wealth", "relationship", "health", "movement", "life_pattern"],
+  );
+  for (const card of natalReport.imageCards) {
+    assert.match(card.level, /^(high|medium|low)$/);
+    assert.ok(Array.isArray(card.evidence));
+    assert.ok(card.evidence.length > 0);
+    assert.equal(typeof card.image, "string");
+    assert.equal(typeof card.reality, "string");
+    assert.equal(typeof card.boundary, "string");
+    assert.match(card.confidence, /^(high|medium|low)$/);
+  }
+  assert.ok(natalReport.keySignals.length > 0);
+  assert.ok(Array.isArray(natalReport.weakSignals));
+  assert.ok(natalReport.needVerify.length > 0);
+  assert.doesNotMatch(JSON.stringify(natalReport), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
+  assert.match(natalPanelSource, /原局整体取象/);
+  assert.match(natalPanelSource, /keySignals/);
+  assert.match(natalPanelSource, /needVerify/);
 
   const relationFixtures = [
     { year: "甲子", month: "己丑", day: "丙寅", hour: "辛卯" },
@@ -348,6 +381,10 @@ test("frontend bazi modules calculate and render base chart without server APIs"
 
   assert.match(appSource, /import \{ calculateBazi \} from "\.\/core\/bazi\/calculateBazi\.js"/);
   assert.match(appSource, /import \{ buildBaseBaziViewModel \} from "\.\/core\/bazi\/buildBaseBaziViewModel\.js"/);
+  assert.match(appSource, /import \{ buildNatalImageReport \} from "\.\/core\/blind-bazi\/buildNatalImageReport\.js"/);
+  assert.match(appSource, /import \{ renderNatalImagePanel \} from "\.\/components\/natalImagePanel\.js"/);
+  assert.match(appSource, /buildNatalImageReport\(\{ chart, baseBaziViewModel \}\)/);
+  assert.match(appSource, /renderNatalImagePanel\(roots\.natalImagePanel, state\.natalImageReport\)/);
   assert.doesNotMatch(appSource, /requestNarrative|\.\/apiClient\.js|\/api\/narrative|\/api\/cases|casePanel/i);
   assert.doesNotMatch(aiSettingsClientSource, /fetch\(|\/api\//);
 });

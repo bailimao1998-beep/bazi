@@ -1,10 +1,12 @@
 import { readAiSettings, saveAiSettings } from "./core/ai/aiSettingsClient.js";
+import { buildNatalImageReport } from "./core/blind-bazi/buildNatalImageReport.js";
 import { buildBaseBaziViewModel } from "./core/bazi/buildBaseBaziViewModel.js";
 import { calculateBazi } from "./core/bazi/calculateBazi.js";
 import { renderAiSettingsPanel } from "./components/aiSettingsPanel.js";
 import { renderBaseBaziPanel } from "./components/baseBaziPanel.js";
 import { renderBirthForm } from "./components/birthForm.js";
 import { renderDebugPanel } from "./components/debugPanel.js";
+import { renderNatalImagePanel } from "./components/natalImagePanel.js";
 
 const roots = {
   birthForm: document.querySelector("#birthForm"),
@@ -56,7 +58,8 @@ function refresh() {
   try {
     const chart = calculateBazi(currentInput);
     const baseBaziViewModel = buildBaseBaziViewModel(chart);
-    state = { input: currentInput, chart, baseBaziViewModel };
+    const natalImageReport = buildNatalImageReport({ chart, baseBaziViewModel });
+    state = { input: currentInput, chart, baseBaziViewModel, natalImageReport };
     renderBaseOnly();
     roots.status.textContent = "基础排盘已完成。";
   } catch (error) {
@@ -86,7 +89,7 @@ function renderAiSettings() {
 
 function renderShell() {
   renderBaseBaziPanel(roots.baseBaziPanel, null);
-  renderPlaceholderPanel(roots.natalImagePanel, "原局取象");
+  renderNatalImagePanel(roots.natalImagePanel, null);
   renderPlaceholderPanel(roots.natalAiNarrative, "原局 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.luckImagePanel, "大运取象");
   renderPlaceholderPanel(roots.luckAiNarrative, "大运 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
@@ -100,7 +103,7 @@ function renderShell() {
 
 function renderBaseOnly() {
   renderBaseBaziPanel(roots.baseBaziPanel, state.baseBaziViewModel);
-  renderPlaceholderPanel(roots.natalImagePanel, "原局取象");
+  renderNatalImagePanel(roots.natalImagePanel, state.natalImageReport);
   renderPlaceholderPanel(roots.natalAiNarrative, "原局 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.luckImagePanel, "大运取象");
   renderPlaceholderPanel(roots.luckAiNarrative, "大运 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");

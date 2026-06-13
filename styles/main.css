@@ -63,6 +63,31 @@
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
+.natal-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.natal-image-card {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdf8;
+}
+
+.natal-image-card h4 {
+  margin: 10px 0 6px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.natal-image-card ul {
+  margin: 8px 0 0;
+  padding-left: 1.15rem;
+}
+
 .evidence-card header {
   display: grid;
   gap: 4px;

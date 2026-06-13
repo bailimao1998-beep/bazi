@@ -350,6 +350,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   const { buildLuckImageReport } = await import("../js/core/blind-bazi/buildLuckImageReport.js");
   const { buildNatalAiPrompt } = await import("../js/core/ai/buildNatalAiPrompt.js");
   const { generateWithDeepSeek } = await import("../js/core/ai/deepseekClient.js");
+  const { renderLuckImagePanel } = await import("../js/components/luckImagePanel.js");
   const appSource = readFileSync("js/app.js", "utf8");
   const aiSettingsClientSource = readFileSync("js/core/ai/aiSettingsClient.js", "utf8");
   const natalAiPromptSource = readFileSync("js/core/ai/buildNatalAiPrompt.js", "utf8");
@@ -489,6 +490,31 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(luckPanelSource, /大运取象总览/);
   assert.match(luckPanelSource, /暂无大运数据/);
   assert.match(luckPanelSource, /relationToNatal/);
+  const luckPanelRoot = { innerHTML: "", querySelectorAll: () => [] };
+  renderLuckImagePanel(luckPanelRoot, {
+    summary: { title: "大运取象总览", overview: "测试总览", confidence: "medium" },
+    keySignals: [],
+    needVerify: [],
+    luckItems: [{
+      index: 1,
+      ganZhi: "甲子",
+      ageRange: "1-10岁",
+      yearRange: "2000-2009",
+      stem: "甲",
+      branch: "子",
+      tenGod: "比肩",
+      relationToNatal: [{ natalPillar: "日支午", members: "子午", type: "冲", effect: "冲动" }],
+      image: "简短取象测试",
+      reality: "现实观察测试",
+      boundary: "边界提醒测试",
+      confidence: "medium",
+    }],
+  });
+  assert.match(luckPanelRoot.innerHTML, /展开详情/);
+  assert.match(luckPanelRoot.innerHTML, /data-luck-detail-toggle/);
+  assert.match(luckPanelRoot.innerHTML, /data-luck-detail=/);
+  assert.match(luckPanelRoot.innerHTML, /hidden/);
+  assert.ok(luckPanelRoot.innerHTML.indexOf("简短取象测试") < luckPanelRoot.innerHTML.indexOf("展开详情"));
   assert.doesNotMatch(luckPanelSource, /generateWithDeepSeek|buildNatalAiPrompt|AI 问答/);
   assert.match(natalPrompt.system, /解释层，不是排盘层/);
   assert.match(natalPrompt.system, /只能根据 natalImageReport 解读/);

@@ -20,6 +20,7 @@ export function renderLuckImagePanel(root, report) {
     ${renderLuckItems(report.luckItems)}
     ${renderSignals("复核提醒", report.needVerify)}
   `;
+  bindLuckDetailToggles(root);
 }
 
 function renderSummary(summary = {}) {
@@ -43,6 +44,7 @@ function renderLuckItems(items = []) {
 }
 
 function renderLuckItem(item = {}) {
+  const detailId = `luck-detail-${safeAttribute(item.index ?? item.ganZhi ?? "")}`;
   return `
     <article class="natal-image-card">
       <div class="board-title">
@@ -54,11 +56,15 @@ function renderLuckItem(item = {}) {
         <article><span>地支</span><strong>${safe(item.branch || "待查")}</strong></article>
         <article><span>十神</span><strong>${safe(item.tenGod || "待查")}</strong></article>
       </div>
-      ${renderRelationToNatal(item.relationToNatal)}
-      <section><h4>结构取象</h4><p>${safe(item.image)}</p></section>
-      <section><h4>现实应象</h4><p>${safe(item.reality)}</p></section>
-      <section><h4>成立边界</h4><p>${safe(item.boundary)}</p></section>
-      <p class="fine-print">置信度：${safe(item.confidence || "medium")}</p>
+      <section><h4>简短取象</h4><p>${safe(item.image)}</p></section>
+      <button type="button" class="secondary-button" data-luck-detail-toggle="${detailId}" aria-expanded="false" aria-controls="${detailId}">展开详情</button>
+      <div id="${detailId}" data-luck-detail="${detailId}" hidden>
+        ${renderRelationToNatal(item.relationToNatal)}
+        <section><h4>结构取象</h4><p>${safe(item.image)}</p></section>
+        <section><h4>现实应象</h4><p>${safe(item.reality)}</p></section>
+        <section><h4>成立边界</h4><p>${safe(item.boundary)}</p></section>
+        <p class="fine-print">置信度：${safe(item.confidence || "medium")}</p>
+      </div>
     </article>
   `;
 }
@@ -80,6 +86,20 @@ function renderSignals(title, items = []) {
   `;
 }
 
+function bindLuckDetailToggles(root) {
+  root.querySelectorAll?.("[data-luck-detail-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const detailId = button.dataset.luckDetailToggle;
+      const detail = root.querySelector?.(`[data-luck-detail="${detailId}"]`);
+      if (!detail) return;
+      const willExpand = detail.hidden;
+      detail.hidden = !willExpand;
+      button.setAttribute("aria-expanded", String(willExpand));
+      button.textContent = willExpand ? "收起" : "展开详情";
+    });
+  });
+}
+
 function safe(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -87,4 +107,10 @@ function safe(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function safeAttribute(value) {
+  return String(value ?? "")
+    .replaceAll(/[^a-zA-Z0-9_-]/g, "-")
+    || "unknown";
 }

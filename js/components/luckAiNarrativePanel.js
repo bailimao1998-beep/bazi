@@ -4,7 +4,6 @@ export function renderLuckAiNarrativePanel(root, payload = {}, actions = {}) {
   const hasReport = Boolean(payload.hasReport);
   root.innerHTML = `
     <div class="plugin-header">
-      <p class="eyebrow">大运 AI 分析</p>
       <h2>大运 AI 分析</h2>
     </div>
     <p class="muted">只分析当前大运，不分析全部大运。</p>

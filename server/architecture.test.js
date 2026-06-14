@@ -948,6 +948,16 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(appSource, /renderYearAiNarrativePanel\(roots\.yearAiNarrative/);
   assert.match(appSource, /renderMonthAiNarrativePanel\(roots\.monthAiNarrative/);
   assert.match(appSource, /renderAiChatPanel\(roots\.aiChatPanel/);
+  assert.match(appSource, /renderAiChatPanel\(roots\.aiChatPanel,\s*\{\s*state: chatState,\s*hasReport: Boolean\(state\.natalImageReport\),\s*onAsk: askAiQuestion,\s*\}\)/);
+  assert.match(appSource, /function renderChartSummary/);
+  assert.match(appSource, /出生地[\s\S]*公历时间[\s\S]*农历时间[\s\S]*是否使用真太阳时[\s\S]*节气四柱/);
+  assert.match(appSource, /天干五行统计[\s\S]*地支主气五行统计[\s\S]*完整藏干五行统计[\s\S]*综合五行统计/);
+  assert.match(appSource, /天干十神[\s\S]*地支主气十神[\s\S]*完整藏干十神[\s\S]*综合十神/);
+  assert.match(appSource, /排盘细节[\s\S]*纳音、空亡、十二长生、胎元命宫/);
+  assert.match(appSource, /干支关系[\s\S]*groupRelations/);
+  assert.match(appSource, /大运表[\s\S]*天干十神[\s\S]*地支主气十神/);
+  assert.match(appSource, /bindFortuneTabs\(\)/);
+  assert.match(appSource, /bindAiChatDrawer\(\)/);
   assert.match(appSource, /let natalAiState/);
   assert.match(appSource, /async function init/);
   assert.match(appSource, /await loadRuntimeAiSettings\(\)/);
@@ -2130,18 +2140,32 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.doesNotMatch(index, /js\/app\.bundle\.js/);
   assert.doesNotMatch(index, /js\/local-deepseek-config\.local\.js/);
   assert.match(index, /<script\s+type="module"\s+src="js\/app\.js\?v=20260613c"><\/script>/);
-  assert.doesNotMatch(index, /id="coreSignals"|id="yearStory"|id="monthTimeline"|id="casePanel"|id="chartSummary"|id="aiNarrative"/);
+  assert.doesNotMatch(index, /js\/app\.bundle\.js|id="coreSignals"|id="yearStory"|id="monthTimeline"|id="casePanel"|id="aiNarrative"/);
+  assert.match(index, /class="grid main-layout"/);
+  assert.match(index, /id="birthForm"[\s\S]*id="chartSummary"/);
+  assert.match(index, /id="natalSection"[\s\S]*原局分析[\s\S]*id="natalImagePanel"[\s\S]*id="natalAiNarrative"/);
+  assert.match(index, /id="fortuneSection"[\s\S]*阶段分析[\s\S]*data-fortune-tab="luck"[\s\S]*data-fortune-tab="year"[\s\S]*id="luckImagePanel"[\s\S]*id="yearImagePanel"/);
+  assert.match(index, /id="fortuneAiSection"[\s\S]*阶段 AI 分析[\s\S]*id="luckAiNarrative"[\s\S]*id="yearAiNarrative"/);
+  assert.match(index, /id="monthSection"[\s\S]*流月分析[\s\S]*id="monthImagePanel"[\s\S]*id="monthAiNarrative"/);
+  assert.match(index, /id="aiChatFloat"[\s\S]*id="aiChatToggle"[\s\S]*AI 问答[\s\S]*id="aiChatDrawer"[\s\S]*id="aiChatClose"[\s\S]*id="aiChatPanel"/);
+  assert.match(index, /id="settingsSection"[\s\S]*id="aiSettings"[\s\S]*id="debugPanel"/);
   const orderedPanels = [
     "birthForm",
-    "baseBaziPanel",
+    "chartSummary",
+    "natalSection",
     "natalImagePanel",
     "natalAiNarrative",
+    "fortuneSection",
     "luckImagePanel",
-    "luckAiNarrative",
     "yearImagePanel",
+    "fortuneAiSection",
+    "luckAiNarrative",
     "yearAiNarrative",
+    "monthSection",
     "monthImagePanel",
     "monthAiNarrative",
+    "baseBaziPanel",
+    "aiChatFloat",
     "aiChatPanel",
     "aiSettings",
     "debugPanel",
@@ -2151,6 +2175,12 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
     assert.ok(index.indexOf(`id="${orderedPanels[panelIndex - 1]}"`) < index.indexOf(`id="${orderedPanels[panelIndex]}"`));
   }
   assert.match(appSource, /renderAiSettingsPanel/);
+  assert.match(appSource, /renderChartSummary\(roots\.chartSummary, state\)/);
+  assert.match(appSource, /bindFortuneTabs\(\)/);
+  assert.match(appSource, /function setActiveFortuneTab/);
+  assert.match(appSource, /bindAiChatDrawer\(\)/);
+  assert.match(appSource, /function setAiChatOpen/);
+  assert.match(appSource, /panel\.hidden = !active/);
   assert.match(appSource, /renderBaseBaziPanel/);
   assert.match(appSource, /renderPlaceholderPanel/);
   assert.match(appSource, /baseBaziViewModel/);
@@ -2178,6 +2208,11 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.match(aiSettingsPanelSource, /未检测到 config\/ai-config\.json/);
   assert.doesNotMatch(aiSettingsPanelSource, /type="password"/);
   assert.doesNotMatch(aiSettingsPanelSource, /data-ai-save/);
+  assert.match(styles, /\.main-layout/);
+  assert.match(styles, /\.section-tabs[\s\S]*overflow-x: auto/);
+  assert.match(styles, /\.ai-chat-drawer[\s\S]*width: min\(420px/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.ai-chat-drawer[\s\S]*width: calc\(100vw - 24px\)/);
+  assert.match(styles, /\.ai-narrative-output[\s\S]*max-height: 520px[\s\S]*overflow: auto/);
   assert.match(bundle, /function renderEvidenceCards/);
   assert.match(bundle, /年度证据总览/);
   assert.match(bundle, /副线复核/);

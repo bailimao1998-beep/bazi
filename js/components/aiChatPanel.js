@@ -5,7 +5,6 @@ export function renderAiChatPanel(root, payload = {}, actions = {}) {
   const messages = Array.isArray(state.messages) ? state.messages.slice(-3) : [];
   root.innerHTML = `
     <div class="plugin-header">
-      <p class="eyebrow">AI 问答</p>
       <h2>AI 问答</h2>
     </div>
     <p class="muted">基于当前页面已有排盘与取象提问。</p>

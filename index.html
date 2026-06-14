@@ -14,20 +14,65 @@
         <strong id="status">等待输入。</strong>
       </section>
 
-      <section class="grid">
+      <section class="grid main-layout">
         <section class="panel span-4" id="birthForm"></section>
-        <section class="panel span-12" id="baseBaziPanel"></section>
+        <section class="panel span-8 chart-panel" id="chartSummary"></section>
+      </section>
+
+      <section class="analysis-section" id="natalSection">
+        <div class="section-heading">
+          <h2>原局分析</h2>
+        </div>
         <section class="panel span-12" id="natalImagePanel"></section>
         <section class="panel span-12" id="natalAiNarrative"></section>
-        <section class="panel span-12" id="luckImagePanel"></section>
-        <section class="panel span-12" id="luckAiNarrative"></section>
-        <section class="panel span-12" id="yearImagePanel"></section>
-        <section class="panel span-12" id="yearAiNarrative"></section>
-        <section class="panel span-12" id="monthImagePanel"></section>
-        <section class="panel span-12" id="monthAiNarrative"></section>
-        <section class="panel span-12" id="aiChatPanel"></section>
-        <section class="panel span-12" id="aiSettings"></section>
-        <section class="panel span-12" id="debugPanel"></section>
+      </section>
+
+      <section class="analysis-section" id="fortuneSection" aria-label="阶段分析">
+        <section class="panel span-12 fortune-flow-panel" id="fortuneTransitPanel"></section>
+        <div class="legacy-stage-panels" hidden>
+          <div class="section-tabs" role="tablist" aria-label="阶段取象切换">
+            <button type="button" class="is-active" data-fortune-tab="luck" aria-selected="true">大运</button>
+            <button type="button" data-fortune-tab="year" aria-selected="false">流年</button>
+          </div>
+          <section class="panel fortune-tab-panel is-active" id="luckImagePanel" data-fortune-panel="luck"></section>
+          <section class="panel fortune-tab-panel" id="yearImagePanel" data-fortune-panel="year" hidden></section>
+        </div>
+      </section>
+
+      <section class="analysis-section" id="fortuneAiSection" hidden>
+        <div class="section-heading">
+          <h2>阶段 AI 分析</h2>
+        </div>
+        <div class="fortune-ai-section-grid">
+          <section class="panel" id="luckAiNarrative"></section>
+          <section class="panel" id="yearAiNarrative"></section>
+        </div>
+      </section>
+
+      <section class="analysis-section" id="monthSection" hidden>
+        <div class="section-heading">
+          <h2>流月分析</h2>
+        </div>
+        <section class="panel" id="monthImagePanel"></section>
+        <section class="panel" id="monthAiNarrative"></section>
+      </section>
+
+      <section id="baseBaziPanel" hidden></section>
+
+      <div class="ai-chat-float" id="aiChatFloat">
+        <button type="button" class="ai-chat-toggle" id="aiChatToggle" aria-expanded="false" aria-controls="aiChatDrawer">AI 问答</button>
+        <aside class="ai-chat-drawer" id="aiChatDrawer" hidden>
+          <div class="ai-chat-drawer-head">
+            <strong>AI 问答</strong>
+            <button type="button" id="aiChatClose">关闭</button>
+          </div>
+          <section id="aiChatPanel"></section>
+        </aside>
+      </div>
+
+      <section class="analysis-section settings-section" id="settingsSection">
+        <section class="panel" id="aiSettings"></section>
+        <section class="panel" id="debugPanel"></section>
       </section>
     </main>
     <script src="js/locationData.js?v=20260612b"></script>

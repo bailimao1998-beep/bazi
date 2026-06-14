@@ -18,7 +18,7 @@ export function renderAiSettingsPanel(root, state = {}, actions = {}) {
       ${renderReadonlyField("Provider", settings.provider ?? "mock")}
       ${renderReadonlyField("Endpoint", deepseek.endpoint ?? "https://api.deepseek.com/chat/completions")}
       ${renderReadonlyField("Model", deepseek.model ?? "deepseek-chat")}
-      ${renderReadonlyField("Key", deepseek.maskedApiKey || (hasLocalKey ? "已检测" : "未检测"))}
+      ${renderReadonlyField("API Key", hasLocalKey ? "已配置" : "未配置")}
     </div>
   `;
 }

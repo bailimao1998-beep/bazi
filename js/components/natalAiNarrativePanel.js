@@ -4,7 +4,6 @@ export function renderNatalAiNarrativePanel(root, payload = {}, actions = {}) {
   const hasReport = Boolean(payload.hasReport);
   root.innerHTML = `
     <div class="plugin-header">
-      <p class="eyebrow">原局 AI 分析</p>
       <h2>原局 AI 分析</h2>
     </div>
     <p class="muted">AI 只解释原局取象，不参与排盘和取象。</p>

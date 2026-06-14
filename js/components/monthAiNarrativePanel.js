@@ -4,7 +4,6 @@ export function renderMonthAiNarrativePanel(root, payload = {}, actions = {}) {
   const hasReport = Boolean(payload.hasReport);
   root.innerHTML = `
     <div class="plugin-header">
-      <p class="eyebrow">流月 AI 分析</p>
       <h2>流月 AI 分析</h2>
     </div>
     <p class="muted">只分析当前目标月份。</p>

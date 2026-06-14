@@ -4,7 +4,6 @@ export function renderYearAiNarrativePanel(root, payload = {}, actions = {}) {
   const hasReport = Boolean(payload.hasReport);
   root.innerHTML = `
     <div class="plugin-header">
-      <p class="eyebrow">流年 AI 分析</p>
       <h2>流年 AI 分析</h2>
     </div>
     <p class="muted">只分析当前目标年份。</p>

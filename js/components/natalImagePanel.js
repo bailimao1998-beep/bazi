@@ -10,6 +10,36 @@ const topicLabels = {
   life_pattern: "人生主线",
 };
 
+const cardGroups = [
+  {
+    title: "人自身",
+    topics: ["personality", "health", "life_pattern"],
+  },
+  {
+    title: "现实发展",
+    topics: ["study_skill", "career", "wealth"],
+  },
+  {
+    title: "关系环境",
+    topics: ["family", "relationship", "movement"],
+  },
+];
+
+const fallbackOverviewTopics = ["personality", "career", "wealth", "relationship", "life_pattern"];
+const confidenceLabels = {
+  high: "重点",
+  medium: "可参考",
+  low: "待验证",
+};
+const strengthLabels = {
+  weak: "偏弱",
+  strong: "偏强",
+  balanced: "平衡",
+  medium: "中和",
+  mixed: "需复核",
+  none: "不显",
+};
+
 export function renderNatalImagePanel(root, report) {
   if (!root) return;
   if (!report) {
@@ -27,70 +57,177 @@ export function renderNatalImagePanel(root, report) {
       <p class="eyebrow">原局取象</p>
       <h2>原局整体取象</h2>
     </div>
-    ${renderSummary(report.summary)}
-    ${renderSignals("关键结构信号", report.keySignals, "keySignals")}
-    ${renderImageCards(report.imageCards)}
-    ${renderSignals("弱信号与保留点", report.weakSignals, "weakSignals")}
-    ${renderSignals("师傅复核点", report.needVerify, "needVerify")}
+    ${renderOverview(report)}
+    ${renderKeywordSummary(report.imageCards)}
+    ${renderGroupedCards(report.imageCards)}
+    ${renderEvidenceChain(report)}
   `;
 }
 
-function renderSummary(summary = {}) {
+function renderOverview(report = {}) {
+  const summary = report.summary ?? {};
+  const cards = report.imageCards ?? [];
+  const overview = buildOverviewItems(summary, cards, report.needVerify);
   return `
-    <section class="base-bazi-section">
-      <div class="board-title"><h3>${safe(summary.title || "原局整体取象")}</h3><span>${safe(summary.confidence || "medium")}</span></div>
-      <div class="evidence-summary">
-        <article><span>日主</span><strong>${safe(summary.dayMaster || "待查")}</strong></article>
-        <article><span>结构</span><strong>${safe(summary.mainStructure || "待复核")}</strong></article>
-        <article><span>强弱</span><strong>${safe(summary.strengthLevel || "待查")}</strong></article>
+    <section class="natal-overview-card">
+      <div class="board-title">
+        <h3>原局总论</h3>
+        <span>${safe(confidenceLabel(summary.confidence))}</span>
       </div>
-      <p>${safe(summary.mainImage || "等待结构取象。")}</p>
-      <p class="fine-print">${safe(summary.usefulHint || "初步倾向，需结合格局、通关、调候复核。")}</p>
-      <p class="fine-print">${safe(summary.boundary || "原局取象只作结构观察。")}</p>
+      <div class="natal-overview-grid">
+        ${overview.map(([label, text]) => `
+          <article>
+            <span>${safe(label)}</span>
+            <p>${display(text || "待复核。")}</p>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function buildOverviewItems(summary = {}, cards = [], needVerify = []) {
+  const fallbackCards = fallbackOverviewTopics
+    .map((topic) => cards.find((card) => card.topic === topic))
+    .filter(Boolean);
+  const highCards = cards.filter((card) => card.level === "high");
+  const firstHighCard = highCards[0] ?? fallbackCards[0] ?? cards[0] ?? {};
+  const pressureCard = cards.find((card) => card.confidence === "low")
+    ?? cards.find((card) => card.boundary)
+    ?? fallbackCards[1]
+    ?? cards[1]
+    ?? {};
+  const realityCard = fallbackCards.find((card) => card.reality)
+    ?? cards.find((card) => card.reality)
+    ?? {};
+
+  return [
+    ["一句话总览", summary.mainImage || fallbackCards.map((card) => card.image).filter(Boolean).slice(0, 2).join("；")],
+    ["核心优势", firstHighCard.image || firstHighCard.title || summary.mainStructure],
+    ["主要压力", summary.usefulHint || pressureCard.boundary || pressureCard.title],
+    ["现实验证点", realityCard.reality || compact(needVerify)[0] || summary.boundary],
+  ];
+}
+
+function renderKeywordSummary(cards = []) {
+  const chips = cards
+    .map((card) => ({
+      label: card.tags?.[0] || card.title || topicLabels[card.topic] || card.topic,
+      level: card.level || card.confidence || "medium",
+      confidence: card.confidence || "medium",
+    }))
+    .filter((item) => item.label)
+    .slice(0, 6);
+  return `
+    <section class="natal-keyword-section">
+      <div class="board-title">
+        <h3>关键取象摘要</h3>
+        <span>${safe(chips.length)} 个关键词</span>
+      </div>
+      <div class="natal-keyword-chips">
+        ${chips.map((item) => `<span class="natal-keyword-chip is-${safe(item.level)}">${display(item.label)}<small>${safe(confidenceLabel(item.confidence))}</small></span>`).join("")}
+      </div>
     </section>
   `;
 }
 
-function renderImageCards(cards = []) {
+function renderGroupedCards(cards = []) {
   return `
-    <section class="base-bazi-section">
-      <div class="board-title"><h3>取象卡片</h3><span>${cards.length} 张</span></div>
-      <div class="natal-card-grid">
-        ${cards.map(renderImageCard).join("")}
+    <section class="natal-grouped-cards">
+      <div class="board-title">
+        <h3>取象卡片组</h3>
+        <span>${safe(cards.length)} 张</span>
       </div>
+      ${cardGroups.map((group) => renderCardGroup(group, cards)).join("")}
     </section>
+  `;
+}
+
+function renderCardGroup(group, cards = []) {
+  const rows = group.topics
+    .map((topic) => cards.find((card) => card.topic === topic))
+    .filter(Boolean);
+  return `
+    <details class="natal-card-group" open>
+      <summary><span>${safe(group.title)}</span><b>${safe(rows.length)} 张</b></summary>
+      <div class="natal-compact-grid">
+        ${rows.map(renderImageCard).join("")}
+      </div>
+    </details>
   `;
 }
 
 function renderImageCard(card = {}) {
   return `
-    <article class="natal-image-card">
-      <div class="board-title">
-        <h3>${safe(card.title)}</h3>
-        <span>${safe(topicLabels[card.topic] ?? card.topic)} · ${safe(card.level)}</span>
+    <details class="natal-image-card natal-compact-card">
+      <summary>
+        <div>
+          <span>${safe(topicLabels[card.topic] ?? card.topic)}</span>
+          <h3>${display(card.title)}</h3>
+          <p>${display(card.image)}</p>
+        </div>
+        <div class="natal-card-footer">
+          <span class="confidence-chip">${safe(confidenceLabel(card.confidence))}</span>
+          <span class="natal-card-toggle"><b class="is-closed">展开依据</b><b class="is-open">收起依据</b></span>
+        </div>
+      </summary>
+      <div class="natal-card-detail">
+        ${renderList("命盘证据", card.evidence)}
+        ${renderParagraph("现实应象", card.reality)}
+        ${renderParagraph("成立边界", card.boundary)}
+        ${renderList("需要验证的问题", [card.boundary])}
       </div>
-      ${renderList("断法依据", card.evidence)}
-      <section><h4>结构取象</h4><p>${safe(card.image)}</p></section>
-      <section><h4>现实应象</h4><p>${safe(card.reality)}</p></section>
-      <section><h4>成立边界</h4><p>${safe(card.boundary)}</p></section>
-      <p class="fine-print">置信度：${safe(card.confidence || "medium")}</p>
-    </article>
+    </details>
+  `;
+}
+
+function renderEvidenceChain(report = {}) {
+  const cards = report.imageCards ?? [];
+  return `
+    <details class="natal-evidence-chain">
+      <summary><span>原局证据链</span><b>${safe(cards.length)}张卡片</b></summary>
+      ${renderSignals("关键结构信号", report.keySignals, "keySignals")}
+      ${renderSignals("弱信号与保留点", report.weakSignals, "weakSignals")}
+      ${renderSignals("师傅复核点", report.needVerify, "needVerify")}
+      <div class="natal-evidence-card-grid">
+        ${cards.map((card) => `
+          <article class="natal-evidence-card">
+            <h4>${safe(topicLabels[card.topic] ?? card.topic)}：${display(card.title)}</h4>
+            ${renderList("完整证据", card.evidence)}
+            ${renderParagraph("结构取象", card.image)}
+            ${renderParagraph("现实应象", card.reality)}
+            ${renderParagraph("成立边界", card.boundary)}
+          </article>
+        `).join("")}
+      </div>
+    </details>
   `;
 }
 
 function renderSignals(title, items = [], className = "") {
-  const rows = (Array.isArray(items) ? items : [items]).filter(Boolean);
+  const rows = compact(items);
   return `
-    <section class="base-bazi-section ${safe(className)}">
+    <section class="base-bazi-section natal-signal-block ${safe(className)}">
       <div class="board-title"><h3>${safe(title)}</h3><span>${rows.length} 条</span></div>
-      ${rows.length ? `<ul>${rows.map((item) => `<li>${safe(item)}</li>`).join("")}</ul>` : `<p class="muted">暂无。</p>`}
+      ${rows.length ? `<ul>${rows.map((item) => `<li>${display(item)}</li>`).join("")}</ul>` : `<p class="muted">暂无。</p>`}
     </section>
   `;
 }
 
 function renderList(title, items = []) {
-  const rows = (Array.isArray(items) ? items : [items]).filter(Boolean);
-  return rows.length ? `<section><h4>${safe(title)}</h4><ul>${rows.map((item) => `<li>${safe(item)}</li>`).join("")}</ul></section>` : "";
+  const rows = compact(items);
+  return rows.length ? `<section><h4>${safe(title)}</h4><ul>${rows.map((item) => `<li>${display(item)}</li>`).join("")}</ul></section>` : "";
+}
+
+function renderParagraph(title, text) {
+  return text ? `<section><h4>${safe(title)}</h4><p>${display(text)}</p></section>` : "";
+}
+
+function compact(items = []) {
+  return (Array.isArray(items) ? items : [items])
+    .flat()
+    .filter((item) => item !== undefined && item !== null && String(item).trim())
+    .map((item) => String(item));
 }
 
 function safe(value) {
@@ -100,4 +237,30 @@ function safe(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function display(value) {
+  return safe(humanizeText(value));
+}
+
+function confidenceLabel(value) {
+  return confidenceLabels[value] ?? value ?? "可参考";
+}
+
+function humanizeText(value) {
+  return String(value ?? "")
+    .replace(/当前强弱初判为(weak|strong|balanced|medium|mixed|none)/g, (_, level) => `当前强弱初判${strengthLabels[level] ?? level}`)
+    .replace(/强弱初判为(weak|strong|balanced|medium|mixed|none)/g, (_, level) => `强弱初判${strengthLabels[level] ?? level}`)
+    .replace(/强弱初判：(weak|strong|balanced|medium|mixed|none)，?分值?\d*/g, (_, level) => `强弱初判：${strengthLabels[level] ?? level}，仅作为后续取象方向提示`)
+    .replace(/，?分值\d+/g, "")
+    .replace(/\bweak\b/g, "偏弱")
+    .replace(/\bstrong\b/g, "偏强")
+    .replace(/\bbalanced\b/g, "平衡")
+    .replace(/\bmixed\b/g, "需复核")
+    .replace(/\bhigh\b/g, "重点")
+    .replace(/\bmedium\b/g, "可参考")
+    .replace(/\blow\b/g, "待验证")
+    .replace(/\bconfidence\b/gi, "参考级别")
+    .replace(/\bmodel\b/gi, "模型")
+    .replace(/\bscore\b/gi, "分值");
 }

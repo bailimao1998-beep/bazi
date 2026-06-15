@@ -269,15 +269,16 @@ function renderAiCard({ mode, title, meta, button, state = {}, hasReport, extraC
 }
 
 function renderEvidenceStore(state = {}, currentLuck = {}, yearItem = {}) {
-  const luckSignals = state.luckImageReport?.keySignals ?? [];
-  const yearSignals = state.yearImageReport?.keySignals ?? [];
+  const currentLuckSignals = buildCurrentLuckEvidenceSignals(currentLuck);
+  const currentYearSignals = buildCurrentYearEvidenceSignals(yearItem, currentLuck);
   const relationCount = countRelations(currentLuck) + countRelations(yearItem);
+  const visibleSignalCount = currentLuckSignals.length + currentYearSignals.length + relationCount;
 
   return `
     <details class="evidence-library fortune-evidence-store" open>
       <summary>
         <span>3. 大运流年取象证据库</span>
-        <b>${escapeHtml(String(luckSignals.length + yearSignals.length + relationCount))} 条 · 展开查看完整取象</b>
+        <b>${escapeHtml(String(visibleSignalCount))} 条 · 展开查看完整取象</b>
       </summary>
 
       <div class="transit-evidence-grid">
@@ -297,7 +298,7 @@ function renderEvidenceStore(state = {}, currentLuck = {}, yearItem = {}) {
           reality: currentLuck.reality,
           boundary: currentLuck.boundary,
           relations: [["原局关系触发", currentLuck.relationToNatal]],
-          signals: luckSignals,
+          signals: currentLuckSignals,
         })}
 
         ${renderTransitEvidenceCard({
@@ -318,11 +319,63 @@ function renderEvidenceStore(state = {}, currentLuck = {}, yearItem = {}) {
             ["原局关系触发", yearItem.relationToNatal],
             ["大运关系触发", yearItem.relationToLuck],
           ],
-          signals: yearSignals,
+          signals: currentYearSignals,
         })}
       </div>
     </details>
   `;
+}
+
+function buildCurrentLuckEvidenceSignals(currentLuck = {}) {
+  const relations = Array.isArray(currentLuck.relationToNatal)
+    ? currentLuck.relationToNatal
+    : [];
+
+  return compact([
+    currentLuck.ganZhi ? `当前大运：${currentLuck.ganZhi}` : "",
+    currentLuck.ageRange ? `年龄段：${currentLuck.ageRange}` : "",
+    currentLuck.yearRange ? `年份段：${currentLuck.yearRange}` : "",
+    currentLuck.tenGod ? `天干十神：${currentLuck.tenGod}` : "",
+    displayBranchTenGod(currentLuck) ? `地支主气：${displayBranchTenGod(currentLuck)}` : "",
+    relations.length
+      ? `原局触发：${relations.map(formatRelationEvidence).join("、")}`
+      : "原局触发：当前大运暂未命中冲、合、刑、害、破",
+  ]);
+}
+
+function buildCurrentYearEvidenceSignals(yearItem = {}, currentLuck = {}) {
+  const natalRelations = Array.isArray(yearItem.relationToNatal)
+    ? yearItem.relationToNatal
+    : [];
+  const luckRelations = Array.isArray(yearItem.relationToLuck)
+    ? yearItem.relationToLuck
+    : [];
+  const currentLuckLabel = yearItem.currentLuckItem?.ganZhi || currentLuck.ganZhi;
+
+  return compact([
+    yearItem.year && yearItem.ganZhi ? `目标流年：${yearItem.year}年${yearItem.ganZhi}` : "",
+    yearItem.stemTenGod ? `天干十神：${yearItem.stemTenGod}` : "",
+    yearItem.branchTenGod ? `地支主气：${yearItem.branchTenGod}` : "",
+    currentLuckLabel ? `当前大运：${currentLuckLabel}` : "",
+    natalRelations.length
+      ? `原局触发：${natalRelations.map(formatRelationEvidence).join("、")}`
+      : "原局触发：暂未命中冲、合、刑、害、破",
+    luckRelations.length
+      ? `大运触发：${luckRelations.map(formatRelationEvidence).join("、")}`
+      : "大运触发：暂未命中冲、合、刑、害、破",
+  ]);
+}
+
+function formatRelationEvidence(relation = {}) {
+  const type = relation.type || "触发";
+  const target =
+    relation.natalPillar ||
+    relation.luckGanZhi ||
+    relation.natalBranch ||
+    relation.luckBranch ||
+    "";
+
+  return `${type}${target}`;
 }
 
 function renderTransitEvidenceCard({

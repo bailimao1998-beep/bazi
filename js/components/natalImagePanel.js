@@ -46,13 +46,7 @@ const strengthLabels = {
 export function renderNatalImagePanel(root, report) {
   if (!root) return;
   if (!report) {
-    root.innerHTML = `
-      <div class="plugin-header">
-        <p class="eyebrow">原局取象</p>
-        <h2>原局整体取象</h2>
-      </div>
-      <p class="muted">等待基础排盘完成后生成原局取象。</p>
-    `;
+    root.innerHTML = bindNatalEvidencePopup(root);
     return;
   }
   root.innerHTML = `
@@ -64,6 +58,80 @@ export function renderNatalImagePanel(root, report) {
     ${renderKeywordSummary(report.imageCards)}
     ${renderGroupedCards(report.imageCards)}
   `;
+}
+
+export function renderNatalImagePanel(root, report) {
+  if (!root) return;
+  if (!report) {
+    root.innerHTML = `
+      <div class="plugin-header">
+        <p class="eyebrow">原局取象</p>
+        <h2>原局整体取象</h2>
+      </div>
+      <p class="muted">等待基础排盘完成后生成原局取象。</p>
+    `;
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="plugin-header">
+      <p class="eyebrow">原局取象</p>
+      <h2>原局整体取象</h2>
+    </div>
+    ${renderOverview(report)}
+    ${renderKeywordSummary(report.imageCards)}
+    ${renderGroupedCards(report.imageCards)}
+  `;
+
+  bindNatalEvidencePopup(root);
+}
+
+function bindNatalEvidencePopup(root) {
+  root.querySelectorAll(".natal-evidence-open").forEach((button) => {
+    button.addEventListener("click", () => {
+      const card = button.closest(".natal-summary-card");
+      const title = card?.querySelector("h3")?.textContent?.trim() || "取象依据";
+      const topic = card?.querySelector("header span")?.textContent?.trim() || "原局取象";
+      const template = card?.querySelector(".natal-evidence-template");
+
+      openNatalEvidencePopup({
+        title,
+        topic,
+        content: template?.innerHTML || "<p>暂无依据。</p>",
+      });
+    });
+  })
+}
+
+function openNatalEvidencePopup({ title, topic, content } = {}) {
+  document.querySelector(".natal-evidence-popup-backdrop")?.remove();
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "natal-evidence-popup-backdrop";
+  backdrop.innerHTML = `
+    <div class="natal-evidence-popup" role="dialog" aria-modal="true">
+      <div class="natal-evidence-popup-head">
+        <div>
+          <p class="eyebrow">${safe(topic || "原局取象")}</p>
+          <h3>${safe(title || "取象依据")}</h3>
+        </div>
+        <button type="button" class="natal-evidence-popup-close" aria-label="关闭">×</button>
+      </div>
+      <div class="natal-evidence-popup-body">
+        ${content}
+      </div>
+    </div>
+  `;
+
+  backdrop.addEventListener("click", (event) => {
+    if (event.target === backdrop) backdrop.remove();
+  });
+
+  backdrop.querySelector(".natal-evidence-popup-close")?.addEventListener("click", () => {
+    backdrop.remove();
+  });
+
+  document.body.appendChild(backdrop);
 }
 
 function renderOverview(report = {}) {
@@ -186,28 +254,103 @@ function renderCardGroup(group, cards = []) {
 
 function renderImageCard(card = {}) {
   return `
-    <details class="natal-image-card natal-compact-card">
-      <summary>
-        <div>
-          <span>${safe(topicLabels[card.topic] ?? card.topic)}</span>
-          <h3>${display(card.title)}</h3>
-          <p>${display(card.image)}</p>
-        </div>
-        <div class="natal-card-footer">
-          <span class="confidence-chip">${safe(confidenceLabel(card.confidence))}</span>
-          <span class="natal-card-toggle"><b class="is-closed">展开依据</b><b class="is-open">收起依据</b></span>
-        </div>
-      </summary>
-      <div class="natal-card-detail">
-        ${renderList("命盘证据", card.evidence)}
-        ${renderParagraph("现实应象", card.reality)}
-        ${renderParagraph("成立边界", card.boundary)}
-        ${renderList("需要验证的问题", [card.boundary])}
-      </div>
-    </details>
+    <article class="natal-image-card natal-compact-card natal-summary-card">
+      <header>
+        <span>${safe(topicLabels[card.topic] ?? card.topic)}</span>
+        <h3>${display(card.title)}</h3>
+      </header>
+
+      <p>${display(card.image)}</p>
+
+      ${card.reality ? `<small class="natal-card-reality">${display(card.reality)}</small>` : ""}
+
+      <footer class="natal-card-footer">
+        <span class="confidence-chip">${safe(confidenceLabel(card.confidence))}</span>
+        <button type="button" class="natal-evidence-open">查看依据</button>
+      </footer>
+
+      <template class="natal-evidence-template">
+        ${renderCardEvidenceDetail(card)}
+      </template>
+    </article>
   `;
 }
 
+function renderCardEvidenceDetail(card = {}) {
+  const evidenceRows = compact(card.evidence);
+
+  return `
+    <div class="natal-card-detail natal-evidence-detail">
+      <section class="natal-evidence-block">
+        <h4>命盘依据</h4>
+        ${evidenceRows.length
+          ? `<div class="natal-evidence-list">
+              ${evidenceRows.map((item, index) => `
+                <p>
+                  <b>${safe(index + 1)}</b>
+                  <span>${display(item)}</span>
+                </p>
+              `).join("")}
+            </div>`
+          : `<p class="muted">暂无明确证据，需结合整体结构复核。</p>`}
+      </section>
+
+      <div class="natal-evidence-two-col">
+        ${card.reality ? `
+          <section class="natal-evidence-block is-reality">
+            <h4>现实应象</h4>
+            <p>${display(card.reality)}</p>
+          </section>
+        ` : ""}
+
+        ${card.boundary ? `
+          <section class="natal-evidence-block is-boundary">
+            <h4>成立边界</h4>
+            <p>${display(card.boundary)}</p>
+          </section>
+        ` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function renderCardEvidenceDetail(card = {}) {
+  const evidenceRows = compact(card.evidence);
+
+  return `
+    <div class="natal-card-detail natal-evidence-detail">
+      <section class="natal-evidence-block">
+        <h4>命盘依据</h4>
+        ${evidenceRows.length
+          ? `<div class="natal-evidence-list">
+              ${evidenceRows.map((item, index) => `
+                <p>
+                  <b>${safe(index + 1)}</b>
+                  <span>${display(item)}</span>
+                </p>
+              `).join("")}
+            </div>`
+          : `<p class="muted">暂无明确证据，需结合整体结构复核。</p>`}
+      </section>
+
+      <div class="natal-evidence-two-col">
+        ${card.reality ? `
+          <section class="natal-evidence-block is-reality">
+            <h4>现实应象</h4>
+            <p>${display(card.reality)}</p>
+          </section>
+        ` : ""}
+
+        ${card.boundary ? `
+          <section class="natal-evidence-block is-boundary">
+            <h4>成立边界</h4>
+            <p>${display(card.boundary)}</p>
+          </section>
+        ` : ""}
+      </div>
+    </div>
+  `;
+}
 
 function renderList(title, items = []) {
   const rows = compact(items);
@@ -248,6 +391,8 @@ function humanizeText(value) {
     .replace(/强弱初判为(weak|strong|balanced|medium|mixed|none)/g, (_, level) => `强弱初判${strengthLabels[level] ?? level}`)
     .replace(/强弱初判：(weak|strong|balanced|medium|mixed|none)，?分值?\d*/g, (_, level) => `强弱初判：${strengthLabels[level] ?? level}，仅作为后续取象方向提示`)
     .replace(/，?分值\d+/g, "")
+    .replace(/通根综合为none/g, "通根综合为不显")
+    .replace(/\bnone\b/g, "不显")
     .replace(/\bweak\b/g, "偏弱")
     .replace(/\bstrong\b/g, "偏强")
     .replace(/\bbalanced\b/g, "平衡")

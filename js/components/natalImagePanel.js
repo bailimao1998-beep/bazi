@@ -63,7 +63,6 @@ export function renderNatalImagePanel(root, report) {
     ${renderOverview(report)}
     ${renderKeywordSummary(report.imageCards)}
     ${renderGroupedCards(report.imageCards)}
-    ${renderEvidenceChain(report)}
   `;
 }
 
@@ -156,8 +155,8 @@ function renderGroupedCards(cards = []) {
   return `
     <section class="natal-grouped-cards">
       <div class="board-title">
-        <h3>取象卡片组</h3>
-        <span>${safe(cards.length)} 张</span>
+        <h3>原局九项取象</h3>
+        <span>3 类 · ${safe(cards.length)} 个维度</span>
       </div>
       ${cardGroups.map((group) => renderCardGroup(group, cards)).join("")}
     </section>

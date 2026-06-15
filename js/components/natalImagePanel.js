@@ -208,38 +208,6 @@ function renderImageCard(card = {}) {
   `;
 }
 
-function renderEvidenceChain(report = {}) {
-  const cards = report.imageCards ?? [];
-  return `
-    <details class="natal-evidence-chain">
-      <summary><span>原局证据链</span><b>${safe(cards.length)}张卡片</b></summary>
-      ${renderSignals("关键结构信号", report.keySignals, "keySignals")}
-      ${renderSignals("弱信号与保留点", report.weakSignals, "weakSignals")}
-      ${renderSignals("师傅复核点", report.needVerify, "needVerify")}
-      <div class="natal-evidence-card-grid">
-        ${cards.map((card) => `
-          <article class="natal-evidence-card">
-            <h4>${safe(topicLabels[card.topic] ?? card.topic)}：${display(card.title)}</h4>
-            ${renderList("完整证据", card.evidence)}
-            ${renderParagraph("结构取象", card.image)}
-            ${renderParagraph("现实应象", card.reality)}
-            ${renderParagraph("成立边界", card.boundary)}
-          </article>
-        `).join("")}
-      </div>
-    </details>
-  `;
-}
-
-function renderSignals(title, items = [], className = "") {
-  const rows = compact(items);
-  return `
-    <section class="base-bazi-section natal-signal-block ${safe(className)}">
-      <div class="board-title"><h3>${safe(title)}</h3><span>${rows.length} 条</span></div>
-      ${rows.length ? `<ul>${rows.map((item) => `<li>${display(item)}</li>`).join("")}</ul>` : `<p class="muted">暂无。</p>`}
-    </section>
-  `;
-}
 
 function renderList(title, items = []) {
   const rows = compact(items);

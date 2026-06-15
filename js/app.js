@@ -854,23 +854,6 @@ function renderShenshaPillarRow(pillar = {}) {
   `;
 }
 
-function renderUniqueShenshaExplanations(items = []) {
-  const map = new Map();
-
-  items.forEach((item) => {
-    if (!item?.name || map.has(item.name)) return;
-    map.set(item.name, item);
-  });
-
-  return Array.from(map.values()).map((item) => `
-    <article class="shensha-explain-item">
-      <strong>${escapeHtml(item.name)}</strong>
-      <p><b>取象：</b>${escapeHtml(item.sourceBasis || item.evidence || "按传统神煞规则命中。")}</p>
-      <p><b>提示：</b>${escapeHtml(item.typicalMeaning || item.learningNote || "需要结合柱位、十神、岁运继续验证。")}</p>
-    </article>
-  `).join("");
-}
-
 function renderVoidAuxiliary(viewModel = {}) {
   return `
     <div class="core-tab-grid">
@@ -995,11 +978,6 @@ function relationEffect(relation = {}) {
 
   const name = relationName(relation);
   return String(effect).replace(name, "").trim();
-}
-
-function relationTitle(relation = {}) {
-  const ganzhi = (relation.ganzhi ?? relation.members ?? []).join(" / ") || "干支待查";
-  return `${ganzhi} · ${relation.type || "关系"}${relation.effect || ""}`;
 }
 
 function uniqueBaseRelations(relations = []) {

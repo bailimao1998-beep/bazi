@@ -27,7 +27,7 @@ export function renderYearImagePanel(root, report) {
 function renderSummary(summary = {}) {
   return `
     <section class="base-bazi-section">
-      <div class="board-title"><h3>${safe(summary.title || "流年取象总览")}</h3><span>${safe(summary.confidence || "medium")}</span></div>
+      <div class="board-title"><h3>${safe(summary.title || "流年取象总览")}</h3><span>${safe(confidenceLabel(summary.confidence || "medium"))}</span></div>
       <p>${safe(summary.overview || "输入 targetYear 后生成该年取象。")}</p>
       <p class="fine-print">当前大运背景：${safe(summary.currentLuck || "待复核")}</p>
     </section>
@@ -47,12 +47,15 @@ function renderYearItem(item = {}) {
         <article><span>地支主气十神</span><strong>${safe(item.branchTenGod || "待查")}</strong></article>
       </div>
       ${renderCurrentLuck(item.currentLuckItem)}
-      ${renderRelations("流年与原局触发", item.relationToNatal)}
-      ${renderRelations("流年与大运触发", item.relationToLuck)}
       <section><h4>结构取象</h4><p>${safe(item.image)}</p></section>
       <section><h4>现实应象</h4><p>${safe(item.reality)}</p></section>
-      <section><h4>成立边界</h4><p>${safe(item.boundary)}</p></section>
-      <p class="fine-print">置信度：${safe(item.confidence || "medium")}</p>
+      <details class="evidence-library year-detail-evidence">
+        <summary><span>详细取象</span><b>展开查看关系触发与成立边界</b></summary>
+        ${renderRelations("流年与原局触发", item.relationToNatal)}
+        ${renderRelations("流年与大运触发", item.relationToLuck)}
+        <section><h4>成立边界</h4><p>${safe(item.boundary)}</p></section>
+        <p class="fine-print">置信度：${safe(confidenceLabel(item.confidence || "medium"))}</p>
+      </details>
     </section>
   `;
 }
@@ -93,4 +96,8 @@ function safe(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function confidenceLabel(value) {
+  return { high: "重点", medium: "可参考", low: "待验证" }[value] ?? value ?? "可参考";
 }

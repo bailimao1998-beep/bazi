@@ -92,7 +92,7 @@ function renderPillarShensha(items = []) {
 }
 
 function renderRelationOverview(chart) {
-  const relations = chart.relations ?? [];
+  const relations = uniqueRelations(chart.relations ?? []);
   return `
     <details class="relation-overview">
       <summary>
@@ -296,7 +296,7 @@ function renderVoidStats(chart) {
 }
 
 function renderRelations(chart) {
-  const relations = chart.relations ?? [];
+  const relations = uniqueRelations(chart.relations ?? []);
   if (!relations.length) return `<p class="fine-print">当前命盘未命中已启用的干支关系规则。</p>`;
   return `
     <div class="relation-list">
@@ -429,4 +429,23 @@ function safe(value, fallback = "待查") {
 
 function safeAttr(value) {
   return safe(value, "unknown").replaceAll(" ", "-");
+}
+
+function uniqueRelations(relations = []) {
+  const seen = new Set();
+  return (Array.isArray(relations) ? relations : []).filter((relation) => {
+    const pillars = relation.pillars ?? relation.pillarKeys ?? relation.positions ?? [];
+    const ganZhi = relation.ganzhi ?? relation.members ?? [];
+    const key = [
+      relation.type ?? relation.relationType ?? "",
+      relation.effect ?? relation.evidence ?? "",
+      pillars[0] ?? "",
+      pillars[1] ?? "",
+      ganZhi[0] ?? "",
+      ganZhi[1] ?? "",
+    ].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }

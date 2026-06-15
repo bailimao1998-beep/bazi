@@ -1,3 +1,5 @@
+import { renderAiText } from "./aiTextRenderer.js";
+
 export function renderMonthAiNarrativePanel(root, payload = {}, actions = {}) {
   if (!root) return;
   const state = payload.state ?? {};
@@ -15,7 +17,7 @@ export function renderMonthAiNarrativePanel(root, payload = {}, actions = {}) {
     </div>
     ${state.loading ? `<p class="muted">正在生成目标流月 AI 分析...</p>` : ""}
     ${state.error ? `<p class="error-text">${escapeHtml(state.error)}</p>` : ""}
-    ${state.text ? `<article class="ai-narrative-output"><pre>${escapeHtml(state.text)}</pre></article>` : ""}
+    ${state.text ? renderAiText(state.text) : ""}
   `;
   root.querySelector?.("[data-month-ai-generate]")?.addEventListener("click", () => (payload.onGenerate ?? actions.onGenerate)?.());
 }

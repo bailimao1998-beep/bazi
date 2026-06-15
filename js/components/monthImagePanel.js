@@ -92,7 +92,7 @@ function renderShortSection(title, text) {
 function renderDetailEvidence(item = {}, report = {}) {
   return `
     <details class="evidence-library month-detail-evidence">
-      <summary><span>详细证据</span><b>默认折叠</b></summary>
+      <summary><span>详细证据</span><b class="is-closed">展开</b><b class="is-open">收起</b></summary>
       ${renderRelations("流月与原局触发", item.relationToNatal)}
       ${renderRelations("流月与大运触发", item.relationToLuck)}
       ${renderRelations("流月与流年触发", item.relationToYear)}

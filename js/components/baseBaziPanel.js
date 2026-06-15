@@ -245,11 +245,12 @@ function renderTenGodStats(tenGods = {}) {
 }
 
 function renderRelations(relations = []) {
+  const unique = uniqueRelations(relations);
   return `
     <section class="base-bazi-section">
-      <div class="board-title"><h3>干支关系</h3><span>${relations.length} 条</span></div>
-      ${relations.length
-        ? `<div class="relation-chip-list">${relations.map((item) => `<details><summary>${safe(item.ganzhi?.join(" / "))} · ${safe(item.type)}</summary><p>${safe(item.evidence)}</p></details>`).join("")}</div>`
+      <div class="board-title"><h3>干支关系</h3><span>${unique.length} 条</span></div>
+      ${unique.length
+        ? `<div class="relation-chip-list">${unique.map((item) => `<details><summary>${safe(item.ganzhi?.join(" / "))} · ${safe(item.type)}</summary><p>${safe(item.evidence)}</p></details>`).join("")}</div>`
         : `<p class="muted">当前内置规则未列出明显干支关系，继续结合岁运触发复核。</p>`}
     </section>
   `;
@@ -327,4 +328,23 @@ function safe(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function uniqueRelations(relations = []) {
+  const seen = new Set();
+  return (Array.isArray(relations) ? relations : []).filter((relation) => {
+    const pillars = relation.pillars ?? relation.pillarKeys ?? relation.positions ?? [];
+    const ganZhi = relation.ganzhi ?? relation.members ?? [];
+    const key = [
+      relation.type ?? relation.relationType ?? "",
+      relation.effect ?? relation.evidence ?? "",
+      pillars[0] ?? "",
+      pillars[1] ?? "",
+      ganZhi[0] ?? "",
+      ganZhi[1] ?? "",
+    ].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }

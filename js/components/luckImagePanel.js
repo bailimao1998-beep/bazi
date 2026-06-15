@@ -26,7 +26,7 @@ export function renderLuckImagePanel(root, report) {
 function renderSummary(summary = {}) {
   return `
     <section class="base-bazi-section">
-      <div class="board-title"><h3>${safe(summary.title || "大运取象总览")}</h3><span>${safe(summary.confidence || "medium")}</span></div>
+      <div class="board-title"><h3>${safe(summary.title || "大运取象总览")}</h3><span>${safe(confidenceLabel(summary.confidence || "medium"))}</span></div>
       <p>${safe(summary.overview || "暂无大运数据")}</p>
       <p class="fine-print">${safe(summary.usefulHint || "用忌神初步倾向需结合格局、通关、调候复核。")}</p>
     </section>
@@ -63,7 +63,7 @@ function renderLuckItem(item = {}) {
         <section><h4>结构取象</h4><p>${safe(item.structureImage || item.image)}</p></section>
         <section><h4>现实应象</h4><p>${safe(item.reality)}</p></section>
         <section><h4>成立边界</h4><p>${safe(item.boundary)}</p></section>
-        <p class="fine-print">置信度：${safe(item.confidence || "medium")}</p>
+        <p class="fine-print">置信度：${safe(confidenceLabel(item.confidence || "medium"))}</p>
       </div>
     </article>
   `;
@@ -113,4 +113,8 @@ function safeAttribute(value) {
   return String(value ?? "")
     .replaceAll(/[^a-zA-Z0-9_-]/g, "-")
     || "unknown";
+}
+
+function confidenceLabel(value) {
+  return { high: "重点", medium: "可参考", low: "待验证" }[value] ?? value ?? "可参考";
 }

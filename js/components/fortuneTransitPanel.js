@@ -1,3 +1,5 @@
+import { renderAiText } from "./aiTextRenderer.js";
+
 const elementLabels = { wood: "木", fire: "火", earth: "土", metal: "金", water: "水" };
 const stemElements = {
   甲: "wood", 乙: "wood",
@@ -162,10 +164,15 @@ function renderNatalTransitCard(state = {}) {
     <article class="fortune-transit-card natal-transit-card">
       <div class="transit-card-head">
         <div>
-          <h4>3. 基础命盘</h4>
-          <span>原局四柱 · 与大运流年合看</span>
+          <h4>3. 原局参照盘</h4>
+          <span>默认只看当前阶段上下文</span>
         </div>
         <strong>${escapeHtml(dayPillar.pillar || `${dayPillar.stem ?? ""}${dayPillar.branch ?? ""}` || "待查")}</strong>
+      </div>
+      <div class="transit-context-line">
+        <span>当前大运 <b>${escapeHtml(currentLuck.ganZhi || "待查")}</b></span>
+        <span>目标流年 <b>${escapeHtml(state.yearImageReport?.yearItem?.ganZhi || "待查")}</b></span>
+        <span>目标流月 <b>${escapeHtml(state.monthImageReport?.monthItem?.ganZhi || "待查")}</b></span>
       </div>
       <div class="bazi-matrix transit-pillar-matrix natal-transit-matrix">
         <div class="matrix-row matrix-head"><span></span>${pillars.map((item) => `<b>${escapeHtml(item.name)}</b>`).join("")}</div>
@@ -173,11 +180,6 @@ function renderNatalTransitCard(state = {}) {
         <div class="matrix-row main-symbol-row"><span>天干</span>${pillars.map((item) => renderSymbol(item.stem, item.stemElement ?? stemElements[item.stem], item.key === "day")).join("")}</div>
         <div class="matrix-row main-symbol-row"><span>地支</span>${pillars.map((item) => renderSymbol(item.branch, item.branchElement ?? branchElements[item.branch])).join("")}</div>
         <div class="matrix-row ten-god-row"><span>地支主气</span>${pillars.map((item) => `<em>${escapeHtml(item.branchMainTenGod || "待查")}</em>`).join("")}</div>
-      </div>
-      <div class="transit-context-line">
-        <span>当前大运 <b>${escapeHtml(currentLuck.ganZhi || "待查")}</b></span>
-        <span>目标流年 <b>${escapeHtml(state.yearImageReport?.yearItem?.ganZhi || "待查")}</b></span>
-        <span>目标流月 <b>${escapeHtml(state.monthImageReport?.monthItem?.ganZhi || "待查")}</b></span>
       </div>
     </article>
   `;
@@ -216,22 +218,22 @@ function renderAiLayer({ currentLuck, yearItem, luckAiState, yearAiState, hasLuc
     <section class="fortune-ai-layout">
       <div class="board-title">
         <h3>阶段 AI 分析</h3>
-        <span>先看十年背景，再看年度触发</span>
+        <span>AI 预先解读只生成目标流年；当前大运同步作为背景</span>
       </div>
       <div class="fortune-ai-stack">
         ${renderAiCard({
           mode: "luck",
-          title: "大运 AI 解读",
+          title: "大运 AI 分析",
           meta: currentLuck?.ganZhi,
-          button: "AI解读大运",
+          button: "生成当前大运 AI 分析",
           state: luckAiState,
           hasReport: hasLuckReport,
         })}
         ${renderAiCard({
           mode: "year",
-          title: "流年 AI 解读",
+          title: "流年 AI 分析",
           meta: `${yearItem?.year ?? ""} ${yearItem?.ganZhi ?? ""}`.trim(),
-          button: "AI解读流年",
+          button: "生成目标流年 AI 分析",
           state: yearAiState,
           hasReport: hasYearReport,
         })}
@@ -243,9 +245,9 @@ function renderAiLayer({ currentLuck, yearItem, luckAiState, yearAiState, hasLuc
 function renderMonthAiStage(monthItem = {}, aiState = {}, hasReport = false) {
   return renderAiCard({
     mode: "month",
-    title: "流月 AI 解读",
+    title: "流月 AI 分析",
     meta: `${monthItem.month ?? ""}月 ${monthItem.ganZhi ?? ""}`.trim(),
-    button: "AI解读流月",
+    button: "生成目标流月 AI 分析",
     state: aiState,
     hasReport,
     extraClass: "month-ai-card",
@@ -263,7 +265,7 @@ function renderAiCard({ mode, title, meta, button, state = {}, hasReport, extraC
         ${state.loading ? "生成中..." : escapeHtml(button)}
       </button>
       ${state.error ? `<p class="form-error">${escapeHtml(state.error)}</p>` : ""}
-      ${state.text ? `<div class="ai-narrative-output"><pre>${escapeHtml(state.text)}</pre></div>` : ""}
+      ${state.text ? renderAiText(state.text) : ""}
     </article>
   `;
 }
@@ -274,10 +276,38 @@ function renderEvidenceStore(state = {}, currentLuck = {}, yearItem = {}) {
   const relationCount = countRelations(currentLuck) + countRelations(yearItem);
   return `
     <details class="evidence-library fortune-evidence-store">
-      <summary><span>3. 大运流年取象证据库</span><b>${escapeHtml(String(luckSignals.length + yearSignals.length + relationCount))} 条</b></summary>
-      <div class="signal-grid">
-        ${renderSignalList("大运证据", [...luckSignals, currentLuck.structureImage, currentLuck.reality, currentLuck.boundary])}
-        ${renderSignalList("流年证据", [...yearSignals, yearItem.image, yearItem.reality, yearItem.boundary])}
+      <summary><span>3. 大运流年取象证据库</span><b>${escapeHtml(String(luckSignals.length + yearSignals.length + relationCount))} 条 · 展开查看完整取象</b></summary>
+      <div class="transit-evidence-grid">
+        ${renderImageDetail("当前大运取象", currentLuck, {
+          chips: [
+            ["大运", currentLuck.ganZhi],
+            ["年龄", currentLuck.ageRange],
+            ["年份", currentLuck.yearRange],
+            ["天干十神", currentLuck.tenGod],
+            ["地支主气", displayBranchTenGod(currentLuck)],
+            ["置信度", confidenceLabel(currentLuck.confidence)],
+          ],
+          relations: [["原局关系触发", currentLuck.relationToNatal]],
+          signals: luckSignals,
+          imageLabel: "结构取象",
+          imageText: currentLuck.structureImage || currentLuck.image,
+        })}
+        ${renderImageDetail("目标流年取象", yearItem, {
+          chips: [
+            ["流年", `${yearItem.year ?? ""} ${yearItem.ganZhi ?? ""}`.trim()],
+            ["天干十神", yearItem.stemTenGod],
+            ["地支主气", yearItem.branchTenGod],
+            ["当前大运", yearItem.currentLuckItem?.ganZhi || currentLuck.ganZhi],
+            ["置信度", confidenceLabel(yearItem.confidence)],
+          ],
+          relations: [
+            ["原局关系触发", yearItem.relationToNatal],
+            ["大运关系触发", yearItem.relationToLuck],
+          ],
+          signals: yearSignals,
+          imageLabel: "结构取象",
+          imageText: yearItem.image,
+        })}
       </div>
     </details>
   `;
@@ -288,10 +318,66 @@ function renderMonthEvidenceStore(monthImageReport = {}) {
   const item = monthImageReport?.monthItem ?? {};
   return `
     <details class="evidence-library fortune-evidence-store">
-      <summary><span>5. 流月取象证据库</span><b>${escapeHtml(String(signals.length + countRelations(item)))} 条</b></summary>
-      ${renderSignalList("流月证据", [...signals, item.image, item.reality, item.boundary])}
+      <summary><span>5. 流月取象证据库</span><b>${escapeHtml(String(signals.length + countRelations(item)))} 条 · 展开查看完整取象</b></summary>
+      ${renderImageDetail("目标流月取象", item, {
+        chips: [
+          ["流月", `${item.year ?? ""}年${item.month ?? ""}月 ${item.ganZhi ?? ""}`.trim()],
+          ["天干十神", item.stemTenGod],
+          ["地支主气", item.branchTenGod],
+          ["当前大运", item.currentLuckItem?.ganZhi],
+          ["当前流年", item.yearItem?.ganZhi],
+          ["置信度", confidenceLabel(item.confidence)],
+        ],
+        relations: [
+          ["原局关系触发", item.relationToNatal],
+          ["大运关系触发", item.relationToLuck],
+          ["流年关系触发", item.relationToYear],
+        ],
+        signals,
+        imageLabel: "结构取象",
+        imageText: item.image,
+      })}
     </details>
   `;
+}
+
+function renderImageDetail(title, item = {}, options = {}) {
+  return `
+    <section class="transit-image-detail">
+      <div class="board-title"><h4>${escapeHtml(title)}</h4><span>${escapeHtml(item.ganZhi || item.year || "当前")}</span></div>
+      ${renderDetailChips(options.chips)}
+      ${renderTextBlock(options.imageLabel || "结构取象", options.imageText || item.image || item.structureImage)}
+      ${renderTextBlock("现实应象", item.reality)}
+      ${renderTextBlock("成立边界", item.boundary)}
+      ${renderRelationGroups(options.relations)}
+      ${renderSignalList("关键证据", options.signals)}
+    </section>
+  `;
+}
+
+function renderDetailChips(chips = []) {
+  const rows = chips.filter(([, value]) => value !== undefined && value !== null && String(value).trim());
+  return rows.length
+    ? `<div class="transit-detail-chips">${rows.map(([label, value]) => `<span><b>${escapeHtml(label)}</b>${escapeHtml(value)}</span>`).join("")}</div>`
+    : "";
+}
+
+function renderTextBlock(title, text) {
+  return text
+    ? `<section class="transit-text-block"><h5>${escapeHtml(title)}</h5><p>${escapeHtml(text)}</p></section>`
+    : "";
+}
+
+function renderRelationGroups(groups = []) {
+  const visible = groups.filter(([, relations]) => Array.isArray(relations) && relations.length);
+  return visible.length
+    ? visible.map(([title, relations]) => `
+      <section class="transit-text-block">
+        <h5>${escapeHtml(title)}</h5>
+        <ul>${relations.map((relation) => `<li>${escapeHtml(relation.description || `${relation.type || "触发"}：${relation.effect || ""}`)}</li>`).join("")}</ul>
+      </section>
+    `).join("")
+    : `<section class="transit-text-block"><h5>关系触发</h5><p class="muted">暂未命中冲、合、刑、害、破。</p></section>`;
 }
 
 function renderSignalList(title, signals = []) {
@@ -422,6 +508,10 @@ function displayBranchTenGod(item = {}) {
     || item.branchMainTenGod
     || String(item.structureImage ?? "").match(/地支主气十神为([^，。；]+)/)?.[1]
     || "";
+}
+
+function confidenceLabel(value) {
+  return { high: "重点", medium: "可参考", low: "待验证" }[value] ?? value ?? "可参考";
 }
 
 function compact(items = []) {

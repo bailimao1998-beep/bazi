@@ -1,3 +1,5 @@
+import { renderAiText } from "./aiTextRenderer.js";
+
 export function renderLuckAiNarrativePanel(root, payload = {}, actions = {}) {
   if (!root) return;
   const state = payload.state ?? {};
@@ -15,7 +17,7 @@ export function renderLuckAiNarrativePanel(root, payload = {}, actions = {}) {
     </div>
     ${state.loading ? `<p class="muted">正在生成当前大运 AI 分析...</p>` : ""}
     ${state.error ? `<p class="error-text">${escapeHtml(state.error)}</p>` : ""}
-    ${state.text ? `<article class="ai-narrative-output"><pre>${escapeHtml(state.text)}</pre></article>` : ""}
+    ${state.text ? renderAiText(state.text) : ""}
   `;
   root.querySelector?.("[data-luck-ai-generate]")?.addEventListener("click", () => (payload.onGenerate ?? actions.onGenerate)?.());
 }

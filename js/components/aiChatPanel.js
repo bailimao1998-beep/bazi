@@ -1,3 +1,5 @@
+import { renderAiText } from "./aiTextRenderer.js";
+
 export function renderAiChatPanel(root, payload = {}, actions = {}) {
   if (!root) return;
   const state = payload.state ?? {};
@@ -35,9 +37,9 @@ export function renderAiChatPanel(root, payload = {}, actions = {}) {
 
 function renderMessage(message = {}) {
   return `
-    <article class="ai-narrative-output">
-      <h4>${escapeHtml(message.question || "问题")}</h4>
-      <pre>${escapeHtml(message.answer || "")}</pre>
+    <article class="ai-chat-message">
+      <div class="ai-chat-question"><span>问</span><strong>${escapeHtml(message.question || "问题")}</strong></div>
+      <div class="ai-chat-answer">${renderAiText(message.answer || "", { className: "ai-chat-answer-output" })}</div>
     </article>
   `;
 }

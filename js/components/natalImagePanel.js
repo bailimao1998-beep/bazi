@@ -148,7 +148,7 @@ function renderCardGroup(group, cards = []) {
     .map((topic) => cards.find((card) => card.topic === topic))
     .filter(Boolean);
   return `
-    <details class="natal-card-group" open>
+    <details class="natal-card-group">
       <summary><span>${safe(group.title)}</span><b>${safe(rows.length)} 张</b></summary>
       <div class="natal-compact-grid">
         ${rows.map(renderImageCard).join("")}

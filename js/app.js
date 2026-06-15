@@ -86,6 +86,7 @@ let yearAiState = {
   text: "",
   error: "",
 };
+let yearAiGenerationId = 0;
 let monthAiState = {
   loading: false,
   text: "",
@@ -106,6 +107,7 @@ let currentInput = {
   targetYear: 2026,
   selectedMonth: 1,
   trueSolarTime: false,
+  preInterpretAi: false,
 };
 
 init();
@@ -182,6 +184,7 @@ function refresh() {
       monthImageReport,
       monthImageReports,
     };
+    yearAiGenerationId += 1;
     natalAiState = { loading: false, text: "", error: "" };
     luckAiState = { loading: false, text: "", error: "" };
     yearAiState = { loading: false, text: "", error: "" };
@@ -189,6 +192,7 @@ function refresh() {
     chatState = { question: "", loading: false, error: "", messages: [] };
     renderBaseOnly();
     roots.status.textContent = "基础排盘已完成。";
+    maybeGeneratePreInterpretYearAi();
   } catch (error) {
     state = { input: currentInput, error: error.message };
     renderBaseError(error);
@@ -331,6 +335,8 @@ async function generateLuckAiNarrative() {
 }
 
 async function generateYearAiNarrative() {
+  const generationId = ++yearAiGenerationId;
+  const targetYear = state?.yearImageReport?.yearItem?.year;
   yearAiState = { loading: true, text: "", error: "" };
   renderBaseOnly();
   try {
@@ -342,11 +348,22 @@ async function generateYearAiNarrative() {
       yearImageReport: state.yearImageReport,
     });
     const result = await generateWithDeepSeek({ settings, prompt });
+    if (generationId !== yearAiGenerationId || targetYear !== state?.yearImageReport?.yearItem?.year) return;
     yearAiState = { loading: false, text: result.text, error: "" };
   } catch (error) {
+    if (generationId !== yearAiGenerationId || targetYear !== state?.yearImageReport?.yearItem?.year) return;
     yearAiState = { loading: false, text: "", error: error.message };
   }
   renderBaseOnly();
+}
+
+function maybeGeneratePreInterpretYearAi() {
+  if (!currentInput.preInterpretAi || !state?.yearImageReport?.yearItem) return;
+  const scheduledState = state;
+  queueMicrotask(() => {
+    if (state !== scheduledState || !currentInput.preInterpretAi) return;
+    generateYearAiNarrative();
+  });
 }
 
 async function generateMonthAiNarrative() {
@@ -521,9 +538,12 @@ function renderChartSummary(root, currentState) {
     </div>
     ${renderChartTopline(viewModel, currentState.chart)}
     ${renderBaziMatrix(viewModel.pillars, currentState.chart)}
-    <details class="relation-overview" open>
-      <summary><span>干支关系 <b>${escapeHtml(String(viewModel.relations?.length ?? 0))} 条</b></span><i class="relation-toggle-hint"><em class="is-closed">展开</em><em class="is-open">收起</em></i></summary>
-      ${renderRelationList(viewModel.relations)}
+    <details class="relation-overview">
+      ${(() => {
+        const unique = uniqueBaseRelations(viewModel.relations);
+        return `<summary><span>干支关系 <b>${escapeHtml(String(unique.length))} 条</b></span><i class="relation-toggle-hint"><em class="is-closed">展开</em><em class="is-open">收起</em></i></summary>
+      ${renderRelationList(unique)}`;
+      })()}
     </details>
     ${renderAuxiliaryObservation(currentState, currentLuck)}
   `;
@@ -639,7 +659,7 @@ function renderPillarShensha(items = []) {
 function renderAuxiliaryObservation(currentState = {}, currentLuck = {}) {
   const viewModel = currentState.baseBaziViewModel ?? {};
   return `
-    <details class="auxiliary-observation" open>
+    <details class="auxiliary-observation">
       <summary>辅助观察项：神煞总表、纳音、十二长生、旬空、五行详表、专家明细、历法依据</summary>
       ${renderAuxiliaryTabs(currentState, currentLuck)}
     </details>
@@ -805,8 +825,9 @@ function renderTenGodStatsFull(pillars = [], tenGods = {}) {
 }
 
 function renderRelationList(relations = []) {
-  return relations.length
-    ? `<div class="relation-chip-list">${relations.map((item) => `
+  const unique = uniqueBaseRelations(relations);
+  return unique.length
+    ? `<div class="relation-chip-list">${unique.map((item) => `
       <details>
         <summary>${escapeHtml(relationTitle(item))}</summary>
         <p>${escapeHtml(item.effect || item.evidence || "此关系只作为结构观察点，需结合柱位、旺衰与岁运触发复核。")}</p>
@@ -818,6 +839,25 @@ function renderRelationList(relations = []) {
 function relationTitle(relation = {}) {
   const ganzhi = (relation.ganzhi ?? relation.members ?? []).join(" / ") || "干支待查";
   return `${ganzhi} · ${relation.type || "关系"}${relation.effect || ""}`;
+}
+
+function uniqueBaseRelations(relations = []) {
+  const seen = new Set();
+  return (Array.isArray(relations) ? relations : []).filter((relation) => {
+    const pillars = relation.pillars ?? relation.pillarKeys ?? relation.positions ?? [];
+    const ganZhi = relation.ganzhi ?? relation.members ?? [];
+    const key = [
+      relation.type ?? relation.relationType ?? "",
+      relation.effect ?? relation.evidence ?? "",
+      pillars[0] ?? "",
+      pillars[1] ?? "",
+      ganZhi[0] ?? "",
+      ganZhi[1] ?? "",
+    ].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function renderChartDetails(viewModel = {}) {

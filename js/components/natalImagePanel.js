@@ -43,22 +43,6 @@ const strengthLabels = {
   none: "不显",
 };
 
-export function renderNatalImagePanel(root, report) {
-  if (!root) return;
-  if (!report) {
-    root.innerHTML = bindNatalEvidencePopup(root);
-    return;
-  }
-  root.innerHTML = `
-    <div class="plugin-header">
-      <p class="eyebrow">原局取象</p>
-      <h2>原局整体取象</h2>
-    </div>
-    ${renderOverview(report)}
-    ${renderKeywordSummary(report.imageCards)}
-    ${renderGroupedCards(report.imageCards)}
-  `;
-}
 
 export function renderNatalImagePanel(root, report) {
   if (!root) return;
@@ -273,44 +257,6 @@ function renderImageCard(card = {}) {
         ${renderCardEvidenceDetail(card)}
       </template>
     </article>
-  `;
-}
-
-function renderCardEvidenceDetail(card = {}) {
-  const evidenceRows = compact(card.evidence);
-
-  return `
-    <div class="natal-card-detail natal-evidence-detail">
-      <section class="natal-evidence-block">
-        <h4>命盘依据</h4>
-        ${evidenceRows.length
-          ? `<div class="natal-evidence-list">
-              ${evidenceRows.map((item, index) => `
-                <p>
-                  <b>${safe(index + 1)}</b>
-                  <span>${display(item)}</span>
-                </p>
-              `).join("")}
-            </div>`
-          : `<p class="muted">暂无明确证据，需结合整体结构复核。</p>`}
-      </section>
-
-      <div class="natal-evidence-two-col">
-        ${card.reality ? `
-          <section class="natal-evidence-block is-reality">
-            <h4>现实应象</h4>
-            <p>${display(card.reality)}</p>
-          </section>
-        ` : ""}
-
-        ${card.boundary ? `
-          <section class="natal-evidence-block is-boundary">
-            <h4>成立边界</h4>
-            <p>${display(card.boundary)}</p>
-          </section>
-        ` : ""}
-      </div>
-    </div>
   `;
 }
 

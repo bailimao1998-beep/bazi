@@ -1494,33 +1494,6 @@ button:disabled {
   transform: translateY(2px) rotate(225deg);
 }
 
-.relation-chip-list {
-  display: grid;
-  gap: 8px;
-  padding: 0 12px 12px;
-}
-
-.relation-chip-list details {
-  padding: 9px 10px;
-  border: 1px solid #e2d7c8;
-  border-radius: 6px;
-  background: #fffaf1;
-}
-
-.relation-chip-list summary {
-  cursor: pointer;
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.relation-chip-list p {
-  margin: 7px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.55;
-}
-
 .core-tabs {
   margin-top: 16px;
   padding-top: 2px;
@@ -4891,4 +4864,148 @@ pre {
   padding: 0 12px 12px;
   color: #52616b;
   line-height: 1.65;
+}
+
+.auxiliary-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.auxiliary-summary::-webkit-details-marker {
+  display: none;
+}
+
+.auxiliary-summary span {
+  display: grid;
+  gap: 4px;
+}
+
+.auxiliary-summary b {
+  color: #1f2933;
+  font-size: 17px;
+}
+
+.auxiliary-summary small {
+  color: var(--muted, #687381);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.auxiliary-summary em {
+  flex: 0 0 auto;
+  color: var(--accent, #1f6f6a);
+  font-style: normal;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.auxiliary-observation[open] .auxiliary-summary em {
+  font-size: 0;
+}
+
+.auxiliary-observation[open] .auxiliary-summary em::after {
+  content: "收起";
+  font-size: 13px;
+}
+
+.natal-overview-hero {
+  padding: 18px;
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(232, 241, 238, 0.9), rgba(255, 253, 248, 0.96)),
+    #fffdf8;
+}
+
+.natal-main-conclusion {
+  margin-top: 14px;
+  padding: 16px 18px;
+  border: 1px solid rgba(47, 111, 115, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 253, 248, 0.82);
+}
+
+.natal-main-conclusion span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--accent, #2f6f73);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.natal-main-conclusion p {
+  margin: 0;
+  color: var(--ink, #25231f);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.75;
+}
+
+.natal-overview-points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.natal-overview-points article {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(214, 201, 181, 0.78);
+  border-radius: 14px;
+  background: rgba(255, 250, 241, 0.74);
+}
+
+.natal-overview-points b {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--accent, #2f6f73);
+  font-size: 13px;
+}
+
+.natal-overview-points p {
+  margin: 0;
+  color: #3f4b57;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+@media (max-width: 760px) {
+  .natal-overview-points {
+    grid-template-columns: 1fr;
+  }
+}
+
+.natal-card-group-entry > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+}
+
+.natal-card-group-entry > summary span {
+  display: grid;
+  gap: 4px;
+}
+
+.natal-card-group-entry > summary strong {
+  color: var(--accent, #2f6f73);
+  font-size: 16px;
+}
+
+.natal-card-group-entry > summary small {
+  color: var(--muted, #6d675d);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.natal-card-group-entry > summary b {
+  flex: 0 0 auto;
+  color: var(--muted, #6d675d);
+  font-size: 13px;
 }

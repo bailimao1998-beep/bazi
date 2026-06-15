@@ -742,10 +742,15 @@ function renderPillarShensha(items = []) {
 }
 
 function renderAuxiliaryObservation(currentState = {}, currentLuck = {}) {
-  const viewModel = currentState.baseBaziViewModel ?? {};
   return `
     <details class="auxiliary-observation">
-      <summary>辅助观察项：神煞总表、纳音、十二长生、旬空、五行详表、专家明细、历法依据</summary>
+      <summary class="auxiliary-summary">
+        <span>
+          <b>辅助观察项</b>
+          <small>神煞、纳音、长生、旬空、五行、专家明细与历法依据</small>
+        </span>
+        <em>展开</em>
+      </summary>
       ${renderAuxiliaryTabs(currentState, currentLuck)}
     </details>
   `;

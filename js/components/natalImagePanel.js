@@ -13,14 +13,17 @@ const topicLabels = {
 const cardGroups = [
   {
     title: "人自身",
+    desc: "性格、体质、人生底色",
     topics: ["personality", "health", "life_pattern"],
   },
   {
     title: "现实发展",
+    desc: "学习、事业、财务方式",
     topics: ["study_skill", "career", "wealth"],
   },
   {
     title: "关系环境",
+    desc: "家庭、感情、迁动环境",
     topics: ["family", "relationship", "movement"],
   },
 ];
@@ -68,19 +71,37 @@ function renderOverview(report = {}) {
   const summary = report.summary ?? {};
   const cards = report.imageCards ?? [];
   const overview = buildOverviewItems(summary, cards, report.needVerify);
+
+  const mainText = overview.find(([label]) => label === "一句话总览")?.[1] || "待复核。";
+  const advantageText = overview.find(([label]) => label === "核心优势")?.[1] || "待复核。";
+  const pressureText = overview.find(([label]) => label === "主要压力")?.[1] || "待复核。";
+  const realityText = overview.find(([label]) => label === "现实验证点")?.[1] || "待复核。";
+
   return `
-    <section class="natal-overview-card">
+    <section class="natal-overview-card natal-overview-hero">
       <div class="board-title">
         <h3>原局总论</h3>
         <span>${safe(confidenceLabel(summary.confidence))}</span>
       </div>
-      <div class="natal-overview-grid">
-        ${overview.map(([label, text]) => `
-          <article>
-            <span>${safe(label)}</span>
-            <p>${display(text || "待复核。")}</p>
-          </article>
-        `).join("")}
+
+      <article class="natal-main-conclusion">
+        <span>原局一句话</span>
+        <p>${display(mainText)}</p>
+      </article>
+
+      <div class="natal-overview-points">
+        <article>
+          <b>核心优势</b>
+          <p>${display(advantageText)}</p>
+        </article>
+        <article>
+          <b>主要压力</b>
+          <p>${display(pressureText)}</p>
+        </article>
+        <article>
+          <b>现实验证</b>
+          <p>${display(realityText)}</p>
+        </article>
       </div>
     </section>
   `;
@@ -147,9 +168,16 @@ function renderCardGroup(group, cards = []) {
   const rows = group.topics
     .map((topic) => cards.find((card) => card.topic === topic))
     .filter(Boolean);
+
   return `
-    <details class="natal-card-group">
-      <summary><span>${safe(group.title)}</span><b>${safe(rows.length)} 张</b></summary>
+    <details class="natal-card-group natal-card-group-entry">
+      <summary>
+        <span>
+          <strong>${safe(group.title)}</strong>
+          <small>${safe(group.desc || "点击查看该组取象")}</small>
+        </span>
+        <b>${safe(rows.length)} 张</b>
+      </summary>
       <div class="natal-compact-grid">
         ${rows.map(renderImageCard).join("")}
       </div>

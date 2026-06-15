@@ -115,7 +115,7 @@ function renderLuckTransitCard(currentLuck = {}, luckItems = []) {
         selectName: "luck",
         options: luckItems.map((item) => ({
           value: firstYearOfRange(item.yearRange),
-          label: `${item.ageRange || "年龄待查"} · ${item.ganZhi || "待查"}`,
+          label: `${item.ageRange || "年龄待查"}`,
           note: `${item.ageRange || ""} · ${item.yearRange || ""}`,
           active: item.ganZhi === currentLuck.ganZhi,
         })),
@@ -272,11 +272,18 @@ function renderEvidenceStore(state = {}, currentLuck = {}, yearItem = {}) {
   const luckSignals = state.luckImageReport?.keySignals ?? [];
   const yearSignals = state.yearImageReport?.keySignals ?? [];
   const relationCount = countRelations(currentLuck) + countRelations(yearItem);
+
   return `
-    <details class="evidence-library fortune-evidence-store">
-      <summary><span>3. 大运流年取象证据库</span><b>${escapeHtml(String(luckSignals.length + yearSignals.length + relationCount))} 条 · 展开查看完整取象</b></summary>
+    <details class="evidence-library fortune-evidence-store" open>
+      <summary>
+        <span>3. 大运流年取象证据库</span>
+        <b>${escapeHtml(String(luckSignals.length + yearSignals.length + relationCount))} 条 · 展开查看完整取象</b>
+      </summary>
+
       <div class="transit-evidence-grid">
-        ${renderImageDetail("当前大运取象", currentLuck, {
+        ${renderTransitEvidenceCard({
+          title: "当前大运取象",
+          marker: currentLuck.ganZhi,
           chips: [
             ["大运", currentLuck.ganZhi],
             ["年龄", currentLuck.ageRange],
@@ -285,12 +292,16 @@ function renderEvidenceStore(state = {}, currentLuck = {}, yearItem = {}) {
             ["地支主气", displayBranchTenGod(currentLuck)],
             ["置信度", confidenceLabel(currentLuck.confidence)],
           ],
+          structure: currentLuck.structureImage || currentLuck.image,
+          reality: currentLuck.reality,
+          boundary: currentLuck.boundary,
           relations: [["原局关系触发", currentLuck.relationToNatal]],
           signals: luckSignals,
-          imageLabel: "结构取象",
-          imageText: currentLuck.structureImage || currentLuck.image,
         })}
-        ${renderImageDetail("目标流年取象", yearItem, {
+
+        ${renderTransitEvidenceCard({
+          title: "目标流年取象",
+          marker: `${yearItem.year ?? ""} ${yearItem.ganZhi ?? ""}`.trim(),
           chips: [
             ["流年", `${yearItem.year ?? ""} ${yearItem.ganZhi ?? ""}`.trim()],
             ["天干十神", yearItem.stemTenGod],
@@ -298,43 +309,138 @@ function renderEvidenceStore(state = {}, currentLuck = {}, yearItem = {}) {
             ["当前大运", yearItem.currentLuckItem?.ganZhi || currentLuck.ganZhi],
             ["置信度", confidenceLabel(yearItem.confidence)],
           ],
+          structure: yearItem.image,
+          reality: yearItem.reality,
+          boundary: yearItem.boundary,
           relations: [
             ["原局关系触发", yearItem.relationToNatal],
             ["大运关系触发", yearItem.relationToLuck],
           ],
           signals: yearSignals,
-          imageLabel: "结构取象",
-          imageText: yearItem.image,
         })}
       </div>
     </details>
   `;
 }
 
+function renderTransitEvidenceCard({ title, marker, chips = [], lead, reality, boundary, relations = [], signals = [] } = {}) {
+  return `
+    <article class="transit-image-detail transit-evidence-card">
+      <div class="transit-card-compact-head">
+        <div>
+          <span>取象卡片</span>
+          <h4>${escapeHtml(title)}</h4>
+        </div>
+        <strong>${escapeHtml(marker || "待查")}</strong>
+      </div>
+
+      ${renderDetailChips(chips)}
+
+      ${lead ? `<p class="transit-evidence-lead">${escapeHtml(shortenText(lead, 120))}</p>` : ""}
+
+      <div class="transit-evidence-mini-grid">
+        ${renderMiniEvidenceBlock("结构取象", lead)}
+        ${renderMiniEvidenceBlock("现实应象", reality)}
+        ${renderMiniEvidenceBlock("成立边界", boundary)}
+        ${renderMiniRelationBlock("关系触发", relations)}
+      </div>
+
+      ${renderSignalPills("关键证据", signals)}
+    </article>
+  `;
+}
+
+function renderMiniEvidenceBlock(title, text) {
+  return `
+    <section class="transit-mini-block">
+      <h5>${escapeHtml(title)}</h5>
+      <p>${escapeHtml(text || "暂无明确描述。")}</p>
+    </section>
+  `;
+}
+
+function renderMiniRelationBlock(title, groups = []) {
+  const relationTexts = groups
+    .filter(([, relations]) => Array.isArray(relations) && relations.length)
+    .flatMap(([, relations]) => relations)
+    .map((relation) => relation.description || `${relation.type || "触发"}：${relation.effect || ""}`)
+    .filter(Boolean);
+
+  return `
+    <section class="transit-mini-block">
+      <h5>${escapeHtml(title)}</h5>
+      ${
+        relationTexts.length
+          ? `<ul>${relationTexts.slice(0, 4).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+          : `<p>暂未命中冲、合、刑、害、破。</p>`
+      }
+    </section>
+  `;
+}
+
+function renderSignalPills(title, signals = []) {
+  const visible = compact(signals).slice(0, 8);
+  return `
+    <section class="transit-signal-pills">
+      <h5>${escapeHtml(title)}</h5>
+      <div>
+        ${
+          visible.length
+            ? visible.map((item) => `<span>${escapeHtml(item)}</span>`).join("")
+            : `<span>暂无证据条目</span>`
+        }
+      </div>
+    </section>
+  `;
+}
+
+function shortenText(text, max = 120) {
+  const value = String(text ?? "").replace(/\s+/g, " ").trim();
+  return value.length > max ? `${value.slice(0, max)}…` : value;
+}
 function renderMonthEvidenceStore(monthImageReport = {}) {
   const signals = monthImageReport?.keySignals ?? [];
   const item = monthImageReport?.monthItem ?? {};
   return `
     <details class="evidence-library fortune-evidence-store">
       <summary><span>5. 流月取象证据库</span><b>${escapeHtml(String(signals.length + countRelations(item)))} 条 · 展开查看完整取象</b></summary>
-      ${renderImageDetail("目标流月取象", item, {
-        chips: [
-          ["流月", `${item.year ?? ""}年${item.month ?? ""}月 ${item.ganZhi ?? ""}`.trim()],
-          ["天干十神", item.stemTenGod],
-          ["地支主气", item.branchTenGod],
-          ["当前大运", item.currentLuckItem?.ganZhi],
-          ["当前流年", item.yearItem?.ganZhi],
-          ["置信度", confidenceLabel(item.confidence)],
-        ],
-        relations: [
-          ["原局关系触发", item.relationToNatal],
-          ["大运关系触发", item.relationToLuck],
-          ["流年关系触发", item.relationToYear],
-        ],
-        signals,
-        imageLabel: "结构取象",
-        imageText: item.image,
-      })}
+      ${renderTransitEvidenceCard({
+      title: "当前大运取象",
+      marker: currentLuck.ganZhi,
+      chips: [
+        ["大运", currentLuck.ganZhi],
+        ["年龄", currentLuck.ageRange],
+        ["年份", currentLuck.yearRange],
+        ["天干十神", currentLuck.tenGod],
+        ["地支主气", displayBranchTenGod(currentLuck)],
+        ["置信度", confidenceLabel(currentLuck.confidence)],
+      ],
+      lead: currentLuck.structureImage || currentLuck.image,
+      reality: currentLuck.reality,
+      boundary: currentLuck.boundary,
+      relations: [["原局关系触发", currentLuck.relationToNatal]],
+      signals: luckSignals,
+    })}
+
+    ${renderTransitEvidenceCard({
+      title: "目标流年取象",
+      marker: `${yearItem.year ?? ""} ${yearItem.ganZhi ?? ""}`.trim(),
+      chips: [
+        ["流年", `${yearItem.year ?? ""} ${yearItem.ganZhi ?? ""}`.trim()],
+        ["天干十神", yearItem.stemTenGod],
+        ["地支主气", yearItem.branchTenGod],
+        ["当前大运", yearItem.currentLuckItem?.ganZhi || currentLuck.ganZhi],
+        ["置信度", confidenceLabel(yearItem.confidence)],
+      ],
+      lead: yearItem.image,
+      reality: yearItem.reality,
+      boundary: yearItem.boundary,
+      relations: [
+        ["原局关系触发", yearItem.relationToNatal],
+        ["大运关系触发", yearItem.relationToLuck],
+      ],
+      signals: yearSignals,
+    })}
     </details>
   `;
 }

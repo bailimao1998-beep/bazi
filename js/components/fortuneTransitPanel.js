@@ -84,8 +84,6 @@ export function renderFortuneTransitPanel(root, payload = {}) {
           <span>${escapeHtml(`${selectedMonth || "待查"}月流月${monthItem.ganZhi || "待查"}`)}</span>
         </div>
         ${renderMonthGrid(monthReports, selectedMonth)}
-        ${renderMonthAiStage(monthItem, payload.monthAiState, Boolean(monthItem.ganZhi))}
-        ${renderMonthEvidenceStore(state.monthImageReport)}
       </section>
     </section>
   `;

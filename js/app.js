@@ -281,6 +281,7 @@ function renderBaseOnly() {
     onAsk: askAiQuestion,
   });
   setAiChatOpen(aiChatOpen);
+  bindShenshaPopupEvents();
 }
 
 async function generateNatalAiNarrative() {
@@ -499,34 +500,6 @@ function chineseNumberToInt(value) {
   if (/^\d+$/.test(String(value))) return Number(value);
   return map[value] ?? null;
 }
-
-function buildRequestedYearReports(years = []) {
-  if (!state?.chart || !state?.baseBaziViewModel || !state?.natalImageReport) return [];
-
-  return years.map((year) => {
-    const luckImageReport = buildLuckImageReport({
-      chart: state.chart,
-      baseBaziViewModel: state.baseBaziViewModel,
-      natalImageReport: state.natalImageReport,
-      targetYear: year,
-    });
-
-    const yearImageReport = buildYearImageReport({
-      chart: state.chart,
-      baseBaziViewModel: state.baseBaziViewModel,
-      natalImageReport: state.natalImageReport,
-      luckImageReport,
-      targetYear: year,
-    });
-
-    return {
-      year,
-      luckImageReport,
-      yearImageReport,
-    };
-  });
-}
-
 function renderBaseError(error) {
   if (roots.chartSummary) {
     roots.chartSummary.innerHTML = `
@@ -822,31 +795,75 @@ function bindCoreTabs(root) {
 
 function renderShenshaAuxiliary(viewModel = {}) {
   const pillars = viewModel.pillars ?? [];
-  const hasItems = pillars.some((item) => item.shensha?.length);
-  if (!hasItems) {
-    return `<p class="fine-print">当前内置常用实务神煞规则未命中，神煞只作为辅助观察点。</p>`;
+  const allItems = pillars.flatMap((pillar) =>
+    (pillar.shensha ?? []).map((item) => ({
+      ...item,
+      pillarName: pillar.name,
+      pillarText: pillar.pillar,
+      pillarBranch: pillar.branch,
+    }))
+  );
+
+  if (!allItems.length) {
+    return `<p class="fine-print">当前内置常用实务神煞规则未命中。神煞只作为辅助观察点，不单独作为结论。</p>`;
   }
+
   return `
-    <div class="shensha-auxiliary">
-      <p class="fine-print">当前为内置常用实务神煞表，不宣称覆盖所有流派异名；神煞只作为传统命理中的辅助观察点，不能单独作为结论。</p>
-      ${pillars.map((pillar) => `
-        <section>
-          <h4>${escapeHtml(pillar.name)} ${escapeHtml(pillar.pillar)}</h4>
-          <div class="shensha-card-grid">
-            ${(pillar.shensha ?? []).length ? (pillar.shensha ?? []).map((item) => `
-              <article class="shensha-card">
-                <strong>${escapeHtml(item.name)}</strong>
-                <b>取象</b>
-                <p>${escapeHtml(item.sourceBasis || item.evidence || `命中位置：${pillar.name}${pillar.branch}`)}</p>
-                <b>解释</b>
-                <p>${escapeHtml(item.typicalMeaning || item.learningNote || "需要结合柱位、十神、岁运继续验证。")}</p>
-              </article>
-            `).join("") : `<p class="fine-print">此柱未列出神煞。</p>`}
-          </div>
-        </section>
-      `).join("")}
+    <div class="shensha-list-view">
+      <p class="fine-print">神煞只作为辅助观察点，不单独作为结论；具体应象需结合十神、柱位、原局结构和岁运触发。</p>
+
+      <div class="shensha-pillar-list">
+        ${pillars.map((pillar) => renderShenshaPillarRow(pillar)).join("")}
+      </div>
     </div>
   `;
+}
+
+function renderShenshaPillarRow(pillar = {}) {
+  const items = pillar.shensha ?? [];
+
+  return `
+    <section class="shensha-pillar-row">
+      <div class="shensha-pillar-title">
+        <strong>${escapeHtml(pillar.name)} ${escapeHtml(pillar.pillar)}</strong>
+        <span>${items.length ? `${items.length} 个` : "未列"}</span>
+      </div>
+
+      <div class="shensha-chip-list">
+        ${items.length
+          ? items.map((item) => `
+            <button
+              type="button"
+              class="shensha-chip"
+              data-shensha-name="${escapeHtml(item.name)}"
+              data-shensha-pillar="${escapeHtml(`${pillar.name} ${pillar.pillar}`)}"
+              data-shensha-source="${escapeHtml(item.sourceBasis || item.evidence || "按传统神煞规则命中。")}"
+              data-shensha-note="${escapeHtml(item.typicalMeaning || item.learningNote || "需要结合柱位、十神、岁运继续验证。")}"
+            >
+              ${escapeHtml(item.name)}
+            </button>
+          `).join("")
+          : `<span class="muted">此柱未列出神煞</span>`}
+      </div>
+    </section>
+  `;
+}
+
+function renderUniqueShenshaExplanations(items = []) {
+  const map = new Map();
+
+  items.forEach((item) => {
+    if (!item?.name || map.has(item.name)) return;
+    map.set(item.name, item);
+  });
+
+  return Array.from(map.values()).map((item) => `
+    <article class="shensha-explain-item">
+      <strong>${escapeHtml(item.name)}</strong>
+      <p><b>取象：</b>${escapeHtml(item.sourceBasis || item.evidence || "按传统神煞规则命中。")}</p>
+      <p><b>提示：</b>${escapeHtml(item.typicalMeaning || item.learningNote || "需要结合柱位、十神、岁运继续验证。")}</p>
+    </article>
+  `).join("");
 }
 
 function renderVoidAuxiliary(viewModel = {}) {
@@ -938,14 +955,41 @@ function renderTenGodStatsFull(pillars = [], tenGods = {}) {
 
 function renderRelationList(relations = []) {
   const unique = uniqueBaseRelations(relations);
+
   return unique.length
-    ? `<div class="relation-chip-list">${unique.map((item) => `
-      <details>
-        <summary>${escapeHtml(relationTitle(item))}</summary>
-        <p>${escapeHtml(item.effect || item.evidence || "此关系只作为结构观察点，需结合柱位、旺衰与岁运触发复核。")}</p>
+    ? `<div class="relation-compact-list">${unique.map((item) => `
+      <details class="relation-compact-item">
+        <summary>
+          <span class="relation-members">${escapeHtml(relationMembers(item))}</span>
+          <span class="relation-main">
+            <strong>${escapeHtml(relationName(item))}</strong>
+            <em>${escapeHtml(relationEffect(item))}</em>
+          </span>
+        </summary>
+        <p>${escapeHtml(item.evidence || item.description || item.effect || "此关系只作为结构观察点，需结合柱位、旺衰与岁运触发复核。")}</p>
       </details>
     `).join("")}</div>`
     : `<p class="muted relation-empty">当前内置规则未列出明显干支关系，继续结合岁运触发复核。</p>`;
+}
+
+function relationMembers(relation = {}) {
+  const members = relation.ganzhi ?? relation.members ?? [];
+  return Array.isArray(members) && members.length
+    ? members.join(" / ")
+    : "干支待查";
+}
+
+function relationName(relation = {}) {
+  return relation.type || relation.relationType || relation.name || "关系";
+}
+
+function relationEffect(relation = {}) {
+  const effect = relation.effect ?? "";
+
+  if (!effect) return "";
+
+  const name = relationName(relation);
+  return String(effect).replace(name, "").trim();
 }
 
 function relationTitle(relation = {}) {
@@ -955,21 +999,29 @@ function relationTitle(relation = {}) {
 
 function uniqueBaseRelations(relations = []) {
   const seen = new Set();
+
   return (Array.isArray(relations) ? relations : []).filter((relation) => {
-    const pillars = relation.pillars ?? relation.pillarKeys ?? relation.positions ?? [];
-    const ganZhi = relation.ganzhi ?? relation.members ?? [];
+    const displayGanZhi = normalizeDisplayPair(relation.ganzhi ?? relation.members ?? []);
+    const relationName = relation.type ?? relation.relationType ?? relation.name ?? "";
+
     const key = [
-      relation.type ?? relation.relationType ?? "",
-      relation.effect ?? relation.evidence ?? "",
-      pillars[0] ?? "",
-      pillars[1] ?? "",
-      ganZhi[0] ?? "",
-      ganZhi[1] ?? "",
+      displayGanZhi.join("/"),
+      relationName,
     ].join("|");
+
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
+}
+
+function normalizeDisplayPair(value = []) {
+  const list = Array.isArray(value) ? value : [value];
+
+  return list
+    .map((item) => String(item ?? "").trim())
+    .filter(Boolean)
+    .sort();
 }
 
 function renderChartDetails(viewModel = {}) {
@@ -1161,4 +1213,52 @@ function escapeHtml(value) {
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
+}
+
+function bindShenshaPopupEvents() {
+  document.querySelectorAll(".shensha-chip").forEach((button) => {
+    button.addEventListener("click", () => {
+      openShenshaPopup({
+        name: button.dataset.shenshaName,
+        pillar: button.dataset.shenshaPillar,
+        source: button.dataset.shenshaSource,
+        note: button.dataset.shenshaNote,
+      });
+    });
+  });
+}
+
+function openShenshaPopup({ name, pillar, source, note } = {}) {
+  const old = document.querySelector(".shensha-popup-backdrop");
+  old?.remove();
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "shensha-popup-backdrop";
+  backdrop.innerHTML = `
+    <div class="shensha-popup" role="dialog" aria-modal="true" aria-label="${escapeHtml(name || "神煞说明")}">
+      <div class="shensha-popup-head">
+        <div>
+          <p class="eyebrow">神煞说明</p>
+          <h3>${escapeHtml(name || "未命名神煞")}</h3>
+        </div>
+        <button type="button" class="shensha-popup-close" aria-label="关闭">×</button>
+      </div>
+
+      <div class="shensha-popup-body">
+        <p><b>位置：</b>${escapeHtml(pillar || "待查")}</p>
+        <p><b>取象：</b>${escapeHtml(source || "按传统神煞规则命中。")}</p>
+        <p><b>提示：</b>${escapeHtml(note || "需要结合柱位、十神、岁运继续验证。")}</p>
+      </div>
+    </div>
+  `;
+
+  backdrop.addEventListener("click", (event) => {
+    if (event.target === backdrop) backdrop.remove();
+  });
+
+  backdrop.querySelector(".shensha-popup-close")?.addEventListener("click", () => {
+    backdrop.remove();
+  });
+
+  document.body.appendChild(backdrop);
 }

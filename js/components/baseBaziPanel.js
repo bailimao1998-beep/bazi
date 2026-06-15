@@ -332,19 +332,27 @@ function safe(value) {
 
 function uniqueRelations(relations = []) {
   const seen = new Set();
+
   return (Array.isArray(relations) ? relations : []).filter((relation) => {
-    const pillars = relation.pillars ?? relation.pillarKeys ?? relation.positions ?? [];
-    const ganZhi = relation.ganzhi ?? relation.members ?? [];
+    const ganZhi = normalizePair(relation.ganzhi ?? relation.members ?? []);
+    const relationName = relation.type ?? relation.relationType ?? relation.name ?? "";
+
     const key = [
-      relation.type ?? relation.relationType ?? "",
-      relation.effect ?? relation.evidence ?? "",
-      pillars[0] ?? "",
-      pillars[1] ?? "",
-      ganZhi[0] ?? "",
-      ganZhi[1] ?? "",
+      ganZhi.join("/"),
+      relationName,
     ].join("|");
+
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
+}
+
+function normalizePair(value = []) {
+  const list = Array.isArray(value) ? value : [value];
+
+  return list
+    .map((item) => String(item ?? "").trim())
+    .filter(Boolean)
+    .sort();
 }

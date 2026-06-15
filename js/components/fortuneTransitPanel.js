@@ -323,23 +323,35 @@ function renderEvidenceStore(state = {}, currentLuck = {}, yearItem = {}) {
   `;
 }
 
-function renderTransitEvidenceCard({ title, marker, chips = [], lead, reality, boundary, relations = [], signals = [] } = {}) {
+function renderTransitEvidenceCard({
+  title,
+  marker,
+  chips = [],
+  structure,
+  imageText,
+  reality,
+  boundary,
+  relations = [],
+  signals = [],
+} = {}) {
+  const structureText = structure || imageText;
+
   return `
     <article class="transit-image-detail transit-evidence-card">
       <div class="transit-card-compact-head">
         <div>
           <span>取象卡片</span>
-          <h4>${escapeHtml(title)}</h4>
+          <h4>${escapeHtml(title || "取象")}</h4>
         </div>
         <strong>${escapeHtml(marker || "待查")}</strong>
       </div>
 
       ${renderDetailChips(chips)}
 
-      ${lead ? `<p class="transit-evidence-lead">${escapeHtml(shortenText(lead, 120))}</p>` : ""}
+      ${structureText ? `<p class="transit-evidence-lead">${escapeHtml(shortenText(structureText, 130))}</p>` : ""}
 
       <div class="transit-evidence-mini-grid">
-        ${renderMiniEvidenceBlock("结构取象", lead)}
+        ${renderMiniEvidenceBlock("结构取象", structureText)}
         ${renderMiniEvidenceBlock("现实应象", reality)}
         ${renderMiniEvidenceBlock("成立边界", boundary)}
         ${renderMiniRelationBlock("关系触发", relations)}

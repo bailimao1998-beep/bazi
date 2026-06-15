@@ -50,6 +50,7 @@ function compactBaseBaziViewModel(viewModel = {}) {
     tenGods: viewModel.tenGods,
     relations: viewModel.relations,
     structureAnalysis: viewModel.structureAnalysis,
+    luckCycles: viewModel.luckCycles,
   };
 }
 

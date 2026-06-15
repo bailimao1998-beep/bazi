@@ -43,8 +43,6 @@ const roots = {
   aiChatToggle: document.querySelector("#aiChatToggle"),
   aiChatDrawer: document.querySelector("#aiChatDrawer"),
   aiChatClose: document.querySelector("#aiChatClose"),
-  aiSettings: document.querySelector("#aiSettings"),
-  debug: document.querySelector("#debugPanel"),
   status: document.querySelector("#status"),
 };
 
@@ -133,7 +131,6 @@ async function init() {
   bindFortuneTabs();
   bindAiChatDrawer();
   renderShell();
-  renderAiSettings();
   refresh();
 }
 
@@ -200,9 +197,6 @@ function refresh() {
   }
 }
 
-function renderAiSettings() {
-  renderAiSettingsPanel(roots.aiSettings, aiSettingsState);
-}
 
 function renderShell() {
   renderChartSummary(roots.chartSummary, null);
@@ -248,7 +242,6 @@ function renderShell() {
     hasReport: false,
     onAsk: askAiQuestion,
   });
-  renderDebugPanel(roots.debug, state);
 }
 
 function renderBaseOnly() {
@@ -261,17 +254,9 @@ function renderBaseOnly() {
     onGenerate: generateNatalAiNarrative,
   });
   renderLuckImagePanel(roots.luckImagePanel, state.luckImageReport);
-  renderLuckAiNarrativePanel(roots.luckAiNarrative, {
-    state: luckAiState,
-    hasReport: Boolean(state.luckImageReport?.luckItems?.length),
-    onGenerate: generateLuckAiNarrative,
-  });
+
   renderYearImagePanel(roots.yearImagePanel, state.yearImageReport);
-  renderYearAiNarrativePanel(roots.yearAiNarrative, {
-    state: yearAiState,
-    hasReport: Boolean(state.yearImageReport?.yearItem),
-    onGenerate: generateYearAiNarrative,
-  });
+
   renderMonthImagePanel(roots.monthImagePanel, state.monthImageReport);
   renderMonthAiNarrativePanel(roots.monthAiNarrative, {
     state: monthAiState,
@@ -296,7 +281,6 @@ function renderBaseOnly() {
     onAsk: askAiQuestion,
   });
   setAiChatOpen(aiChatOpen);
-  renderDebugPanel(roots.debug, state);
 }
 
 async function generateNatalAiNarrative() {
@@ -393,13 +377,23 @@ async function askAiQuestion(question) {
   renderBaseOnly();
   try {
     const settings = readAiSettings({ includeSecret: true });
+    const chatIntent = detectChatIntent(trimmedQuestion);
+    const requestedYears = extractYearsFromQuestion(trimmedQuestion, currentInput.targetYear);
+    const requestedYearReports = buildRequestedYearReports(requestedYears);
+
     const prompt = buildChatPrompt({
       question: trimmedQuestion,
+      input: state.input,
+      chart: state.chart,
       baseBaziViewModel: state.baseBaziViewModel,
       natalImageReport: state.natalImageReport,
       luckImageReport: state.luckImageReport,
       yearImageReport: state.yearImageReport,
       monthImageReport: state.monthImageReport,
+      monthImageReports: state.monthImageReports,
+      chatIntent,
+      requestedYears,
+      requestedYearReports,
     });
     const result = await generateWithDeepSeek({ settings, prompt });
     chatState = {
@@ -412,6 +406,125 @@ async function askAiQuestion(question) {
     chatState = { ...chatState, loading: false, error: error.message };
   }
   renderBaseOnly();
+}
+
+function detectChatIntent(question = "") {
+  const text = String(question);
+
+  if (/20\d{2}.*20\d{2}|未来.{0,3}(三|四|五|六|七|八|九|十|\d+)年|几年|多年/.test(text)) {
+    return "multiYear";
+  }
+
+  if (/流年|今年|明年|后年|年份|哪一年|20\d{2}/.test(text)) {
+    return "yearTrend";
+  }
+
+  if (/流月|月份|这个月|下个月|几月|哪月/.test(text)) {
+    return "monthTrend";
+  }
+
+  if (/感情|婚姻|对象|正缘|桃花|恋爱|分手|复合|配偶/.test(text)) {
+    return "relationship";
+  }
+
+  if (/事业|工作|职业|行业|上班|创业|项目|学业|学习|考试/.test(text)) {
+    return "career";
+  }
+
+  if (/财|钱|收入|赚钱|投资|资产|负债/.test(text)) {
+    return "wealth";
+  }
+
+  if (/健康|身体|疾病|体质|睡眠|焦虑|压力/.test(text)) {
+    return "health";
+  }
+
+  if (/为什么|依据|证据|怎么看出来|哪里看/.test(text)) {
+    return "chartEvidence";
+  }
+
+  return "free";
+}
+function extractYearsFromQuestion(question = "", baseYear = new Date().getFullYear()) {
+  const text = String(question);
+  const years = new Set();
+  const currentYear = Number(baseYear) || new Date().getFullYear();
+
+  const rangeMatch = text.match(/((?:19|20)\d{2})\s*(?:到|至|-|—|~)\s*((?:19|20)\d{2})/);
+  if (rangeMatch) {
+    const start = Number(rangeMatch[1]);
+    const end = Number(rangeMatch[2]);
+    const min = Math.min(start, end);
+    const max = Math.max(start, end);
+
+    for (let year = min; year <= max && years.size < 10; year += 1) {
+      years.add(year);
+    }
+  }
+
+  for (const match of text.matchAll(/(?:19|20)\d{2}/g)) {
+    years.add(Number(match[0]));
+  }
+
+  const futureMatch = text.match(/未来\s*(\d+|三|四|五|六|七|八|九|十)\s*年/);
+  if (futureMatch) {
+    const count = chineseNumberToInt(futureMatch[1]) || 3;
+    for (let i = 0; i < count && i < 10; i += 1) {
+      years.add(currentYear + i);
+    }
+  }
+
+  if (/明年/.test(text)) years.add(currentYear + 1);
+  if (/后年/.test(text)) years.add(currentYear + 2);
+  if (/今年|当前年份|目标年份/.test(text)) years.add(currentYear);
+
+  return Array.from(years)
+    .filter((year) => Number.isFinite(year) && year >= 1900 && year <= 2100)
+    .sort((a, b) => a - b)
+    .slice(0, 10);
+}
+
+function chineseNumberToInt(value) {
+  const map = {
+    三: 3,
+    四: 4,
+    五: 5,
+    六: 6,
+    七: 7,
+    八: 8,
+    九: 9,
+    十: 10,
+  };
+
+  if (/^\d+$/.test(String(value))) return Number(value);
+  return map[value] ?? null;
+}
+
+function buildRequestedYearReports(years = []) {
+  if (!state?.chart || !state?.baseBaziViewModel || !state?.natalImageReport) return [];
+
+  return years.map((year) => {
+    const luckImageReport = buildLuckImageReport({
+      chart: state.chart,
+      baseBaziViewModel: state.baseBaziViewModel,
+      natalImageReport: state.natalImageReport,
+      targetYear: year,
+    });
+
+    const yearImageReport = buildYearImageReport({
+      chart: state.chart,
+      baseBaziViewModel: state.baseBaziViewModel,
+      natalImageReport: state.natalImageReport,
+      luckImageReport,
+      targetYear: year,
+    });
+
+    return {
+      year,
+      luckImageReport,
+      yearImageReport,
+    };
+  });
 }
 
 function renderBaseError(error) {
@@ -435,7 +548,6 @@ function renderBaseError(error) {
   renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderFortuneTransitPanel(roots.fortuneTransitPanel, { state });
   renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
-  renderDebugPanel(roots.debug, state);
 }
 
 function selectTargetYear(year) {

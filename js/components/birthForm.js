@@ -91,9 +91,9 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit }) {
       updateFromLunarParts(formState);
       update({ submit: true });
     });
-    ["birthTime", "gender", "birthplace", "targetYear", "selectedMonth"].forEach((name) => {
+    ["birthTime", "gender", "birthplace", "targetYear"].forEach((name) => {
       container.querySelector(`[name='${name}']`)?.addEventListener("change", (event) => {
-        formState[name] = ["targetYear", "selectedMonth"].includes(name) ? Number(event.currentTarget.value) : event.currentTarget.value;
+        formState[name] = ["targetYear"].includes(name) ? Number(event.currentTarget.value) : event.currentTarget.value;
         update({ submit: true });
       });
     });
@@ -158,7 +158,6 @@ function renderForm(state) {
       <label class="switch-row"><input name="trueSolarTime" type="checkbox" ${state.trueSolarTime ? "checked" : ""} /> <span>按真太阳时校正</span></label>
       <label><span>解读年份</span><input name="targetYear" type="number" value="${state.targetYear}" /></label>
       <label class="switch-row"><input name="preInterpretAi" type="checkbox" ${state.preInterpretAi ? "checked" : ""} /> <span>AI 预先解读</span></label>
-      <label><span>解读月份</span><input name="selectedMonth" type="number" min="1" max="12" value="${state.selectedMonth}" /></label>
       <button type="submit">重新排盘</button>
     </form>
     ${state.error ? `<p class="form-error">${escapeHtml(state.error)}</p>` : ""}

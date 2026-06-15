@@ -284,6 +284,7 @@ function renderEvidenceStore(state = {}, currentLuck = {}, yearItem = {}) {
         ${renderTransitEvidenceCard({
           title: "当前大运取象",
           marker: currentLuck.ganZhi,
+          summary: currentLuck.shortImage || currentLuck.image,
           chips: [
             ["大运", currentLuck.ganZhi],
             ["年龄", currentLuck.ageRange],
@@ -302,6 +303,7 @@ function renderEvidenceStore(state = {}, currentLuck = {}, yearItem = {}) {
         ${renderTransitEvidenceCard({
           title: "目标流年取象",
           marker: `${yearItem.year ?? ""} ${yearItem.ganZhi ?? ""}`.trim(),
+          summary: state.yearImageReport?.summary?.overview || yearItem.image,
           chips: [
             ["流年", `${yearItem.year ?? ""} ${yearItem.ganZhi ?? ""}`.trim()],
             ["天干十神", yearItem.stemTenGod],
@@ -327,14 +329,17 @@ function renderTransitEvidenceCard({
   title,
   marker,
   chips = [],
+  summary,
   structure,
   imageText,
+  lead,
   reality,
   boundary,
   relations = [],
   signals = [],
 } = {}) {
-  const structureText = structure || imageText;
+  const structureText = structure || imageText || lead;
+  const summaryText = summary || lead || structureText;
 
   return `
     <article class="transit-image-detail transit-evidence-card">
@@ -348,7 +353,7 @@ function renderTransitEvidenceCard({
 
       ${renderDetailChips(chips)}
 
-      ${structureText ? `<p class="transit-evidence-lead">${escapeHtml(shortenText(structureText, 130))}</p>` : ""}
+      ${summaryText ? `<p class="transit-evidence-lead">${escapeHtml(shortenText(summaryText, 130))}</p>` : ""}
 
       <div class="transit-evidence-mini-grid">
         ${renderMiniEvidenceBlock("结构取象", structureText)}
@@ -413,46 +418,37 @@ function shortenText(text, max = 120) {
 function renderMonthEvidenceStore(monthImageReport = {}) {
   const signals = monthImageReport?.keySignals ?? [];
   const item = monthImageReport?.monthItem ?? {};
+
   return `
     <details class="evidence-library fortune-evidence-store">
-      <summary><span>5. 流月取象证据库</span><b>${escapeHtml(String(signals.length + countRelations(item)))} 条 · 展开查看完整取象</b></summary>
-      ${renderTransitEvidenceCard({
-      title: "当前大运取象",
-      marker: currentLuck.ganZhi,
-      chips: [
-        ["大运", currentLuck.ganZhi],
-        ["年龄", currentLuck.ageRange],
-        ["年份", currentLuck.yearRange],
-        ["天干十神", currentLuck.tenGod],
-        ["地支主气", displayBranchTenGod(currentLuck)],
-        ["置信度", confidenceLabel(currentLuck.confidence)],
-      ],
-      lead: currentLuck.structureImage || currentLuck.image,
-      reality: currentLuck.reality,
-      boundary: currentLuck.boundary,
-      relations: [["原局关系触发", currentLuck.relationToNatal]],
-      signals: luckSignals,
-    })}
+      <summary>
+        <span>5. 流月取象证据库</span>
+        <b>${escapeHtml(String(signals.length + countRelations(item)))} 条 · 展开查看完整取象</b>
+      </summary>
 
-    ${renderTransitEvidenceCard({
-      title: "目标流年取象",
-      marker: `${yearItem.year ?? ""} ${yearItem.ganZhi ?? ""}`.trim(),
-      chips: [
-        ["流年", `${yearItem.year ?? ""} ${yearItem.ganZhi ?? ""}`.trim()],
-        ["天干十神", yearItem.stemTenGod],
-        ["地支主气", yearItem.branchTenGod],
-        ["当前大运", yearItem.currentLuckItem?.ganZhi || currentLuck.ganZhi],
-        ["置信度", confidenceLabel(yearItem.confidence)],
-      ],
-      lead: yearItem.image,
-      reality: yearItem.reality,
-      boundary: yearItem.boundary,
-      relations: [
-        ["原局关系触发", yearItem.relationToNatal],
-        ["大运关系触发", yearItem.relationToLuck],
-      ],
-      signals: yearSignals,
-    })}
+      <div class="transit-evidence-grid single">
+        ${renderTransitEvidenceCard({
+          title: "目标流月取象",
+          marker: `${item.year ?? ""}年${item.month ?? ""}月 ${item.ganZhi ?? ""}`.trim(),
+          chips: [
+            ["流月", `${item.year ?? ""}年${item.month ?? ""}月 ${item.ganZhi ?? ""}`.trim()],
+            ["天干十神", item.stemTenGod],
+            ["地支主气", item.branchTenGod],
+            ["当前大运", item.currentLuckItem?.ganZhi],
+            ["当前流年", item.yearItem?.ganZhi],
+            ["置信度", confidenceLabel(item.confidence)],
+          ],
+          structure: item.structureImage || item.image,
+          reality: item.reality,
+          boundary: item.boundary,
+          relations: [
+            ["原局关系触发", item.relationToNatal],
+            ["大运关系触发", item.relationToLuck],
+            ["流年关系触发", item.relationToYear],
+          ],
+          signals,
+        })}
+      </div>
     </details>
   `;
 }

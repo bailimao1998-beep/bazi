@@ -77,11 +77,11 @@ export function renderFortuneTransitPanel(root, payload = {}) {
             <h3>4. 最后细看流月</h3>
             <p>${escapeHtml(formatYearMonthContext(yearItem, monthItem))}</p>
           </div>
-          <span>${escapeHtml(`${selectedYear || "待查"} 年 · 当前 ${selectedMonth || "待查"} 月 ${monthItem.ganZhi ?? ""}`)}</span>
+          <span>${escapeHtml(`${selectedYear || "待查"} 年 · 当前 ${formatFlowMonthLabel(monthItem)} ${monthItem.ganZhi ?? ""}`)}</span>
         </div>
         <div class="month-flow-overview">
           <strong>${escapeHtml(`${selectedYear || "待查"} 流年${yearItem.ganZhi || "待查"}`)}</strong>
-          <span>${escapeHtml(`${selectedMonth || "待查"}月流月${monthItem.ganZhi || "待查"}`)}</span>
+          <span>${escapeHtml(`${formatFlowMonthLabel(monthItem)} 流月${monthItem.ganZhi || "待查"}`)}</span>
         </div>
         ${renderMonthGrid(monthReports, selectedMonth)}
         ${renderMonthFocusCard(monthItem)}
@@ -383,8 +383,8 @@ function buildCurrentMonthEvidenceSignals(monthItem = {}) {
 
   return compact([
     monthItem.year && monthItem.month && monthItem.ganZhi
-      ? `目标流月：${monthItem.year}年${monthItem.month}月${monthItem.ganZhi}`
-      : "",
+    ? `目标流月：${monthItem.year}年${formatFlowMonthLabel(monthItem)} ${monthItem.ganZhi}`
+    : "",
     monthItem.stemTenGod ? `天干十神：${monthItem.stemTenGod}` : "",
     monthItem.branchTenGod ? `地支主气：${monthItem.branchTenGod}` : "",
     monthItem.currentLuckItem?.ganZhi ? `当前大运：${monthItem.currentLuckItem.ganZhi}` : "",
@@ -526,7 +526,7 @@ function renderMonthEvidenceStore(monthImageReport = {}) {
   return `
     <details class="evidence-library fortune-evidence-store">
       <summary>
-        <span>5. 流月取象证据库</span>
+        <span>4.3 流月取象证据库</span>
         <b>${escapeHtml(`${currentMonthSignals.length} 条关键证据${relationHint} · 展开查看完整取象`)}</b>
       </summary>
 
@@ -760,7 +760,7 @@ function formatStartNote(chart = {}) {
 }
 
 function formatYearMonthContext(yearItem = {}, monthItem = {}) {
-  return `${yearItem.year || "目标年待查"} 流年${yearItem.ganZhi || "待查"}；${monthItem.month || "目标月待查"}月流月${monthItem.ganZhi || "待查"}`;
+  return `${yearItem.year || "目标年待查"} 流年${yearItem.ganZhi || "待查"}；${formatFlowMonthLabel(monthItem)} 流月${monthItem.ganZhi || "待查"}`;
 }
 
 function formatRange(ageRange, yearRange) {

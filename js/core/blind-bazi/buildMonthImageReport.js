@@ -112,6 +112,7 @@ function buildMonthItem(context) {
   const branchTenGod = getTenGod(context.dayStem, branchMainStem(branch));
   const stemTheme = tenGodThemes[stemTenGod] ?? "当月外显主题待复核";
   const branchTheme = tenGodThemes[branchTenGod] ?? "当月环境承接待复核";
+  const flowMonthLabel = `${context.selectedMonth}月/${branch}月`;
   const relationToNatal = findRelationToNatal(branch, context.natalBranches);
   const relationToLuck = findRelationToLuck(branch, context.currentLuckItem);
   const relationToYear = findRelationToYear(branch, context.yearItem);
@@ -130,6 +131,7 @@ function buildMonthItem(context) {
   return {
     year: context.targetYear,
     month: context.selectedMonth,
+    flowMonthLabel,
     ganZhi: pillar.label,
     stem,
     branch,
@@ -153,7 +155,7 @@ function buildSummary(monthItem) {
   const relationCount = monthItem.relationToNatal.length + monthItem.relationToLuck.length + monthItem.relationToYear.length;
   return {
     title: "流月取象总览",
-    overview: `${monthItem.year}年${monthItem.month}月${monthItem.ganZhi}流月，以天干${monthItem.stemTenGod}看当月外显主题，以地支${monthItem.branch}看环境与执行触发，并引用当前大运${luckLabel}、当前流年${yearLabel}作为背景。`,
+    overview: `${monthItem.year}年${monthItem.flowMonthLabel || `${monthItem.month}月/${monthItem.branch}月`}${monthItem.ganZhi}流月，以天干${monthItem.stemTenGod}看当月外显主题，以地支${monthItem.branch}看环境与执行触发，并引用当前大运${luckLabel}、当前流年${yearLabel}作为背景。`,
     currentLuck: luckLabel,
     currentYear: yearLabel,
     relationCount,
@@ -163,7 +165,7 @@ function buildSummary(monthItem) {
 
 function buildKeySignals(monthItem) {
   return compact([
-    `目标年月：${monthItem.year}年${monthItem.month}月${monthItem.ganZhi}`,
+    `目标流月：${monthItem.year}年${monthItem.flowMonthLabel || `${monthItem.month}月/${monthItem.branch}月`}${monthItem.ganZhi}`,
     `流月天干十神：${monthItem.stemTenGod}，主题偏向${tenGodThemes[monthItem.stemTenGod] ?? "待复核"}`,
     `流月地支主气十神：${monthItem.branchTenGod}，环境偏向${tenGodThemes[monthItem.branchTenGod] ?? "待复核"}`,
     monthItem.currentLuckItem?.ganZhi ? `当前大运背景：${monthItem.currentLuckItem.ganZhi}` : "当前大运背景：待复核",

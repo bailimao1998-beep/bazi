@@ -240,6 +240,7 @@ function renderShell() {
   renderAiChatPanel(roots.aiChatPanel, {
     state: chatState,
     hasReport: false,
+    chartContext: null,
     onAsk: askAiQuestion,
   });
 }
@@ -277,7 +278,8 @@ function renderBaseOnly() {
   });
   renderAiChatPanel(roots.aiChatPanel, {
     state: chatState,
-    hasReport: Boolean(state.natalImageReport),
+    hasReport: Boolean(state?.natalImageReport),
+    chartContext: state,
     onAsk: askAiQuestion,
   });
   setAiChatOpen(aiChatOpen);
@@ -401,7 +403,7 @@ async function askAiQuestion(question) {
       question: "",
       loading: false,
       error: "",
-      messages: [...chatState.messages, { question: trimmedQuestion, answer: result.text }].slice(-3),
+      messages: [...chatState.messages, { question: trimmedQuestion, answer: result.text }].slice(-5),
     };
   } catch (error) {
     chatState = { ...chatState, loading: false, error: error.message };
@@ -483,6 +485,40 @@ function extractYearsFromQuestion(question = "", baseYear = new Date().getFullYe
     .filter((year) => Number.isFinite(year) && year >= 1900 && year <= 2100)
     .sort((a, b) => a - b)
     .slice(0, 10);
+}
+function buildRequestedYearReports(years = []) {
+  if (!state?.chart || !state?.baseBaziViewModel || !state?.natalImageReport) {
+    return [];
+  }
+
+  const safeYears = [...new Set(
+    (Array.isArray(years) ? years : [])
+      .map(Number)
+      .filter((year) => Number.isFinite(year) && year >= 1900 && year <= 2100)
+  )].slice(0, 10);
+
+  return safeYears.map((targetYear) => {
+    const luckImageReport = buildLuckImageReport({
+      chart: state.chart,
+      baseBaziViewModel: state.baseBaziViewModel,
+      natalImageReport: state.natalImageReport,
+      targetYear,
+    });
+
+    const yearImageReport = buildYearImageReport({
+      chart: state.chart,
+      baseBaziViewModel: state.baseBaziViewModel,
+      natalImageReport: state.natalImageReport,
+      luckImageReport,
+      targetYear,
+    });
+
+    return {
+      year: targetYear,
+      luckImageReport,
+      yearImageReport,
+    };
+  });
 }
 
 function chineseNumberToInt(value) {

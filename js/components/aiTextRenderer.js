@@ -92,8 +92,11 @@ function groupListItems(items = []) {
 }
 
 function formatInline(text = "") {
-  const escaped = escapeHtml(text);
-  return escaped.replace(/^([^：:]{2,14})([：:])/, "<strong>$1$2</strong>");
+  const escaped = escapeHtml(text).replace(/`([^`]+)`/g, "$1");
+
+  return escaped
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/^([^：:]{2,14})([：:])/, "<strong>$1$2</strong>");
 }
 
 function escapeHtml(value) {

@@ -5603,10 +5603,10 @@ pre {
 }
 
 .transit-mini-block p {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  display: block;
+  overflow: visible;
+  -webkit-box-orient: initial;
+  -webkit-line-clamp: unset;
 }
 
 .transit-mini-block ul {
@@ -5649,4 +5649,128 @@ pre {
   .transit-evidence-mini-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.enhanced-month-board {
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 10px;
+}
+
+.enhanced-month-chip {
+  min-height: 118px;
+  align-content: start;
+  text-align: left;
+}
+
+.enhanced-month-chip span,
+.enhanced-month-chip strong,
+.enhanced-month-chip small,
+.enhanced-month-chip em {
+  display: block;
+}
+
+.enhanced-month-chip span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.enhanced-month-chip strong {
+  margin-top: 5px;
+  color: var(--ink);
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.enhanced-month-chip small {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.enhanced-month-chip em {
+  width: fit-content;
+  margin-top: 8px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.enhanced-month-chip em.has-trigger {
+  background: #fff0e8;
+  color: var(--accent-2);
+}
+
+.enhanced-month-chip em.no-trigger {
+  background: var(--soft);
+  color: var(--accent);
+}
+
+.month-focus-card {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdf8;
+}
+
+.month-focus-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.month-focus-grid article {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #eadfce;
+  border-radius: 6px;
+  background: #fffaf1;
+}
+
+.month-focus-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.month-focus-grid strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.month-focus-card p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .month-focus-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .month-focus-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.transit-evidence-grid.single {
+  grid-template-columns: 1fr;
+}
+
+.transit-evidence-grid.single .transit-evidence-card {
+  width: 100%;
 }

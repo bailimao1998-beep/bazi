@@ -84,6 +84,9 @@ export function renderFortuneTransitPanel(root, payload = {}) {
           <span>${escapeHtml(`${selectedMonth || "待查"}月流月${monthItem.ganZhi || "待查"}`)}</span>
         </div>
         ${renderMonthGrid(monthReports, selectedMonth)}
+        ${renderMonthFocusCard(monthItem)}
+        ${renderMonthEvidenceStore(state.monthImageReport)}
+        ${renderMonthAiStage(monthItem, payload.monthAiState, Boolean(monthItem.ganZhi))}
       </section>
     </section>
   `;
@@ -272,13 +275,14 @@ function renderEvidenceStore(state = {}, currentLuck = {}, yearItem = {}) {
   const currentLuckSignals = buildCurrentLuckEvidenceSignals(currentLuck);
   const currentYearSignals = buildCurrentYearEvidenceSignals(yearItem, currentLuck);
   const relationCount = countRelations(currentLuck) + countRelations(yearItem);
-  const visibleSignalCount = currentLuckSignals.length + currentYearSignals.length + relationCount;
+  const visibleSignalCount = currentLuckSignals.length + currentYearSignals.length;
+  const relationHint = relationCount ? ` · ${relationCount} 个关系触发` : "";
 
   return `
     <details class="evidence-library fortune-evidence-store" open>
       <summary>
         <span>3. 大运流年取象证据库</span>
-        <b>${escapeHtml(String(visibleSignalCount))} 条 · 展开查看完整取象</b>
+        <b>${escapeHtml(`${visibleSignalCount} 条关键证据${relationHint} · 展开查看完整取象`)}</b>
       </summary>
 
       <div class="transit-evidence-grid">
@@ -366,13 +370,46 @@ function buildCurrentYearEvidenceSignals(yearItem = {}, currentLuck = {}) {
   ]);
 }
 
+function buildCurrentMonthEvidenceSignals(monthItem = {}) {
+  const natalRelations = Array.isArray(monthItem.relationToNatal)
+    ? monthItem.relationToNatal
+    : [];
+  const luckRelations = Array.isArray(monthItem.relationToLuck)
+    ? monthItem.relationToLuck
+    : [];
+  const yearRelations = Array.isArray(monthItem.relationToYear)
+    ? monthItem.relationToYear
+    : [];
+
+  return compact([
+    monthItem.year && monthItem.month && monthItem.ganZhi
+      ? `目标流月：${monthItem.year}年${monthItem.month}月${monthItem.ganZhi}`
+      : "",
+    monthItem.stemTenGod ? `天干十神：${monthItem.stemTenGod}` : "",
+    monthItem.branchTenGod ? `地支主气：${monthItem.branchTenGod}` : "",
+    monthItem.currentLuckItem?.ganZhi ? `当前大运：${monthItem.currentLuckItem.ganZhi}` : "",
+    monthItem.yearItem?.ganZhi ? `当前流年：${monthItem.yearItem.ganZhi}` : "",
+    natalRelations.length
+      ? `原局触发：${natalRelations.map(formatRelationEvidence).join("、")}`
+      : "原局触发：暂未命中冲、合、刑、害、破",
+    luckRelations.length
+      ? `大运触发：${luckRelations.map(formatRelationEvidence).join("、")}`
+      : "大运触发：暂未命中冲、合、刑、害、破",
+    yearRelations.length
+      ? `流年触发：${yearRelations.map(formatRelationEvidence).join("、")}`
+      : "流年触发：暂未命中冲、合、刑、害、破",
+  ]);
+}
+
 function formatRelationEvidence(relation = {}) {
   const type = relation.type || "触发";
   const target =
     relation.natalPillar ||
-    relation.luckGanZhi ||
+    (relation.luckGanZhi ? `当前大运${relation.luckGanZhi}` : "") ||
+    (relation.yearGanZhi ? `当前流年${relation.yearGanZhi}` : "") ||
     relation.natalBranch ||
-    relation.luckBranch ||
+    (relation.luckBranch ? `大运支${relation.luckBranch}` : "") ||
+    (relation.yearBranch ? `流年支${relation.yearBranch}` : "") ||
     "";
 
   return `${type}${target}`;
@@ -406,7 +443,7 @@ function renderTransitEvidenceCard({
 
       ${renderDetailChips(chips)}
 
-      ${summaryText ? `<p class="transit-evidence-lead">${escapeHtml(shortenText(summaryText, 130))}</p>` : ""}
+      ${summaryText ? `<p class="transit-evidence-lead">${escapeHtml(summaryText)}</p>` : ""}
 
       <div class="transit-evidence-mini-grid">
         ${renderMiniEvidenceBlock("结构取象", structureText)}
@@ -432,8 +469,18 @@ function renderMiniEvidenceBlock(title, text) {
 function renderMiniRelationBlock(title, groups = []) {
   const relationTexts = groups
     .filter(([, relations]) => Array.isArray(relations) && relations.length)
-    .flatMap(([, relations]) => relations)
-    .map((relation) => relation.description || `${relation.type || "触发"}：${relation.effect || ""}`)
+    .flatMap(([groupTitle, relations]) => {
+      const source = String(groupTitle || "关系触发")
+        .replaceAll("关系触发", "")
+        .replaceAll("触发", "")
+        .trim() || "关系";
+
+      return relations.map((relation) => {
+        const label = formatRelationEvidence(relation);
+        const effect = relation.effect ? `（${relation.effect}）` : "";
+        return `${source}触发：${label}${effect}`;
+      });
+    })
     .filter(Boolean);
 
   return `
@@ -441,7 +488,7 @@ function renderMiniRelationBlock(title, groups = []) {
       <h5>${escapeHtml(title)}</h5>
       ${
         relationTexts.length
-          ? `<ul>${relationTexts.slice(0, 4).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+          ? `<ul>${relationTexts.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
           : `<p>暂未命中冲、合、刑、害、破。</p>`
       }
     </section>
@@ -449,7 +496,8 @@ function renderMiniRelationBlock(title, groups = []) {
 }
 
 function renderSignalPills(title, signals = []) {
-  const visible = compact(signals).slice(0, 8);
+  const visible = compact(signals);
+
   return `
     <section class="transit-signal-pills">
       <h5>${escapeHtml(title)}</h5>
@@ -468,15 +516,18 @@ function shortenText(text, max = 120) {
   const value = String(text ?? "").replace(/\s+/g, " ").trim();
   return value.length > max ? `${value.slice(0, max)}…` : value;
 }
+
 function renderMonthEvidenceStore(monthImageReport = {}) {
-  const signals = monthImageReport?.keySignals ?? [];
   const item = monthImageReport?.monthItem ?? {};
+  const currentMonthSignals = buildCurrentMonthEvidenceSignals(item);
+  const relationCount = countRelations(item);
+  const relationHint = relationCount ? ` · ${relationCount} 个关系触发` : "";
 
   return `
     <details class="evidence-library fortune-evidence-store">
       <summary>
         <span>5. 流月取象证据库</span>
-        <b>${escapeHtml(String(signals.length + countRelations(item)))} 条 · 展开查看完整取象</b>
+        <b>${escapeHtml(`${currentMonthSignals.length} 条关键证据${relationHint} · 展开查看完整取象`)}</b>
       </summary>
 
       <div class="transit-evidence-grid single">
@@ -491,6 +542,7 @@ function renderMonthEvidenceStore(monthImageReport = {}) {
             ["当前流年", item.yearItem?.ganZhi],
             ["置信度", confidenceLabel(item.confidence)],
           ],
+          summary: monthImageReport?.summary?.overview || item.shortImage || item.image,
           structure: item.structureImage || item.image,
           reality: item.reality,
           boundary: item.boundary,
@@ -499,7 +551,7 @@ function renderMonthEvidenceStore(monthImageReport = {}) {
             ["大运关系触发", item.relationToLuck],
             ["流年关系触发", item.relationToYear],
           ],
-          signals,
+          signals: currentMonthSignals,
         })}
       </div>
     </details>
@@ -555,17 +607,74 @@ function renderSignalList(title, signals = []) {
   `;
 }
 
-function renderMonthGrid(monthReports = [], selectedMonth) {
-  const reports = monthReports.length ? monthReports : Array.from({ length: 12 }, (_, index) => ({ monthItem: { month: index + 1 } }));
+function renderMonthFocusCard(monthItem = {}) {
+  const relationCount = countRelations(monthItem);
+  const relationText = relationCount
+    ? `本月命中 ${relationCount} 个关系触发，需要结合原局、大运、流年一起看。`
+    : "本月暂未命中明显冲、合、刑、害、破，更多作为月度背景参考。";
+
+  const tenGodLine = [
+    monthItem.stemTenGod || "天干十神待查",
+    monthItem.branchTenGod || "地支主气待查",
+  ].join(" / ");
+
   return `
-    <div class="month-board fortune-month-board">
+    <section class="month-focus-card">
+      <div class="transit-card-head">
+        <div>
+          <h4>当前流月重点</h4>
+          <span>${escapeHtml(`${monthItem.year ?? "目标年待查"}年${monthItem.month ?? "目标月待查"}月`)}</span>
+        </div>
+        <strong>${escapeHtml(monthItem.ganZhi || "待查")}</strong>
+      </div>
+
+      <div class="month-focus-grid">
+        <article>
+          <span>流月主题</span>
+          <strong>${escapeHtml(tenGodLine)}</strong>
+        </article>
+        <article>
+          <span>当前大运</span>
+          <strong>${escapeHtml(monthItem.currentLuckItem?.ganZhi || "待查")}</strong>
+        </article>
+        <article>
+          <span>当前流年</span>
+          <strong>${escapeHtml(monthItem.yearItem?.ganZhi || "待查")}</strong>
+        </article>
+        <article>
+          <span>关系触发</span>
+          <strong>${escapeHtml(relationCount ? `${relationCount} 个` : "暂无明显触发")}</strong>
+        </article>
+      </div>
+
+      <p>${escapeHtml(relationText)}</p>
+    </section>
+  `;
+}
+
+function renderMonthGrid(monthReports = [], selectedMonth) {
+  const reports = monthReports.length
+    ? monthReports
+    : Array.from({ length: 12 }, (_, index) => ({ monthItem: { month: index + 1 } }));
+
+  return `
+    <div class="month-board fortune-month-board enhanced-month-board">
       ${reports.map((report) => {
         const item = report.monthItem ?? {};
         const active = Number(item.month) === Number(selectedMonth);
+        const relationCount = countRelations(item);
+        const triggerLabel = relationCount ? `${relationCount} 个触发` : "无明显触发";
+        const tenGodLine = [
+          item.stemTenGod || "天干待查",
+          item.branchTenGod || "地支待查",
+        ].join(" / ");
+
         return `
-          <button type="button" class="flow-chip month${active ? " is-active" : ""}" data-month-select="${escapeHtml(item.month)}">
+          <button type="button" class="flow-chip month enhanced-month-chip${active ? " is-active" : ""}" data-month-select="${escapeHtml(item.month)}">
             <span>${escapeHtml(item.month || "待查")}月 · ${active ? "当前" : "流月"}</span>
             <strong>${escapeHtml(item.ganZhi || "待查")}</strong>
+            <small>${escapeHtml(tenGodLine)}</small>
+            <em class="${relationCount ? "has-trigger" : "no-trigger"}">${escapeHtml(triggerLabel)}</em>
           </button>
         `;
       }).join("")}

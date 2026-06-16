@@ -262,9 +262,13 @@ function renderAiCard({ mode, title, meta, button, state = {}, hasReport, extraC
         <h3>${escapeHtml(title)}</h3>
         <span>${escapeHtml(meta || "待生成")}</span>
       </div>
+
+      <p class="ai-card-hint">AI 只负责把当前取象证据转成可读分析，不参与排盘和取象。</p>
+
       <button type="button" class="secondary" data-ai-trigger="${escapeHtml(mode)}" ${state.loading || !hasReport ? "disabled" : ""}>
         ${state.loading ? "生成中..." : escapeHtml(button)}
       </button>
+
       ${state.error ? `<p class="form-error">${escapeHtml(state.error)}</p>` : ""}
       ${state.text ? renderAiText(state.text) : ""}
     </article>
@@ -458,10 +462,19 @@ function renderTransitEvidenceCard({
 }
 
 function renderMiniEvidenceBlock(title, text) {
+  const lines = String(text || "暂无明确描述。")
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
   return `
     <section class="transit-mini-block">
       <h5>${escapeHtml(title)}</h5>
-      <p>${escapeHtml(text || "暂无明确描述。")}</p>
+      ${
+        lines.length > 1
+          ? `<ul>${lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`
+          : `<p>${escapeHtml(lines[0] || "暂无明确描述。")}</p>`
+      }
     </section>
   `;
 }

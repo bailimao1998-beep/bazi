@@ -142,8 +142,14 @@ function buildMonthItem(context) {
     relationToNatal,
     relationToLuck,
     relationToYear,
-    image: `${context.targetYear}年${flowMonthLabel}${pillar.label}流月，天干${stemTenGod}看当月外显主题，重点观察${stemTheme}；地支${branch}看当月环境、执行场景和触发点，地支主气十神${branchTenGod}偏向${branchTheme}。当前大运背景为${luckLabel}，当前流年背景为${yearLabel}，流月取象需放在这两层背景下复核。`,
-    reality: `现实应象可观察${stemTheme}是否在当月更集中，同时看${branch}对应的执行节奏、环境变化和事务推进。原局触发：${natalText} 大运触发：${luckText} 流年触发：${yearText}`,
+    image: `${context.targetYear}年 ${flowMonthLabel} ${pillar.label}流月，天干${stemTenGod}看当月外显主题，重点观察${stemTheme}；地支${branch}看当月环境、执行场景和触发点，地支主气十神${branchTenGod}偏向${branchTheme}。当前大运背景为${luckLabel}，当前流年背景为${yearLabel}，流月取象需放在这两层背景下复核。`,
+    reality: [
+      `观察主题：${stemTheme}是否在当月更集中。`,
+      `执行场景：重点看${branch}对应的执行节奏、环境变化和事务推进。`,
+      `原局触发：${natalText}`,
+      `大运触发：${luckText}`,
+      `流年触发：${yearText}`,
+    ].join("\n"),
     boundary: "流月只作单月结构触发提示，不直接等同具体事件；需结合原局证据、大运阶段背景、流年年度背景和现实反馈复核。",
     confidence: confidenceForMonthItem({ relationToNatal, relationToLuck, relationToYear, currentLuckItem: context.currentLuckItem, yearItem: context.yearItem }),
   };
@@ -155,7 +161,7 @@ function buildSummary(monthItem) {
   const relationCount = monthItem.relationToNatal.length + monthItem.relationToLuck.length + monthItem.relationToYear.length;
   return {
     title: "流月取象总览",
-    overview: `${monthItem.year}年${monthItem.flowMonthLabel || `${monthItem.month}月/${monthItem.branch}月`}${monthItem.ganZhi}流月，以天干${monthItem.stemTenGod}看当月外显主题，以地支${monthItem.branch}看环境与执行触发，并引用当前大运${luckLabel}、当前流年${yearLabel}作为背景。`,
+    overview: `${monthItem.year}年 ${monthItem.flowMonthLabel || `${monthItem.month}月/${monthItem.branch}月`} ${monthItem.ganZhi}流月，以天干${monthItem.stemTenGod}看当月外显主题，以地支${monthItem.branch}看环境与执行触发，并引用当前大运${luckLabel}、当前流年${yearLabel}作为背景。`,
     currentLuck: luckLabel,
     currentYear: yearLabel,
     relationCount,
@@ -165,7 +171,7 @@ function buildSummary(monthItem) {
 
 function buildKeySignals(monthItem) {
   return compact([
-    `目标流月：${monthItem.year}年${monthItem.flowMonthLabel || `${monthItem.month}月/${monthItem.branch}月`}${monthItem.ganZhi}`,
+    `目标流月：${monthItem.year}年 ${monthItem.flowMonthLabel || `${monthItem.month}月/${monthItem.branch}月`} ${monthItem.ganZhi}`,
     `流月天干十神：${monthItem.stemTenGod}，主题偏向${tenGodThemes[monthItem.stemTenGod] ?? "待复核"}`,
     `流月地支主气十神：${monthItem.branchTenGod}，环境偏向${tenGodThemes[monthItem.branchTenGod] ?? "待复核"}`,
     monthItem.currentLuckItem?.ganZhi ? `当前大运背景：${monthItem.currentLuckItem.ganZhi}` : "当前大运背景：待复核",

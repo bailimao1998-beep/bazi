@@ -51,17 +51,26 @@ function ensureSection(blocks) {
 
 function renderBlock(block = {}) {
   const grouped = groupListItems(block.items);
+  const isHighlight = block.title && /核心|结论|重点|总览|一句话/.test(block.title);
+
   return `
-    <section class="ai-output-section">
+    <section class="ai-output-section${isHighlight ? " is-highlight" : ""}">
       ${block.title ? `<h4>${escapeHtml(block.title)}</h4>` : ""}
       ${grouped.map((item) => {
         if (item.type === "listGroup") {
           return `<ul>${item.items.map((listItem) => `<li>${formatInline(listItem)}</li>`).join("")}</ul>`;
         }
-        return `<p>${formatInline(item.text)}</p>`;
+        return renderParagraph(item.text);
       }).join("")}
     </section>
   `;
+}
+
+function renderParagraph(text = "") {
+  const value = String(text ?? "").trim();
+  const isKeyLine = /^(核心判断|重点|结论|一句话|提醒|风险|机会|建议)[：:]/.test(value);
+
+  return `<p class="${isKeyLine ? "ai-key-line" : ""}">${formatInline(value)}</p>`;
 }
 
 function groupListItems(items = []) {

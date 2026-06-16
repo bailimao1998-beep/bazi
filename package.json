@@ -1,44 +1,42 @@
 {
-  "name": "fortune-ai",
-  "version": "0.1.0",
-  "private": true,
+  "name": "bazi-ai-v1",
+  "version": "1.0.0",
+  "description": "命理剧情解读系统 V1",
+  "main": "electron/main.js",
   "type": "module",
-  "main": "desktop/main.js",
   "scripts": {
-    "dev": "node server/server.js",
-    "desktop": "electron desktop/main.js",
-    "package:mac": "electron-builder --mac",
-    "package:win": "electron-builder --win",
-    "start": "node server/server.js",
-    "test": "node --test server/architecture.test.js",
-    "validate": "node scripts/validate-bazi-data.mjs"
+    "start": "electron .",
+    "dist:win": "electron-builder --win nsis",
+    "dist:win-portable": "electron-builder --win portable"
   },
   "devDependencies": {
-    "electron": "^31.7.7",
-    "electron-builder": "^24.13.3"
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8"
   },
   "build": {
-    "appId": "com.fortune-ai.desktop",
-    "productName": "命理断事系统",
+    "appId": "com.bazi.ai.v1",
+    "productName": "命理剧情解读系统",
     "directories": {
       "output": "dist"
     },
     "files": [
-      "desktop/**/*",
-      "server/**/*",
-      "js/**/*",
-      "styles/**/*",
-      "data/**/*",
-      "config/**/*",
       "index.html",
-      "index.offline.html",
-      "package.json"
+      "styles/**/*",
+      "js/**/*",
+      "config/**/*",
+      "electron/**/*"
     ],
-    "mac": {
-      "category": "public.app-category.productivity"
-    },
     "win": {
-      "target": "nsis"
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "命理剧情解读系统"
     }
   }
 }

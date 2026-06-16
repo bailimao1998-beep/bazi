@@ -11,7 +11,6 @@ export function renderNatalAiNarrativePanel(root, payload = {}, actions = {}) {
       <button type="button" data-natal-ai-generate ${state.loading || !hasReport ? "disabled" : ""}>
         ${state.loading ? "生成中..." : "生成原局 AI 分析"}
       </button>
-      <span class="muted">${hasReport ? "基于当前 natalImageReport 生成。" : "请先完成基础排盘和原局取象。"}</span>
     </div>
     ${state.loading ? `<p class="muted">正在生成原局 AI 分析...</p>` : ""}
     ${state.error ? `<p class="error-text">${escapeHtml(state.error)}</p>` : ""}

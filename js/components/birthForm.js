@@ -51,7 +51,7 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit, locationCat
     syncCalendar(state);
     root.innerHTML = renderForm(state, locationCatalog);
     bind(root, state, rerender, locationCatalog);
-    if (submit) onSubmit(toPayload(state));
+    if (submit) onSubmit(toPayload(state, locationCatalog));
   }
 
   function bind(container, formState, update, locationCatalog) {
@@ -99,20 +99,32 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit, locationCat
       update({ submit: true });
     });
     ["birthTime", "gender", "targetYear"].forEach((name) => {
-      container.querySelector("[name='birthProvince']")?.addEventListener("change", (event) => {
-        formState.birthProvince = event.currentTarget.value;
-        const cities = getCitiesByProvince(locationCatalog, formState.birthProvince);
-        formState.birthplace = cities[0]?.city || "";
-        update({ submit: true });
-      });
-      container.querySelector("[name='birthplace']")?.addEventListener("change", (event) => {
-        formState.birthplace = event.currentTarget.value;
-        update({ submit: true });
-      });
       container.querySelector(`[name='${name}']`)?.addEventListener("change", (event) => {
-        formState[name] = ["targetYear"].includes(name) ? Number(event.currentTarget.value) : event.currentTarget.value;
+        formState[name] = ["targetYear"].includes(name)
+          ? Number(event.currentTarget.value)
+          : event.currentTarget.value;
         update({ submit: true });
       });
+    });
+
+    container.querySelector("[name='birthProvince']")?.addEventListener("change", (event) => {
+      formState.birthProvince = event.currentTarget.value;
+      const cities = getCitiesByProvince(locationCatalog, formState.birthProvince);
+      formState.birthplace = cities[0]?.name || cities[0]?.city || "";
+      update({ submit: true });
+    });
+
+    container.querySelector("[name='birthplace']")?.addEventListener("change", (event) => {
+      formState.birthplace = event.currentTarget.value;
+      update({ submit: true });
+    });
+    container.querySelector("[name='birthplace']")?.addEventListener("change", (event) => {
+      formState.birthplace = event.currentTarget.value;
+      update({ submit: true });
+    });
+    container.querySelector(`[name='${name}']`)?.addEventListener("change", (event) => {
+      formState[name] = ["targetYear"].includes(name) ? Number(event.currentTarget.value) : event.currentTarget.value;
+      update({ submit: true });
     });
     container.querySelector("[name='trueSolarTime']")?.addEventListener("change", (event) => {
       formState.trueSolarTime = event.currentTarget.checked;
@@ -185,14 +197,14 @@ function renderForm(state, locationCatalog) {
         <span>出生城市 / 区县</span>
         <select name="birthplace">
           ${cities.map((item) => `
-            <option value="${escapeHtml(item.city)}" ${item.city === state.birthplace ? "selected" : ""}>
-              ${escapeHtml(item.fullName || item.city)}
+            <option value="${escapeHtml(item.name)}" ${item.name === state.birthplace ? "selected" : ""}>
+              ${escapeHtml(item.displayName || item.fullName || item.name)}
             </option>
           `).join("")}
         </select>
       </label>
 
-      <p class="location-preview">${escapeHtml(renderLocationPreview(city, state.trueSolarTime))}</p>
+      <p class="location-preview">${escapeHtml(renderLocationPreview(city, state.trueSolarTime, state))}</p>
       <label class="switch-row"><input name="trueSolarTime" type="checkbox" ${state.trueSolarTime ? "checked" : ""} /> <span>按真太阳时校正</span></label>
       <label><span>解读年份</span><input name="targetYear" type="number" value="${state.targetYear}" /></label>
       <label class="switch-row"><input name="preInterpretAi" type="checkbox" ${state.preInterpretAi ? "checked" : ""} /> <span>AI 预先解读</span></label>
@@ -295,15 +307,30 @@ function syncCalendar(state) {
 }
 function syncLocation(state, locationCatalog) {
   const provinces = getProvinceOptions(locationCatalog);
+  const currentProvince = String(state.birthProvince || "").trim();
 
-  if (!provinces.includes(state.birthProvince)) {
-    state.birthProvince = provinces[0] || "北京";
+  const matchedProvince = provinces.find((province) => {
+    return province === currentProvince ||
+      province.includes(currentProvince) ||
+      currentProvince.includes(province);
+  });
+
+  if (!matchedProvince) {
+    state.birthProvince = provinces[0] || "北京市";
+  } else {
+    state.birthProvince = matchedProvince;
   }
 
   const cities = getCitiesByProvince(locationCatalog, state.birthProvince);
+  const matchedLocation = findLocation(locationCatalog, {
+    birthProvince: state.birthProvince,
+    birthplace: state.birthplace,
+  });
 
-  if (!cities.some((item) => item.city === state.birthplace)) {
-    state.birthplace = cities[0]?.city || state.birthplace || "";
+  if (!matchedLocation) {
+    state.birthplace = cities[0]?.name || cities[0]?.city || "";
+  } else {
+    state.birthplace = matchedLocation.name;
   }
 }
 
@@ -335,20 +362,64 @@ function toPayload(state, locationCatalog) {
   };
 }
 
-function renderLocationPreview(city, trueSolarTime) {
+function renderLocationPreview(city, trueSolarTime, state = {}) {
   if (!city || !Number.isFinite(Number(city.longitude))) {
     return "出生地未匹配经纬度，真太阳时不会应用。";
   }
 
-  const longitudeCorrection = Math.round(
-    (Number(city.longitude) - Number(city.standardMeridian ?? 120)) * 4
-  );
+  const birthParts = parsePreviewBirthParts(state);
+  const longitudeCorrection = (Number(city.longitude) - Number(city.standardMeridian ?? 120)) * 4;
+  const equationOfTime = birthParts ? calculatePreviewEquationOfTime(birthParts) : 0;
+  const totalCorrection = longitudeCorrection + equationOfTime;
+  const corrected = birthParts ? applyPreviewCorrection(birthParts, totalCorrection) : "";
 
-  return `${city.fullName || city.name}：经度${Number(city.longitude).toFixed(4)}，纬度${Number(city.latitude).toFixed(4)}；${
-    trueSolarTime
-      ? `经度校正约${longitudeCorrection}分钟，会参与排盘。`
-      : "勾选真太阳时后会按此地校正。"
-  }`;
+  const locationName = city.fullName || city.displayName || city.name;
+  const baseText = `${locationName}：经度${Number(city.longitude).toFixed(4)}，纬度${Number(city.latitude).toFixed(4)}`;
+
+  if (!trueSolarTime) {
+    return `${baseText}；勾选真太阳时后，会按“经度校正 + 均时差”校正。预计经度校正约${formatSignedMinutes(longitudeCorrection)}，均时差约${formatSignedMinutes(equationOfTime)}，最终校正约${formatSignedMinutes(totalCorrection)}。`;
+  }
+
+  return `${baseText}；经度校正约${formatSignedMinutes(longitudeCorrection)}，均时差约${formatSignedMinutes(equationOfTime)}，最终校正约${formatSignedMinutes(totalCorrection)}；校正后约为${corrected}，会参与排盘。`;
+}
+
+function parsePreviewBirthParts(state = {}) {
+  const [year, month, day] = String(state.birthDate || "").split("-").map(Number);
+  const [hour, minute] = String(state.birthTime || "00:00").split(":").map(Number);
+
+  if (![year, month, day, hour].every(Number.isFinite)) return null;
+
+  return {
+    year,
+    month,
+    day,
+    hour,
+    minute: Number.isFinite(minute) ? minute : 0,
+  };
+}
+
+function calculatePreviewEquationOfTime(parts) {
+  const dayOfYear = getPreviewDayOfYear(parts);
+  const b = (2 * Math.PI * (dayOfYear - 81)) / 364;
+  return 9.87 * Math.sin(2 * b) - 7.53 * Math.cos(b) - 1.5 * Math.sin(b);
+}
+
+function getPreviewDayOfYear(parts) {
+  const start = Date.UTC(parts.year, 0, 0);
+  const current = Date.UTC(parts.year, parts.month - 1, parts.day);
+  return Math.floor((current - start) / 86400000);
+}
+
+function applyPreviewCorrection(parts, correctionMinutes) {
+  const utc = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute) + correctionMinutes * 60000;
+  const adjusted = new Date(utc);
+
+  return `${adjusted.getUTCFullYear()}-${String(adjusted.getUTCMonth() + 1).padStart(2, "0")}-${String(adjusted.getUTCDate()).padStart(2, "0")} ${String(adjusted.getUTCHours()).padStart(2, "0")}:${String(adjusted.getUTCMinutes()).padStart(2, "0")}`;
+}
+
+function formatSignedMinutes(value) {
+  const rounded = Math.round(Number(value) || 0);
+  return `${rounded > 0 ? "+" : ""}${rounded}分钟`;
 }
 
 function escapeHtml(value) {

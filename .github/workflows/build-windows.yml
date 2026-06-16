@@ -21,6 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
       - name: Create AI config
         shell: pwsh
         run: |
@@ -36,8 +37,9 @@ jobs:
             }
           }
           "@ | Set-Content -Encoding UTF8 config/ai-config.json
-            - name: Build Windows exe
-              run: npm run dist:win-portable
+
+      - name: Build Windows exe
+        run: npm run dist:win-portable
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

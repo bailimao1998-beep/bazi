@@ -533,9 +533,9 @@ function renderMonthEvidenceStore(monthImageReport = {}) {
       <div class="transit-evidence-grid single">
         ${renderTransitEvidenceCard({
           title: "目标流月取象",
-          marker: `${item.year ?? ""}年${item.month ?? ""}月 ${item.ganZhi ?? ""}`.trim(),
+          marker: `${item.year ?? ""}年 ${formatFlowMonthLabel(item)} ${item.ganZhi ?? ""}`.trim(),
           chips: [
-            ["流月", `${item.year ?? ""}年${item.month ?? ""}月 ${item.ganZhi ?? ""}`.trim()],
+            ["流月", `${item.year ?? ""}年 ${formatFlowMonthLabel(item)} ${item.ganZhi ?? ""}`.trim()],
             ["天干十神", item.stemTenGod],
             ["地支主气", item.branchTenGod],
             ["当前大运", item.currentLuckItem?.ganZhi],
@@ -623,7 +623,7 @@ function renderMonthFocusCard(monthItem = {}) {
       <div class="transit-card-head">
         <div>
           <h4>当前流月重点</h4>
-          <span>${escapeHtml(`${monthItem.year ?? "目标年待查"}年${monthItem.month ?? "目标月待查"}月`)}</span>
+          <span>${escapeHtml(`${monthItem.year ?? "目标年待查"}年 · ${formatFlowMonthLabel(monthItem)}`)}</span>
         </div>
         <strong>${escapeHtml(monthItem.ganZhi || "待查")}</strong>
       </div>
@@ -671,7 +671,7 @@ function renderMonthGrid(monthReports = [], selectedMonth) {
 
         return `
           <button type="button" class="flow-chip month enhanced-month-chip${active ? " is-active" : ""}" data-month-select="${escapeHtml(item.month)}">
-            <span>${escapeHtml(item.month || "待查")}月 · ${active ? "当前" : "流月"}</span>
+            <span>${escapeHtml(formatFlowMonthLabel(item))} · ${active ? "当前" : "流月"}</span>
             <strong>${escapeHtml(item.ganZhi || "待查")}</strong>
             <small>${escapeHtml(tenGodLine)}</small>
             <em class="${relationCount ? "has-trigger" : "no-trigger"}">${escapeHtml(triggerLabel)}</em>
@@ -680,6 +680,11 @@ function renderMonthGrid(monthReports = [], selectedMonth) {
       }).join("")}
     </div>
   `;
+}
+
+function formatFlowMonthLabel(item = {}) {
+  const branch = item.branch ? `${item.branch}月` : "月令待查";
+  return `${item.month || "待查"}月/${branch}`;
 }
 
 function bindTransitEvents(root, payload = {}) {

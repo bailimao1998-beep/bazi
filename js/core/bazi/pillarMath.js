@@ -95,7 +95,21 @@ export function createPillarFromYear(year, role = "流年") {
 
 export function createMonthPillar(year, month, role = "流月") {
   const yearStem = createPillarFromYear(year, "流年").stem;
-  return createBirthMonthPillar({ year: Number(year), month: Number(month), day: 15, hour: 12, minute: 0 }, yearStem, role);
+  return createFlowMonthPillar(yearStem, month, role, { year: Number(year), month: Number(month) });
+}
+
+function createFlowMonthPillar(yearStem, month, role = "流月", meta = {}) {
+  const monthIndex = Math.min(12, Math.max(1, Math.trunc(Number(month) || 1))) - 1;
+  const branch = monthBranches[monthIndex];
+  const branchOrderFromYin = monthBranches.indexOf(branch);
+  const yearStemIndex = stems.indexOf(yearStem);
+  const stem = stems[((yearStemIndex % 5) * 2 + 2 + branchOrderFromYin) % 10];
+
+  return makePillar(stem, branch, role, {
+    ...meta,
+    flowMonthIndex: monthIndex + 1,
+    method: "流月按目标流年内部的十二节气月排布：第1月为寅月，之后卯、辰、巳、午、未、申、酉、戌、亥、子、丑。",
+  });
 }
 
 export function createBirthMonthPillar(birth, yearStem, role = "月柱") {

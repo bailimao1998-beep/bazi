@@ -57,7 +57,7 @@ export function parseBirth(input = {}, datasets = {}) {
     minute: minute || 0,
     calendar,
   };
-  const location = resolveBirthLocation(input.birthplace, datasets);
+  const location = resolveBirthLocation(input, datasets);
   return applyTrueSolarTime(rawBirth, location, input.trueSolarTime);
 }
 
@@ -168,7 +168,7 @@ export function formatLocalDateTime(boundary) {
   return `${boundary.localYear}-${String(boundary.localMonth).padStart(2, "0")}-${String(boundary.localDay).padStart(2, "0")} ${String(boundary.localHour).padStart(2, "0")}:${String(boundary.localMinute).padStart(2, "0")}`;
 }
 
-function resolveBirthLocation(birthplace, datasets) {
+function resolveBirthLocation(inputOrBirthplace, datasets) {
   const defaultLocation = {
     name: "北京",
     longitude: 116.4074,
@@ -177,13 +177,49 @@ function resolveBirthLocation(birthplace, datasets) {
     standardMeridian: 120,
     source: "default",
   };
-  const query = String(birthplace ?? "").trim();
-  const cities = datasets?.locations?.cities?.length ? datasets.locations.cities : defaultLocations;
+
+  const input = typeof inputOrBirthplace === "object" && inputOrBirthplace !== null
+    ? inputOrBirthplace
+    : { birthplace: inputOrBirthplace };
+
+  const manualLongitude = Number(input.birthLongitude);
+  const manualLatitude = Number(input.birthLatitude);
+  const manualStandardMeridian = Number(input.standardMeridian);
+
+  if (Number.isFinite(manualLongitude)) {
+    return {
+      ...defaultLocation,
+      name: input.birthplace || "出生地",
+      longitude: manualLongitude,
+      latitude: Number.isFinite(manualLatitude) ? manualLatitude : null,
+      standardMeridian: Number.isFinite(manualStandardMeridian) ? manualStandardMeridian : 120,
+      source: "form",
+    };
+  }
+
+  const query = String(input.birthplace ?? "").trim();
+  const province = String(input.birthProvince ?? "").trim();
+  const cities = datasets?.locations?.cities?.length
+    ? datasets.locations.cities
+    : defaultLocations;
+
   if (!query) return defaultLocation;
-  const matched = cities.find((city) => {
-    const names = [city.name, ...(city.aliases ?? [])].filter(Boolean);
+
+  const scopedCities = province
+    ? cities.filter((city) => city.province === province)
+    : cities;
+
+  const matched = scopedCities.find((city) => {
+    const names = [
+      city.name,
+      city.city,
+      city.fullName,
+      ...(city.aliases ?? []),
+    ].filter(Boolean);
+
     return names.some((name) => query === name || query.includes(name) || name.includes(query));
   });
+
   return matched
     ? { ...defaultLocation, ...matched, source: "dataset" }
     : {
@@ -195,7 +231,6 @@ function resolveBirthLocation(birthplace, datasets) {
         source: "unmatched",
       };
 }
-
 function applyTrueSolarTime(rawBirth, location, enabled = false) {
   const applied = Boolean(enabled && hasUsableLocation(location));
   const correctionMinutes = applied ? calculateTrueSolarCorrection(rawBirth, location) : 0;

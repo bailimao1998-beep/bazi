@@ -25,6 +25,7 @@ import { renderNatalAiNarrativePanel } from "./components/natalAiNarrativePanel.
 import { renderNatalImagePanel } from "./components/natalImagePanel.js";
 import { renderYearAiNarrativePanel } from "./components/yearAiNarrativePanel.js";
 import { renderYearImagePanel } from "./components/yearImagePanel.js";
+import { loadLocationCatalog } from "./core/location/locationCatalogClient.js";
 
 const roots = {
   birthForm: document.querySelector("#birthForm"),
@@ -100,6 +101,7 @@ let currentInput = {
   name: "测试用户",
   birthDate: "1949-10-01",
   birthTime: "00:00",
+  birthProvince: "北京",
   birthplace: "北京",
   gender: "male",
   targetYear: 2026,
@@ -107,10 +109,12 @@ let currentInput = {
   trueSolarTime: false,
   preInterpretAi: false,
 };
+let locationCatalog = { cities: [] };
 
 init();
 
 async function init() {
+  locationCatalog = await loadLocationCatalog();
   await loadRuntimeAiSettings();
   const settings = readAiSettings();
   aiSettingsState = {
@@ -122,6 +126,7 @@ async function init() {
 
   renderBirthForm(roots.birthForm, {
     initialValue: currentInput,
+    locationCatalog,
     onSubmit(payload) {
       currentInput = { ...currentInput, ...payload };
       refresh();
@@ -137,7 +142,9 @@ async function init() {
 function refresh() {
   roots.status.textContent = "正在前端排盘...";
   try {
-    const chart = calculateBazi(currentInput);
+    const chart = calculateBazi(currentInput, {
+      locations: locationCatalog,
+    });
     const baseBaziViewModel = buildBaseBaziViewModel(chart);
     const natalImageReport = buildNatalImageReport({ chart, baseBaziViewModel });
     const luckImageReport = buildLuckImageReport({

@@ -283,7 +283,7 @@ function renderEvidenceStore(state = {}, currentLuck = {}, yearItem = {}) {
   const relationHint = relationCount ? ` · ${relationCount} 个关系触发` : "";
 
   return `
-    <details class="evidence-library fortune-evidence-store" open>
+    <details class="evidence-library fortune-evidence-store">
       <summary>
         <span>3. 大运流年取象证据库</span>
         <b>${escapeHtml(`${visibleSignalCount} 条关键证据${relationHint} · 展开查看完整取象`)}</b>

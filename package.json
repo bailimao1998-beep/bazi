@@ -24,7 +24,8 @@
       "styles/**/*",
       "js/**/*",
       "config/**/*",
-      "electron/**/*"
+      "electron/**/*",
+      "data/**/*"
     ],
     "win": {
       "target": [

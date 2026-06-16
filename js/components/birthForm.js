@@ -8,6 +8,11 @@ import {
   parseSolarDateParts,
   solarToLunar,
 } from "../lunarCalendar.js";
+import {
+  findLocation,
+  getCitiesByProvince,
+  getProvinceOptions,
+} from "../core/location/locationCatalogClient.js";
 
 const commonCities = [
   { name: "北京", longitude: 116.4074, latitude: 39.9042, standardMeridian: 120 },
@@ -19,7 +24,7 @@ const commonCities = [
   { name: "定州", longitude: 114.9902, latitude: 38.5162, standardMeridian: 120 },
 ];
 
-export function renderBirthForm(root, { initialValue = {}, onSubmit }) {
+export function renderBirthForm(root, { initialValue = {}, onSubmit, locationCatalog = { cities: [] } }) {
   if (!root) return;
   const lunar = solarToLunar(initialValue.birthDate ?? "1949-10-01");
   const state = {
@@ -32,6 +37,7 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit }) {
     lunarLeapMonth: initialValue.lunarLeapMonth ?? lunar.isLeapMonth,
     birthTime: initialValue.birthTime ?? "00:00",
     gender: initialValue.gender ?? "male",
+    birthProvince: initialValue.birthProvince ?? "北京",
     birthplace: initialValue.birthplace ?? "北京",
     targetYear: initialValue.targetYear ?? 2026,
     selectedMonth: initialValue.selectedMonth ?? 1,
@@ -41,13 +47,14 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit }) {
   };
 
   function rerender({ submit = false } = {}) {
+    syncLocation(state, locationCatalog);
     syncCalendar(state);
-    root.innerHTML = renderForm(state);
-    bind(root, state, rerender);
+    root.innerHTML = renderForm(state, locationCatalog);
+    bind(root, state, rerender, locationCatalog);
     if (submit) onSubmit(toPayload(state));
   }
 
-  function bind(container, formState, update) {
+  function bind(container, formState, update, locationCatalog) {
     container.querySelectorAll('input[name="calendarType"]').forEach((control) => {
       control.addEventListener("change", (event) => {
         formState.calendarType = event.currentTarget.value;
@@ -91,7 +98,17 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit }) {
       updateFromLunarParts(formState);
       update({ submit: true });
     });
-    ["birthTime", "gender", "birthplace", "targetYear"].forEach((name) => {
+    ["birthTime", "gender", "targetYear"].forEach((name) => {
+      container.querySelector("[name='birthProvince']")?.addEventListener("change", (event) => {
+        formState.birthProvince = event.currentTarget.value;
+        const cities = getCitiesByProvince(locationCatalog, formState.birthProvince);
+        formState.birthplace = cities[0]?.city || "";
+        update({ submit: true });
+      });
+      container.querySelector("[name='birthplace']")?.addEventListener("change", (event) => {
+        formState.birthplace = event.currentTarget.value;
+        update({ submit: true });
+      });
       container.querySelector(`[name='${name}']`)?.addEventListener("change", (event) => {
         formState[name] = ["targetYear"].includes(name) ? Number(event.currentTarget.value) : event.currentTarget.value;
         update({ submit: true });
@@ -107,20 +124,25 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit }) {
     });
     container.querySelector("form")?.addEventListener("submit", (event) => {
       event.preventDefault();
-      onSubmit(toPayload(formState));
+      onSubmit(toPayload(formState, locationCatalog));
     });
   }
 
   rerender();
 }
 
-function renderForm(state) {
+function renderForm(state, locationCatalog) {
   const solar = parseSolarDateParts(state.birthDate);
   const solarDays = getSolarDayCount(solar.year, solar.month);
   const lunarMonths = getLunarMonthOptions(state.lunarYear);
   const selectedLunarMonth = lunarMonths.find((month) => month.value === state.lunarMonth && month.isLeapMonth === Boolean(state.lunarLeapMonth)) ?? lunarMonths[0];
   const lunarDays = selectedLunarMonth?.days ?? 30;
-  const city = commonCities.find((item) => item.name === state.birthplace) ?? commonCities[0];
+  const provinceOptions = getProvinceOptions(locationCatalog);
+  const cities = getCitiesByProvince(locationCatalog, state.birthProvince);
+  const city = findLocation(locationCatalog, {
+    birthProvince: state.birthProvince,
+    birthplace: state.birthplace,
+  });
   return `
     <div class="plugin-header">
       <p class="eyebrow">命盘设置</p>
@@ -149,11 +171,27 @@ function renderForm(state) {
         </select>
       </label>
       <label>
-        <span>出生城市</span>
-        <select name="birthplace">
-          ${commonCities.map((item) => `<option value="${item.name}" ${item.name === state.birthplace ? "selected" : ""}>${item.name}</option>`).join("")}
+        <span>出生省份</span>
+        <select name="birthProvince">
+          ${provinceOptions.map((province) => `
+            <option value="${escapeHtml(province)}" ${province === state.birthProvince ? "selected" : ""}>
+              ${escapeHtml(province)}
+            </option>
+          `).join("")}
         </select>
       </label>
+
+      <label>
+        <span>出生城市 / 区县</span>
+        <select name="birthplace">
+          ${cities.map((item) => `
+            <option value="${escapeHtml(item.city)}" ${item.city === state.birthplace ? "selected" : ""}>
+              ${escapeHtml(item.fullName || item.city)}
+            </option>
+          `).join("")}
+        </select>
+      </label>
+
       <p class="location-preview">${escapeHtml(renderLocationPreview(city, state.trueSolarTime))}</p>
       <label class="switch-row"><input name="trueSolarTime" type="checkbox" ${state.trueSolarTime ? "checked" : ""} /> <span>按真太阳时校正</span></label>
       <label><span>解读年份</span><input name="targetYear" type="number" value="${state.targetYear}" /></label>
@@ -255,8 +293,26 @@ function syncCalendar(state) {
   if (state.calendarType === "lunar") updateFromLunarParts(state);
   else updateFromSolarParts(state, parseSolarDateParts(state.birthDate));
 }
+function syncLocation(state, locationCatalog) {
+  const provinces = getProvinceOptions(locationCatalog);
 
-function toPayload(state) {
+  if (!provinces.includes(state.birthProvince)) {
+    state.birthProvince = provinces[0] || "北京";
+  }
+
+  const cities = getCitiesByProvince(locationCatalog, state.birthProvince);
+
+  if (!cities.some((item) => item.city === state.birthplace)) {
+    state.birthplace = cities[0]?.city || state.birthplace || "";
+  }
+}
+
+function toPayload(state, locationCatalog) {
+  const location = findLocation(locationCatalog, {
+    birthProvince: state.birthProvince,
+    birthplace: state.birthplace,
+  });
+
   return {
     name: state.name,
     calendarType: state.calendarType,
@@ -267,7 +323,11 @@ function toPayload(state) {
     lunarLeapMonth: state.lunarLeapMonth,
     birthTime: state.birthTime,
     gender: state.gender,
+    birthProvince: state.birthProvince,
     birthplace: state.birthplace,
+    birthLongitude: location?.longitude ?? null,
+    birthLatitude: location?.latitude ?? null,
+    standardMeridian: location?.standardMeridian ?? 120,
     targetYear: Number(state.targetYear),
     selectedMonth: Number(state.selectedMonth),
     trueSolarTime: Boolean(state.trueSolarTime),
@@ -276,9 +336,19 @@ function toPayload(state) {
 }
 
 function renderLocationPreview(city, trueSolarTime) {
-  if (!city) return "出生地未匹配经纬度，真太阳时不会应用。";
-  const longitudeCorrection = Math.round((Number(city.longitude) - Number(city.standardMeridian ?? 120)) * 4);
-  return `${city.name}：经度${city.longitude.toFixed(4)}，纬度${city.latitude.toFixed(4)}；${trueSolarTime ? `经度校正约${longitudeCorrection}分钟，会参与排盘。` : "勾选真太阳时后会按此地校正。"}`;
+  if (!city || !Number.isFinite(Number(city.longitude))) {
+    return "出生地未匹配经纬度，真太阳时不会应用。";
+  }
+
+  const longitudeCorrection = Math.round(
+    (Number(city.longitude) - Number(city.standardMeridian ?? 120)) * 4
+  );
+
+  return `${city.fullName || city.name}：经度${Number(city.longitude).toFixed(4)}，纬度${Number(city.latitude).toFixed(4)}；${
+    trueSolarTime
+      ? `经度校正约${longitudeCorrection}分钟，会参与排盘。`
+      : "勾选真太阳时后会按此地校正。"
+  }`;
 }
 
 function escapeHtml(value) {

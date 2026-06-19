@@ -1287,3 +1287,147 @@
 .transit-evidence-grid.single .transit-evidence-card {
   width: 100%;
 }
+
+
+.transit-card-main {
+  display: block;
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 950;
+}
+
+.transit-card-age {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.transit-card-years {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.transit-select-card.is-luck-card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-height: 88px;
+  padding: 9px 10px;
+}
+
+.luck-card-title {
+  display: block;
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.18;
+  font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.luck-card-years {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.luck-card-ten-god {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 850;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.luck-card-relation {
+  color: var(--accent);
+  font-size: 12px;
+  line-height: 1.2;
+  font-style: normal;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.luck-card-current {
+  position: absolute;
+  right: 8px;
+  bottom: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.transit-card-list {
+  display: grid;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+  scroll-snap-type: x proximity;
+}
+
+.transit-card-list.is-luck-row {
+  grid-template-columns: repeat(var(--card-count), minmax(132px, 1fr));
+}
+
+.transit-card-list.is-year-row {
+  grid-template-columns: repeat(var(--card-count), minmax(118px, 1fr));
+}
+
+.transit-card-list.is-month-row {
+  grid-template-columns: repeat(var(--card-count), minmax(108px, 1fr));
+}
+
+.transit-select-card {
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+@media (max-width: 900px) {
+  .transit-card-list.is-luck-row {
+    grid-template-columns: repeat(var(--card-count), minmax(126px, 126px));
+  }
+
+  .transit-card-list.is-year-row {
+    grid-template-columns: repeat(var(--card-count), minmax(112px, 112px));
+  }
+
+  .transit-card-list.is-month-row {
+    grid-template-columns: repeat(var(--card-count), minmax(104px, 104px));
+  }
+}
+
+@media (max-width: 600px) {
+  .transit-card-list.is-luck-row {
+    grid-template-columns: repeat(var(--card-count), minmax(118px, 118px));
+  }
+
+  .transit-card-list.is-year-row {
+    grid-template-columns: repeat(var(--card-count), minmax(104px, 104px));
+  }
+
+  .transit-card-list.is-month-row {
+    grid-template-columns: repeat(var(--card-count), minmax(98px, 98px));
+  }
+}

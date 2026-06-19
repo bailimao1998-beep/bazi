@@ -1,8 +1,9 @@
 import { escapeHtml } from "../utils/html.js";
 
+
 export function renderTransitHierarchyPanel({ state = {}, currentLuck = {}, selectedYear, selectedMonth } = {}) {
   const luckItems = state.luckImageReport?.luckItems ?? [];
-  const yearOptions = buildYearOptions(currentLuck, selectedYear);
+  const yearReports = normalizeYearReports(state.yearImageReports, state.yearImageReport);
   const monthReports = normalizeMonthReports(state.monthImageReports, state.monthImageReport);
   const yearItem = state.yearImageReport?.yearItem ?? {};
 
@@ -18,7 +19,7 @@ export function renderTransitHierarchyPanel({ state = {}, currentLuck = {}, sele
         title: "流年",
         hint: currentLuck.ganZhi ? `当前大运 ${currentLuck.ganZhi}` : "选择目标年份",
         type: "year",
-        cards: yearOptions.map((item) => renderYearCard(item, yearItem, currentLuck)),
+        cards: yearReports.map((report) => renderYearCard(report.yearItem ?? {}, yearItem)),
       })}
       ${renderSelectorRow({
         title: "流月",
@@ -47,37 +48,30 @@ function renderSelectorRow({ title, hint, type = "luck", cards = [] } = {}) {
 function renderLuckCard(item = {}, currentLuck = {}) {
   const active = item.index === currentLuck.index || item.ganZhi === currentLuck.ganZhi;
   const tenGodText = joinTenGods(item.tenGod || item.stemTenGod, displayBranchTenGod(item));
+  const relationText = summarizeRelations(item.relationToNatal);
 
   return `
     <button type="button" class="transit-select-card is-luck-card${active ? " is-active" : ""}${item.isCurrent ? " is-current" : ""}" data-luck-step="${escapeHtml(firstYearOfRange(item.yearRange))}">
-      <strong>${escapeHtml([item.ganZhi, item.ageRange].filter(Boolean).join(" · ") || "待查")}</strong>
-      <small>${escapeHtml(item.yearRange || "年份待查")}</small>
-      <em>${escapeHtml(tenGodText)}</em>
-      <i>${escapeHtml(summarizeRelations(item.relationToNatal))}</i>
+      <strong class="luck-card-title">${escapeHtml([item.ageRange, item.ganZhi].filter(Boolean).join(" · ") || "待查")}</strong>
+      <span class="luck-card-years">${escapeHtml(item.yearRange || "年份待查")}</span>
+      <span class="luck-card-ten-god">${escapeHtml(tenGodText)}</span>
+      <i class="luck-card-relation">${escapeHtml(relationText)}</i>
     </button>
   `;
 }
 
-function renderYearCard(option = {}, yearItem = {}, currentLuck = {}) {
-  const active = Number(option.value) === Number(yearItem.year);
-
-  const title = active
-    ? `${option.value} · ${yearItem.ganZhi || "待查"}`
-    : `${option.value}`;
-
-  const tenGodText = active
-    ? joinTenGods(yearItem.stemTenGod || yearItem.tenGod, yearItem.branchTenGod || yearItem.branchMainTenGod)
-    : "点击切换";
-
-  const relationText = active
-    ? summarizeRelations([yearItem.relationToNatal, yearItem.relationToLuck].flat())
-    : "";
+function renderYearCard(item = {}, selectedYearItem = {}) {
+  const active = Number(item.year) === Number(selectedYearItem.year);
+  const relationText = summarizeRelations([
+    item.relationToNatal,
+    item.relationToLuck,
+  ].flat());
 
   return `
-    <button type="button" class="transit-select-card is-year-card${active ? " is-active" : ""}" data-year-step="${escapeHtml(option.value)}">
-      <strong>${escapeHtml(title)}</strong>
-      <small>${escapeHtml(tenGodText)}</small>
-      ${relationText ? `<i>${escapeHtml(relationText)}</i>` : `<i>流年待选</i>`}
+    <button type="button" class="transit-select-card is-year-card${active ? " is-active" : ""}" data-year-step="${escapeHtml(item.year)}">
+      <strong>${escapeHtml(`${item.year || "待查"} · ${item.ganZhi || "待查"}`)}</strong>
+      <small>${escapeHtml(joinTenGods(item.stemTenGod, item.branchTenGod))}</small>
+      <i>${escapeHtml(relationText)}</i>
     </button>
   `;
 }
@@ -109,6 +103,11 @@ function buildYearOptions(currentLuck = {}, selectedYear) {
       note: currentLuck.ganZhi ? `大运 ${currentLuck.ganZhi}` : "所在大运待查",
     };
   });
+}
+
+function normalizeYearReports(yearReports, selectedReport) {
+  if (Array.isArray(yearReports) && yearReports.length) return yearReports;
+  return selectedReport?.yearItem ? [selectedReport] : [];
 }
 
 function normalizeMonthReports(monthReports, selectedReport) {

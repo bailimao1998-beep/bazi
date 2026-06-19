@@ -65,6 +65,12 @@ export function createAppController({ roots, initialInput }) {
         luckImageReport,
         targetYear: store.currentInput.targetYear,
       });
+      const yearImageReports = buildYearImageReportsForCurrentLuck({
+        chart,
+        baseBaziViewModel,
+        natalImageReport,
+        luckImageReport,
+      });
       const monthImageReport = dedupeMonthImageReportRelations(buildMonthImageReport({
         chart,
         baseBaziViewModel,
@@ -90,6 +96,7 @@ export function createAppController({ roots, initialInput }) {
         natalImageReport,
         luckImageReport,
         yearImageReport,
+        yearImageReports,
         monthImageReport,
         monthImageReports,
       };
@@ -290,4 +297,39 @@ function uniqueRelations(relations = []) {
     seen.add(key);
     return true;
   });
+}
+
+function buildYearImageReportsForCurrentLuck({
+  chart,
+  baseBaziViewModel,
+  natalImageReport,
+  luckImageReport,
+} = {}) {
+  const luckItems = Array.isArray(luckImageReport?.luckItems)
+    ? luckImageReport.luckItems
+    : [];
+
+  const currentLuck = luckItems.find((item) => item?.isCurrent) ?? luckItems[0];
+  const [startYear, endYear] = parseYearRange(currentLuck?.yearRange);
+
+  if (!Number.isFinite(startYear) || !Number.isFinite(endYear)) {
+    return [];
+  }
+
+  return Array.from({ length: Math.max(1, endYear - startYear + 1) }, (_, index) => {
+    const targetYear = startYear + index;
+
+    return buildYearImageReport({
+      chart,
+      baseBaziViewModel,
+      natalImageReport,
+      luckImageReport,
+      targetYear,
+    });
+  });
+}
+
+function parseYearRange(range = "") {
+  const [start, end] = String(range).match(/\d{3,4}/g)?.map(Number) ?? [];
+  return [start, end];
 }

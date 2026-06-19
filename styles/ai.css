@@ -1269,3 +1269,235 @@
   border-radius: 12px;
   background: #fffaf1;
 }
+
+.quick-ai-details {
+  display: grid;
+  gap: 10px;
+}
+
+.quick-ai-details > summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  list-style: none;
+}
+
+.quick-ai-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.quick-ai-details > summary b {
+  display: block;
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.quick-ai-details > summary small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.quick-ai-details > summary em {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.quick-ai-body {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eadfce;
+}
+
+.quick-ai-result {
+  max-height: 360px;
+  overflow: auto;
+}
+
+.floating-assist {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 30;
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.floating-assist-buttons,
+.floating-assist-drawer {
+  pointer-events: auto;
+}
+
+.floating-assist-buttons {
+  display: grid;
+  gap: 7px;
+}
+
+.floating-assist-buttons button {
+  min-width: 58px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #d9cbb8;
+  border-radius: 999px;
+  background: #fffdf8;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(36, 59, 83, 0.10);
+}
+
+.floating-assist-buttons button:hover,
+.floating-assist-buttons button:focus-visible {
+  border-color: var(--accent);
+  background: #ecf3ee;
+}
+
+.floating-assist-buttons button:disabled {
+  cursor: not-allowed;
+  opacity: .48;
+}
+
+.floating-assist-drawer {
+  width: min(520px, calc(100vw - 36px));
+  max-height: min(680px, calc(100dvh - 140px));
+  overflow: hidden;
+  border: 1px solid #d9cbb8;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(36, 59, 83, 0.18);
+}
+
+.floating-assist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #eadfce;
+  background: #f7efe3;
+}
+
+.floating-assist-head strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.floating-assist-head button {
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: #2f6f73;
+  color: #fff;
+  font-size: 12px;
+}
+
+.floating-assist-body {
+  max-height: calc(min(680px, 100dvh - 140px) - 55px);
+  overflow: auto;
+  padding: 14px;
+}
+
+.assist-list {
+  display: grid;
+  gap: 12px;
+}
+
+.assist-list section,
+.assist-fact-grid article {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #e2d7c8;
+  border-radius: 8px;
+  background: #fffaf1;
+}
+
+.assist-list h4 {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.assist-list ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.assist-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.assist-chip-row span {
+  padding: 5px 8px;
+  border: 1px solid #d9cbb8;
+  border-radius: 999px;
+  background: #fffdf8;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.assist-table {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.assist-table > div {
+  display: grid;
+  grid-template-columns: .7fr 1fr 1fr;
+  gap: 5px;
+}
+
+.assist-table span,
+.assist-table strong,
+.assist-table b {
+  min-width: 0;
+  padding: 8px;
+  border-radius: 6px;
+  background: #fffaf1;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.assist-table b {
+  color: var(--accent);
+  background: #f7efe3;
+}
+
+.assist-fact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.assist-fact-grid span,
+.assist-fact-grid small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.assist-fact-grid strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+}

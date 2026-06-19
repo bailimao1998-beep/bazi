@@ -1,4 +1,5 @@
 import { renderAiText } from "./aiTextRenderer.js";
+import { renderTransitHierarchyPanel } from "./transitHierarchyPanel.js";
 
 const elementLabels = { wood: "木", fire: "火", earth: "土", metal: "金", water: "水" };
 const stemElements = {
@@ -45,53 +46,142 @@ export function renderFortuneTransitPanel(root, payload = {}) {
     <section class="fortune-dashboard">
       <div class="fortune-dashboard-head">
         <div>
-          <h2>大运流年盘面</h2>
+          <p class="eyebrow">岁运推演</p>
+          <h2>大运 → 流年 → 流月</h2>
         </div>
         <span>${escapeHtml(formatLuckStart(state.chart, selectedYear, yearItem))}</span>
       </div>
 
-      <div class="fortune-transit-board">
-        <div class="fortune-transit-grid">
-          ${renderLuckTransitCard(currentLuck, luckItems)}
-          ${renderYearTransitCard(yearItem, currentLuck, selectedYear)}
-          ${renderNatalTransitCard(state)}
+      ${renderTransitHierarchyPanel({ state, currentLuck, selectedYear, selectedMonth })}
+
+      <section class="transit-detail-panel">
+        <div class="board-title">
+          <h3>当前岁运详情</h3>
+          <span>${escapeHtml(formatYearMonthContext(yearItem, monthItem))}</span>
         </div>
-      </div>
+        <div class="transit-detail-grid">
+          ${renderStageDetail("当前大运", currentLuck, {
+            range: formatRange(currentLuck.ageRange, currentLuck.yearRange),
+            relationGroups: [["原局关系", currentLuck.relationToNatal]],
+          })}
+          ${renderStageDetail("当前流年", yearItem, {
+            range: yearItem.year,
+            relationGroups: [
+              ["原局关系", yearItem.relationToNatal],
+              ["大运关系", yearItem.relationToLuck],
+            ],
+          })}
+          ${renderStageDetail("当前流月", monthItem, {
+            range: `${monthItem.year ?? selectedYear ?? "目标年"}年${monthItem.month ?? selectedMonth ?? "目标月"}月`,
+            relationGroups: [
+              ["原局关系", monthItem.relationToNatal],
+              ["大运关系", monthItem.relationToLuck],
+              ["流年关系", monthItem.relationToYear],
+            ],
+          })}
+        </div>
+      </section>
+
+      <section class="transit-collapsible-stack">
+        <details class="inline-details">
+          <summary><span>大运取象</span><b>${escapeHtml(currentLuck.ganZhi || "待查")}</b></summary>
+          ${renderTransitEvidenceCard({
+            title: "当前大运取象",
+            marker: currentLuck.ganZhi,
+            summary: currentLuck.shortImage || currentLuck.image,
+            chips: [
+              ["大运", currentLuck.ganZhi],
+              ["年龄", currentLuck.ageRange],
+              ["年份", currentLuck.yearRange],
+              ["天干十神", currentLuck.tenGod],
+              ["地支主气", displayBranchTenGod(currentLuck)],
+              ["置信度", confidenceLabel(currentLuck.confidence)],
+            ],
+            structure: currentLuck.structureImage || currentLuck.image,
+            reality: currentLuck.reality,
+            boundary: currentLuck.boundary,
+            relations: [["原局关系触发", currentLuck.relationToNatal]],
+            signals: buildCurrentLuckEvidenceSignals(currentLuck),
+          })}
+          ${renderAiCard({
+            mode: "luck",
+            title: "大运 AI 分析",
+            meta: currentLuck?.ganZhi,
+            button: "生成当前大运 AI 分析",
+            state: payload.luckAiState,
+            hasReport: Boolean(luckItems.length),
+          })}
+        </details>
+
+        <details class="inline-details">
+          <summary><span>流年取象</span><b>${escapeHtml(`${yearItem.year ?? ""} ${yearItem.ganZhi ?? "待查"}`.trim())}</b></summary>
+          ${renderTransitEvidenceCard({
+            title: "目标流年取象",
+            marker: `${yearItem.year ?? ""} ${yearItem.ganZhi ?? ""}`.trim(),
+            summary: state.yearImageReport?.summary?.overview || yearItem.image,
+            chips: [
+              ["流年", `${yearItem.year ?? ""} ${yearItem.ganZhi ?? ""}`.trim()],
+              ["天干十神", yearItem.stemTenGod],
+              ["地支主气", yearItem.branchTenGod],
+              ["当前大运", yearItem.currentLuckItem?.ganZhi || currentLuck.ganZhi],
+              ["置信度", confidenceLabel(yearItem.confidence)],
+            ],
+            structure: yearItem.image,
+            reality: yearItem.reality,
+            boundary: yearItem.boundary,
+            relations: [
+              ["原局关系触发", yearItem.relationToNatal],
+              ["大运关系触发", yearItem.relationToLuck],
+            ],
+            signals: buildCurrentYearEvidenceSignals(yearItem, currentLuck),
+          })}
+          ${renderAiCard({
+            mode: "year",
+            title: "流年 AI 分析",
+            meta: `${yearItem?.year ?? ""} ${yearItem?.ganZhi ?? ""}`.trim(),
+            button: "生成目标流年 AI 分析",
+            state: payload.yearAiState,
+            hasReport: Boolean(yearItem.ganZhi),
+          })}
+        </details>
+
+        <details class="inline-details">
+          <summary><span>流月取象</span><b>${escapeHtml(`${formatFlowMonthLabel(monthItem)} ${monthItem.ganZhi ?? "待查"}`)}</b></summary>
+          ${renderMonthEvidenceStore(state.monthImageReport)}
+          ${renderMonthAiStage(monthItem, payload.monthAiState, Boolean(monthItem.ganZhi))}
+        </details>
+      </section>
 
       <p class="fortune-start-note">${escapeHtml(formatStartNote(state.chart))}</p>
-
-      ${renderAiLayer({
-        currentLuck,
-        yearItem,
-        luckAiState: payload.luckAiState,
-        yearAiState: payload.yearAiState,
-        hasLuckReport: Boolean(luckItems.length),
-        hasYearReport: Boolean(yearItem.ganZhi),
-      })}
-
-      ${renderEvidenceStore(state, currentLuck, yearItem)}
-
-      <section class="month-flow-section">
-        <div class="fortune-dashboard-head month-flow-head">
-          <div>
-            <h3>4. 最后细看流月</h3>
-            <p>${escapeHtml(formatYearMonthContext(yearItem, monthItem))}</p>
-          </div>
-          <span>${escapeHtml(`${selectedYear || "待查"} 年 · 当前 ${formatFlowMonthLabel(monthItem)} ${monthItem.ganZhi ?? ""}`)}</span>
-        </div>
-        <div class="month-flow-overview">
-          <strong>${escapeHtml(`${selectedYear || "待查"} 流年${yearItem.ganZhi || "待查"}`)}</strong>
-          <span>${escapeHtml(`${formatFlowMonthLabel(monthItem)} 流月${monthItem.ganZhi || "待查"}`)}</span>
-        </div>
-        ${renderMonthGrid(monthReports, selectedMonth)}
-        ${renderMonthFocusCard(monthItem)}
-        ${renderMonthEvidenceStore(state.monthImageReport)}
-        ${renderMonthAiStage(monthItem, payload.monthAiState, Boolean(monthItem.ganZhi))}
-      </section>
     </section>
   `;
 
   bindTransitEvents(root, payload);
+}
+
+function renderStageDetail(title, item = {}, { range = "", relationGroups = [] } = {}) {
+  const relations = relationGroups
+    .filter(([, list]) => Array.isArray(list) && list.length)
+    .flatMap(([groupTitle, list]) => list.map((relation) => `${groupTitle}：${formatRelationEvidence(relation)}`));
+  return `
+    <article class="transit-detail-card">
+      <div class="transit-card-compact-head">
+        <div>
+          <span>${escapeHtml(title)}</span>
+          <h4>${escapeHtml(item.ganZhi || item.label || "待查")}</h4>
+        </div>
+        <strong>${escapeHtml(range || "范围待查")}</strong>
+      </div>
+      <div class="transit-detail-chips">
+        <span><b>天干十神</b>${escapeHtml(item.tenGod || item.stemTenGod || "待查")}</span>
+        <span><b>地支主气</b>${escapeHtml(displayBranchTenGod(item) || "待查")}</span>
+        <span><b>关系触发</b>${escapeHtml(relations.length ? `${relations.length} 条` : "暂无明显触发")}</span>
+      </div>
+      <div class="transit-relation-tags">
+        ${relations.length ? relations.slice(0, 5).map((text) => `<span>${escapeHtml(text)}</span>`).join("") : `<span>继续结合原局、岁运与现实应象复核</span>`}
+      </div>
+    </article>
+  `;
 }
 
 function renderLuckTransitCard(currentLuck = {}, luckItems = []) {

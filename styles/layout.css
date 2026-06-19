@@ -243,6 +243,163 @@ small {
   margin: 4px 0;
 }
 
+.workbench-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 420px);
+  gap: 18px;
+  align-items: start;
+}
+
+.workbench-main {
+  min-width: 0;
+  display: grid;
+  gap: 18px;
+}
+
+.input-and-ai-row {
+  display: grid;
+  grid-template-columns: minmax(360px, 1.15fr) minmax(280px, 0.85fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.input-panel,
+.quick-ai-panel,
+.transit-workbench {
+  min-width: 0;
+}
+
+.core-sticky-panel {
+  position: sticky;
+  top: 18px;
+  max-height: calc(100dvh - 36px);
+  overflow: auto;
+  padding: 18px;
+  border: 1px solid #d9d4c9;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fffdf8, #ffffff);
+  box-shadow: 0 14px 34px rgba(45, 58, 72, 0.08);
+}
+
+.workbench-main .analysis-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 0;
+}
+
+.workbench-main .analysis-section > .panel,
+.workbench-main .analysis-section > .section-heading {
+  grid-column: auto;
+}
+
+.section-heading p {
+  max-width: 560px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.birth-dock {
+  margin-bottom: 18px;
+}
+
+.birth-dock-form[hidden],
+.birth-dock-summary[hidden] {
+  display: none;
+}
+
+.birth-dock-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.birth-summary-line {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.birth-summary-line span {
+  min-width: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 6px 8px;
+  border: 1px solid #eadfce;
+  border-radius: 999px;
+  background: #fffaf1;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.birth-summary-line b {
+  color: var(--accent);
+}
+
+.birth-summary-line strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.birth-summary-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.core-workbench {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, .85fr);
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.transit-control-panel,
+.core-chart-panel {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #dfddd6;
+  border-radius: 8px;
+  background: #ffffff;
+  margin-bottom: 16px;
+}
+
+.core-chart-panel {
+  position: sticky;
+  top: 18px;
+  max-height: calc(100dvh - 36px);
+  overflow: auto;
+  background: linear-gradient(180deg, #fffdf8, #ffffff);
+  box-shadow: 0 14px 34px rgba(45, 58, 72, 0.08);
+}
+
+.natal-analysis-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(300px, .6fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.natal-image-area,
+.natal-ai-card {
+  min-width: 0;
+}
+
+.natal-ai-card {
+  align-self: start;
+}
+
+.transit-analysis {
+  margin-top: 18px;
+}
+
 .ai-chat-drawer #aiChatPanel .plugin-header {
   display: none;
 }

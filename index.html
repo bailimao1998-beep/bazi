@@ -10,28 +10,39 @@
     <main class="app">
       <section class="hero">
         <h1>命理剧情解读系统</h1>
-        <p>浏览器本地完成排盘和取象，AI 只作为可选解释层。</p>
+        <p>本地排盘、取象与岁运推演工作台。</p>
         <strong id="status">等待输入。</strong>
       </section>
 
-      <section class="grid main-layout">
-        <section class="panel span-4" id="birthForm"></section>
-        <section class="panel span-8 chart-panel" id="chartSummary"></section>
+      <section class="birth-dock" id="birthDock">
+        <section class="panel birth-dock-form" id="birthForm"></section>
+        <section class="panel birth-dock-summary" id="birthSummary" hidden></section>
       </section>
 
-      <section class="analysis-section" id="natalSection">
+      <section class="core-workbench" id="coreWorkbench">
+        <section class="transit-control-panel" id="fortuneTransitPanel"></section>
+        <aside class="core-chart-panel" id="chartSummary"></aside>
+        <section class="floating-assist" id="floatingAssist"></section>
+      </section>
+
+      <section class="analysis-section natal-analysis">
         <div class="section-heading">
           <h2>原局分析</h2>
+          <p>原局取象与 AI 辅助解读，供细看复核。</p>
         </div>
-        <section class="panel span-12" id="natalImagePanel"></section>
-        <section class="panel span-12" id="natalAiNarrative"></section>
+
+        <section class="natal-analysis-layout">
+          <section class="panel natal-image-area" id="natalImagePanel"></section>
+          <section class="panel natal-ai-card" id="natalAiNarrative"></section>
+        </section>
       </section>
 
-      <section class="analysis-section" id="fortuneSection" aria-label="阶段分析">
-        <section class="panel span-12 fortune-flow-panel" id="fortuneTransitPanel"></section>
+      <section class="analysis-section transit-analysis" id="transitAnalysisSection">
+        <div class="section-heading">
+          <h2>岁运取象与 AI</h2>
+          <p>围绕当前选中的大运、流年、流月展开细读；具体内容在上方岁运工作台内折叠查看。</p>
+        </div>
       </section>
-
-
 
       <section id="baseBaziPanel" hidden></section>
 

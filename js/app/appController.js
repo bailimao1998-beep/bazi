@@ -9,7 +9,9 @@ import { loadLocationCatalog } from "../core/location/locationCatalogClient.js";
 import { renderAiChatPanel } from "../components/aiChatPanel.js";
 import { renderBaseBaziPanel } from "../components/baseBaziPanel.js";
 import { renderBirthForm } from "../components/birthForm.js";
+import { renderBirthSummary } from "../components/birthSummary.js";
 import { renderChartSummary } from "../components/chartSummary.js";
+import { renderFloatingAssistPanel } from "../components/floatingAssistPanel.js";
 import { renderFortuneTransitPanel } from "../components/fortuneTransitPanel.js";
 import { renderNatalAiNarrativePanel } from "../components/natalAiNarrativePanel.js";
 import { renderNatalImagePanel } from "../components/natalImagePanel.js";
@@ -33,6 +35,7 @@ export function createAppController({ roots, initialInput }) {
       locationCatalog: store.locationCatalog,
       onSubmit(payload) {
         store.currentInput = { ...store.currentInput, ...payload };
+        store.isBirthFormCollapsed = true;
         refresh();
       },
     });
@@ -97,13 +100,16 @@ export function createAppController({ roots, initialInput }) {
       if (roots.status) roots.status.textContent = "基础排盘已完成。";
       aiActions.maybeGeneratePreInterpretYearAi();
     } catch (error) {
+      store.isBirthFormCollapsed = false;
       store.state = { input: store.currentInput, error: error.message };
+      renderBirthDock();
       renderBaseError(error, { roots, state: store.state });
       if (roots.status) roots.status.textContent = `基础排盘失败：${error.message}`;
     }
   }
 
   function renderShell() {
+    renderBirthDock();
     renderChartSummary(roots.chartSummary, null);
     renderBaseBaziPanel(roots.baseBaziPanel, null);
     renderNatalImagePanel(roots.natalImagePanel, null);
@@ -130,9 +136,11 @@ export function createAppController({ roots, initialInput }) {
       chartContext: null,
       onAsk: chatActions.askAiQuestion,
     });
+    renderFloatingAssistPanel(roots.floatingAssist, { state: store.state });
   }
 
   function renderBaseOnly() {
+    renderBirthDock();
     renderChartSummary(roots.chartSummary, store.state);
     renderBaseBaziPanel(roots.baseBaziPanel, store.state.baseBaziViewModel);
     renderNatalImagePanel(roots.natalImagePanel, store.state.natalImageReport);
@@ -161,6 +169,19 @@ export function createAppController({ roots, initialInput }) {
     });
     setAiChatOpen(store.aiChatOpen);
     bindShenshaPopupEvents();
+    renderFloatingAssistPanel(roots.floatingAssist, { state: store.state });
+  }
+
+  function renderBirthDock() {
+    if (roots.birthForm) roots.birthForm.hidden = Boolean(store.isBirthFormCollapsed);
+    if (roots.birthSummary) roots.birthSummary.hidden = !store.isBirthFormCollapsed;
+    renderBirthSummary(roots.birthSummary, {
+      input: store.currentInput,
+      onEdit() {
+        store.isBirthFormCollapsed = false;
+        renderBirthDock();
+      },
+    });
   }
 
   function selectTargetYear(year) {

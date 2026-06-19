@@ -38,6 +38,7 @@ export function createAppState(initialInput = defaultInput) {
     monthAiState: createEmptyAiState(),
     chatState: createEmptyChatState(),
     aiChatOpen: false,
+    isBirthFormCollapsed: false,
     yearAiGenerationId: 0,
     locationCatalog: { cities: [] },
   };

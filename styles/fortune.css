@@ -1061,6 +1061,170 @@
   width: 100%;
 }
 
+/* ===== 命理工作台：岁运层级 ===== */
+
+.transit-workbench {
+  overflow: visible;
+}
+
+.transit-hierarchy {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(220px, 0.9fr) minmax(280px, 1.2fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.transit-column {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  border: 1px solid #e2d7c8;
+  border-radius: 8px;
+  background: #fffdf8;
+  overflow: hidden;
+}
+
+.transit-column-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e8ddcf;
+  background: #f7efe3;
+}
+
+.transit-column-header strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.transit-column-header span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.transit-node-list,
+.transit-month-grid {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  max-height: 430px;
+  overflow: auto;
+  padding: 10px;
+}
+
+.transit-month-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.transit-node {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e2d7c8;
+  border-radius: 7px;
+  background: #fffaf1;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.transit-node:hover,
+.transit-node:focus-visible {
+  border-color: var(--accent);
+}
+
+.transit-node.is-active {
+  border-color: var(--accent);
+  background: #ecf3ee;
+  box-shadow: inset 0 0 0 1px rgba(47, 111, 115, 0.28);
+}
+
+.transit-node.is-current .transit-node-main::after {
+  content: "当前";
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #2f6f73;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.transit-node-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.transit-node-main b {
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.transit-node-main em,
+.transit-node-meta,
+.transit-relation-tags {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+.transit-relation-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.transit-relation-tags span {
+  display: inline-flex;
+  padding: 4px 7px;
+  border: 1px solid #d9cbb8;
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.88);
+}
+
+.transit-detail-panel {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #e2d7c8;
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.78);
+}
+
+.transit-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.transit-detail-card {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e2d7c8;
+  border-radius: 8px;
+  background: #fffaf1;
+}
+
+.transit-collapsible-stack {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 /* ===== 流月总览 V1 ===== */
 
 .enhanced-month-board {

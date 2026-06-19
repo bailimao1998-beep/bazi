@@ -102,10 +102,13 @@ test("index and app use only the current frontend panels", () => {
   const fortuneTransitSource = readFileSync("js/components/fortuneTransitPanel.js", "utf8");
   const transitHierarchySource = readFileSync("js/components/transitHierarchyPanel.js", "utf8");
   const stageAnalysisSource = readFileSync("js/components/stageAnalysisPanel.js", "utf8");
+  const birthFormSource = readFileSync("js/components/birthForm.js", "utf8");
   const floatingAssistSource = readFileSync("js/components/floatingAssistPanel.js", "utf8");
   const styles = readFileSync("styles/layout.css", "utf8")
+    + readFileSync("styles/form.css", "utf8")
     + readFileSync("styles/fortune.css", "utf8")
     + readFileSync("styles/bazi-chart.css", "utf8")
+    + readFileSync("styles/natal.css", "utf8")
     + readFileSync("styles/ai.css", "utf8")
     + readFileSync("styles/responsive.css", "utf8");
 
@@ -159,13 +162,27 @@ test("index and app use only the current frontend panels", () => {
   assert.match(transitHierarchySource + styles, /transit-selector-board/);
   assert.match(transitHierarchySource + styles, /transit-selector-row/);
   assert.match(transitHierarchySource + styles, /transit-select-card/);
+  assert.match(birthFormSource + styles, /birth-form-compact/);
+  assert.match(birthFormSource + styles, /birth-form-main-grid/);
+  assert.match(birthFormSource + styles, /birth-form-inline-row/);
+  assert.match(birthFormSource + styles, /birth-form-action-row/);
   assert.match(stageAnalysisSource + styles, /stage-analysis-section/);
   assert.match(stageAnalysisSource + styles, /stage-analysis-header/);
   assert.match(stageAnalysisSource + styles, /ai-collapse-card/);
+  assert.match(stageAnalysisSource, /AI 原局分析结果|AI 大运分析结果|AI 流年分析结果|AI 流月分析结果/);
+  assert.match(stageAnalysisSource, /stage-evidence-list/);
+  assert.match(stageAnalysisSource, /stage-relation-groups/);
   assert.match(floatingAssistSource + styles, /floating-assist/);
   assert.match(styles, /core-seven-chart/);
   assert.match(styles, /core-seven-grid/);
   assert.match(styles, /core-seven-column/);
+  assert.match(chartSummarySource + styles, /core-seven-header/);
+  assert.match(chartSummarySource + styles, /core-seven-ganzhi/);
+  assert.match(chartSummarySource + styles, /core-seven-stem/);
+  assert.match(chartSummarySource + styles, /core-seven-branch/);
+  assert.match(chartSummarySource + styles, /core-seven-ten-god/);
+  assert.match(chartSummarySource + styles, /core-seven-hidden/);
+  assert.match(chartSummarySource + styles, /core-seven-relation/);
   assert.match(aiActionsSource, /generateWithDeepSeek/);
   assert.match(aiActionsSource, /readAiSettings\(\{ includeSecret: true \}\)/);
   assert.match(chatActionsSource, /buildChatPrompt/);
@@ -174,7 +191,7 @@ test("index and app use only the current frontend panels", () => {
   assert.doesNotMatch(appControllerSource + aiActionsSource + chatActionsSource + chartSummarySource + fortuneTransitSource + transitHierarchySource + floatingAssistSource + stageAnalysisSource, /\/api\/chat|\/api\/narrative|createAppServer/);
 
   assert.doesNotMatch(styles, /\.section-tabs|\.fortune-tab-panel/);
-  assert.doesNotMatch(styles, /workbench-layout|core-sticky-panel|birth-dock-summary|core-workbench|transit-control-panel|core-chart-panel/);
+  assert.doesNotMatch(styles, /workbench-layout|core-sticky-panel|birth-dock-summary|core-workbench|transit-control-panel|core-chart-panel|transit-hierarchy|transit-column|transit-node|fortune-transit-grid|fortune-transit-card|inline-details/);
 });
 
 test("electron main serves index.html statically without desktop/server imports", () => {

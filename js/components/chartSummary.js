@@ -89,16 +89,18 @@ function renderColumn(column = {}) {
 
   return `
     <article class="${className}">
-      <header>
+      <header class="core-seven-header">
         <span>${escapeHtml(column.title)}</span>
-        <strong>${escapeHtml(column.label || "待查")}</strong>
+        <strong class="core-seven-ganzhi">${escapeHtml(column.label || "待查")}</strong>
         ${column.meta ? `<small>${escapeHtml(column.meta)}</small>` : ""}
       </header>
-      ${renderRow("天干", column.stem, "core-seven-symbol")}
-      ${renderRow("十神", column.stemTenGod, "core-seven-meta")}
-      ${renderRow("地支", column.branch, "core-seven-symbol")}
-      ${renderRow("主气", column.branchTenGod, "core-seven-meta")}
-      ${renderRow("藏干", column.hidden, "core-seven-meta")}
+      <div class="core-seven-symbol-pair">
+        ${renderRow("天干", column.stem, "core-seven-symbol core-seven-stem")}
+        ${renderRow("地支", column.branch, "core-seven-symbol core-seven-branch")}
+      </div>
+      ${renderRow("天干十神", column.stemTenGod, "core-seven-meta core-seven-ten-god")}
+      ${renderRow("地支主气", column.branchTenGod, "core-seven-meta")}
+      ${renderRow("藏干", column.hidden, "core-seven-meta core-seven-hidden")}
       ${renderRow("关系", column.relation, "core-seven-relation")}
     </article>
   `;

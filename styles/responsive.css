@@ -37,23 +37,29 @@
   }
 }
 
-@media (max-width: 1120px) {
-  .fortune-transit-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .natal-transit-card {
-    grid-column: 1 / -1;
-  }
-}
-
 @media (max-width: 760px) {
   .stage-analysis-header {
     grid-template-columns: 1fr;
   }
 
+  .birth-form-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .birth-form-inline-row {
+    grid-column: auto;
+  }
+
+  .birth-form-action-row {
+    justify-content: stretch;
+  }
+
+  .birth-form-action-row button {
+    width: 100%;
+  }
+
   .core-seven-grid {
-    grid-template-columns: repeat(7, minmax(128px, 150px));
+    grid-template-columns: repeat(7, minmax(142px, 160px));
   }
 
   .floating-assist {
@@ -198,7 +204,6 @@
   .candidate-grid,
   .transit-layout,
   .luck-table,
-  .fortune-transit-grid,
   .fortune-ai-stack {
     grid-template-columns: 1fr;
   }
@@ -218,11 +223,11 @@
     align-items: start;
   }
 
-  .year-strip,
-  .month-board,
-  .calendar-date-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+      .year-strip,
+      .month-board,
+      .calendar-date-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
 
   .natal-transit-matrix .matrix-row {
     grid-template-columns: 70px repeat(4, minmax(56px, 1fr));
@@ -448,7 +453,6 @@
 }
 
 @media (max-width: 1100px) {
-  .fortune-transit-grid,
   .transit-evidence-grid {
     grid-template-columns: 1fr;
   }

@@ -4,6 +4,52 @@
   gap: 12px;
 }
 
+.birth-form-compact {
+  gap: 10px;
+}
+
+.birth-form-main-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+
+.birth-form-main-grid > label,
+.birth-form-main-grid .calendar-tabs,
+.birth-form-main-grid .calendar-date-grid,
+.birth-form-inline-row {
+  min-width: 0;
+}
+
+.birth-form-main-grid label span {
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.birth-form-main-grid input,
+.birth-form-main-grid select {
+  min-height: 38px;
+}
+
+.birth-form-inline-row {
+  grid-column: span 2;
+}
+
+.birth-form-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px 14px;
+  padding-top: 2px;
+}
+
+.birth-form-action-row button {
+  min-height: 38px;
+  padding: 0 18px;
+}
+
 .switch-row {
   display: flex;
   align-items: center;
@@ -48,7 +94,7 @@
 
 .calendar-tabs label {
   display: flex;
-  min-height: 40px;
+  min-height: 38px;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--line);
@@ -72,24 +118,24 @@
 
 .calendar-date-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .calendar-date-grid label:first-child {
-  grid-column: 1 / -1;
+  grid-column: auto;
 }
 
 .calendar-preview,
 .location-preview {
   margin: 0;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: #f8fbf8;
   color: var(--muted);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .location-preview {

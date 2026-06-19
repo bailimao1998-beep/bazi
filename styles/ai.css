@@ -1465,6 +1465,20 @@
   overflow: hidden;
 }
 
+.ai-collapse-action-only {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding: 12px;
+  background: #fffdf8;
+}
+
+.ai-collapse-action-only p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .ai-collapse-card[open] {
   background: #fffdf8;
   box-shadow: 0 10px 24px rgba(36, 59, 83, 0.08);
@@ -1531,6 +1545,12 @@
   font-size: 15px;
 }
 
+.stage-image-card h4 {
+  margin: 10px 0 6px;
+  color: var(--accent);
+  font-size: 13px;
+}
+
 .stage-image-card p,
 .stage-image-card li {
   color: var(--muted);
@@ -1558,4 +1578,24 @@
 
 .stage-fact-row b {
   color: var(--accent);
+}
+
+.stage-relation-groups {
+  display: grid;
+  gap: 10px;
+}
+
+.stage-relation-groups section {
+  min-width: 0;
+  padding-top: 8px;
+  border-top: 1px solid #eadfce;
+}
+
+.stage-relation-groups section:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.stage-evidence-list {
+  background: #fffdf8;
 }

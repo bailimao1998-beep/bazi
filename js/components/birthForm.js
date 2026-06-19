@@ -142,55 +142,59 @@ function renderForm(state, locationCatalog) {
       <p class="eyebrow">命盘设置</p>
       <h2>出生信息</h2>
     </div>
-    <form class="birth-form">
-      <label><span>姓名</span><input name="name" value="${escapeHtml(state.name)}" /></label>
-      <div class="calendar-tabs" role="radiogroup" aria-label="选择日期历法">
-        ${renderCalendarTab("solar", "公历", state.calendarType)}
-        ${renderCalendarTab("lunar", "农历", state.calendarType)}
+    <form class="birth-form birth-form-compact">
+      <div class="birth-form-main-grid">
+        <label><span>姓名</span><input name="name" value="${escapeHtml(state.name)}" /></label>
+        <div class="calendar-tabs" role="radiogroup" aria-label="选择日期历法">
+          ${renderCalendarTab("solar", "公历", state.calendarType)}
+          ${renderCalendarTab("lunar", "农历", state.calendarType)}
+        </div>
+        ${state.calendarType === "lunar" ? renderLunarControls(state, lunarMonths, lunarDays) : renderSolarControls(solar, solarDays)}
+        <label><span>出生时间</span><input name="birthTime" type="time" value="${escapeHtml(state.birthTime)}" required /></label>
+        <label>
+          <span>性别</span>
+          <select name="gender">
+            <option value="female" ${state.gender === "female" ? "selected" : ""}>女命</option>
+            <option value="male" ${state.gender === "male" ? "selected" : ""}>男命</option>
+            <option value="unknown" ${state.gender === "unknown" ? "selected" : ""}>不指定</option>
+          </select>
+        </label>
+        <label>
+          <span>出生省份</span>
+          <select name="birthProvince">
+            ${provinceOptions.map((province) => `
+              <option value="${escapeHtml(province)}" ${province === state.birthProvince ? "selected" : ""}>
+                ${escapeHtml(province)}
+              </option>
+            `).join("")}
+          </select>
+        </label>
+
+        <label>
+          <span>出生城市 / 区县</span>
+          <select name="birthplace">
+            ${cities.map((item) => `
+              <option value="${escapeHtml(item.name)}" ${item.name === state.birthplace ? "selected" : ""}>
+                ${escapeHtml(item.displayName || item.fullName || item.name)}
+              </option>
+            `).join("")}
+          </select>
+        </label>
+
+        <label><span>解读年份</span><input name="targetYear" type="number" value="${state.targetYear}" /></label>
+        <p class="calendar-preview birth-form-inline-row">${escapeHtml(`公历 ${state.birthDate} · ${formatLunarDate({
+          year: state.lunarYear,
+          month: state.lunarMonth,
+          day: state.lunarDay,
+          isLeapMonth: state.lunarLeapMonth,
+        })}`)}</p>
+        <p class="location-preview birth-form-inline-row">${escapeHtml(renderLocationPreview(city, state.trueSolarTime, state))}</p>
       </div>
-      ${state.calendarType === "lunar" ? renderLunarControls(state, lunarMonths, lunarDays) : renderSolarControls(solar, solarDays)}
-      <p class="calendar-preview">${escapeHtml(`公历 ${state.birthDate} · ${formatLunarDate({
-        year: state.lunarYear,
-        month: state.lunarMonth,
-        day: state.lunarDay,
-        isLeapMonth: state.lunarLeapMonth,
-      })}`)}</p>
-      <label><span>出生时间</span><input name="birthTime" type="time" value="${escapeHtml(state.birthTime)}" required /></label>
-      <label>
-        <span>性别</span>
-        <select name="gender">
-          <option value="female" ${state.gender === "female" ? "selected" : ""}>女命</option>
-          <option value="male" ${state.gender === "male" ? "selected" : ""}>男命</option>
-          <option value="unknown" ${state.gender === "unknown" ? "selected" : ""}>不指定</option>
-        </select>
-      </label>
-      <label>
-        <span>出生省份</span>
-        <select name="birthProvince">
-          ${provinceOptions.map((province) => `
-            <option value="${escapeHtml(province)}" ${province === state.birthProvince ? "selected" : ""}>
-              ${escapeHtml(province)}
-            </option>
-          `).join("")}
-        </select>
-      </label>
-
-      <label>
-        <span>出生城市 / 区县</span>
-        <select name="birthplace">
-          ${cities.map((item) => `
-            <option value="${escapeHtml(item.name)}" ${item.name === state.birthplace ? "selected" : ""}>
-              ${escapeHtml(item.displayName || item.fullName || item.name)}
-            </option>
-          `).join("")}
-        </select>
-      </label>
-
-      <p class="location-preview">${escapeHtml(renderLocationPreview(city, state.trueSolarTime, state))}</p>
-      <label class="switch-row"><input name="trueSolarTime" type="checkbox" ${state.trueSolarTime ? "checked" : ""} /> <span>按真太阳时校正</span></label>
-      <label><span>解读年份</span><input name="targetYear" type="number" value="${state.targetYear}" /></label>
-      <label class="switch-row"><input name="preInterpretAi" type="checkbox" ${state.preInterpretAi ? "checked" : ""} /> <span>AI 预先解读</span></label>
-      <button type="submit">重新排盘</button>
+      <div class="birth-form-action-row">
+        <label class="switch-row"><input name="trueSolarTime" type="checkbox" ${state.trueSolarTime ? "checked" : ""} /> <span>按真太阳时校正</span></label>
+        <label class="switch-row"><input name="preInterpretAi" type="checkbox" ${state.preInterpretAi ? "checked" : ""} /> <span>AI 预先解读</span></label>
+        <button type="submit">重新排盘</button>
+      </div>
     </form>
     ${state.error ? `<p class="form-error">${escapeHtml(state.error)}</p>` : ""}
     <p class="fine-print">农历换算支持 1900-2100 年；节气、真太阳时和晚子时由本地代码参与排盘。</p>

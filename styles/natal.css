@@ -110,6 +110,27 @@
     #fffdf8;
 }
 
+.natal-analysis {
+  display: grid;
+  gap: 16px;
+}
+
+.natal-analysis .stage-analysis-header {
+  margin-bottom: 0;
+}
+
+.natal-analysis .stage-image-content {
+  display: grid;
+  gap: 14px;
+}
+
+.natal-analysis .natal-overview-card,
+.natal-analysis .natal-keyword-section,
+.natal-analysis .natal-grouped-cards,
+.natal-analysis .natal-evidence-chain {
+  min-width: 0;
+}
+
 .natal-overview-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

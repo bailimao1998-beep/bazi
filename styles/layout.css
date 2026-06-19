@@ -301,37 +301,6 @@ small {
   display: none;
 }
 
-.inline-details {
-  margin-top: 16px;
-  border: 1px solid var(--border, #e2d8c8);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.6);
-  overflow: hidden;
-}
-
-.inline-details > summary {
-  cursor: pointer;
-  padding: 14px 16px;
-  font-weight: 700;
-  color: var(--accent, #1f6f6a);
-  list-style: none;
-}
-
-.inline-details > summary::-webkit-details-marker {
-  display: none;
-}
-
-.inline-details > summary::after {
-  content: "展开";
-  float: right;
-  font-size: 13px;
-  color: var(--muted, #687381);
-}
-
-.inline-details[open] > summary::after {
-  content: "收起";
-}
-
 /* ===== 移动端适配 ===== */
 
 @media (max-width: 900px) {

@@ -11,25 +11,28 @@ export function renderTransitHierarchyPanel({ state = {}, currentLuck = {}, sele
       ${renderSelectorRow({
         title: "大运",
         hint: "按年龄段切换",
+        type: "luck",
         cards: luckItems.map((item) => renderLuckCard(item, currentLuck)),
       })}
       ${renderSelectorRow({
         title: "流年",
         hint: currentLuck.ganZhi ? `当前大运 ${currentLuck.ganZhi}` : "选择目标年份",
+        type: "year",
         cards: yearOptions.map((item) => renderYearCard(item, yearItem, currentLuck)),
       })}
       ${renderSelectorRow({
         title: "流月",
         hint: `${selectedYear || "目标年"} 年十二流月`,
+        type: "month",
         cards: monthReports.map((report) => renderMonthCard(report.monthItem ?? {}, selectedMonth)),
       })}
     </section>
   `;
 }
 
-function renderSelectorRow({ title, hint, cards = [] } = {}) {
+function renderSelectorRow({ title, hint, type = "luck", cards = [] } = {}) {
   return `
-    <section class="transit-selector-row">
+    <section class="transit-selector-row is-${escapeHtml(type)}">
       <div class="transit-selector-row-header">
         <h3>${escapeHtml(title || "阶段")}</h3>
         <span>${escapeHtml(hint || "")}</span>
@@ -44,9 +47,8 @@ function renderSelectorRow({ title, hint, cards = [] } = {}) {
 function renderLuckCard(item = {}, currentLuck = {}) {
   const active = item.index === currentLuck.index || item.ganZhi === currentLuck.ganZhi;
   return `
-    <button type="button" class="transit-select-card${active ? " is-active" : ""}${item.isCurrent ? " is-current" : ""}" data-luck-step="${escapeHtml(firstYearOfRange(item.yearRange))}">
-      <strong>${escapeHtml(item.ganZhi || "待查")}</strong>
-      <span>${escapeHtml(item.ageRange || "年龄待查")}</span>
+    <button type="button" class="transit-select-card is-luck-card${active ? " is-active" : ""}${item.isCurrent ? " is-current" : ""}" data-luck-step="${escapeHtml(firstYearOfRange(item.yearRange))}">
+      <strong>${escapeHtml([item.ganZhi, item.ageRange].filter(Boolean).join(" · ") || "待查")}</strong>
       <small>${escapeHtml(item.yearRange || "年份待查")}</small>
       <em>${escapeHtml(item.tenGod || "天干待查")} / ${escapeHtml(displayBranchTenGod(item) || "地支待查")}</em>
       <i>${escapeHtml(summarizeRelations(item.relationToNatal))}</i>
@@ -60,9 +62,9 @@ function renderYearCard(option = {}, yearItem = {}, currentLuck = {}) {
     ? summarizeRelations([yearItem.relationToNatal, yearItem.relationToLuck].flat())
     : currentLuck.ganZhi ? `大运 ${currentLuck.ganZhi}` : "点击切换";
   return `
-    <button type="button" class="transit-select-card${active ? " is-active" : ""}" data-year-step="${escapeHtml(option.value)}">
-      <strong>${escapeHtml(option.value || "待查")}</strong>
-      <span>${escapeHtml(active ? yearItem.ganZhi || "当前" : option.note || "")}</span>
+    <button type="button" class="transit-select-card is-year-card${active ? " is-active" : ""}" data-year-step="${escapeHtml(option.value)}">
+      <strong>${escapeHtml([option.value, active ? yearItem.ganZhi : ""].filter(Boolean).join(" · ") || "待查")}</strong>
+      <span>${escapeHtml(active ? "" : option.note || "")}</span>
       <small>${escapeHtml(active ? `${yearItem.stemTenGod || "年干待查"} / ${yearItem.branchTenGod || "年支待查"}` : "流年待选")}</small>
       <i>${escapeHtml(relationSummary)}</i>
     </button>
@@ -72,7 +74,7 @@ function renderYearCard(option = {}, yearItem = {}, currentLuck = {}) {
 function renderMonthCard(item = {}, selectedMonth) {
   const active = Number(item.month) === Number(selectedMonth);
   return `
-    <button type="button" class="transit-select-card${active ? " is-active" : ""}" data-month-select="${escapeHtml(item.month)}">
+    <button type="button" class="transit-select-card is-month-card${active ? " is-active" : ""}" data-month-select="${escapeHtml(item.month)}">
       <strong>${escapeHtml(formatFlowMonthLabel(item))}</strong>
       <span>${escapeHtml(item.ganZhi || "待查")}</span>
       <small>${escapeHtml(item.stemTenGod || "月干待查")} / ${escapeHtml(item.branchTenGod || "月支待查")}</small>

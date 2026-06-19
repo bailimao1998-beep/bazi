@@ -1,4 +1,4 @@
-import { loadRuntimeAiSettings, readAiSettings, saveAiSettings } from "./core/ai/aiSettingsClient.js?v=20260613c";
+import { loadRuntimeAiSettings, readAiSettings } from "./core/ai/aiSettingsClient.js?v=20260613c";
 import { buildChatPrompt } from "./core/ai/buildChatPrompt.js";
 import { buildLuckAiPrompt } from "./core/ai/buildLuckAiPrompt.js";
 import { buildMonthAiPrompt } from "./core/ai/buildMonthAiPrompt.js";
@@ -11,19 +11,14 @@ import { buildNatalImageReport } from "./core/blind-bazi/buildNatalImageReport.j
 import { buildYearImageReport } from "./core/blind-bazi/buildYearImageReport.js";
 import { buildBaseBaziViewModel } from "./core/bazi/buildBaseBaziViewModel.js";
 import { calculateBazi } from "./core/bazi/calculateBazi.js";
-import { renderAiSettingsPanel } from "./components/aiSettingsPanel.js?v=20260613c";
 import { renderAiChatPanel } from "./components/aiChatPanel.js";
 import { renderBaseBaziPanel } from "./components/baseBaziPanel.js";
 import { renderBirthForm } from "./components/birthForm.js";
-import { renderDebugPanel } from "./components/debugPanel.js";
 import { renderFortuneTransitPanel } from "./components/fortuneTransitPanel.js";
-import { renderLuckAiNarrativePanel } from "./components/luckAiNarrativePanel.js";
 import { renderLuckImagePanel } from "./components/luckImagePanel.js";
-import { renderMonthAiNarrativePanel } from "./components/monthAiNarrativePanel.js";
 import { renderMonthImagePanel } from "./components/monthImagePanel.js";
 import { renderNatalAiNarrativePanel } from "./components/natalAiNarrativePanel.js";
 import { renderNatalImagePanel } from "./components/natalImagePanel.js";
-import { renderYearAiNarrativePanel } from "./components/yearAiNarrativePanel.js";
 import { renderYearImagePanel } from "./components/yearImagePanel.js";
 import { loadLocationCatalog } from "./core/location/locationCatalogClient.js";
 
@@ -34,11 +29,8 @@ const roots = {
   natalImagePanel: document.querySelector("#natalImagePanel"),
   natalAiNarrative: document.querySelector("#natalAiNarrative"),
   luckImagePanel: document.querySelector("#luckImagePanel"),
-  luckAiNarrative: document.querySelector("#luckAiNarrative"),
   yearImagePanel: document.querySelector("#yearImagePanel"),
-  yearAiNarrative: document.querySelector("#yearAiNarrative"),
   monthImagePanel: document.querySelector("#monthImagePanel"),
-  monthAiNarrative: document.querySelector("#monthAiNarrative"),
   fortuneTransitPanel: document.querySelector("#fortuneTransitPanel"),
   aiChatPanel: document.querySelector("#aiChatPanel"),
   aiChatToggle: document.querySelector("#aiChatToggle"),
@@ -66,10 +58,6 @@ const branchElements = {
 let activeFortuneTab = "luck";
 let aiChatOpen = false;
 let state = null;
-let aiSettingsState = {
-  settings: readAiSettings(),
-  status: "正在读取 config/ai-config.json。",
-};
 let natalAiState = {
   loading: false,
   text: "",
@@ -116,13 +104,6 @@ init();
 async function init() {
   locationCatalog = await loadLocationCatalog();
   await loadRuntimeAiSettings();
-  const settings = readAiSettings();
-  aiSettingsState = {
-    settings,
-    status: settings.deepseek?.hasApiKey
-      ? "已读取 config/ai-config.json 中的 DeepSeek Key。"
-      : "未检测到 config/ai-config.json 中的 DeepSeek Key。",
-  };
 
   renderBirthForm(roots.birthForm, {
     initialValue: currentInput,
@@ -215,23 +196,8 @@ function renderShell() {
     onGenerate: generateNatalAiNarrative,
   });
   renderLuckImagePanel(roots.luckImagePanel, null);
-  renderLuckAiNarrativePanel(roots.luckAiNarrative, {
-    state: luckAiState,
-    hasReport: false,
-    onGenerate: generateLuckAiNarrative,
-  });
   renderYearImagePanel(roots.yearImagePanel, null);
-  renderYearAiNarrativePanel(roots.yearAiNarrative, {
-    state: yearAiState,
-    hasReport: false,
-    onGenerate: generateYearAiNarrative,
-  });
   renderMonthImagePanel(roots.monthImagePanel, null);
-  renderMonthAiNarrativePanel(roots.monthAiNarrative, {
-    state: monthAiState,
-    hasReport: false,
-    onGenerate: generateMonthAiNarrative,
-  });
   renderFortuneTransitPanel(roots.fortuneTransitPanel, {
     state,
     luckAiState,
@@ -266,11 +232,6 @@ function renderBaseOnly() {
   renderYearImagePanel(roots.yearImagePanel, state.yearImageReport);
 
   renderMonthImagePanel(roots.monthImagePanel, state.monthImageReport);
-  renderMonthAiNarrativePanel(roots.monthAiNarrative, {
-    state: monthAiState,
-    hasReport: Boolean(state.monthImageReport?.monthItem),
-    onGenerate: generateMonthAiNarrative,
-  });
   renderFortuneTransitPanel(roots.fortuneTransitPanel, {
     state,
     luckAiState,
@@ -557,11 +518,8 @@ function renderBaseError(error) {
   renderPlaceholderPanel(roots.natalImagePanel, "原局取象");
   renderPlaceholderPanel(roots.natalAiNarrative, "原局 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.luckImagePanel, "大运取象");
-  renderPlaceholderPanel(roots.luckAiNarrative, "大运 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.yearImagePanel, "流年取象");
-  renderPlaceholderPanel(roots.yearAiNarrative, "流年 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderPlaceholderPanel(roots.monthImagePanel, "流月取象");
-  renderPlaceholderPanel(roots.monthAiNarrative, "流月 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
   renderFortuneTransitPanel(roots.fortuneTransitPanel, { state });
   renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
 }

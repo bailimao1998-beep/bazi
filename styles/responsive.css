@@ -1,0 +1,467 @@
+@media (max-width: 560px) {
+  .chat-widget {
+    right: 12px;
+    bottom: 12px;
+    max-width: calc(100vw - 24px);
+  }
+
+  .chat-window {
+    width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+
+  .chat-head {
+    padding: 12px;
+  }
+
+  .chat-messages {
+    max-height: calc(100dvh - 190px);
+    padding: 12px;
+  }
+
+  .chat-message,
+  .chat-message.assistant {
+    max-width: 100%;
+  }
+
+  .chat-answer-card {
+    padding: 13px 14px;
+  }
+
+  .chat-composer {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-composer button {
+    min-height: 42px;
+  }
+}
+
+@media (max-width: 1120px) {
+  .fortune-transit-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .natal-transit-card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .chat-widget {
+    right: 12px;
+    bottom: 12px;
+    max-width: calc(100vw - 24px);
+  }
+
+  .chat-window {
+    width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+
+  .chat-messages {
+    max-height: calc(100dvh - 190px);
+    padding: 12px;
+  }
+
+  .chat-message,
+  .chat-message.assistant {
+    max-width: 100%;
+  }
+
+  .chat-answer-card {
+    padding: 13px 14px;
+  }
+
+  .chat-composer {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-composer button {
+    width: 100%;
+  }
+
+  .span-4,
+  .span-6 {
+    grid-column: span 12;
+  }
+
+  .span-8 {
+    grid-column: span 12;
+  }
+
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-panel,
+  .analysis-section > .panel,
+  .fortune-ai-section-grid {
+    grid-column: 1 / -1;
+  }
+
+  .fortune-ai-section-grid,
+  .chart-flow-summary,
+  .chart-summary-grid,
+  .element-stat-grid,
+  .ten-god-stat-grid,
+  .month-trigger-chips,
+  .chart-extra-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .birth-info-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-luck-full-table .compact-row {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .section-tabs {
+    flex-wrap: nowrap;
+  }
+
+  .section-tabs button {
+    flex: 1 0 44%;
+  }
+
+  .panel,
+  .hero {
+    padding: 16px;
+  }
+
+  .ai-chat-float {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 12px;
+  }
+
+  .ai-chat-drawer {
+    width: calc(100vw - 24px);
+    height: calc(100dvh - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+
+  .ai-chat-drawer #aiChatPanel {
+    padding: 12px;
+  }
+
+  .plugin-header {
+    display: block;
+  }
+
+  .chart-topline {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .element-mini {
+    justify-self: stretch;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .matrix-row {
+    grid-template-columns: 70px repeat(4, minmax(56px, 1fr));
+    overflow-x: auto;
+  }
+
+  .bazi-symbol strong {
+    font-size: 36px;
+  }
+
+  .stats-two-col,
+  .core-tab-grid,
+  .candidate-grid,
+  .transit-layout,
+  .luck-table,
+  .fortune-transit-grid,
+  .fortune-ai-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .element-count-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .natal-mini-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .compact-row,
+  .compact-row.hidden-detail,
+  .compact-row.expert {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .year-strip,
+  .month-board,
+  .calendar-date-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .natal-transit-matrix .matrix-row {
+    grid-template-columns: 70px repeat(4, minmax(56px, 1fr));
+    overflow-x: auto;
+  }
+
+  .signal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .core-signal-matrix {
+    overflow-x: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .core-signal-matrix table,
+  .core-signal-matrix thead,
+  .core-signal-matrix tbody,
+  .core-signal-matrix tr,
+  .core-signal-matrix th,
+  .core-signal-matrix td {
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .core-signal-matrix thead {
+    display: none;
+  }
+
+  .core-signal-row {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fffdf8;
+  }
+
+  .core-signal-matrix td {
+    display: grid;
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid #eee4d7;
+  }
+
+  .core-signal-matrix td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .core-signal-row td:first-child,
+  .core-signal-row td:nth-child(2),
+  .core-signal-row td:nth-child(4),
+  .core-signal-row td:nth-child(5) {
+    width: 100%;
+  }
+
+  .flow-signal-matrix {
+    overflow-x: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .flow-signal-matrix table,
+  .flow-signal-matrix thead,
+  .flow-signal-matrix tbody,
+  .flow-signal-matrix tr,
+  .flow-signal-matrix th,
+  .flow-signal-matrix td {
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .flow-signal-matrix thead {
+    display: none;
+  }
+
+  .flow-signal-row {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fffdf8;
+  }
+
+  .flow-signal-matrix td {
+    display: grid;
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid #eee4d7;
+  }
+
+  .flow-signal-matrix td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .flow-signal-row td:first-child,
+  .flow-signal-row td:nth-child(2),
+  .flow-signal-row td:nth-child(4),
+  .flow-signal-row td:nth-child(5) {
+    width: 100%;
+  }
+
+  .debug-summary {
+    grid-template-columns: 1fr;
+  }
+
+.calendar-date-grid label:first-child {
+  grid-column: auto;
+}
+}
+
+@media (max-width: 760px) {
+  .chart-display-header h2 {
+    font-size: 26px;
+  }
+
+  .chart-display-header .eyebrow {
+    margin-bottom: 8px;
+  }
+
+  .chart-panel .chart-topline {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 14px 0;
+  }
+
+  .chart-panel .element-mini {
+    justify-self: stretch;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .chart-summary-matrix {
+    padding: 12px;
+  }
+
+  .chart-summary-matrix .matrix-row {
+    min-width: 720px;
+    grid-template-columns: 94px repeat(4, minmax(135px, 1fr));
+  }
+
+  .chart-summary-matrix .matrix-row > span:first-child {
+    font-size: 14px;
+  }
+
+  .chart-summary-matrix .bazi-symbol strong {
+    font-size: 52px;
+  }
+
+  .chart-panel .relation-overview > summary,
+  .chart-panel .auxiliary-observation > summary {
+    min-height: 58px;
+    padding: 0 14px;
+    font-size: 18px;
+  }
+
+  .core-fold .chart-context-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .chart-display-header h2 {
+    font-size: 24px;
+  }
+
+  .chart-summary-matrix .matrix-row {
+    min-width: 640px;
+    grid-template-columns: 86px repeat(4, minmax(122px, 1fr));
+  }
+
+  .chart-summary-matrix .bazi-symbol strong {
+    font-size: 44px;
+  }
+
+  .chart-panel .core-tab-list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .chart-panel .core-tab {
+    flex: 0 0 auto;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 760px) {
+  .natal-overview-points {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .natal-evidence-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .natal-card-group-entry .natal-compact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .natal-card-group-entry .natal-summary-card {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .natal-evidence-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1100px) {
+  .fortune-transit-grid,
+  .transit-evidence-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .transit-evidence-mini-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1100px) {
+  .transit-evidence-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .transit-evidence-mini-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .month-focus-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .month-focus-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .month-focus-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -39,6 +39,15 @@ const requiredPaths = [
   "desktop/main.js",
   "desktop/preload.js",
   "styles/main.css",
+  "styles/tokens.css",
+  "styles/base.css",
+  "styles/layout.css",
+  "styles/form.css",
+  "styles/bazi-chart.css",
+  "styles/natal.css",
+  "styles/fortune.css",
+  "styles/ai.css",
+  "styles/responsive.css",
   "js/app.js",
   "js/locationData.js",
   "js/lunarCalendar.js",
@@ -172,6 +181,22 @@ const requiredPaths = [
   "config/ai-config.example.json",
   "README.md",
 ];
+
+const styleModulePaths = [
+  "styles/tokens.css",
+  "styles/base.css",
+  "styles/layout.css",
+  "styles/form.css",
+  "styles/bazi-chart.css",
+  "styles/natal.css",
+  "styles/fortune.css",
+  "styles/ai.css",
+  "styles/responsive.css",
+];
+
+function readStylesheetBundle() {
+  return styleModulePaths.map((stylePath) => readFileSync(stylePath, "utf8")).join("\n");
+}
 
 function createManualChart({ gender = "unknown", pillars } = {}) {
   const roleLabels = { year: "年柱", month: "月柱", day: "日柱", hour: "时柱" };
@@ -2184,7 +2209,8 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   const aiSettingsClientSource = readFileSync("js/core/ai/aiSettingsClient.js", "utf8");
   const aiSettingsPanelSource = readFileSync("js/components/aiSettingsPanel.js", "utf8");
   const bundle = readFileSync("js/app.bundle.js", "utf8");
-  const styles = readFileSync("styles/main.css", "utf8");
+  const mainStyles = readFileSync("styles/main.css", "utf8");
+  const styles = readStylesheetBundle();
   const staticRouteSource = readFileSync("server/routes/staticRoute.js", "utf8");
 
   assert.equal(global.window.FortuneLocationData.cities.length, 3337);
@@ -2244,6 +2270,8 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.match(aiSettingsPanelSource, /未检测到 config\/ai-config\.json/);
   assert.doesNotMatch(aiSettingsPanelSource, /type="password"/);
   assert.doesNotMatch(aiSettingsPanelSource, /data-ai-save/);
+  assert.match(mainStyles, /@import "\.\/tokens\.css";[\s\S]*@import "\.\/responsive\.css";/);
+  assert.doesNotMatch(mainStyles, /:root\s*\{|\.main-layout|@media/);
   assert.match(styles, /\.main-layout/);
   assert.match(styles, /\.section-tabs[\s\S]*overflow-x: auto/);
   assert.match(styles, /\.ai-chat-drawer[\s\S]*width: min\(420px/);

@@ -1,0 +1,105 @@
+.birth-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.switch-row input {
+  width: 18px;
+  min-height: 18px;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.checkbox-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-line input {
+  width: 18px;
+  min-height: 18px;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.calendar-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.calendar-tabs label {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.calendar-tabs label.is-active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #fff7ea;
+}
+
+.calendar-tabs input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.calendar-date-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.calendar-date-grid label:first-child {
+  grid-column: 1 / -1;
+}
+
+.calendar-preview,
+.location-preview {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #f8fbf8;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.location-preview {
+  margin-top: -4px;
+}
+
+.form-error {
+  margin: 12px 0 0;
+  color: #a43d28;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+}

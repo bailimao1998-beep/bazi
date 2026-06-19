@@ -14,10 +14,13 @@ const required = [
   "data/story-templates/relationship-stories.json",
   "data/story-templates/career-stories.json",
   "data/story-templates/wealth-stories.json",
-  "data/mock/mock-chart.json",
-  "data/mock/mock-year-story-tags.json",
-  "data/mock/mock-ai-response.json",
   "config/ai-config.example.json",
+];
+
+const fixtureRequired = [
+  "tests/fixtures/mock-chart.json",
+  "tests/fixtures/mock-year-story-tags.json",
+  "tests/fixtures/mock-ai-response.json",
 ];
 
 const forbidden = /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/;
@@ -26,16 +29,34 @@ for (const filePath of required) {
   const absolutePath = path.resolve(process.cwd(), filePath);
   const content = readFileSync(absolutePath, "utf8");
   JSON.parse(content);
-  if (forbidden.test(content)) {
-    throw new Error(`${filePath} contains forbidden deterministic wording`);
-  }
+}
+
+for (const filePath of fixtureRequired) {
+  const absolutePath = path.resolve(process.cwd(), filePath);
+  JSON.parse(readFileSync(absolutePath, "utf8"));
 }
 
 for (const filePath of listJsonFiles("data")) {
   JSON.parse(readFileSync(filePath, "utf8"));
 }
 
-console.log(`Fortune AI data validation passed (${required.length} required JSON files checked).`);
+for (const filePath of [
+  ...listJsonFiles("data/rules"),
+  ...listJsonFiles("data/story-templates"),
+]) {
+  const content = readFileSync(filePath, "utf8");
+  if (forbidden.test(content)) {
+    throw new Error(`${filePath} contains forbidden deterministic wording`);
+  }
+}
+
+for (const filePath of listJsonFiles("tests/fixtures")) {
+  JSON.parse(readFileSync(filePath, "utf8"));
+}
+
+const formalDataCount = listJsonFiles("data").length + 1;
+const fixtureCount = listJsonFiles("tests/fixtures").length;
+console.log(`Fortune AI data validation passed (${formalDataCount} data files, ${fixtureCount} fixture files checked).`);
 
 function listJsonFiles(directory) {
   const results = [];

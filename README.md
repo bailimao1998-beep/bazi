@@ -14,7 +14,7 @@ electron/main.js -> index.html -> js/app.js -> js/core/*
 - `index.html` / `js/app.js`：前端主入口。
 - `js/core/bazi`：前端本地排盘。
 - `js/core/blind-bazi`：前端本地取象报告。
-- `js/core/ai`：前端读取本机 AI 配置，并直接调用 DeepSeek 或配置中的 AI 接口。
+- `js/core/ai`：前端读取本机 AI 配置，并直接调用 DeepSeek；如 endpoint 指向兼容 OpenAI/DeepSeek chat completions 格式的接口，也可作为本地个人用途接入。当前前端设置层默认只内置 mock/deepseek 两类 provider，不做后端 provider 路由。
 - `data/rules`：本地 JSON 规则库。
 
 本项目不使用后端 server 作为主链路；`/api/narrative`、`/api/chat` 等旧后端接口已作为历史备份移到 `legacy/server/`。
@@ -33,7 +33,7 @@ config/ai-config.json
 config/ai-config.example.json
 ```
 
-注意：这是个人本地工具，前端会读取本机配置并直接调用 AI 接口。不适合把真实 API Key 放到公网部署环境，也不应把真实 Key 写入代码或提交到仓库。
+注意：这是个人本地工具，前端会读取本机私有配置并直接调用 AI 接口。不适合把真实 API Key 放到公网部署环境，也不应把真实 Key 写入代码或提交到仓库。
 
 ## 使用方式
 
@@ -62,6 +62,8 @@ npm run dist:win-portable
 node scripts/validate-bazi-data.mjs
 npm test
 ```
+
+测试样例数据位于 `tests/fixtures/`，不参与正式打包；正式运行数据只保留在 `data/rules` 和 `data/story-templates`。
 
 ## Legacy
 

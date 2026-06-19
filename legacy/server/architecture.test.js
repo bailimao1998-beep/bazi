@@ -175,9 +175,9 @@ const requiredPaths = [
   "data/story-templates/relationship-stories.json",
   "data/story-templates/career-stories.json",
   "data/story-templates/wealth-stories.json",
-  "data/mock/mock-chart.json",
-  "data/mock/mock-year-story-tags.json",
-  "data/mock/mock-ai-response.json",
+  "tests/fixtures/mock-chart.json",
+  "tests/fixtures/mock-year-story-tags.json",
+  "tests/fixtures/mock-ai-response.json",
   "config/ai-config.example.json",
   "README.md",
 ];
@@ -2662,7 +2662,7 @@ test("year and month transit engines keep expected 2026 pillars for the default 
 
 test("local json loader reads rule and mock data from project data folders", () => {
   const personalityRules = loadJson("data/rules/bazi/base-personality.json");
-  const mockChart = loadJson("data/mock/mock-chart.json");
+  const mockChart = loadJson("tests/fixtures/mock-chart.json");
 
   assert.ok(Array.isArray(personalityRules.rules));
   assert.equal(mockChart.meta.engine, "birth-chart-engine");

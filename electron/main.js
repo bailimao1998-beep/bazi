@@ -25,8 +25,10 @@ function createStaticServer() {
     const requestUrl = decodeURIComponent(req.url || "/");
     const safePath = requestUrl.split("?")[0] === "/" ? "/index.html" : requestUrl.split("?")[0];
     const filePath = path.normalize(path.join(rootDir, safePath));
+    const relativePath = path.relative(rootDir, filePath);
+    const isInsideRoot = relativePath && !relativePath.startsWith("..") && !path.isAbsolute(relativePath);
 
-    if (!filePath.startsWith(rootDir)) {
+    if (!isInsideRoot) {
       res.writeHead(403);
       res.end("Forbidden");
       return;

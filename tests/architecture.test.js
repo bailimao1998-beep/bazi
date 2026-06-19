@@ -32,6 +32,9 @@ const requiredPaths = [
   "js/components/aiChatPanel.js",
   "styles/main.css",
   "config/ai-config.example.json",
+  "tests/fixtures/mock-chart.json",
+  "tests/fixtures/mock-year-story-tags.json",
+  "tests/fixtures/mock-ai-response.json",
   ...readdirSync("data/rules/bazi")
     .filter((name) => name.endsWith(".json"))
     .sort()
@@ -45,6 +48,7 @@ test("required static Electron frontend paths exist", () => {
 
   assert.equal(existsSync("desktop"), false);
   assert.equal(existsSync("server"), false);
+  assert.equal(existsSync("data/mock"), false);
   assert.equal(existsSync("index.offline.html"), false);
   assert.equal(existsSync("js/app.bundle.js"), false);
   assert.ok(existsSync("legacy/desktop"));
@@ -69,8 +73,10 @@ test("package metadata points at the static Electron shell", () => {
     "electron/**/*",
     "data/**/*",
   ]);
-  assert.equal(packageJson.build.files.includes("server/**/*"), false);
-  assert.equal(packageJson.build.files.includes("desktop/**/*"), false);
+  assert.equal(packageJson.build.files.some((item) => item.startsWith("server")), false);
+  assert.equal(packageJson.build.files.some((item) => item.startsWith("desktop")), false);
+  assert.equal(packageJson.build.files.some((item) => item.startsWith("tests")), false);
+  assert.equal(packageJson.build.files.some((item) => item.startsWith("legacy")), false);
 });
 
 test("index and app use only the current frontend panels", () => {
@@ -112,6 +118,9 @@ test("electron main serves index.html statically without desktop/server imports"
   assert.match(electronMain, /createStaticServer/);
   assert.match(electronMain, /\/index\.html/);
   assert.match(electronMain, /loadURL\(url\)/);
+  assert.match(electronMain, /path\.relative\(rootDir, filePath\)/);
+  assert.match(electronMain, /path\.isAbsolute\(relativePath\)/);
+  assert.doesNotMatch(electronMain, /filePath\.startsWith\(rootDir\)/);
   assert.match(electronMain, /nodeIntegration:\s*false/);
   assert.match(electronMain, /contextIsolation:\s*true/);
   assert.doesNotMatch(electronMain, /createAppServer|desktop|preload|server\/server|\/api\//);

@@ -14,7 +14,7 @@ export function createMockProvider() {
           isPlaceholder: true,
         };
       }
-      const mock = loadJson("data/mock/mock-ai-response.json");
+      const mock = loadJson("tests/fixtures/mock-ai-response.json");
       const yearTags = storyTags.filter((tag) => tag.period === "year").slice(0, 3).map((tag) => tag.tag);
       return {
         provider: "mock",

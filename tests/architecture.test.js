@@ -13,6 +13,13 @@ const requiredPaths = [
   "electron/main.js",
   "index.html",
   "js/app.js",
+  "js/app/appState.js",
+  "js/app/appController.js",
+  "js/app/aiActions.js",
+  "js/app/chatActions.js",
+  "js/app/yearQuestionUtils.js",
+  "js/app/renderBaseError.js",
+  "js/app/shenshaPopup.js",
   "js/locationData.js",
   "js/core/ai/deepseekClient.js",
   "js/core/ai/aiSettingsClient.js",
@@ -30,6 +37,9 @@ const requiredPaths = [
   "js/components/birthForm.js",
   "js/components/fortuneTransitPanel.js",
   "js/components/aiChatPanel.js",
+  "js/components/chartSummary.js",
+  "js/components/auxiliaryObservation.js",
+  "js/utils/html.js",
   "styles/main.css",
   "config/ai-config.example.json",
   "tests/fixtures/mock-chart.json",
@@ -82,6 +92,10 @@ test("package metadata points at the static Electron shell", () => {
 test("index and app use only the current frontend panels", () => {
   const index = readFileSync("index.html", "utf8");
   const appSource = readFileSync("js/app.js", "utf8");
+  const appControllerSource = readFileSync("js/app/appController.js", "utf8");
+  const aiActionsSource = readFileSync("js/app/aiActions.js", "utf8");
+  const chatActionsSource = readFileSync("js/app/chatActions.js", "utf8");
+  const chartSummarySource = readFileSync("js/components/chartSummary.js", "utf8");
   const styles = readFileSync("styles/layout.css", "utf8") + readFileSync("styles/responsive.css", "utf8");
 
   assert.match(index, /<script src="js\/locationData\.js\?v=20260612b"><\/script>/);
@@ -96,17 +110,26 @@ test("index and app use only the current frontend panels", () => {
   assert.match(index, /id="baseBaziPanel"/);
   assert.doesNotMatch(index, /legacy-stage-panels|data-fortune-tab|data-fortune-panel|id="luckImagePanel"|id="yearImagePanel"|id="monthImagePanel"|js\/app\.bundle\.js|index\.offline/);
 
-  assert.match(appSource, /calculateBazi\(currentInput,\s*\{\s*locations: locationCatalog,\s*\}\)/);
-  assert.match(appSource, /buildBaseBaziViewModel\(chart\)/);
-  assert.match(appSource, /buildNatalImageReport\(\{ chart, baseBaziViewModel \}\)/);
-  assert.match(appSource, /buildLuckImageReport/);
-  assert.match(appSource, /buildYearImageReport/);
-  assert.match(appSource, /buildMonthImageReport/);
-  assert.match(appSource, /renderFortuneTransitPanel\(roots\.fortuneTransitPanel/);
-  assert.match(appSource, /renderAiChatPanel\(roots\.aiChatPanel/);
-  assert.match(appSource, /generateWithDeepSeek/);
-  assert.match(appSource, /readAiSettings\(\{ includeSecret: true \}\)/);
+  assert.match(appSource, /createAppController/);
+  assert.match(appSource, /document\.querySelector\("#birthForm"\)/);
+  assert.match(appSource, /document\.querySelector\("#fortuneTransitPanel"\)/);
+  assert.doesNotMatch(appSource, /function renderChartSummary|function renderBaziMatrix|function renderBirthInfoStrip|function bindShenshaPopupEvents|function askAiQuestion|function generateNatalAiNarrative|function detectChatIntent|function escapeHtml|generateWithDeepSeek|readAiSettings/);
+
+  assert.match(appControllerSource, /calculateBazi\(.*locations: .*locationCatalog/s);
+  assert.match(appControllerSource, /buildBaseBaziViewModel\(chart\)/);
+  assert.match(appControllerSource, /buildNatalImageReport\(\{ chart, baseBaziViewModel \}\)/);
+  assert.match(appControllerSource, /buildLuckImageReport/);
+  assert.match(appControllerSource, /buildYearImageReport/);
+  assert.match(appControllerSource, /buildMonthImageReport/);
+  assert.match(appControllerSource, /renderFortuneTransitPanel\(roots\.fortuneTransitPanel/);
+  assert.match(appControllerSource, /renderAiChatPanel\(roots\.aiChatPanel/);
+  assert.match(chartSummarySource, /export function renderChartSummary/);
+  assert.match(aiActionsSource, /generateWithDeepSeek/);
+  assert.match(aiActionsSource, /readAiSettings\(\{ includeSecret: true \}\)/);
+  assert.match(chatActionsSource, /buildChatPrompt/);
+  assert.match(chatActionsSource, /generateWithDeepSeek/);
   assert.doesNotMatch(appSource, /renderLuckImagePanel|renderYearImagePanel|renderMonthImagePanel|luckImagePanel|yearImagePanel|monthImagePanel|bindFortuneTabs|setActiveFortuneTab|activeFortuneTab|\/api\/|createAppServer/);
+  assert.doesNotMatch(appControllerSource + aiActionsSource + chatActionsSource + chartSummarySource, /\/api\/chat|\/api\/narrative|createAppServer/);
 
   assert.doesNotMatch(styles, /\.section-tabs|\.fortune-tab-panel/);
 });

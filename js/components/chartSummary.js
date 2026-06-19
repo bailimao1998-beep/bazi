@@ -1,451 +1,269 @@
-const pillarKeys = ["year", "month", "day", "hour"];
-const elementLabels = { wood: "木", fire: "火", earth: "土", metal: "金", water: "水" };
-const elementAttributes = {
-  wood: "生发、条达、规划",
-  fire: "表达、热度、显化",
-  earth: "承载、稳定、转化",
-  metal: "规则、收敛、执行",
-  water: "流动、信息、应变",
-};
-const polarityLabels = { yang: "阳", yin: "阴" };
+import { bindCoreTabs, renderAuxiliaryObservation } from "./auxiliaryObservation.js";
+import { escapeHtml, hasValue, joinParts } from "../utils/html.js";
 
-export function renderChartSummary(root, data) {
+const elementLabels = { wood: "木", fire: "火", earth: "土", metal: "金", water: "水" };
+const stemElements = {
+  甲: "wood", 乙: "wood",
+  丙: "fire", 丁: "fire",
+  戊: "earth", 己: "earth",
+  庚: "metal", 辛: "metal",
+  壬: "water", 癸: "water",
+};
+const branchElements = {
+  寅: "wood", 卯: "wood",
+  巳: "fire", 午: "fire",
+  辰: "earth", 戌: "earth", 丑: "earth", 未: "earth",
+  申: "metal", 酉: "metal",
+  亥: "water", 子: "water",
+};
+
+export function renderChartSummary(root, currentState) {
   if (!root) return;
-  const chart = data?.chart;
-  if (!chart) {
-    root.innerHTML = `<p class="muted">等待排盘。</p>`;
+  if (!currentState?.baseBaziViewModel) {
+    root.innerHTML = `
+      <div class="plugin-header">
+        <p class="eyebrow">核心命盘</p>
+        <h2>基础排盘展示</h2>
+      </div>
+      <p class="muted">等待基础排盘。</p>
+    `;
     return;
   }
+
+  const viewModel = currentState.baseBaziViewModel;
+  const currentLuck = currentState.luckImageReport?.luckItems?.find((item) => item.isCurrent)
+    ?? currentState.luckImageReport?.luckItems?.[0];
+
   root.innerHTML = `
-    <div class="plugin-header">
+    <div class="plugin-header chart-display-header">
       <p class="eyebrow">核心命盘</p>
       <h2>基础排盘展示</h2>
     </div>
-    ${renderChartTopline(chart)}
-    ${renderBaziMatrix(chart)}
-    ${renderRelationOverview(chart)}
-    ${renderCoreTabs(chart)}
-  `;
-  bindTabs(root);
-}
-
-function renderBaziMatrix(chart) {
-  const details = chart.pillarDetails ?? {};
-  return `
-    <div class="bazi-matrix">
-      <div class="matrix-row matrix-head"><span></span>${pillarKeys.map((key) => `<b>${safe(details[key]?.label)}</b>`).join("")}</div>
-      <div class="matrix-row ten-god-row"><span>天干十神</span>${pillarKeys.map((key) => `<em>${safe(details[key]?.stemTenGod)}</em>`).join("")}</div>
-      <div class="matrix-row main-symbol-row"><span>天干</span>${pillarKeys.map((key) => renderSymbol(details[key]?.pillar?.stem, details[key]?.pillar?.stemElement, details[key]?.pillar?.yinYang)).join("")}</div>
-      <div class="matrix-row main-symbol-row"><span>地支</span>${pillarKeys.map((key) => renderSymbol(details[key]?.pillar?.branch, details[key]?.pillar?.branchElement)).join("")}</div>
-      <div class="matrix-row ten-god-row"><span>地支主气十神</span>${pillarKeys.map((key) => `<em>${safe(details[key]?.branchMainTenGod)}</em>`).join("")}</div>
-      <div class="matrix-row hidden-row"><span>完整藏干</span>${pillarKeys.map((key) => `<small>${renderHiddenStems(details[key]?.hiddenStems)}</small>`).join("")}</div>
-      <div class="matrix-row shensha-row"><span>神煞</span>${pillarKeys.map((key) => renderPillarShensha(details[key]?.shensha)).join("")}</div>
-    </div>
-  `;
-}
-
-function renderCoreTabs(chart) {
-  const auxiliaryTabs = [
-    ["shensha", "神煞总表", renderShenshaStats(chart)],
-    ["nayin-growth", "纳音长生", renderNayinGrowth(chart)],
-    ["voids", "空亡旬空", renderVoidStats(chart)],
-    ["elements", "五行详表", renderElementStats(chart)],
-    ["expert", "专家明细", renderExpert(chart)],
-    ["calendar", "历法依据", renderCalendar(chart)],
-  ];
-  return `
-    <details class="auxiliary-observation">
-      <summary>辅助观察项：神煞总表、纳音、十二长生、旬空、五行详表、专家明细、历法依据</summary>
-      ${renderTabSection(auxiliaryTabs)}
+    ${renderChartTopline(viewModel, currentState.chart)}
+    ${renderBaziMatrix(viewModel.pillars, currentState.chart)}
+    <details class="relation-overview">
+      ${(() => {
+        const unique = uniqueBaseRelations(viewModel.relations);
+        return `<summary><span>干支关系 <b>${escapeHtml(String(unique.length))} 条</b></span><i class="relation-toggle-hint"><em class="is-closed">展开</em><em class="is-open">收起</em></i></summary>
+      ${renderRelationList(unique)}`;
+      })()}
     </details>
+    ${renderAuxiliaryObservation(currentState, currentLuck, { renderBirthInfoStrip })}
   `;
+  bindCoreTabs(root);
 }
 
-function renderChartTopline(chart) {
-  const visible = chart.elementStats?.visible?.counts ?? {};
+function renderChartTopline(viewModel = {}, chart = {}) {
+  const dayPillar = viewModel.pillars?.find((item) => item.key === "day") ?? {};
+  const monthPillar = viewModel.pillars?.find((item) => item.key === "month") ?? {};
+  const dayElement = chart.pillars?.day?.stemElement ?? stemElements[dayPillar.stem];
+  const monthElement = chart.pillars?.month?.branchElement ?? branchElements[monthPillar.branch];
+  const visibleCounts = viewModel.fiveElements?.visible?.counts ?? {};
   return `
     <div class="chart-topline">
-      <article class="chart-topline-item chart-topline-primary"><span>日主</span><strong>${safe(chart.pillars?.day?.stem)}${safe(elementLabels[chart.dayMaster?.element])}</strong></article>
-      <article class="chart-topline-item"><span>月令</span><strong>${safe(chart.pillars?.month?.branch)}${safe(elementLabels[chart.pillars?.month?.branchElement])}</strong></article>
-      <article class="chart-topline-item element-mini"><span>五行</span>${renderElementBars(visible)}</article>
+      <article class="chart-topline-item chart-topline-primary"><span>日主</span><strong>${escapeHtml(dayPillar.stem || dayMaster(viewModel) || "待查")}${escapeHtml(elementLabels[dayElement] ?? "")}</strong></article>
+      <article class="chart-topline-item"><span>月令</span><strong>${escapeHtml(monthPillar.branch || "待查")}${escapeHtml(elementLabels[monthElement] ?? "")}</strong></article>
+      <article class="chart-topline-item element-mini"><span>五行</span>${renderElementBars(visibleCounts)}</article>
     </div>
   `;
 }
 
-function renderElementBars(counts) {
-  const max = Math.max(1, ...Object.keys(elementLabels).map((key) => Number(counts[key] ?? 0)));
+function renderBirthInfoStrip(currentState = {}) {
+  const chart = currentState.chart ?? {};
+  const viewModel = currentState.baseBaziViewModel ?? {};
+  const calendar = chart.calendar ?? {};
+  const trueSolar = calendar.trueSolarTime ?? {};
+  const location = trueSolar.location ?? {};
+  const input = chart.input ?? currentState.input ?? {};
+  const solarTermPillars = viewModel.pillars?.map((item) => `${item.name}${item.pillar}`).join("、");
+  const optionalNonTerm = chart.nonSolarTermPillars ?? chart.calendarPillars ?? chart.meta?.nonSolarTermPillars;
+  const facts = [
+    ["姓名", viewModel.birthInfo?.name],
+    ["性别", genderLabel(input.gender ?? viewModel.birthInfo?.gender)],
+    ["出生地", input.birthplace ?? viewModel.birthInfo?.birthplace],
+    ["公历时间", joinParts([calendar.solarDate ?? input.birthDate, calendar.time ?? input.birthTime])],
+    ["农历时间", calendar.lunarDate ?? viewModel.birthInfo?.lunarDate],
+    ["真太阳时", joinParts([calendar.solarDate, calendar.time])],
+    ["是否使用真太阳时", trueSolar.enabled ? "是" : "否"],
+    ["节气四柱", solarTermPillars],
+    ["非节气四柱", formatMaybePillars(optionalNonTerm)],
+    ["经度/纬度", formatLocation(location)],
+    ["节气范围", calendar.solarTermRange],
+  ].filter(([, value]) => hasValue(value));
+
   return `
-    <span class="element-bars">
-      ${Object.entries(elementLabels).map(([key, label]) => {
-        const value = Number(counts[key] ?? 0);
-        const level = Math.max(4, Math.round((value / max) * 100));
-        return `<i class="topline-element-bar element-${key}" style="--level:${level}%"><b>${safe(label)}</b><em>${safe(value)}</em></i>`;
-      }).join("")}
-    </span>
+    <div class="birth-info-strip">
+      ${facts.map(([label, value]) => `<article><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></article>`).join("")}
+    </div>
   `;
+}
+
+function renderBaziMatrix(pillars = [], chart = {}) {
+  return `
+    <div class="bazi-matrix chart-summary-matrix">
+      <div class="matrix-row matrix-head"><span></span>${pillars.map((item) => `<b>${escapeHtml(item.name)}</b>`).join("")}</div>
+      <div class="matrix-row ten-god-row"><span>天干十神</span>${pillars.map((item) => `<em>${escapeHtml(item.stemTenGod || "待查")}</em>`).join("")}</div>
+      <div class="matrix-row main-symbol-row">
+        <span>天干</span>
+        ${pillars.map((item) => {
+          const raw = chart.pillars?.[item.key] ?? {};
+          return renderSymbol(item.stem, raw.stemElement ?? stemElements[item.stem], raw.yinYang, item.key === "day");
+        }).join("")}
+      </div>
+      <div class="matrix-row main-symbol-row">
+        <span>地支</span>
+        ${pillars.map((item) => {
+          const raw = chart.pillars?.[item.key] ?? {};
+          return renderSymbol(item.branch, raw.branchElement ?? branchElements[item.branch]);
+        }).join("")}
+      </div>
+      <div class="matrix-row ten-god-row"><span>地支主气十神</span>${pillars.map((item) => `<em>${escapeHtml(item.branchMainTenGod || "待查")}</em>`).join("")}</div>
+      <div class="matrix-row hidden-row">
+        <span>完整藏干</span>
+        ${pillars.map((item) => `<small>${renderHiddenStemChips(item.hiddenStems)}</small>`).join("")}
+      </div>
+      <div class="matrix-row shensha-row"><span>神煞</span>${pillars.map((item) => renderPillarShensha(item.shensha)).join("")}</div>
+    </div>
+  `;
+}
+
+function renderSymbol(symbol, element, yinYang, isDayMaster = false) {
+  const elementText = `${escapeHtml(yinYangLabel(yinYang))}${escapeHtml(elementLabels[element] ?? "五行")}`;
+  return `
+    <b class="bazi-symbol element-${escapeHtml(element || "earth")}${isDayMaster ? " is-day-master" : ""}">
+      <strong>${escapeHtml(symbol || "待")}</strong>
+      <small>${elementText}</small>
+    </b>
+  `;
+}
+
+function renderHiddenStemChips(stems = []) {
+  return stems.length
+    ? `<span class="hidden-chip-list">${stems.map((item) => `
+      <span class="hidden-chip element-${escapeHtml(item.element || "earth")}">
+        <b>${escapeHtml(item.stem)}</b>
+        <em>${escapeHtml(item.tenGod)}</em>
+        <small>${escapeHtml(item.role)}<br>${escapeHtml(item.elementLabel ?? elementLabels[item.element] ?? item.element ?? "五行待查")}</small>
+      </span>
+    `).join("")}</span>`
+    : "未列";
 }
 
 function renderPillarShensha(items = []) {
-  const list = items.slice(0, 3);
-  const more = items.length > list.length ? `<em>+${items.length - list.length}</em>` : "";
-  return `<small class="pillar-shensha">${list.length ? list.map((item) => `<i>${safe(item.name)}</i>`).join("") + more : "<i>未列</i>"}</small>`;
-}
-
-function renderRelationOverview(chart) {
-  const relations = uniqueRelations(chart.relations ?? []);
+  const visibleItems = (items ?? []).slice(0, 4);
+  const more = items.length > visibleItems.length ? `<em>+${escapeHtml(items.length - visibleItems.length)}</em>` : "";
   return `
-    <details class="relation-overview">
-      <summary>
-        <span>干支关系 <b>${relations.length ? `${relations.length} 条` : "未命中"}</b></span>
-        <i class="relation-toggle-hint" aria-hidden="true"><em class="is-closed">展开查看</em><em class="is-open">收起</em></i>
-      </summary>
-      ${relations.length
-        ? `<div class="relation-chip-list">${relations.map((item) => `<details><summary>${safe(item.ganzhi?.join(" / "))} · ${safe(item.type)}${safe(item.effect)}</summary><p>${safe(relationReadingText(item))}</p></details>`).join("")}</div>`
-        : `<p class="fine-print">当前启用规则未命中明显合冲害关系，继续看十神、月令和岁运触发。</p>`}
-    </details>
+    <small class="pillar-shensha">
+      ${visibleItems.length ? visibleItems.map((item) => `<i>${escapeHtml(item.name)}</i>`).join("") + more : "<i>未列</i>"}
+    </small>
   `;
 }
 
-function renderTabSection(tabs) {
+function renderElementBars(counts = {}) {
+  const max = Math.max(1, ...Object.values(counts).map((value) => Number(value) || 0));
   return `
-    <section class="core-tabs">
-      <div class="core-tab-list" role="tablist">
-        ${tabs.map(([id, label], index) => `
-          <button type="button" class="core-tab ${index === 0 ? "is-active" : ""}" aria-selected="${index === 0 ? "true" : "false"}" data-tab="${id}">
-            ${safe(label)}
-          </button>
-        `).join("")}
-      </div>
-      ${tabs.map(([id, , html], index) => `
-        <div class="core-tab-panel ${index === 0 ? "is-active" : ""}" data-panel="${id}" ${index === 0 ? "" : "hidden"}>
-          ${html}
-        </div>
-      `).join("")}
-    </section>
-  `;
-}
-
-function renderElementStats(chart) {
-  const visible = chart.elementStats?.visible ?? {};
-  const hidden = chart.elementStats?.hidden ?? {};
-  return `<div class="stats-two-col element-stats-layout">${renderElementBox(visible)}${renderElementBox(hidden)}</div>`;
-}
-
-function renderElementBox(stat) {
-  const counts = stat.counts ?? {};
-  const max = Math.max(1, ...Object.values(counts).map(Number));
-  return `
-    <article class="stats-box">
-      <span>${safe(stat.label)}</span>
-      <strong>${safe(stat.note)}</strong>
-      <p class="element-summary">${safe(elementSummaryText(counts))}</p>
-      <p class="element-attribute">${safe(elementAttributeText(counts, stat.label))}</p>
-      <div class="element-count-grid">
-        ${Object.entries(elementLabels).map(([key, label]) => {
-          const value = Number(counts[key] ?? 0);
-          const percent = Math.max(8, Math.round((value / max) * 100));
-          return `
-            <div class="element-card element-${key}">
-              <span>${label}</span>
-              <b>${formatNumber(value)}</b>
-              <i class="element-bar"><em style="width:${percent}%"></em></i>
-            </div>
-          `;
-        }).join("")}
-      </div>
-    </article>
-  `;
-}
-
-function elementSummaryText(counts = {}) {
-  const summary = Object.entries(elementLabels)
-    .map(([key, label]) => `${label}${formatNumber(Number(counts[key] ?? 0))}`)
-    .join("、");
-  return `统计：${summary}。`;
-}
-
-function elementAttributeText(counts = {}, label = "") {
-  const entries = Object.entries(elementLabels).map(([key, elementLabel]) => ({
-    key,
-    label: elementLabel,
-    value: Number(counts[key] ?? 0),
-    attributes: elementAttributes[key],
-  }));
-  const max = Math.max(...entries.map((item) => item.value));
-  const min = Math.min(...entries.map((item) => item.value));
-  const prominent = entries.filter((item) => item.value === max && item.value > 0).slice(0, 2);
-  const zeroItems = entries.filter((item) => item.value === 0);
-  const weak = zeroItems.length ? zeroItems.slice(0, 2) : entries.filter((item) => item.value === min && item.value < max).slice(0, 2);
-  const lens = String(label).includes("藏干") ? "藏干层面" : "明面层面";
-  const role = String(label).includes("藏干") ? "内在根气、来源支撑" : "外显结构、表层呈现";
-  const prominentText = prominent.length
-    ? `${formatElementNames(prominent)}相对突出，可作为${formatElementAttributes(prominent)}相关属性的候选信号`
-    : "五行数量暂无明显突出项";
-  const weakText = weak.length
-    ? `${formatElementNames(weak)}在${lens}${zeroItems.length ? "暂未出现" : "相对偏弱"}，${formatElementAttributes(weak)}相关属性需要结合柱位、旺衰、十神和岁运继续观察`
-    : "五行数量接近，属性差异需要结合柱位、旺衰、十神和岁运继续观察";
-  return `属性倾向：从${role}看，${prominentText}；${weakText}。`;
-}
-
-function formatElementNames(items) {
-  return items.map((item) => item.label).join("、");
-}
-
-function formatElementAttributes(items) {
-  return items.map((item) => `${item.label}的${item.attributes}`).join("、");
-}
-
-function renderTenGodStats(chart) {
-  const stats = chart.tenGodStats ?? {};
-  const details = chart.pillarDetails ?? {};
-  return `
-    <div class="compact-table">
-      <div class="compact-row hidden-detail compact-head"><span>柱位</span><span>地支</span><span>完整藏干</span></div>
-      ${pillarKeys.map((key) => `
-        <div class="compact-row hidden-detail">
-          <span>${safe(details[key]?.label)}</span>
-          <strong>${safe(details[key]?.pillar?.branch)}</strong>
-          <small>${renderHiddenStems(details[key]?.hiddenStems, true)}</small>
-        </div>
-      `).join("")}
-    </div>
-    <div class="stats-two-col below">
-      ${renderStatBox("完整藏干十神", stats.notes?.fullHidden, stats.fullHidden)}
-      ${renderStatBox("主气十神", stats.notes?.mainQi, stats.mainQi)}
-    </div>
-  `;
-}
-
-function renderStatBox(title, note, counts = {}) {
-  const entries = Object.entries(counts);
-  return `
-    <article class="stats-box">
-      <span>${safe(title)}</span>
-      <strong>${safe(note)}</strong>
-      <div class="stat-chip-row">
-        ${entries.length ? entries.map(([name, count]) => `<span><b>${safe(name)}</b>${safe(count)}</span>`).join("") : `<span><b>暂无</b>0</span>`}
-      </div>
-    </article>
-  `;
-}
-
-function renderShenshaStats(chart) {
-  const items = chart.shensha?.items ?? [];
-  if (!items.length) return `<p class="fine-print">当前内置常用实务神煞规则未命中，仍可从十神、五行和岁运继续观察。</p>`;
-  return `
-    <div class="shensha-group-list">
-      <p class="fine-print">${safe(chart.shensha?.meta?.needVerify?.join("；") || "神煞只作为辅助观察点。")}</p>
-      ${pillarKeys.map((key) => {
-        const detail = chart.pillarDetails?.[key] ?? {};
-        const names = new Set((detail.shensha ?? []).map((item) => item.name));
-        const list = items.filter((item) => item.matchedPillars?.some((hit) => hit.pillarKey === key) || names.has(item.name));
-        return `
-          <section>
-            <h4>${safe(detail.label)} ${safe(detail.pillar?.label)}</h4>
-            ${list.length ? `<div class="shensha-card-grid">
-              ${list.map((item) => `
-                <article class="shensha-card">
-                  <span>${safe(item.name)}</span>
-                  <dl>
-                    <dt>取象</dt>
-                    <dd>${safe(item.sourceBasis)}；命中位置：${safe(item.matchedPillars?.filter((hit) => hit.pillarKey === key).map((hit) => `${hit.pillarLabel}${hit.target}`).join("、") || detail.label)}</dd>
-                    <dt>解释</dt>
-                    <dd>${safe(item.typicalMeaning || item.learningNote)}</dd>
-                  </dl>
-                </article>
-              `).join("")}
-            </div>` : `<p class="fine-print">此柱未列出神煞。</p>`}
-          </section>
-        `;
+    <div class="element-bars">
+      ${Object.entries(elementLabels).map(([key, label]) => {
+        const value = Number(counts[key] || 0);
+        const level = `${Math.round((value / max) * 100)}%`;
+        return `<i class="topline-element-bar element-${key}" style="--level:${level}"><b>${escapeHtml(label)}</b><em>${escapeHtml(value)}</em></i>`;
       }).join("")}
     </div>
   `;
 }
 
-function renderNayinGrowth(chart) {
-  const details = chart.pillarDetails ?? {};
-  return `
-    <div class="compact-table">
-      <div class="compact-row expert compact-head"><span>柱位</span><span>干支</span><span>纳音</span><span>十二长生</span><span>神煞简表</span></div>
-      ${pillarKeys.map((key) => `
-        <div class="compact-row expert">
-          <span>${safe(details[key]?.label)}</span>
-          <strong>${safe(details[key]?.pillar?.label)}</strong>
-          <small>${safe(details[key]?.nayin)}</small>
-          <small>${safe(details[key]?.twelveGrowth)}</small>
-          <small>${safe(details[key]?.shensha?.map((item) => item.name).join("、") || "未命中")}</small>
-        </div>
-      `).join("")}
-    </div>
-  `;
+function renderRelationList(relations = []) {
+  const unique = uniqueBaseRelations(relations);
+
+  return unique.length
+    ? `<div class="relation-compact-list">${unique.map((item) => `
+      <details class="relation-compact-item">
+        <summary>
+          <span class="relation-members">${escapeHtml(relationMembers(item))}</span>
+          <span class="relation-main">
+            <strong>${escapeHtml(relationName(item))}</strong>
+            <em>${escapeHtml(relationEffect(item))}</em>
+          </span>
+        </summary>
+        <p>${escapeHtml(item.evidence || item.description || item.effect || "此关系只作为结构观察点，需结合柱位、旺衰与岁运触发复核。")}</p>
+      </details>
+    `).join("")}</div>`
+    : `<p class="muted relation-empty">当前内置规则未列出明显干支关系，继续结合岁运触发复核。</p>`;
 }
 
-function renderVoidStats(chart) {
-  const details = chart.pillarDetails ?? {};
-  return `
-    <div class="core-tab-grid">
-      ${pillarKeys.map((key) => `
-        <article class="core-fact">
-          <span>${safe(details[key]?.label)}</span>
-          <strong>${safe(details[key]?.voidBranches?.join("、"))}</strong>
-          <small>${safe(details[key]?.pillar?.label)} 旬空观察</small>
-        </article>
-      `).join("")}
-    </div>
-  `;
+function relationMembers(relation = {}) {
+  const members = relation.ganzhi ?? relation.members ?? [];
+  return Array.isArray(members) && members.length
+    ? members.join(" / ")
+    : "干支待查";
 }
 
-function renderRelations(chart) {
-  const relations = uniqueRelations(chart.relations ?? []);
-  if (!relations.length) return `<p class="fine-print">当前命盘未命中已启用的干支关系规则。</p>`;
-  return `
-    <div class="relation-list">
-      ${relations.map((item) => `
-        <article>
-          <span>${safe(item.type)}</span>
-          <strong>${safe(item.members?.join("、"))} ${safe(item.effect)}</strong>
-          <small>${safe(item.ganzhi?.join(" / "))}</small>
-        </article>
-      `).join("")}
-    </div>
-  `;
+function relationName(relation = {}) {
+  return relation.type || relation.relationType || relation.name || "关系";
 }
 
-function relationReadingText(relation) {
-  const pair = relation.members?.join("") ?? "";
-  if (relation.type?.includes("合")) return `命局见${pair}${relation.type}，有合象、牵连、合绊之象，是否成化需结合月令、透干、根气和整体力量判断。`;
-  if (relation.type?.includes("冲")) return `命局见${pair}${relation.type}，有变化、拉扯、位置互动之象，轻重需看柱位和岁运触发。`;
-  if (relation.type?.includes("害")) return `命局见${pair}${relation.type}，有牵连、合绊、互动不顺之象，具体表现需回到柱位。`;
-  return `命局见${pair}${relation.type ?? ""}，可作为结构观察点。`;
+function relationEffect(relation = {}) {
+  const effect = relation.effect ?? "";
+
+  if (!effect) return "";
+
+  const name = relationName(relation);
+  return String(effect).replace(name, "").trim();
 }
 
-function renderExpert(chart) {
-  const details = chart.pillarDetails ?? {};
-  const auxiliary = chart.auxiliary ?? {};
-  return `
-    <div class="compact-table">
-      <div class="compact-row expert compact-head"><span>柱位</span><span>干支</span><span>纳音</span><span>长生</span><span>旬空</span></div>
-      ${pillarKeys.map((key) => `
-        <div class="compact-row expert">
-          <span>${safe(details[key]?.label)}</span>
-          <strong>${safe(details[key]?.pillar?.label)}</strong>
-          <small>${safe(details[key]?.nayin)}</small>
-          <small>${safe(details[key]?.twelveGrowth)}</small>
-          <small>${safe(details[key]?.voidBranches?.join("、"))}</small>
-        </div>
-      `).join("")}
-    </div>
-    <div class="candidate-grid below">
-      ${renderFact("胎元", auxiliary.fetalOrigin?.label, auxiliary.fetalOrigin?.meta?.method)}
-      ${renderFact("命宫", auxiliary.lifePalace?.label, auxiliary.lifePalace?.meta?.method)}
-      ${renderFact("身宫", auxiliary.bodyPalace?.label, auxiliary.bodyPalace?.meta?.method)}
-    </div>
-  `;
-}
-
-function renderCalendar(chart) {
-  const calendar = chart.calendar ?? {};
-  const solar = calendar.trueSolarTime ?? {};
-  return `
-    <div class="core-tab-grid">
-      ${renderFact("原始输入", `${calendar.originalSolarDate ?? ""} ${calendar.originalTime ?? ""}`, "用户输入")}
-      ${renderFact("最终排盘时间", `${calendar.solarDate ?? ""} ${calendar.time ?? ""}`, "真太阳时启用时会调整")}
-      ${renderFact("真太阳时", solar.enabled ? "启用" : "未启用", solar.applied ? "已参与排盘" : "未参与排盘")}
-      ${renderFact("出生地", solar.location?.name, solar.location?.source)}
-      ${renderFact("经度校正", `${solar.longitudeCorrectionMinutes ?? 0}分钟`, "按出生地经度")}
-      ${renderFact("均时差", `${solar.equationOfTimeMinutes ?? 0}分钟`, "用于真太阳时校正")}
-      ${renderFact("月柱换月", calendar.solarTermRange, calendar.monthNote)}
-      ${renderFact("日柱取日", calendar.dayPillarDate, calendar.dayPillarRule)}
-      ${renderFact("时柱规则", chart.pillars?.hour?.branch, calendar.hourPillarRule)}
-    </div>
-  `;
-}
-
-function renderFact(label, value, note) {
-  return `<article class="core-fact"><span>${safe(label)}</span><strong>${safe(value)}</strong><small>${safe(note, "")}</small></article>`;
-}
-
-function renderSymbol(value, element, yinYang) {
-  const label = [polarityLabels[yinYang], elementLabels[element]].filter(Boolean).join("");
-  return `
-    <span class="bazi-symbol element-${safeAttr(element)} polarity-${safeAttr(yinYang)}" data-element-label="${safeAttr(label)}">
-      <strong>${safe(value)}</strong>
-      <small>${safe(label || elementLabels[element])}</small>
-    </span>
-  `;
-}
-
-function renderHiddenStems(items = [], showElement = false) {
-  if (!items.length) return "待查";
-  return `
-    <span class="hidden-chip-list">
-      ${items.map((item) => `
-        <span class="hidden-chip">
-          <b>${safe(item.stem)}</b>
-          <em>${safe(item.tenGod)}</em>
-          <small>${safe(item.role)}</small>
-          ${showElement ? `<i>${safe(item.elementLabel)}</i>` : ""}
-        </span>
-      `).join("")}
-    </span>
-  `;
-}
-
-function bindTabs(root) {
-  root.querySelectorAll(".core-tabs").forEach((section) => {
-    const buttons = [...section.querySelectorAll("[data-tab]")];
-    const panels = [...section.querySelectorAll("[data-panel]")];
-    buttons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const target = button.dataset.tab;
-        buttons.forEach((item) => {
-          const active = item === button;
-          item.classList.toggle("is-active", active);
-          item.setAttribute("aria-selected", active ? "true" : "false");
-        });
-        panels.forEach((panel) => {
-          const active = panel.dataset.panel === target;
-          panel.classList.toggle("is-active", active);
-          panel.hidden = !active;
-        });
-      });
-    });
-  });
-}
-
-function formatNumber(value) {
-  return new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 1 }).format(value);
-}
-
-function safe(value, fallback = "待查") {
-  const text = value === undefined || value === null || value === "" ? fallback : String(value);
-  return text
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function safeAttr(value) {
-  return safe(value, "unknown").replaceAll(" ", "-");
-}
-
-function uniqueRelations(relations = []) {
+function uniqueBaseRelations(relations = []) {
   const seen = new Set();
+
   return (Array.isArray(relations) ? relations : []).filter((relation) => {
-    const pillars = relation.pillars ?? relation.pillarKeys ?? relation.positions ?? [];
-    const ganZhi = relation.ganzhi ?? relation.members ?? [];
+    const displayGanZhi = normalizeDisplayPair(relation.ganzhi ?? relation.members ?? []);
+    const relationName = relation.type ?? relation.relationType ?? relation.name ?? "";
+
     const key = [
-      relation.type ?? relation.relationType ?? "",
-      relation.effect ?? relation.evidence ?? "",
-      pillars[0] ?? "",
-      pillars[1] ?? "",
-      ganZhi[0] ?? "",
-      ganZhi[1] ?? "",
+      displayGanZhi.join("/"),
+      relationName,
     ].join("|");
+
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
+}
+
+function normalizeDisplayPair(value = []) {
+  const list = Array.isArray(value) ? value : [value];
+
+  return list
+    .map((item) => String(item ?? "").trim())
+    .filter(Boolean)
+    .sort();
+}
+
+function dayMaster(viewModel = {}) {
+  return viewModel.pillars?.find((item) => item.key === "day")?.stem;
+}
+
+function genderLabel(value) {
+  return { male: "男", female: "女", unknown: "未填" }[value] ?? value ?? "未填";
+}
+
+function yinYangLabel(value) {
+  return { yang: "阳", yin: "阴" }[value] ?? "";
+}
+
+function formatLocation(location = {}) {
+  const longitude = location.longitude;
+  const latitude = location.latitude;
+  if (!hasValue(longitude) && !hasValue(latitude)) return "";
+  return `${hasValue(longitude) ? `经度${longitude}` : ""}${hasValue(longitude) && hasValue(latitude) ? "，" : ""}${hasValue(latitude) ? `纬度${latitude}` : ""}`;
+}
+
+function formatMaybePillars(value) {
+  if (!value) return "";
+  if (Array.isArray(value)) {
+    return value.map((item) => item?.label ?? item?.pillar ?? item).filter(Boolean).join("、");
+  }
+  if (typeof value === "object") {
+    return Object.values(value).map((item) => item?.label ?? item?.pillar ?? item).filter(Boolean).join("、");
+  }
+  return String(value);
 }

@@ -15,11 +15,8 @@ import { renderAiChatPanel } from "./components/aiChatPanel.js";
 import { renderBaseBaziPanel } from "./components/baseBaziPanel.js";
 import { renderBirthForm } from "./components/birthForm.js";
 import { renderFortuneTransitPanel } from "./components/fortuneTransitPanel.js";
-import { renderLuckImagePanel } from "./components/luckImagePanel.js";
-import { renderMonthImagePanel } from "./components/monthImagePanel.js";
 import { renderNatalAiNarrativePanel } from "./components/natalAiNarrativePanel.js";
 import { renderNatalImagePanel } from "./components/natalImagePanel.js";
-import { renderYearImagePanel } from "./components/yearImagePanel.js";
 import { loadLocationCatalog } from "./core/location/locationCatalogClient.js";
 
 const roots = {
@@ -28,9 +25,6 @@ const roots = {
   baseBaziPanel: document.querySelector("#baseBaziPanel"),
   natalImagePanel: document.querySelector("#natalImagePanel"),
   natalAiNarrative: document.querySelector("#natalAiNarrative"),
-  luckImagePanel: document.querySelector("#luckImagePanel"),
-  yearImagePanel: document.querySelector("#yearImagePanel"),
-  monthImagePanel: document.querySelector("#monthImagePanel"),
   fortuneTransitPanel: document.querySelector("#fortuneTransitPanel"),
   aiChatPanel: document.querySelector("#aiChatPanel"),
   aiChatToggle: document.querySelector("#aiChatToggle"),
@@ -55,7 +49,6 @@ const branchElements = {
   亥: "water", 子: "water",
 };
 
-let activeFortuneTab = "luck";
 let aiChatOpen = false;
 let state = null;
 let natalAiState = {
@@ -114,7 +107,6 @@ async function init() {
     },
   });
 
-  bindFortuneTabs();
   bindAiChatDrawer();
   renderShell();
   refresh();
@@ -195,9 +187,6 @@ function renderShell() {
     hasReport: false,
     onGenerate: generateNatalAiNarrative,
   });
-  renderLuckImagePanel(roots.luckImagePanel, null);
-  renderYearImagePanel(roots.yearImagePanel, null);
-  renderMonthImagePanel(roots.monthImagePanel, null);
   renderFortuneTransitPanel(roots.fortuneTransitPanel, {
     state,
     luckAiState,
@@ -227,11 +216,6 @@ function renderBaseOnly() {
     hasReport: Boolean(state.natalImageReport),
     onGenerate: generateNatalAiNarrative,
   });
-  renderLuckImagePanel(roots.luckImagePanel, state.luckImageReport);
-
-  renderYearImagePanel(roots.yearImagePanel, state.yearImageReport);
-
-  renderMonthImagePanel(roots.monthImagePanel, state.monthImageReport);
   renderFortuneTransitPanel(roots.fortuneTransitPanel, {
     state,
     luckAiState,
@@ -517,9 +501,6 @@ function renderBaseError(error) {
   renderBaseBaziPanel(roots.baseBaziPanel, null);
   renderPlaceholderPanel(roots.natalImagePanel, "原局取象");
   renderPlaceholderPanel(roots.natalAiNarrative, "原局 AI 分析", "AI 解读待接入。当前系统先保证纯前端排盘与取象。");
-  renderPlaceholderPanel(roots.luckImagePanel, "大运取象");
-  renderPlaceholderPanel(roots.yearImagePanel, "流年取象");
-  renderPlaceholderPanel(roots.monthImagePanel, "流月取象");
   renderFortuneTransitPanel(roots.fortuneTransitPanel, { state });
   renderPlaceholderPanel(roots.aiChatPanel, "AI 问答", "AI 问答待接入。当前系统先保证纯前端排盘与取象。");
 }
@@ -564,27 +545,6 @@ function uniqueRelations(relations = []) {
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
-  });
-}
-
-function bindFortuneTabs() {
-  document.querySelectorAll("[data-fortune-tab]").forEach((button) => {
-    button.addEventListener("click", () => setActiveFortuneTab(button.dataset.fortuneTab));
-  });
-  setActiveFortuneTab(activeFortuneTab);
-}
-
-function setActiveFortuneTab(tabId = "luck") {
-  activeFortuneTab = tabId === "year" ? "year" : "luck";
-  document.querySelectorAll("[data-fortune-tab]").forEach((button) => {
-    const active = button.dataset.fortuneTab === activeFortuneTab;
-    button.classList.toggle("is-active", active);
-    button.setAttribute("aria-selected", active ? "true" : "false");
-  });
-  document.querySelectorAll("[data-fortune-panel]").forEach((panel) => {
-    const active = panel.dataset.fortunePanel === activeFortuneTab;
-    panel.classList.toggle("is-active", active);
-    panel.hidden = !active;
   });
 }
 

@@ -119,14 +119,6 @@
     align-items: start;
   }
 
-  .section-tabs {
-    flex-wrap: nowrap;
-  }
-
-  .section-tabs button {
-    flex: 1 0 44%;
-  }
-
   .panel,
   .hero {
     padding: 16px;

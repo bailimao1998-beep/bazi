@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "electron .",
-    "test": "node --test server/architecture.test.js",
+    "test": "node --test tests/architecture.test.js",
     "dist:win": "electron-builder --win nsis --publish never",
     "dist:win-portable": "electron-builder --win portable --publish never"
   },
@@ -24,7 +24,7 @@
       "index.html",
       "styles/**/*",
       "js/**/*",
-      "config/**/*",
+      "config/ai-config.example.json",
       "electron/**/*",
       "data/**/*"
     ],

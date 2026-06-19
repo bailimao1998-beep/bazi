@@ -50,8 +50,7 @@ small {
 }
 
 .analysis-section > .panel,
-.analysis-section > .section-heading,
-.analysis-section > .section-tabs {
+.analysis-section > .section-heading {
   grid-column: 1 / -1;
 }
 
@@ -71,52 +70,6 @@ small {
 
 .section-heading .eyebrow {
   margin-bottom: 4px;
-}
-
-.section-tabs {
-  display: flex;
-  gap: 8px;
-  padding: 8px;
-  overflow-x: auto;
-  border: 1px solid #e5dac9;
-  border-radius: 8px;
-  background:
-    linear-gradient(180deg, rgba(255, 253, 248, 0.96), rgba(250, 247, 239, 0.82)),
-    #fffdf8;
-  scrollbar-width: thin;
-}
-
-.section-tabs button {
-  flex: 0 0 auto;
-  min-height: 36px;
-  padding: 0 18px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: #fffaf1;
-  color: var(--muted);
-  font-weight: 900;
-  white-space: nowrap;
-}
-
-.section-tabs button:hover {
-  border-color: #c7ad83;
-  background: #fff5e3;
-  color: var(--ink);
-}
-
-.section-tabs button.is-active {
-  border-color: var(--accent);
-  background: linear-gradient(180deg, #edf6f2, var(--soft));
-  color: var(--ink);
-  box-shadow: inset 0 0 0 1px var(--accent);
-}
-
-.fortune-tab-panel {
-  display: none;
-}
-
-.fortune-tab-panel.is-active {
-  display: block;
 }
 
 .fortune-ai-section-grid {

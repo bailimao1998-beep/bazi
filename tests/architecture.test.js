@@ -8,6 +8,7 @@ import { buildNatalImageReport } from "../js/core/blind-bazi/buildNatalImageRepo
 import { buildLuckImageReport } from "../js/core/blind-bazi/buildLuckImageReport.js";
 import { buildYearImageReport } from "../js/core/blind-bazi/buildYearImageReport.js";
 import { buildMonthImageReport } from "../js/core/blind-bazi/buildMonthImageReport.js";
+import { renderStageAnalysisPanel } from "../js/components/stageAnalysisPanel.js";
 
 const requiredPaths = [
   "electron/main.js",
@@ -172,6 +173,10 @@ test("index and app use only the current frontend panels", () => {
   assert.match(stageAnalysisSource, /AI 原局分析结果|AI 大运分析结果|AI 流年分析结果|AI 流月分析结果/);
   assert.match(stageAnalysisSource, /stage-evidence-list/);
   assert.match(stageAnalysisSource, /stage-relation-groups/);
+  assert.match(stageAnalysisSource + styles, /transit-evidence-mini-grid/);
+  assert.match(stageAnalysisSource + styles, /transit-detail-chips/);
+  assert.match(stageAnalysisSource + styles, /transit-signal-pills/);
+  assert.match(stageAnalysisSource, /formatRelationEvidence/);
   assert.match(floatingAssistSource + styles, /floating-assist/);
   assert.match(styles, /core-seven-chart/);
   assert.match(styles, /core-seven-grid/);
@@ -269,6 +274,54 @@ test("frontend bazi and blind-bazi chain calculates reports locally", () => {
   assert.equal(yearImageReport.yearItem.year, 2026);
   assert.equal(monthImageReport.monthItem.month, 6);
 });
+
+test("stage analysis panels render calculated report data without breaking refresh", () => {
+  global.window = {};
+  Function(readFileSync("js/locationData.js", "utf8"))();
+
+  const chart = calculateBazi({
+    birthDate: "1992-08-18",
+    birthTime: "14:30",
+    birthProvince: "北京市",
+    birthplace: "北京",
+    gender: "female",
+    targetYear: 2026,
+    selectedMonth: 6,
+    trueSolarTime: true,
+  }, {
+    locations: global.window.FortuneLocationData,
+  });
+  const baseBaziViewModel = buildBaseBaziViewModel(chart);
+  const natalImageReport = buildNatalImageReport({ chart, baseBaziViewModel });
+  const luckImageReport = buildLuckImageReport({ chart, baseBaziViewModel, natalImageReport, targetYear: 2026 });
+  const yearImageReport = buildYearImageReport({ chart, baseBaziViewModel, natalImageReport, luckImageReport, targetYear: 2026 });
+  const monthImageReport = buildMonthImageReport({
+    chart,
+    baseBaziViewModel,
+    natalImageReport,
+    luckImageReport,
+    yearImageReport,
+    targetYear: 2026,
+    selectedMonth: 6,
+  });
+  const root = createRenderRoot();
+
+  assert.doesNotThrow(() => renderStageAnalysisPanel(root, { report: luckImageReport, stage: "luck" }));
+  assert.match(root.innerHTML, /当前大运/);
+  assert.doesNotThrow(() => renderStageAnalysisPanel(root, { report: yearImageReport, stage: "year" }));
+  assert.match(root.innerHTML, /目标流年/);
+  assert.doesNotThrow(() => renderStageAnalysisPanel(root, { report: monthImageReport, stage: "month" }));
+  assert.match(root.innerHTML, /目标流月/);
+});
+
+function createRenderRoot() {
+  return {
+    innerHTML: "",
+    querySelector() {
+      return { addEventListener() {} };
+    },
+  };
+}
 
 test("legacy backups are documented and excluded from package files", () => {
   const legacyReadme = readFileSync("legacy/README.md", "utf8");

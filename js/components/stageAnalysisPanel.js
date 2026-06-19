@@ -77,6 +77,7 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck") {
   const summary = report.summary?.overview || item.shortImage || item.image || item.structureImage || "当前阶段取象待复核。";
   const relationGroups = buildRelationGroups(item, stage);
   const evidence = buildEvidenceSignals(report, item, stage);
+  const relationTuples = relationGroups.map((group) => [`${group.title}关系触发`, group.relations]);
 
   return `
     <div class="stage-card-grid">
@@ -89,9 +90,17 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck") {
         <p>${escapeHtml(summary)}</p>
       </article>
 
-      ${renderTextCard("结构取象", item.structureImage || item.image)}
-      ${renderTextCard("现实应象", item.reality)}
-      ${renderTextCard("成立边界", item.boundary)}
+      ${renderTransitEvidenceCard({
+        title: `${stageLabel(stage)}取象`,
+        marker: stageMarker(item, stage),
+        summary,
+        chips: buildStageChips(item, stage),
+        structure: item.structureImage || item.image,
+        reality: item.reality,
+        boundary: item.boundary,
+        relations: relationTuples,
+        signals: evidence,
+      })}
       ${renderRelationCard(relationGroups)}
       ${renderEvidenceCard(evidence, report)}
     </div>
@@ -106,12 +115,6 @@ function renderStageFacts(item = {}, stage = "luck") {
       ${facts.map(([label, value]) => `<span><b>${escapeHtml(label)}</b>${escapeHtml(value)}</span>`).join("")}
     </div>
   `;
-}
-
-function renderTextCard(title, text) {
-  return text
-    ? `<article class="stage-image-card"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`
-    : "";
 }
 
 function renderRelationCard(groups = []) {
@@ -133,6 +136,113 @@ function renderRelationCard(groups = []) {
           : `<p class="muted">暂未命中冲、合、刑、害、破等明显关系。</p>`
       }
     </article>
+  `;
+}
+
+function renderTransitEvidenceCard({
+  title,
+  marker,
+  chips = [],
+  summary,
+  structure,
+  reality,
+  boundary,
+  relations = [],
+  signals = [],
+} = {}) {
+  const structureText = structure || summary;
+  return `
+    <article class="stage-image-card stage-evidence-list transit-image-detail transit-evidence-card">
+      <div class="transit-card-compact-head">
+        <div>
+          <span>取象卡片</span>
+          <h3>${escapeHtml(title || "阶段取象")}</h3>
+        </div>
+        <strong>${escapeHtml(marker || "待查")}</strong>
+      </div>
+
+      ${renderDetailChips(chips)}
+      ${summary ? `<p class="transit-evidence-lead">${escapeHtml(summary)}</p>` : ""}
+
+      <div class="transit-evidence-mini-grid">
+        ${renderMiniEvidenceBlock("结构取象", structureText)}
+        ${renderMiniEvidenceBlock("现实应象", reality)}
+        ${renderMiniEvidenceBlock("成立边界", boundary)}
+        ${renderMiniRelationBlock("关系触发", relations)}
+      </div>
+
+      ${renderSignalPills("关键证据", signals)}
+    </article>
+  `;
+}
+
+function renderDetailChips(chips = []) {
+  const rows = chips.filter(([, value]) => value !== undefined && value !== null && String(value).trim());
+  return rows.length
+    ? `<div class="transit-detail-chips">${rows.map(([label, value]) => `<span><b>${escapeHtml(label)}</b>${escapeHtml(value)}</span>`).join("")}</div>`
+    : "";
+}
+
+function renderMiniEvidenceBlock(title, text) {
+  const lines = String(text || "暂无明确描述。")
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return `
+    <section class="transit-mini-block">
+      <h4>${escapeHtml(title)}</h4>
+      ${
+        lines.length > 1
+          ? `<ul>${lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`
+          : `<p>${escapeHtml(lines[0] || "暂无明确描述。")}</p>`
+      }
+    </section>
+  `;
+}
+
+function renderMiniRelationBlock(title, groups = []) {
+  const relationTexts = groups
+    .filter(([, relations]) => Array.isArray(relations) && relations.length)
+    .flatMap(([groupTitle, relations]) => {
+      const source = String(groupTitle || "关系触发")
+        .replaceAll("关系触发", "")
+        .replaceAll("触发", "")
+        .trim() || "关系";
+
+      return relations.map((relation) => {
+        const label = formatRelationEvidence(relation);
+        const effect = relation.effect ? `（${relation.effect}）` : "";
+        return `${source}触发：${label}${effect}`;
+      });
+    })
+    .filter(Boolean);
+
+  return `
+    <section class="transit-mini-block">
+      <h4>${escapeHtml(title)}</h4>
+      ${
+        relationTexts.length
+          ? `<ul>${relationTexts.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+          : `<p>暂未命中冲、合、刑、害、破。</p>`
+      }
+    </section>
+  `;
+}
+
+function renderSignalPills(title, signals = []) {
+  const visible = compact(signals);
+  return `
+    <section class="transit-signal-pills">
+      <h4>${escapeHtml(title)}</h4>
+      <div>
+        ${
+          visible.length
+            ? visible.map((item) => `<span>${escapeHtml(item)}</span>`).join("")
+            : `<span>暂无证据条目</span>`
+        }
+      </div>
+    </section>
   `;
 }
 
@@ -168,6 +278,19 @@ function stageTitle(stage, item = {}) {
   if (stage === "year") return `目标流年 ${item.year || ""}`.trim();
   if (stage === "month") return `目标流月 ${item.month || ""}月`.trim();
   return "阶段取象";
+}
+
+function stageLabel(stage = "luck") {
+  if (stage === "luck") return "当前大运";
+  if (stage === "year") return "目标流年";
+  if (stage === "month") return "目标流月";
+  return "阶段";
+}
+
+function stageMarker(item = {}, stage = "luck") {
+  if (stage === "luck") return item.ganZhi || "待查";
+  if (stage === "year") return `${item.year ?? ""} ${item.ganZhi ?? ""}`.trim() || "待查";
+  return `${item.year ?? ""}年 ${item.flowMonthLabel || (item.month ? `${item.month}月` : "")} ${item.ganZhi ?? ""}`.trim() || "待查";
 }
 
 function aiResultTitle(title = "") {
@@ -207,6 +330,39 @@ function buildStageFacts(item = {}, stage = "luck") {
       ["当前大运", formatLuck(item.currentLuckItem)],
       ["当前流年", formatYear(item.yearItem)],
     ].filter(hasFactValue);
+  }
+  return [];
+}
+
+function buildStageChips(item = {}, stage = "luck") {
+  if (stage === "luck") {
+    return [
+      ["大运", item.ganZhi],
+      ["年龄", item.ageRange],
+      ["年份", item.yearRange],
+      ["天干十神", item.tenGod || item.stemTenGod],
+      ["地支主气", item.branchTenGod || item.branchMainTenGod || displayBranchTenGod(item)],
+      ["置信度", confidenceLabel(item.confidence)],
+    ];
+  }
+  if (stage === "year") {
+    return [
+      ["流年", `${item.year ?? ""} ${item.ganZhi ?? ""}`.trim()],
+      ["年干十神", item.stemTenGod || item.tenGod],
+      ["年支主气", item.branchTenGod || item.branchMainTenGod],
+      ["当前大运", item.currentLuckItem?.ganZhi],
+      ["置信度", confidenceLabel(item.confidence)],
+    ];
+  }
+  if (stage === "month") {
+    return [
+      ["流月", `${item.year ?? ""}年 ${item.flowMonthLabel || (item.month ? `${item.month}月` : "")} ${item.ganZhi ?? ""}`.trim()],
+      ["月干十神", item.stemTenGod || item.tenGod],
+      ["月支主气", item.branchTenGod || item.branchMainTenGod],
+      ["当前大运", item.currentLuckItem?.ganZhi],
+      ["当前流年", item.yearItem?.ganZhi],
+      ["置信度", confidenceLabel(item.confidence)],
+    ];
   }
   return [];
 }
@@ -259,6 +415,21 @@ function formatRelation(relation = {}) {
     || "关系触发";
 }
 
+function formatRelationEvidence(relation = {}) {
+  const type = relation.type || relation.relationType || relation.name || "触发";
+  const target =
+    relation.natalPillar
+    || (relation.luckGanZhi ? `当前大运${relation.luckGanZhi}` : "")
+    || (relation.yearGanZhi ? `当前流年${relation.yearGanZhi}` : "")
+    || relation.natalBranch
+    || (relation.luckBranch ? `大运支${relation.luckBranch}` : "")
+    || (relation.yearBranch ? `流年支${relation.yearBranch}` : "")
+    || relation.members
+    || "";
+
+  return `${type}${target}`;
+}
+
 function formatEvidence(item) {
   if (typeof item === "string") return item;
   return item.description || item.text || item.name || item.title || JSON.stringify(item);
@@ -272,8 +443,25 @@ function formatYear(item = {}) {
   return [item.year, item.ganZhi].filter(Boolean).join(" / ");
 }
 
+function displayBranchTenGod(item = {}) {
+  return item.branchTenGod
+    || item.branchMainTenGod
+    || String(item.structureImage ?? "").match(/地支主气十神为([^，。；]+)/)?.[1]
+    || "";
+}
+
 function pushLine(lines, value) {
   if (value && String(value).trim()) lines.push(String(value).trim());
+}
+
+function compact(items = []) {
+  return [...new Set(items.flat()
+    .filter((item) => item !== undefined && item !== null && String(item).trim())
+    .map((item) => String(item)))];
+}
+
+function confidenceLabel(value) {
+  return { high: "重点", medium: "可参考", low: "待验证" }[value] ?? value ?? "可参考";
 }
 
 function hasFactValue(entry) {

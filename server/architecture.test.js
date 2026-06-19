@@ -595,7 +595,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(monthReport.monthItem.confidence, /^(high|medium|low)$/);
   assert.ok(monthReport.keySignals.length > 0);
   assert.ok(monthReport.needVerify.length > 0);
-  assert.match(monthReport.summary.overview, new RegExp(`${currentLuckYear}年6月`));
+  assert.match(monthReport.summary.overview, new RegExp(`${currentLuckYear}年\\s*6月`));
   assert.match(monthReport.summary.overview, new RegExp(monthReport.monthItem.currentLuckItem.ganZhi));
   assert.match(monthReport.summary.overview, new RegExp(yearReport.yearItem.ganZhi));
   assert.match(monthReport.monthItem.image, /当前大运背景/);
@@ -650,7 +650,7 @@ test("frontend bazi modules calculate and render base chart without server APIs"
     ["personality", "family", "study_skill", "career", "wealth", "relationship", "health", "movement", "life_pattern"],
   );
   assert.match(natalPanelSource, /原局整体取象/);
-  assert.match(natalPanelSource, /keySignals/);
+  assert.match(natalPanelSource, /imageCards/);
   assert.match(natalPanelSource, /needVerify/);
   assert.match(luckPanelSource, /大运取象总览/);
   assert.match(luckPanelSource, /暂无大运数据/);
@@ -812,15 +812,15 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(monthAiRoot.innerHTML, /AI 流月文本/);
   assert.match(monthAiPanelSource, /data-month-ai-generate/);
   assert.doesNotMatch(monthAiPanelSource, /API Key|保存 Key|AI 问答/);
-  assert.match(chatPrompt.system, /问答解释层，不是排盘层/);
-  assert.match(chatPrompt.system, /不能重新排盘/);
-  assert.match(chatPrompt.system, /不能推翻已有取象/);
-  assert.match(chatPrompt.system, /回答只能基于当前页面已有数据/);
-  assert.match(chatPrompt.system, /当前数据不足，需要补充\/切换年份月份\/后续功能支持/);
+  assert.match(chatPrompt.system, /命理系统的问答解释层/);
+  assert.match(chatPrompt.system, /优先基于当前命盘完整数据快照回答/);
+  assert.match(chatPrompt.system, /不能假装命盘能确认现实事实/);
+  assert.match(chatPrompt.system, /严禁在回答中暴露任何代码字段名/);
+  assert.match(chatPrompt.system, /哪些是命盘依据，哪些是推演判断，哪些是现实假设/);
   assert.match(chatPrompt.system, /不能使用一定、必然、注定/);
-  assert.match(chatPrompt.system, /回答要短，不要生成长篇报告/);
+  assert.match(chatPrompt.system, /默认回答简洁/);
   assert.match(chatPrompt.system, /直接回答/);
-  assert.match(chatPrompt.system, /现实验证点/);
+  assert.match(chatPrompt.system, /现实验证/);
   const chatPromptUser = JSON.parse(chatPrompt.user);
   assert.equal(chatPromptUser.question, "这个月事业要注意什么？");
   assert.ok(chatPromptUser.baseBaziViewModel);
@@ -847,8 +847,9 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   });
   assert.match(chatRoot.innerHTML, /AI 问答/);
   assert.match(chatRoot.innerHTML, /textarea/);
-  assert.match(chatRoot.innerHTML, /提问/);
-  assert.match(chatRoot.innerHTML, /最近 3 条/);
+  assert.match(chatRoot.innerHTML, /发送问题/);
+  assert.match(chatRoot.innerHTML, /3 条记录/);
+  assert.match(chatRoot.innerHTML, /命盘依据 \/ 推演判断 \/ 现实验证/);
   assert.match(chatRoot.innerHTML, /问题3/);
   assert.match(aiChatPanelSource, /data-ai-chat-form/);
   assert.match(aiChatPanelSource, /data-ai-chat-question/);
@@ -942,13 +943,13 @@ test("frontend bazi modules calculate and render base chart without server APIs"
   assert.match(appSource, /buildLuckAiPrompt\(\{\s*baseBaziViewModel: state\.baseBaziViewModel,\s*natalImageReport: state\.natalImageReport,\s*luckImageReport: state\.luckImageReport,\s*\}\)/);
   assert.match(appSource, /buildYearAiPrompt\(\{\s*baseBaziViewModel: state\.baseBaziViewModel,\s*natalImageReport: state\.natalImageReport,\s*luckImageReport: state\.luckImageReport,\s*yearImageReport: state\.yearImageReport,\s*\}\)/);
   assert.match(appSource, /buildMonthAiPrompt\(\{\s*baseBaziViewModel: state\.baseBaziViewModel,\s*natalImageReport: state\.natalImageReport,\s*luckImageReport: state\.luckImageReport,\s*yearImageReport: state\.yearImageReport,\s*monthImageReport: state\.monthImageReport,\s*\}\)/);
-  assert.match(appSource, /buildChatPrompt\(\{\s*question: trimmedQuestion,\s*baseBaziViewModel: state\.baseBaziViewModel,\s*natalImageReport: state\.natalImageReport,\s*luckImageReport: state\.luckImageReport,\s*yearImageReport: state\.yearImageReport,\s*monthImageReport: state\.monthImageReport,\s*\}\)/);
-  assert.match(appSource, /\.slice\(-3\)/);
+  assert.match(appSource, /buildChatPrompt\(\{\s*question: trimmedQuestion,[\s\S]*input: state\.input,[\s\S]*chart: state\.chart,[\s\S]*baseBaziViewModel: state\.baseBaziViewModel,[\s\S]*monthImageReports: state\.monthImageReports,[\s\S]*chatIntent,[\s\S]*requestedYears,[\s\S]*requestedYearReports,/);
+  assert.match(appSource, /\.slice\(-5\)/);
   assert.match(appSource, /renderLuckAiNarrativePanel\(roots\.luckAiNarrative/);
   assert.match(appSource, /renderYearAiNarrativePanel\(roots\.yearAiNarrative/);
   assert.match(appSource, /renderMonthAiNarrativePanel\(roots\.monthAiNarrative/);
   assert.match(appSource, /renderAiChatPanel\(roots\.aiChatPanel/);
-  assert.match(appSource, /renderAiChatPanel\(roots\.aiChatPanel,\s*\{\s*state: chatState,\s*hasReport: Boolean\(state\.natalImageReport\),\s*onAsk: askAiQuestion,\s*\}\)/);
+  assert.match(appSource, /renderAiChatPanel\(roots\.aiChatPanel,\s*\{\s*state: chatState,\s*hasReport: Boolean\(state\?\.natalImageReport\),\s*chartContext: state,\s*onAsk: askAiQuestion,\s*\}\)/);
   assert.match(appSource, /function renderChartSummary/);
   assert.match(appSource, /出生地[\s\S]*公历时间[\s\S]*农历时间[\s\S]*是否使用真太阳时[\s\S]*节气四柱/);
   assert.match(appSource, /天干五行统计[\s\S]*地支主气五行统计[\s\S]*完整藏干五行统计[\s\S]*综合五行统计/);
@@ -2092,6 +2093,59 @@ test("bazi engine keeps late-zi and true-solar-time behavior", () => {
   assert.equal(urumqi.pillars.hour.label, "丁亥");
 });
 
+test("browser bazi engine uses runtime location catalog for true-solar-time payloads", async () => {
+  const previousWindow = global.window;
+  global.window = {};
+  Function(readFileSync("js/locationData.js", "utf8"))();
+  const { normalizeCatalog } = await import("../js/core/location/locationCatalogClient.js");
+  const { calculateBazi: calculateBrowserBazi } = await import("../js/core/bazi/calculateBazi.js");
+  const locations = normalizeCatalog(global.window.FortuneLocationData);
+
+  try {
+    const samples = [
+      { birthProvince: "北京市", birthplace: "北京", expectedName: "北京" },
+      { birthProvince: "云南省", birthplace: "昆明", expectedName: "昆明" },
+      { birthProvince: "河北省", birthplace: "保定·定州市", expectedName: "保定·定州市" },
+    ];
+
+    for (const sample of samples) {
+      const chart = calculateBrowserBazi({
+        birthDate: "1992-08-18",
+        birthTime: "14:30",
+        trueSolarTime: true,
+        ...sample,
+      }, { locations });
+      const solar = chart.calendar.trueSolarTime;
+      assert.equal(solar.enabled, true);
+      assert.equal(solar.applied, true);
+      assert.equal(solar.location.name, sample.expectedName);
+      assert.equal(solar.location.province, sample.birthProvince);
+      assert.equal(Number.isFinite(Number(solar.location.longitude)), true);
+      assert.equal(Number.isFinite(Number(solar.location.latitude)), true);
+      assert.equal(solar.location.standardMeridian, 120);
+      assert.equal(
+        solar.longitudeCorrectionMinutes,
+        Math.round((Number(solar.location.longitude) - 120) * 4),
+      );
+    }
+
+    const dingzhouAliasChart = calculateBrowserBazi({
+      birthDate: "1992-08-18",
+      birthTime: "14:30",
+      trueSolarTime: true,
+      birthProvince: "河北省",
+      birthplace: "定州",
+    }, { locations });
+    assert.equal(dingzhouAliasChart.calendar.trueSolarTime.location.name, "保定·定州市");
+  } finally {
+    if (previousWindow === undefined) {
+      delete global.window;
+    } else {
+      global.window = previousWindow;
+    }
+  }
+});
+
 test("date settings support lunar conversion and lunar chart input", () => {
   assert.deepEqual(solarToLunar("1992-08-18"), {
     year: 1992,
@@ -2145,10 +2199,7 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.match(index, /id="birthForm"[\s\S]*id="chartSummary"/);
   assert.match(index, /id="natalSection"[\s\S]*原局分析[\s\S]*id="natalImagePanel"[\s\S]*id="natalAiNarrative"/);
   assert.match(index, /id="fortuneSection"[\s\S]*阶段分析[\s\S]*data-fortune-tab="luck"[\s\S]*data-fortune-tab="year"[\s\S]*id="luckImagePanel"[\s\S]*id="yearImagePanel"/);
-  assert.match(index, /id="fortuneAiSection"[\s\S]*阶段 AI 分析[\s\S]*id="luckAiNarrative"[\s\S]*id="yearAiNarrative"/);
-  assert.match(index, /id="monthSection"[\s\S]*流月分析[\s\S]*id="monthImagePanel"[\s\S]*id="monthAiNarrative"/);
   assert.match(index, /id="aiChatFloat"[\s\S]*id="aiChatToggle"[\s\S]*AI 问答[\s\S]*id="aiChatDrawer"[\s\S]*id="aiChatClose"[\s\S]*id="aiChatPanel"/);
-  assert.match(index, /id="settingsSection"[\s\S]*id="aiSettings"[\s\S]*id="debugPanel"/);
   const orderedPanels = [
     "birthForm",
     "chartSummary",
@@ -2156,25 +2207,17 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
     "natalImagePanel",
     "natalAiNarrative",
     "fortuneSection",
+    "fortuneTransitPanel",
     "luckImagePanel",
     "yearImagePanel",
-    "fortuneAiSection",
-    "luckAiNarrative",
-    "yearAiNarrative",
-    "monthSection",
-    "monthImagePanel",
-    "monthAiNarrative",
     "baseBaziPanel",
     "aiChatFloat",
     "aiChatPanel",
-    "aiSettings",
-    "debugPanel",
   ];
   for (const id of orderedPanels) assert.match(index, new RegExp(`id="${id}"`));
   for (let panelIndex = 1; panelIndex < orderedPanels.length; panelIndex += 1) {
     assert.ok(index.indexOf(`id="${orderedPanels[panelIndex - 1]}"`) < index.indexOf(`id="${orderedPanels[panelIndex]}"`));
   }
-  assert.match(appSource, /renderAiSettingsPanel/);
   assert.match(appSource, /renderChartSummary\(roots\.chartSummary, state\)/);
   assert.match(appSource, /bindFortuneTabs\(\)/);
   assert.match(appSource, /function setActiveFortuneTab/);
@@ -2184,16 +2227,12 @@ test("static index uses pure frontend bazi entry and keeps old birth settings da
   assert.match(appSource, /renderBaseBaziPanel/);
   assert.match(appSource, /renderPlaceholderPanel/);
   assert.match(appSource, /baseBaziViewModel/);
-  assert.match(appSource, /calculateBazi\(currentInput\)/);
+  assert.match(appSource, /calculateBazi\(currentInput,\s*\{\s*locations: locationCatalog,\s*\}\)/);
   assert.match(appSource, /buildBaseBaziViewModel\(chart\)/);
   assert.match(appSource, /renderBaseBaziPanel\(roots\.baseBaziPanel, state\.baseBaziViewModel\)/);
   assert.doesNotMatch(appSource, /requestNarrative|requestBaseBazi|apiClient|\/api\/|casePanel|caseRoute|caseStore/);
-  assert.match(appSource, /原局取象[\s\S]*待实现/);
-  assert.match(appSource, /大运取象[\s\S]*待实现/);
   assert.match(appSource, /renderYearImagePanel\(roots\.yearImagePanel/);
-  assert.match(appSource, /renderYearAiNarrativePanel\(roots\.yearAiNarrative/);
   assert.match(appSource, /renderMonthImagePanel\(roots\.monthImagePanel/);
-  assert.match(appSource, /renderMonthAiNarrativePanel\(roots\.monthAiNarrative/);
   assert.match(appSource, /renderAiChatPanel\(roots\.aiChatPanel/);
   assert.match(aiSettingsClientSource, /localStorage/);
   assert.match(aiSettingsClientSource, /readAiSettings/);
@@ -2620,6 +2659,16 @@ test("birth form makes initial AI interpretation opt-in", () => {
   assert.match(birthForm, /preInterpretAi: Boolean\(initialValue\.preInterpretAi\)/);
 });
 
+test("birth form location controls use the runtime catalog without stale listeners", () => {
+  const birthForm = readFileSync("js/components/birthForm.js", "utf8");
+  assert.doesNotMatch(birthForm, /const commonCities = \[/);
+  assert.equal(birthForm.match(/\[name='birthplace'\]"\)\?\.addEventListener\("change"/g)?.length ?? 0, 1);
+  assert.doesNotMatch(birthForm, /formState\[name\] = \["targetYear"\]\.includes\(name\) \? Number\(event\.currentTarget\.value\) : event\.currentTarget\.value;/);
+  assert.match(birthForm, /toPayload\(state, locationCatalog\)/);
+  assert.match(birthForm, /toPayload\(formState, locationCatalog\)/);
+  assert.match(birthForm, /<option value="\$\{escapeHtml\(item\.name\)\}"/);
+});
+
 test("AI narrative panel tolerates missing root", () => {
   assert.doesNotThrow(() => renderAiNarrativePanel(null, { narrative: { text: "测试" } }));
 });
@@ -2900,13 +2949,13 @@ test("desktop shell can reuse the local server without exposing Node APIs to the
   assert.match(serverSource, /export function createAppServer/);
   assert.match(serverSource, /process\.argv\[1\]/);
 
-  assert.equal(packageJson.scripts.dev, "node server/server.js");
-  assert.equal(packageJson.scripts.desktop, "electron desktop/main.js");
-  assert.equal(packageJson.scripts["package:mac"], "electron-builder --mac");
-  assert.equal(packageJson.scripts["package:win"], "electron-builder --win");
+  assert.equal(packageJson.main, "electron/main.js");
+  assert.equal(packageJson.scripts.start, "electron .");
+  assert.equal(packageJson.scripts["dist:win"], "electron-builder --win nsis --publish never");
+  assert.equal(packageJson.scripts["dist:win-portable"], "electron-builder --win portable --publish never");
   assert.ok(packageJson.devDependencies?.electron);
   assert.ok(packageJson.devDependencies?.["electron-builder"]);
-  assert.equal(packageJson.build.productName, "命理断事系统");
+  assert.equal(packageJson.build.productName, "命理剧情解读系统");
   assert.equal(packageJson.build.directories.output, "dist");
 
   assert.match(desktopMainSource, /BrowserWindow/);

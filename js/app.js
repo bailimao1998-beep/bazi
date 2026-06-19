@@ -101,7 +101,7 @@ let currentInput = {
   name: "测试用户",
   birthDate: "1949-10-01",
   birthTime: "00:00",
-  birthProvince: "北京",
+  birthProvince: "北京市",
   birthplace: "北京",
   gender: "male",
   targetYear: 2026,

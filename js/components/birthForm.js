@@ -14,16 +14,6 @@ import {
   getProvinceOptions,
 } from "../core/location/locationCatalogClient.js";
 
-const commonCities = [
-  { name: "北京", longitude: 116.4074, latitude: 39.9042, standardMeridian: 120 },
-  { name: "上海", longitude: 121.4737, latitude: 31.2304, standardMeridian: 120 },
-  { name: "广州", longitude: 113.2644, latitude: 23.1291, standardMeridian: 120 },
-  { name: "深圳", longitude: 114.0579, latitude: 22.5431, standardMeridian: 120 },
-  { name: "成都", longitude: 104.0665, latitude: 30.5728, standardMeridian: 120 },
-  { name: "乌鲁木齐", longitude: 87.6168, latitude: 43.8256, standardMeridian: 120 },
-  { name: "定州", longitude: 114.9902, latitude: 38.5162, standardMeridian: 120 },
-];
-
 export function renderBirthForm(root, { initialValue = {}, onSubmit, locationCatalog = { cities: [] } }) {
   if (!root) return;
   const lunar = solarToLunar(initialValue.birthDate ?? "1949-10-01");
@@ -37,7 +27,7 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit, locationCat
     lunarLeapMonth: initialValue.lunarLeapMonth ?? lunar.isLeapMonth,
     birthTime: initialValue.birthTime ?? "00:00",
     gender: initialValue.gender ?? "male",
-    birthProvince: initialValue.birthProvince ?? "北京",
+    birthProvince: initialValue.birthProvince ?? "北京市",
     birthplace: initialValue.birthplace ?? "北京",
     targetYear: initialValue.targetYear ?? 2026,
     selectedMonth: initialValue.selectedMonth ?? 1,
@@ -116,14 +106,6 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit, locationCat
 
     container.querySelector("[name='birthplace']")?.addEventListener("change", (event) => {
       formState.birthplace = event.currentTarget.value;
-      update({ submit: true });
-    });
-    container.querySelector("[name='birthplace']")?.addEventListener("change", (event) => {
-      formState.birthplace = event.currentTarget.value;
-      update({ submit: true });
-    });
-    container.querySelector(`[name='${name}']`)?.addEventListener("change", (event) => {
-      formState[name] = ["targetYear"].includes(name) ? Number(event.currentTarget.value) : event.currentTarget.value;
       update({ submit: true });
     });
     container.querySelector("[name='trueSolarTime']")?.addEventListener("change", (event) => {

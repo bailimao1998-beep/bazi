@@ -209,16 +209,7 @@ function resolveBirthLocation(inputOrBirthplace, datasets) {
     ? cities.filter((city) => city.province === province)
     : cities;
 
-  const matched = scopedCities.find((city) => {
-    const names = [
-      city.name,
-      city.city,
-      city.fullName,
-      ...(city.aliases ?? []),
-    ].filter(Boolean);
-
-    return names.some((name) => query === name || query.includes(name) || name.includes(query));
-  });
+  const matched = findBestLocationMatch(scopedCities, query);
 
   return matched
     ? { ...defaultLocation, ...matched, source: "dataset" }
@@ -231,6 +222,43 @@ function resolveBirthLocation(inputOrBirthplace, datasets) {
         source: "unmatched",
       };
 }
+
+function findBestLocationMatch(cities = [], queryText) {
+  const query = normalizeLocationText(queryText);
+  const candidates = cities
+    .map((city) => ({ city, score: scoreLocationMatch(city, query) }))
+    .filter((candidate) => candidate.score > 0)
+    .sort((left, right) => right.score - left.score);
+
+  return candidates[0]?.city || null;
+}
+
+function scoreLocationMatch(city = {}, query) {
+  const names = [
+    city.name,
+    city.displayName,
+    city.fullName,
+    city.city,
+    city.area,
+    ...(city.aliases ?? []),
+  ]
+    .filter(Boolean)
+    .map(normalizeLocationText);
+
+  if (names.some((name) => query === name)) return 100;
+  if (names.some((name) => name.endsWith("市") && query === name.slice(0, -1))) return 90;
+  if (names.some((name) => name.includes(query))) return 50;
+  if (names.some((name) => query.includes(name))) return 10;
+  return 0;
+}
+
+function normalizeLocationText(value) {
+  return String(value || "")
+    .replace(/\s+/g, "")
+    .replace(/[·\-_/]/g, "")
+    .trim();
+}
+
 function applyTrueSolarTime(rawBirth, location, enabled = false) {
   const applied = Boolean(enabled && hasUsableLocation(location));
   const correctionMinutes = applied ? calculateTrueSolarCorrection(rawBirth, location) : 0;

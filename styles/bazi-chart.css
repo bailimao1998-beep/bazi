@@ -409,6 +409,113 @@
   line-height: 1.6;
 }
 
+/* ===== 最终版：七列核心命盘 ===== */
+
+.core-seven-chart {
+  display: grid;
+  gap: 14px;
+}
+
+.core-seven-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(132px, 1fr));
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.core-seven-column {
+  min-width: 132px;
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid #e2d7c8;
+  border-radius: 8px;
+  background: #fffdf8;
+}
+
+.core-seven-column.is-transit {
+  border-color: #d2c3ae;
+  background: #fffaf1;
+}
+
+.core-seven-column.is-active {
+  box-shadow: inset 0 0 0 1px rgba(47, 111, 115, 0.18);
+}
+
+.core-seven-column.is-natal {
+  background: #ffffff;
+}
+
+.core-seven-column.is-day {
+  border-color: var(--accent);
+  background: #ecf3ee;
+  box-shadow: inset 0 0 0 2px rgba(47, 111, 115, 0.22);
+}
+
+.core-seven-column header {
+  display: grid;
+  gap: 4px;
+  min-height: 82px;
+  padding: 9px;
+  border-radius: 7px;
+  background: var(--soft);
+  text-align: center;
+}
+
+.core-seven-column header span {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.core-seven-column header strong {
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.core-seven-column header small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.core-seven-row {
+  display: grid;
+  gap: 4px;
+  min-height: 54px;
+  padding: 8px;
+  border: 1px solid #eadfce;
+  border-radius: 6px;
+  background: rgba(255, 253, 248, 0.84);
+}
+
+.core-seven-row span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.core-seven-row b {
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.core-seven-symbol b {
+  color: var(--accent);
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.core-seven-meta b,
+.core-seven-relation b {
+  font-size: 13px;
+}
+
 .chart-stat-block {
   min-width: 0;
   padding: 12px;

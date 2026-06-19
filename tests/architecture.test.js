@@ -35,9 +35,9 @@ const requiredPaths = [
   "js/core/blind-bazi/buildYearImageReport.js",
   "js/core/blind-bazi/buildMonthImageReport.js",
   "js/components/birthForm.js",
-  "js/components/birthSummary.js",
   "js/components/fortuneTransitPanel.js",
   "js/components/transitHierarchyPanel.js",
+  "js/components/stageAnalysisPanel.js",
   "js/components/floatingAssistPanel.js",
   "js/components/aiChatPanel.js",
   "js/components/chartSummary.js",
@@ -101,6 +101,7 @@ test("index and app use only the current frontend panels", () => {
   const chartSummarySource = readFileSync("js/components/chartSummary.js", "utf8");
   const fortuneTransitSource = readFileSync("js/components/fortuneTransitPanel.js", "utf8");
   const transitHierarchySource = readFileSync("js/components/transitHierarchyPanel.js", "utf8");
+  const stageAnalysisSource = readFileSync("js/components/stageAnalysisPanel.js", "utf8");
   const floatingAssistSource = readFileSync("js/components/floatingAssistPanel.js", "utf8");
   const styles = readFileSync("styles/layout.css", "utf8")
     + readFileSync("styles/fortune.css", "utf8")
@@ -111,29 +112,31 @@ test("index and app use only the current frontend panels", () => {
   assert.match(index, /<script src="js\/locationData\.js\?v=20260612b"><\/script>/);
   assert.match(index, /<script type="module" src="js\/app\.js\?v=20260613c"><\/script>/);
   assert.match(index, /id="birthForm"/);
-  assert.match(index, /id="birthDock"/);
-  assert.match(index, /id="birthSummary"/);
-  assert.match(index, /id="coreWorkbench"/);
   assert.match(index, /id="chartSummary"/);
-  assert.match(index, /class="core-workbench"/);
-  assert.match(index, /class="transit-control-panel"/);
-  assert.match(index, /class="core-chart-panel"/);
+  assert.match(index, /class="panel input-section"/);
+  assert.match(index, /class="panel transit-selector-section"/);
+  assert.match(index, /class="panel core-seven-chart-section"/);
   assert.match(index, /id="floatingAssist"/);
   assert.match(index, /id="natalImagePanel"/);
   assert.match(index, /id="natalAiNarrative"/);
   assert.match(index, /id="fortuneTransitPanel"/);
+  assert.match(index, /id="luckStageAnalysis"/);
+  assert.match(index, /id="yearStageAnalysis"/);
+  assert.match(index, /id="monthStageAnalysis"/);
   assert.match(index, /id="aiChatFloat"/);
   assert.match(index, /id="aiChatPanel"/);
   assert.match(index, /id="baseBaziPanel"/);
-  assert.doesNotMatch(index, /legacy-stage-panels|data-fortune-tab|data-fortune-panel|id="luckImagePanel"|id="yearImagePanel"|id="monthImagePanel"|js\/app\.bundle\.js|index\.offline/);
+  assert.doesNotMatch(index, /birthDock|birthSummary|coreWorkbench|transitAnalysisSection|transitStageAnalysisPanel|legacy-stage-panels|data-fortune-tab|data-fortune-panel|id="luckImagePanel"|id="yearImagePanel"|id="monthImagePanel"|js\/app\.bundle\.js|index\.offline/);
 
   assert.match(appSource, /createAppController/);
   assert.match(appSource, /document\.querySelector\("#birthForm"\)/);
-  assert.match(appSource, /document\.querySelector\("#birthSummary"\)/);
-  assert.match(appSource, /document\.querySelector\("#birthDock"\)/);
   assert.match(appSource, /document\.querySelector\("#fortuneTransitPanel"\)/);
   assert.match(appSource, /document\.querySelector\("#floatingAssist"\)/);
+  assert.match(appSource, /document\.querySelector\("#luckStageAnalysis"\)/);
+  assert.match(appSource, /document\.querySelector\("#yearStageAnalysis"\)/);
+  assert.match(appSource, /document\.querySelector\("#monthStageAnalysis"\)/);
   assert.doesNotMatch(appSource, /function renderChartSummary|function renderBaziMatrix|function renderBirthInfoStrip|function bindShenshaPopupEvents|function askAiQuestion|function generateNatalAiNarrative|function detectChatIntent|function escapeHtml|generateWithDeepSeek|readAiSettings/);
+  assert.doesNotMatch(appSource, /birthDock|birthSummary/);
 
   assert.match(appControllerSource, /calculateBazi\(.*locations: .*locationCatalog/s);
   assert.match(appControllerSource, /buildBaseBaziViewModel\(chart\)/);
@@ -141,31 +144,37 @@ test("index and app use only the current frontend panels", () => {
   assert.match(appControllerSource, /buildLuckImageReport/);
   assert.match(appControllerSource, /buildYearImageReport/);
   assert.match(appControllerSource, /buildMonthImageReport/);
-  assert.match(appControllerSource, /renderBirthSummary\(roots\.birthSummary/);
   assert.match(appControllerSource, /renderFortuneTransitPanel\(roots\.fortuneTransitPanel/);
+  assert.match(appControllerSource, /renderStageAnalysisPanel\(roots\.luckStageAnalysis/);
+  assert.match(appControllerSource, /renderStageAnalysisPanel\(roots\.yearStageAnalysis/);
+  assert.match(appControllerSource, /renderStageAnalysisPanel\(roots\.monthStageAnalysis/);
   assert.match(appControllerSource, /renderFloatingAssistPanel\(roots\.floatingAssist/);
   assert.match(appControllerSource, /renderAiChatPanel\(roots\.aiChatPanel/);
   assert.match(chartSummarySource, /export function renderChartSummary/);
-  assert.match(chartSummarySource, /命局骨架/);
-  assert.match(chartSummarySource, /当前岁运摘要/);
-  assert.match(chartSummarySource, /核心关系摘要/);
+  assert.match(chartSummarySource, /core-seven-chart/);
+  assert.match(chartSummarySource, /core-seven-grid/);
+  assert.match(chartSummarySource, /core-seven-column/);
   assert.match(fortuneTransitSource, /renderTransitHierarchyPanel/);
-  assert.match(transitHierarchySource + styles, /transit-hierarchy/);
-  assert.match(transitHierarchySource + styles, /transit-column/);
-  assert.match(transitHierarchySource + styles, /transit-node/);
+  assert.match(fortuneTransitSource, /export function renderFortuneTransitPanel/);
+  assert.match(transitHierarchySource + styles, /transit-selector-board/);
+  assert.match(transitHierarchySource + styles, /transit-selector-row/);
+  assert.match(transitHierarchySource + styles, /transit-select-card/);
+  assert.match(stageAnalysisSource + styles, /stage-analysis-section/);
+  assert.match(stageAnalysisSource + styles, /stage-analysis-header/);
+  assert.match(stageAnalysisSource + styles, /ai-collapse-card/);
   assert.match(floatingAssistSource + styles, /floating-assist/);
-  assert.match(styles, /core-workbench/);
-  assert.match(styles, /transit-control-panel/);
-  assert.match(styles, /core-chart-panel/);
-  assert.match(styles, /birth-dock-summary/);
+  assert.match(styles, /core-seven-chart/);
+  assert.match(styles, /core-seven-grid/);
+  assert.match(styles, /core-seven-column/);
   assert.match(aiActionsSource, /generateWithDeepSeek/);
   assert.match(aiActionsSource, /readAiSettings\(\{ includeSecret: true \}\)/);
   assert.match(chatActionsSource, /buildChatPrompt/);
   assert.match(chatActionsSource, /generateWithDeepSeek/);
   assert.doesNotMatch(appSource, /renderLuckImagePanel|renderYearImagePanel|renderMonthImagePanel|luckImagePanel|yearImagePanel|monthImagePanel|bindFortuneTabs|setActiveFortuneTab|activeFortuneTab|\/api\/|createAppServer/);
-  assert.doesNotMatch(appControllerSource + aiActionsSource + chatActionsSource + chartSummarySource + fortuneTransitSource + transitHierarchySource + floatingAssistSource, /\/api\/chat|\/api\/narrative|createAppServer/);
+  assert.doesNotMatch(appControllerSource + aiActionsSource + chatActionsSource + chartSummarySource + fortuneTransitSource + transitHierarchySource + floatingAssistSource + stageAnalysisSource, /\/api\/chat|\/api\/narrative|createAppServer/);
 
   assert.doesNotMatch(styles, /\.section-tabs|\.fortune-tab-panel/);
+  assert.doesNotMatch(styles, /workbench-layout|core-sticky-panel|birth-dock-summary|core-workbench|transit-control-panel|core-chart-panel/);
 });
 
 test("electron main serves index.html statically without desktop/server imports", () => {

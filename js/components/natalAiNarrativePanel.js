@@ -1,29 +1,14 @@
+import { renderAiCollapse } from "./stageAnalysisPanel.js";
+
 export function renderNatalAiNarrativePanel(root, payload = {}, actions = {}) {
   if (!root) return;
   const state = payload.state ?? {};
   const hasReport = Boolean(payload.hasReport);
-  root.innerHTML = `
-    <div class="plugin-header">
-      <h2>原局 AI 分析</h2>
-    </div>
-    <p class="muted">AI 只解释原局取象，不参与排盘和取象。</p>
-    <div class="form-actions">
-      <button type="button" data-natal-ai-generate ${state.loading || !hasReport ? "disabled" : ""}>
-        ${state.loading ? "生成中..." : "生成原局 AI 分析"}
-      </button>
-    </div>
-    ${state.loading ? `<p class="muted">正在生成原局 AI 分析...</p>` : ""}
-    ${state.error ? `<p class="error-text">${escapeHtml(state.error)}</p>` : ""}
-    ${state.text ? `<article class="ai-narrative-output"><pre>${escapeHtml(state.text)}</pre></article>` : ""}
-  `;
-  root.querySelector("[data-natal-ai-generate]")?.addEventListener("click", () => (payload.onGenerate ?? actions.onGenerate)?.());
-}
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  root.innerHTML = renderAiCollapse({
+    title: "AI 原局分析",
+    button: "生成原局 AI 分析",
+    state,
+    hasReport,
+  });
+  root.querySelector("[data-stage-ai-generate]")?.addEventListener("click", () => (payload.onGenerate ?? actions.onGenerate)?.());
 }

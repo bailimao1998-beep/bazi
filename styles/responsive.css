@@ -38,26 +38,6 @@
 }
 
 @media (max-width: 1120px) {
-  .core-workbench {
-    grid-template-columns: 1fr;
-  }
-
-  .core-chart-panel {
-    position: static;
-    max-height: none;
-    order: -1;
-  }
-
-  .workbench-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .core-sticky-panel {
-    position: static;
-    max-height: none;
-    order: -1;
-  }
-
   .fortune-transit-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -68,38 +48,18 @@
 }
 
 @media (max-width: 760px) {
-  .birth-dock-summary,
-  .natal-analysis-layout {
+  .stage-analysis-header {
     grid-template-columns: 1fr;
   }
 
-  .birth-summary-actions {
-    justify-content: stretch;
-  }
-
-  .birth-summary-actions button {
-    width: 100%;
-  }
-
-  .input-and-ai-row,
-  .transit-hierarchy,
-  .transit-detail-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .transit-node-list,
-  .transit-month-grid {
-    max-height: none;
-  }
-
-  .transit-month-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .core-seven-grid {
+    grid-template-columns: repeat(7, minmax(128px, 150px));
   }
 
   .floating-assist {
     right: 12px;
-    top: 12px;
-    bottom: auto;
+    top: auto;
+    bottom: 76px;
   }
 
   .floating-assist-buttons {

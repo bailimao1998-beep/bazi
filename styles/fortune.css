@@ -1225,6 +1225,100 @@
   margin-top: 14px;
 }
 
+/* ===== 最终版：三排岁运选择卡片 ===== */
+
+.transit-selector-board {
+  display: grid;
+  gap: 16px;
+}
+
+.transit-selector-row {
+  display: grid;
+  gap: 10px;
+}
+
+.transit-selector-row-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.transit-selector-row-header h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.transit-selector-row-header span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.transit-card-list {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.transit-select-card {
+  flex: 0 0 178px;
+  display: grid;
+  gap: 5px;
+  min-height: 116px;
+  padding: 11px;
+  border: 1px solid #e2d7c8;
+  border-radius: 8px;
+  background: #fffaf1;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.transit-select-card:hover,
+.transit-select-card:focus-visible {
+  border-color: var(--accent);
+}
+
+.transit-select-card.is-active {
+  border-color: var(--accent);
+  background: #ecf3ee;
+  box-shadow: inset 0 0 0 1px rgba(47, 111, 115, 0.28);
+}
+
+.transit-select-card.is-current::after {
+  content: "当前";
+  justify-self: start;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #2f6f73;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.transit-select-card strong {
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.transit-select-card span,
+.transit-select-card small,
+.transit-select-card em,
+.transit-select-card i {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+.transit-select-card i {
+  color: var(--accent);
+  font-weight: 900;
+}
+
 /* ===== 流月总览 V1 ===== */
 
 .enhanced-month-board {

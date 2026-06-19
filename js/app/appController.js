@@ -9,12 +9,12 @@ import { loadLocationCatalog } from "../core/location/locationCatalogClient.js";
 import { renderAiChatPanel } from "../components/aiChatPanel.js";
 import { renderBaseBaziPanel } from "../components/baseBaziPanel.js";
 import { renderBirthForm } from "../components/birthForm.js";
-import { renderBirthSummary } from "../components/birthSummary.js";
 import { renderChartSummary } from "../components/chartSummary.js";
 import { renderFloatingAssistPanel } from "../components/floatingAssistPanel.js";
 import { renderFortuneTransitPanel } from "../components/fortuneTransitPanel.js";
 import { renderNatalAiNarrativePanel } from "../components/natalAiNarrativePanel.js";
 import { renderNatalImagePanel } from "../components/natalImagePanel.js";
+import { renderStageAnalysisPanel } from "../components/stageAnalysisPanel.js";
 import { createAiActions } from "./aiActions.js";
 import { createAppState, resetGeneratedStates } from "./appState.js";
 import { createChatActions } from "./chatActions.js";
@@ -35,7 +35,6 @@ export function createAppController({ roots, initialInput }) {
       locationCatalog: store.locationCatalog,
       onSubmit(payload) {
         store.currentInput = { ...store.currentInput, ...payload };
-        store.isBirthFormCollapsed = true;
         refresh();
       },
     });
@@ -100,16 +99,13 @@ export function createAppController({ roots, initialInput }) {
       if (roots.status) roots.status.textContent = "基础排盘已完成。";
       aiActions.maybeGeneratePreInterpretYearAi();
     } catch (error) {
-      store.isBirthFormCollapsed = false;
       store.state = { input: store.currentInput, error: error.message };
-      renderBirthDock();
       renderBaseError(error, { roots, state: store.state });
       if (roots.status) roots.status.textContent = `基础排盘失败：${error.message}`;
     }
   }
 
   function renderShell() {
-    renderBirthDock();
     renderChartSummary(roots.chartSummary, null);
     renderBaseBaziPanel(roots.baseBaziPanel, null);
     renderNatalImagePanel(roots.natalImagePanel, null);
@@ -130,6 +126,33 @@ export function createAppController({ roots, initialInput }) {
       onGenerateYearAi: aiActions.generateYearAiNarrative,
       onGenerateMonthAi: aiActions.generateMonthAiNarrative,
     });
+    renderStageAnalysisPanel(roots.luckStageAnalysis, {
+      title: "大运分析",
+      description: "围绕当前选中的大运展开取象与 AI 分析。",
+      stage: "luck",
+      aiState: store.luckAiState,
+      aiTitle: "AI 大运分析",
+      aiButton: "生成大运 AI 分析",
+      onGenerateAi: aiActions.generateLuckAiNarrative,
+    });
+    renderStageAnalysisPanel(roots.yearStageAnalysis, {
+      title: "流年分析",
+      description: "围绕当前选中的流年展开取象与 AI 分析。",
+      stage: "year",
+      aiState: store.yearAiState,
+      aiTitle: "AI 流年分析",
+      aiButton: "生成流年 AI 分析",
+      onGenerateAi: aiActions.generateYearAiNarrative,
+    });
+    renderStageAnalysisPanel(roots.monthStageAnalysis, {
+      title: "流月分析",
+      description: "围绕当前选中的流月展开取象与 AI 分析。",
+      stage: "month",
+      aiState: store.monthAiState,
+      aiTitle: "AI 流月分析",
+      aiButton: "生成流月 AI 分析",
+      onGenerateAi: aiActions.generateMonthAiNarrative,
+    });
     renderAiChatPanel(roots.aiChatPanel, {
       state: store.chatState,
       hasReport: false,
@@ -140,7 +163,6 @@ export function createAppController({ roots, initialInput }) {
   }
 
   function renderBaseOnly() {
-    renderBirthDock();
     renderChartSummary(roots.chartSummary, store.state);
     renderBaseBaziPanel(roots.baseBaziPanel, store.state.baseBaziViewModel);
     renderNatalImagePanel(roots.natalImagePanel, store.state.natalImageReport);
@@ -161,6 +183,36 @@ export function createAppController({ roots, initialInput }) {
       onGenerateYearAi: aiActions.generateYearAiNarrative,
       onGenerateMonthAi: aiActions.generateMonthAiNarrative,
     });
+    renderStageAnalysisPanel(roots.luckStageAnalysis, {
+      title: "大运分析",
+      description: "围绕当前选中的大运展开取象与 AI 分析。",
+      report: store.state.luckImageReport,
+      stage: "luck",
+      aiState: store.luckAiState,
+      aiTitle: "AI 大运分析",
+      aiButton: "生成大运 AI 分析",
+      onGenerateAi: aiActions.generateLuckAiNarrative,
+    });
+    renderStageAnalysisPanel(roots.yearStageAnalysis, {
+      title: "流年分析",
+      description: "围绕当前选中的流年展开取象与 AI 分析。",
+      report: store.state.yearImageReport,
+      stage: "year",
+      aiState: store.yearAiState,
+      aiTitle: "AI 流年分析",
+      aiButton: "生成流年 AI 分析",
+      onGenerateAi: aiActions.generateYearAiNarrative,
+    });
+    renderStageAnalysisPanel(roots.monthStageAnalysis, {
+      title: "流月分析",
+      description: "围绕当前选中的流月展开取象与 AI 分析。",
+      report: store.state.monthImageReport,
+      stage: "month",
+      aiState: store.monthAiState,
+      aiTitle: "AI 流月分析",
+      aiButton: "生成流月 AI 分析",
+      onGenerateAi: aiActions.generateMonthAiNarrative,
+    });
     renderAiChatPanel(roots.aiChatPanel, {
       state: store.chatState,
       hasReport: Boolean(store.state?.natalImageReport),
@@ -170,18 +222,6 @@ export function createAppController({ roots, initialInput }) {
     setAiChatOpen(store.aiChatOpen);
     bindShenshaPopupEvents();
     renderFloatingAssistPanel(roots.floatingAssist, { state: store.state });
-  }
-
-  function renderBirthDock() {
-    if (roots.birthForm) roots.birthForm.hidden = Boolean(store.isBirthFormCollapsed);
-    if (roots.birthSummary) roots.birthSummary.hidden = !store.isBirthFormCollapsed;
-    renderBirthSummary(roots.birthSummary, {
-      input: store.currentInput,
-      onEdit() {
-        store.isBirthFormCollapsed = false;
-        renderBirthDock();
-      },
-    });
   }
 
   function selectTargetYear(year) {

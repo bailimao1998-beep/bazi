@@ -258,6 +258,14 @@ small {
   min-width: 0;
 }
 
+.core-seven-chart-section {
+  position: relative;
+}
+
+.core-seven-chart-section .plugin-header {
+  padding-right: 420px;
+}
+
 .transit-stage-analysis {
   display: grid;
   grid-template-columns: 1fr;

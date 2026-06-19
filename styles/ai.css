@@ -1271,10 +1271,10 @@
 }
 
 .floating-assist {
-  position: fixed;
-  right: 18px;
-  top: 42%;
-  z-index: 30;
+  position: absolute;
+  right: 20px;
+  top: 18px;
+  z-index: 8;
   display: grid;
   justify-items: end;
   gap: 10px;
@@ -1357,6 +1357,50 @@
   max-height: calc(min(680px, 100dvh - 140px) - 55px);
   overflow: auto;
   padding: 14px;
+}
+
+.core-chart-assist {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  z-index: 8;
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.core-chart-assist .floating-assist-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: 408px;
+}
+
+.core-chart-assist .floating-assist-buttons button {
+  min-width: 0;
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  box-shadow: none;
+}
+
+.core-chart-assist .floating-assist-drawer {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  width: min(520px, calc(100vw - 48px));
+  max-height: 58vh;
+  overflow: auto;
+  padding: 0;
+  border-radius: 12px;
+  background: #fffdf8;
+  box-shadow: 0 18px 42px rgba(36, 59, 83, 0.16);
+}
+
+.core-chart-assist .floating-assist-body {
+  max-height: none;
 }
 
 .assist-list {

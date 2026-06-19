@@ -37,23 +37,75 @@
   }
 }
 
+@media (max-width: 900px) {
+  .core-seven-chart-section {
+    display: grid;
+    gap: 10px;
+  }
+
+  .core-seven-chart-section .plugin-header {
+    padding-right: 0;
+    margin-bottom: 0;
+    order: 1;
+  }
+
+  .core-seven-chart-section > #chartSummary,
+  .core-seven-chart-section .core-chart-matrix {
+    display: contents;
+  }
+
+  .core-chart-assist {
+    position: static;
+    margin: 10px 0 0;
+    justify-items: stretch;
+    order: 2;
+  }
+
+  .core-matrix-scroll,
+  .core-seven-chart-section > #chartSummary > .muted {
+    order: 3;
+  }
+
+  .core-chart-assist .floating-assist-buttons {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    max-width: none;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .core-chart-assist .floating-assist-buttons button {
+    flex: 0 0 auto;
+  }
+
+  .core-chart-assist .floating-assist-drawer {
+    position: static;
+    width: 100%;
+    max-height: none;
+    margin-top: 10px;
+    box-shadow: none;
+  }
+
+  .core-matrix-grid {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 600px) {
+  .core-matrix-grid {
+    min-width: 860px;
+  }
+
+  .matrix-symbol {
+    min-width: 48px;
+    min-height: 48px;
+    font-size: 36px;
+  }
+}
+
 @media (max-width: 760px) {
   .stage-analysis-header {
     grid-template-columns: 1fr;
-  }
-
-  .core-seven-grid {
-    grid-template-columns: repeat(7, minmax(142px, 160px));
-  }
-
-  .floating-assist {
-    right: 12px;
-    top: auto;
-    bottom: 76px;
-  }
-
-  .floating-assist-buttons {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .assist-fact-grid,

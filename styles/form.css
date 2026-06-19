@@ -1,64 +1,300 @@
 .birth-form {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 8px;
+}
+
+.input-section {
+  padding: 12px 14px;
+}
+
+.birth-form-heading {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.birth-form-heading .eyebrow {
+  margin: 0 0 2px;
+  color: var(--accent);
+  font-size: 11px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.birth-form-heading h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.15;
 }
 
 .birth-form-compact {
-  gap: 10px;
+  gap: 7px;
 }
 
 .birth-form-main-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
+}
+
+.birth-form-groups {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 0.9fr)
+    minmax(420px, 2fr)
+    minmax(320px, 1.35fr)
+    minmax(230px, 0.9fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.birth-form-action-row {
+  display: contents;
+}
+
+.birth-form-group {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid rgba(221, 216, 207, 0.9);
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.62);
+}
+
+.birth-form-group,
+.birth-form-group * {
+  min-width: 0;
+}
+
+.birth-form-group-title {
+  margin: 0;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.birth-form-group-basic {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.birth-form-group-time {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+}
+
+.time-group-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.time-calendar-line {
+  width: 100%;
+}
+
+.time-date-line {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.time-clock-line {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) minmax(80px, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.time-hour-label {
+  white-space: nowrap;
+  justify-self: end;
+}
+
+.birth-form-group-location {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+}
+
+.location-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
   align-items: end;
 }
 
-.birth-form-main-grid > label,
-.birth-form-main-grid .calendar-tabs,
-.birth-form-main-grid .calendar-date-grid,
+.birth-form-group-settings {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.birth-form-group-hint {
+  margin: -2px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.birth-form-row {
+  min-width: 0;
+}
+
+.birth-form-primary-row {
+  display: grid;
+  grid-template-columns:
+    minmax(170px, 1.35fr)
+    minmax(116px, 0.8fr)
+    minmax(168px, 1.1fr)
+    minmax(300px, 2.25fr)
+    minmax(238px, 1.75fr)
+    minmax(122px, auto);
+  gap: 8px;
+  align-items: end;
+}
+
+.birth-form-secondary-row {
+  display: grid;
+  grid-template-columns:
+    minmax(180px, 1.25fr)
+    minmax(190px, 1.35fr)
+    minmax(132px, 0.85fr)
+    minmax(154px, auto)
+    minmax(136px, auto);
+  gap: 8px;
+  align-items: center;
+}
+
+.birth-form-preview-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(320px, 1.8fr);
+  gap: 8px;
+}
+
+.birth-form-row > label,
+.birth-form-row .calendar-tabs,
+.birth-form-row .calendar-date-grid,
+.birth-form-hint-row,
 .birth-form-inline-row {
   min-width: 0;
 }
 
 .birth-form-main-grid label span {
-  margin-bottom: 4px;
-  font-size: 12px;
+  margin-bottom: 2px;
+  font-size: 11px;
+  line-height: 1.15;
 }
 
 .birth-form-main-grid input,
 .birth-form-main-grid select {
-  min-height: 38px;
+  min-height: 32px;
+  padding: 0 8px;
+  background: #fffdf8;
+  font-size: 13px;
 }
 
-.birth-form-inline-row {
-  grid-column: span 2;
+.birth-form-main-grid input:hover,
+.birth-form-main-grid select:hover,
+.birth-time-control:hover {
+  border-color: #b9a98e;
 }
 
-.birth-form-action-row {
-  display: flex;
-  flex-wrap: wrap;
+.birth-form-main-grid input:focus,
+.birth-form-main-grid select:focus {
+  border-color: var(--accent);
+  outline: 2px solid rgba(47, 111, 115, 0.12);
+}
+
+.birth-time-control {
+  display: grid;
+  grid-template-columns: minmax(54px, 1fr) minmax(54px, 1fr) auto;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px 14px;
-  padding-top: 2px;
+  gap: 5px;
+  min-height: 32px;
+  border: 1px solid #c9c6bd;
+  border-radius: 6px;
+  background: #fffdf8;
+  padding: 0 5px;
 }
 
-.birth-form-action-row button {
-  min-height: 38px;
-  padding: 0 18px;
+.birth-time-control:focus-within {
+  border-color: var(--accent);
+  outline: 2px solid rgba(47, 111, 115, 0.12);
+}
+
+.birth-time-control select {
+  min-height: 26px;
+  border: 0;
+  background: transparent;
+  padding: 0 2px;
+  font-size: 13px;
+}
+
+.birth-time-control select:focus {
+  outline: 0;
+}
+
+.birth-time-control small {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #ecf3ee;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.field-submit {
+  align-self: end;
+  min-height: 32px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
 }
 
 .switch-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.2;
 }
 
 .switch-row input {
-  width: 18px;
-  min-height: 18px;
+  width: 15px;
+  min-height: 15px;
+  margin: 0;
+}
+
+.compact-switch-row {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.compact-switch-row input {
+  width: 14px;
+  min-height: 14px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.field-true-solar {
+  color: var(--text);
+}
+
+.field-pre-ai {
+  color: var(--muted);
+  font-size: 11px;
 }
 
 .settings-grid {
@@ -89,25 +325,31 @@
 .calendar-tabs {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 5px;
 }
 
 .calendar-tabs label {
   display: flex;
-  min-height: 38px;
+  min-height: 32px;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: #fff;
   color: var(--muted);
+  font-size: 13px;
   font-weight: 800;
+}
+
+.calendar-tabs label:hover {
+  border-color: #b9a98e;
 }
 
 .calendar-tabs label.is-active {
   border-color: var(--accent);
   color: var(--accent);
-  background: #fff7ea;
+  background: #ecf3ee;
+  box-shadow: inset 0 0 0 1px rgba(47, 111, 115, 0.18);
 }
 
 .calendar-tabs input {
@@ -119,7 +361,7 @@
 .calendar-date-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 5px;
 }
 
 .calendar-date-grid label:first-child {
@@ -128,18 +370,24 @@
 
 .calendar-preview,
 .location-preview {
-  margin: 0;
-  padding: 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: #f8fbf8;
+  max-height: 42px;
+  min-height: 26px;
+  -webkit-line-clamp: 2;
+}
+
+.group-tip {
+  margin: 6px 0 0;
+  padding: 7px 9px;
+  border: 1px solid #eadfce;
+  border-radius: 8px;
+  background: #fffaf1;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.45;
-}
-
-.location-preview {
-  margin-top: -4px;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .form-error {
@@ -148,4 +396,237 @@
   font-size: 13px;
   font-weight: 700;
   line-height: 1.5;
+}
+
+.input-section .fine-print {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+@media (max-width: 1200px) {
+  .birth-form-groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .birth-form-primary-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .field-date,
+  .field-time {
+    grid-column: span 2;
+  }
+
+  .field-submit {
+    width: 100%;
+  }
+
+  .birth-form-secondary-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .birth-form-groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .location-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .birth-form-primary-row,
+  .birth-form-secondary-row,
+  .birth-form-preview-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .field-date,
+  .field-time,
+  .field-submit,
+  .birth-form-preview-row {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .birth-form-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .time-clock-line {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+
+  .birth-form-primary-row,
+  .birth-form-secondary-row,
+  .birth-form-preview-row {
+    grid-template-columns: 1fr;
+  }
+
+  .field-date,
+  .field-time,
+  .field-submit,
+  .birth-form-preview-row {
+    grid-column: span 1;
+  }
+}
+
+.birth-toolbar-row {
+  display: grid;
+  gap: 8px;
+  align-items: end;
+  min-width: 0;
+}
+
+.birth-toolbar-row > *,
+.birth-toolbar-row label {
+  min-width: 0;
+}
+
+.birth-toolbar-main {
+  grid-template-columns:
+    minmax(150px, 1.1fr)
+    minmax(100px, 0.7fr)
+    minmax(140px, 0.8fr)
+    minmax(260px, 1.5fr)
+    minmax(190px, 1.1fr)
+    auto;
+}
+
+.birth-toolbar-secondary {
+  grid-template-columns:
+    minmax(150px, 1fr)
+    minmax(150px, 1fr)
+    minmax(120px, 0.8fr)
+    auto
+    minmax(120px, auto);
+}
+
+.birth-toolbar-tips {
+  grid-template-columns: minmax(180px, 0.8fr) minmax(260px, 1.2fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.date-inline-fields {
+  display: grid;
+  grid-template-columns: minmax(96px, 1fr) minmax(70px, 0.8fr) minmax(70px, 0.8fr);
+  gap: 6px;
+}
+
+.time-inline-fields {
+  display: grid;
+  grid-template-columns: 76px 76px auto;
+  gap: 6px;
+  align-items: center;
+  max-width: 230px;
+}
+
+.time-inline-fields select {
+  min-width: 0;
+}
+
+.time-hour-label {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  justify-self: start;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #ecf3ee;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.calendar-tabs {
+  max-width: 170px;
+}
+
+.compact-switch-row {
+  min-height: 32px;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+.field-true-solar {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.field-pre-ai {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.birth-toolbar-secondary .field-submit {
+  width: auto;
+  justify-self: stretch;
+}
+
+.birth-toolbar-tips .calendar-preview,
+.birth-toolbar-tips .location-preview {
+  margin: 0;
+  min-height: 0;
+  max-height: 38px;
+  padding: 5px 8px;
+  border: 1px solid #eadfce;
+  border-radius: 7px;
+  background: rgba(255, 250, 241, 0.6);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+@media (max-width: 1200px) {
+  .birth-toolbar-main,
+  .birth-toolbar-secondary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .birth-toolbar-main .field-date,
+  .birth-toolbar-main .field-time {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 900px) {
+  .birth-toolbar-main,
+  .birth-toolbar-secondary,
+  .birth-toolbar-tips {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .birth-toolbar-main .field-date,
+  .birth-toolbar-main .field-time,
+  .birth-toolbar-tips {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .birth-toolbar-main,
+  .birth-toolbar-secondary,
+  .birth-toolbar-tips {
+    grid-template-columns: 1fr;
+  }
+
+  .birth-toolbar-main .field-date,
+  .birth-toolbar-main .field-time,
+  .birth-toolbar-tips {
+    grid-column: span 1;
+  }
+
+  .time-inline-fields {
+    max-width: none;
+  }
 }

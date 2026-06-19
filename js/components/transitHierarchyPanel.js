@@ -37,7 +37,7 @@ function renderSelectorRow({ title, hint, type = "luck", cards = [] } = {}) {
         <h3>${escapeHtml(title || "阶段")}</h3>
         <span>${escapeHtml(hint || "")}</span>
       </div>
-      <div class="transit-card-list">
+      <div class="transit-card-list is-${escapeHtml(type)}-row">
         ${cards.join("") || `<p class="muted">暂无数据。</p>`}
       </div>
     </section>
@@ -46,11 +46,13 @@ function renderSelectorRow({ title, hint, type = "luck", cards = [] } = {}) {
 
 function renderLuckCard(item = {}, currentLuck = {}) {
   const active = item.index === currentLuck.index || item.ganZhi === currentLuck.ganZhi;
+  const tenGodText = joinTenGods(item.tenGod || item.stemTenGod, displayBranchTenGod(item));
+
   return `
     <button type="button" class="transit-select-card is-luck-card${active ? " is-active" : ""}${item.isCurrent ? " is-current" : ""}" data-luck-step="${escapeHtml(firstYearOfRange(item.yearRange))}">
       <strong>${escapeHtml([item.ganZhi, item.ageRange].filter(Boolean).join(" · ") || "待查")}</strong>
       <small>${escapeHtml(item.yearRange || "年份待查")}</small>
-      <em>${escapeHtml(item.tenGod || "天干待查")} / ${escapeHtml(displayBranchTenGod(item) || "地支待查")}</em>
+      <em>${escapeHtml(tenGodText)}</em>
       <i>${escapeHtml(summarizeRelations(item.relationToNatal))}</i>
     </button>
   `;
@@ -58,27 +60,38 @@ function renderLuckCard(item = {}, currentLuck = {}) {
 
 function renderYearCard(option = {}, yearItem = {}, currentLuck = {}) {
   const active = Number(option.value) === Number(yearItem.year);
-  const relationSummary = active
+
+  const title = active
+    ? `${option.value} · ${yearItem.ganZhi || "待查"}`
+    : `${option.value}`;
+
+  const tenGodText = active
+    ? joinTenGods(yearItem.stemTenGod || yearItem.tenGod, yearItem.branchTenGod || yearItem.branchMainTenGod)
+    : "点击切换";
+
+  const relationText = active
     ? summarizeRelations([yearItem.relationToNatal, yearItem.relationToLuck].flat())
-    : currentLuck.ganZhi ? `大运 ${currentLuck.ganZhi}` : "点击切换";
+    : "";
+
   return `
     <button type="button" class="transit-select-card is-year-card${active ? " is-active" : ""}" data-year-step="${escapeHtml(option.value)}">
-      <strong>${escapeHtml([option.value, active ? yearItem.ganZhi : ""].filter(Boolean).join(" · ") || "待查")}</strong>
-      <span>${escapeHtml(active ? "" : option.note || "")}</span>
-      <small>${escapeHtml(active ? `${yearItem.stemTenGod || "年干待查"} / ${yearItem.branchTenGod || "年支待查"}` : "流年待选")}</small>
-      <i>${escapeHtml(relationSummary)}</i>
+      <strong>${escapeHtml(title)}</strong>
+      <small>${escapeHtml(tenGodText)}</small>
+      ${relationText ? `<i>${escapeHtml(relationText)}</i>` : `<i>流年待选</i>`}
     </button>
   `;
 }
 
 function renderMonthCard(item = {}, selectedMonth) {
   const active = Number(item.month) === Number(selectedMonth);
+  const tenGodText = joinTenGods(item.stemTenGod || item.tenGod, item.branchTenGod || item.branchMainTenGod);
+  const relationText = summarizeRelations([item.relationToNatal, item.relationToLuck, item.relationToYear].flat());
+
   return `
     <button type="button" class="transit-select-card is-month-card${active ? " is-active" : ""}" data-month-select="${escapeHtml(item.month)}">
       <strong>${escapeHtml(formatFlowMonthLabel(item))}</strong>
-      <span>${escapeHtml(item.ganZhi || "待查")}</span>
-      <small>${escapeHtml(item.stemTenGod || "月干待查")} / ${escapeHtml(item.branchTenGod || "月支待查")}</small>
-      <i>${escapeHtml(summarizeRelations([item.relationToNatal, item.relationToLuck, item.relationToYear].flat()))}</i>
+      <small>${escapeHtml(tenGodText)}</small>
+      <i>${escapeHtml(relationText)}</i>
     </button>
   `;
 }
@@ -108,12 +121,20 @@ function summarizeRelations(relations = []) {
     .filter(Boolean)
     .map((item) => item.type || item.relationType || item.name || "关系触发")
     .filter(Boolean);
-  return visible.length ? [...new Set(visible)].slice(0, 3).join("、") : "暂无明显关系";
+  return visible.length ? [...new Set(visible)].join("、") : "暂无明显关系";
+}
+
+function joinTenGods(...values) {
+  const visible = values
+    .flat()
+    .filter((item) => item !== undefined && item !== null && String(item).trim())
+    .map((item) => String(item).trim());
+
+  return visible.length ? visible.slice(0, 2).join(" / ") : "十神待查";
 }
 
 function formatFlowMonthLabel(item = {}) {
-  const branch = item.branch ? `${item.branch}月` : "月令待查";
-  return `${item.month || "待查"}月/${branch}`;
+  return `${item.month || "待查"}月 / ${item.ganZhi || "待查"}`;
 }
 
 function firstYearOfRange(range = "") {

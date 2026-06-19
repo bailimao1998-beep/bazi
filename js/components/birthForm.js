@@ -88,11 +88,20 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit, locationCat
       updateFromLunarParts(formState);
       update({ submit: true });
     });
-    ["birthTime", "gender", "targetYear"].forEach((name) => {
+    ["gender", "targetYear"].forEach((name) => {
       container.querySelector(`[name='${name}']`)?.addEventListener("change", (event) => {
         formState[name] = ["targetYear"].includes(name)
           ? Number(event.currentTarget.value)
           : event.currentTarget.value;
+        update({ submit: true });
+      });
+    });
+
+    ["birthHour", "birthMinute"].forEach((name) => {
+      container.querySelector(`[name='${name}']`)?.addEventListener("change", () => {
+        const hour = container.querySelector("[name='birthHour']")?.value;
+        const minute = container.querySelector("[name='birthMinute']")?.value;
+        formState.birthTime = formatBirthTime(hour, minute);
         update({ submit: true });
       });
     });
@@ -137,21 +146,16 @@ function renderForm(state, locationCatalog) {
     birthProvince: state.birthProvince,
     birthplace: state.birthplace,
   });
+  const birthTime = splitBirthTime(state.birthTime);
   return `
-    <div class="plugin-header">
+    <div class="birth-form-heading">
       <p class="eyebrow">命盘设置</p>
       <h2>出生信息</h2>
     </div>
-    <form class="birth-form birth-form-compact">
-      <div class="birth-form-main-grid">
-        <label><span>姓名</span><input name="name" value="${escapeHtml(state.name)}" /></label>
-        <div class="calendar-tabs" role="radiogroup" aria-label="选择日期历法">
-          ${renderCalendarTab("solar", "公历", state.calendarType)}
-          ${renderCalendarTab("lunar", "农历", state.calendarType)}
-        </div>
-        ${state.calendarType === "lunar" ? renderLunarControls(state, lunarMonths, lunarDays) : renderSolarControls(solar, solarDays)}
-        <label><span>出生时间</span><input name="birthTime" type="time" value="${escapeHtml(state.birthTime)}" required /></label>
-        <label>
+    <form class="birth-form birth-form-compact birth-form-main-grid">
+      <div class="birth-toolbar-row birth-toolbar-main">
+        <label class="field-name birth-field-name"><span>姓名</span><input name="name" value="${escapeHtml(state.name)}" /></label>
+        <label class="field-gender birth-field-gender">
           <span>性别</span>
           <select name="gender">
             <option value="female" ${state.gender === "female" ? "selected" : ""}>女命</option>
@@ -159,7 +163,24 @@ function renderForm(state, locationCatalog) {
             <option value="unknown" ${state.gender === "unknown" ? "selected" : ""}>不指定</option>
           </select>
         </label>
-        <label>
+        <div class="calendar-tabs field-calendar-type birth-field-calendar" role="radiogroup" aria-label="选择日期历法">
+            ${renderCalendarTab("solar", "公历", state.calendarType)}
+            ${renderCalendarTab("lunar", "农历", state.calendarType)}
+        </div>
+        ${state.calendarType === "lunar" ? renderLunarControls(state, lunarMonths, lunarDays) : renderSolarControls(solar, solarDays)}
+        <label class="field-time birth-field-time">
+          <span>出生时间</span>
+          <div class="birth-time-control time-inline-fields">
+            <select name="birthHour" aria-label="出生小时">${rangeTimeOptions(23, birthTime.hour, "时")}</select>
+            <select name="birthMinute" aria-label="出生分钟">${rangeTimeOptions(59, birthTime.minute, "分")}</select>
+            <small class="time-hour-label">${escapeHtml(getChineseHourLabel(state.birthTime))}</small>
+          </div>
+        </label>
+        <label class="compact-switch-row field-true-solar"><input name="trueSolarTime" type="checkbox" ${state.trueSolarTime ? "checked" : ""} /> <span>真太阳时</span></label>
+      </div>
+
+      <div class="birth-toolbar-row birth-toolbar-secondary">
+        <label class="field-province birth-field-province">
           <span>出生省份</span>
           <select name="birthProvince">
             ${provinceOptions.map((province) => `
@@ -169,8 +190,7 @@ function renderForm(state, locationCatalog) {
             `).join("")}
           </select>
         </label>
-
-        <label>
+        <label class="field-city birth-field-city">
           <span>出生城市 / 区县</span>
           <select name="birthplace">
             ${cities.map((item) => `
@@ -180,8 +200,12 @@ function renderForm(state, locationCatalog) {
             `).join("")}
           </select>
         </label>
+        <label class="field-target-year birth-field-year"><span>解读年份</span><input name="targetYear" type="number" value="${state.targetYear}" /></label>
+        <label class="compact-switch-row field-pre-ai"><input name="preInterpretAi" type="checkbox" ${state.preInterpretAi ? "checked" : ""} /> <span>AI 预解读</span></label>
+        <button type="submit" class="field-submit">重新排盘</button>
+      </div>
 
-        <label><span>解读年份</span><input name="targetYear" type="number" value="${state.targetYear}" /></label>
+      <div class="birth-toolbar-row birth-toolbar-tips birth-form-hint-row">
         <p class="calendar-preview birth-form-inline-row">${escapeHtml(`公历 ${state.birthDate} · ${formatLunarDate({
           year: state.lunarYear,
           month: state.lunarMonth,
@@ -189,11 +213,6 @@ function renderForm(state, locationCatalog) {
           isLeapMonth: state.lunarLeapMonth,
         })}`)}</p>
         <p class="location-preview birth-form-inline-row">${escapeHtml(renderLocationPreview(city, state.trueSolarTime, state))}</p>
-      </div>
-      <div class="birth-form-action-row">
-        <label class="switch-row"><input name="trueSolarTime" type="checkbox" ${state.trueSolarTime ? "checked" : ""} /> <span>按真太阳时校正</span></label>
-        <label class="switch-row"><input name="preInterpretAi" type="checkbox" ${state.preInterpretAi ? "checked" : ""} /> <span>AI 预先解读</span></label>
-        <button type="submit">重新排盘</button>
       </div>
     </form>
     ${state.error ? `<p class="form-error">${escapeHtml(state.error)}</p>` : ""}
@@ -212,7 +231,7 @@ function renderCalendarTab(value, label, selected) {
 
 function renderSolarControls(solar, dayCount) {
   return `
-    <div class="calendar-date-grid">
+    <div class="date-inline-fields calendar-date-grid field-date birth-field-date">
       <label><span>公历年份</span><input type="number" name="solarYear" min="1900" max="2100" value="${solar.year}" required /></label>
       <label><span>公历月份</span><select name="solarMonth">${rangeOptions(12, solar.month, "月")}</select></label>
       <label><span>公历日期</span><select name="solarDay">${rangeOptions(dayCount, solar.day, "日")}</select></label>
@@ -223,7 +242,7 @@ function renderSolarControls(solar, dayCount) {
 function renderLunarControls(state, months, dayCount) {
   const selectedKey = `${state.lunarMonth}|${state.lunarLeapMonth ? "1" : "0"}`;
   return `
-    <div class="calendar-date-grid">
+    <div class="date-inline-fields calendar-date-grid field-date birth-field-date">
       <label><span>农历年份</span><input type="number" name="lunarYear" min="1900" max="2100" value="${state.lunarYear}" required /></label>
       <label>
         <span>农历月份</span>
@@ -252,6 +271,47 @@ function rangeOptions(count, selected, suffix) {
     const value = index + 1;
     return `<option value="${value}" ${Number(selected) === value ? "selected" : ""}>${value}${suffix}</option>`;
   }).join("");
+}
+
+function rangeTimeOptions(max, selected, suffix) {
+  return Array.from({ length: max + 1 }, (_, value) => {
+    const label = String(value).padStart(2, "0");
+    return `<option value="${label}" ${String(selected).padStart(2, "0") === label ? "selected" : ""}>${label} ${suffix}</option>`;
+  }).join("");
+}
+
+function splitBirthTime(value = "00:00") {
+  const [hour = "00", minute = "00"] = String(value || "00:00").split(":");
+  return {
+    hour: normalizeTimePart(hour, 23),
+    minute: normalizeTimePart(minute, 59),
+  };
+}
+
+function formatBirthTime(hour, minute) {
+  return `${normalizeTimePart(hour, 23)}:${normalizeTimePart(minute, 59)}`;
+}
+
+function normalizeTimePart(value, max) {
+  const number = Math.min(max, Math.max(0, Math.trunc(Number(value))));
+  return String(Number.isFinite(number) ? number : 0).padStart(2, "0");
+}
+
+function getChineseHourLabel(time = "00:00") {
+  const { hour } = splitBirthTime(time);
+  const value = Number(hour);
+  if (value === 23 || value === 0) return "子时";
+  if (value < 3) return "丑时";
+  if (value < 5) return "寅时";
+  if (value < 7) return "卯时";
+  if (value < 9) return "辰时";
+  if (value < 11) return "巳时";
+  if (value < 13) return "午时";
+  if (value < 15) return "未时";
+  if (value < 17) return "申时";
+  if (value < 19) return "酉时";
+  if (value < 21) return "戌时";
+  return "亥时";
 }
 
 function updateFromSolarParts(state, parts) {

@@ -167,6 +167,16 @@ test("index and app use only the current frontend panels", () => {
   assert.match(birthFormSource + styles, /birth-form-main-grid/);
   assert.match(birthFormSource + styles, /birth-form-inline-row/);
   assert.match(birthFormSource + styles, /birth-form-action-row/);
+  assert.match(birthFormSource + styles, /birth-form-hint-row/);
+  assert.match(birthFormSource + styles, /birth-field-date/);
+  assert.match(birthFormSource + styles, /birth-form-heading/);
+  assert.match(birthFormSource + styles, /birth-time-control/);
+  assert.match(birthFormSource, /name="birthHour"/);
+  assert.match(birthFormSource, /name="birthMinute"/);
+  assert.match(birthFormSource, /formatBirthTime/);
+  assert.match(birthFormSource, /getChineseHourLabel/);
+  assert.match(styles, /@media \(max-width: 900px\)/);
+  assert.match(styles, /@media \(max-width: 600px\)/);
   assert.match(stageAnalysisSource + styles, /stage-analysis-section/);
   assert.match(stageAnalysisSource + styles, /stage-analysis-header/);
   assert.match(stageAnalysisSource + styles, /ai-collapse-card/);

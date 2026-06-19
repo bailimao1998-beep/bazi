@@ -42,22 +42,6 @@
     grid-template-columns: 1fr;
   }
 
-  .birth-form-main-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .birth-form-inline-row {
-    grid-column: auto;
-  }
-
-  .birth-form-action-row {
-    justify-content: stretch;
-  }
-
-  .birth-form-action-row button {
-    width: 100%;
-  }
-
   .core-seven-grid {
     grid-template-columns: repeat(7, minmax(142px, 160px));
   }

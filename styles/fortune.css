@@ -1024,14 +1024,41 @@
 
 /* ===== 最终版：三排岁运选择卡片 ===== */
 
+.transit-selector-section {
+  padding: 16px 20px 18px;
+}
+
+.transit-selector-section .plugin-header,
+.transit-selector-section .section-heading {
+  margin-bottom: 12px;
+}
+
+.transit-selector-section .eyebrow {
+  margin-bottom: 4px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.transit-selector-section h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 950;
+}
+
 .transit-selector-board {
   display: grid;
-  gap: 12px;
+  gap: 13px;
+  min-width: 0;
 }
 
 .transit-selector-row {
   display: grid;
-  gap: 8px;
+  gap: 7px;
+  min-width: 0;
 }
 
 .transit-selector-row-header {
@@ -1039,291 +1066,118 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
+  margin: 0;
 }
 
 .transit-selector-row-header h3 {
   margin: 0;
   color: var(--ink);
-  font-size: 17px;
+  font-size: 19px;
+  line-height: 1.15;
+  font-weight: 950;
 }
 
 .transit-selector-row-header span {
+  flex: 0 1 auto;
+  min-width: 0;
   color: var(--muted);
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 850;
+  line-height: 1.35;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* 三排统一：横向不换行。宽度够就铺满，不够就滚动。 */
 .transit-card-list {
   display: flex;
+  flex-wrap: nowrap;
   gap: 8px;
+  width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 2px;
   scrollbar-width: thin;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
 }
 
-.transit-card-list.is-luck-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(122px, 1fr));
-  overflow-x: visible;
-}
-
-.transit-card-list.is-year-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
-  overflow-x: visible;
-}
-
-.transit-card-list.is-month-row {
-  display: flex;
-  overflow-x: auto;
-}
-
+/* 基础卡片 */
 .transit-select-card {
-  flex: 0 0 120px;
+  flex: 1 0 118px;
+  position: relative;
+  min-width: 0;
+  min-height: 72px;
   display: grid;
-  gap: 3px;
-  min-height: 78px;
+  align-content: start;
+  gap: 4px;
   padding: 8px 9px;
   border: 1px solid #e2d7c8;
-  border-radius: 8px;
+  border-radius: 9px;
   background: #fffaf1;
   color: var(--ink);
   text-align: left;
   cursor: pointer;
+  scroll-snap-align: start;
+  box-shadow: 0 1px 0 rgba(36, 59, 83, 0.03);
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease;
 }
 
-.transit-select-card.is-luck-card {
-  flex-basis: 132px;
-}
-
-.transit-select-card.is-year-card {
-  flex-basis: 116px;
-}
-
-.transit-select-card.is-month-card {
-  flex-basis: 106px;
-}
-
-.transit-select-card strong {
-  color: var(--ink);
-  font-size: 15px;
-  line-height: 1.2;
-  font-weight: 900;
-}
-
-.transit-select-card span,
-.transit-select-card small,
-.transit-select-card em,
-.transit-select-card i {
-  color: var(--muted);
-  font-size: 11px;
-  font-style: normal;
-  line-height: 1.25;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.transit-select-card i {
-  color: var(--accent);
-  font-weight: 900;
+.transit-select-card:hover {
+  border-color: rgba(47, 111, 115, 0.55);
+  background: #fffdf8;
+  transform: translateY(-1px);
 }
 
 .transit-select-card.is-active {
   border-color: var(--accent);
   background: #ecf3ee;
-  box-shadow: inset 0 0 0 1px rgba(47, 111, 115, 0.28);
+  box-shadow:
+    inset 0 0 0 1px rgba(47, 111, 115, 0.32),
+    0 6px 14px rgba(47, 111, 115, 0.08);
+}
+
+/* 真实当前大运只做弱提示，不生成“当前”文字 */
+.transit-select-card.is-current:not(.is-active) {
+  box-shadow: inset 0 0 0 1px rgba(47, 111, 115, 0.13);
 }
 
 .transit-select-card.is-current::after {
-  content: "当前";
-  justify-self: start;
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: #2f6f73;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 900;
+  content: none;
 }
 
-.transit-select-card strong {
-  color: var(--ink);
-  font-size: 15px;
-  line-height: 1.25;
+.luck-card-current {
+  display: none;
 }
 
-.transit-select-card span,
-.transit-select-card small,
-.transit-select-card em,
-.transit-select-card i {
-  color: var(--muted);
-  font-size: 11px;
-  font-style: normal;
-  line-height: 1.32;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.transit-select-card i {
-  color: var(--accent);
-  font-weight: 900;
-}
-
-/* ===== 流月总览 V1 ===== */
-
-.enhanced-month-board {
-  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
-  gap: 10px;
-}
-
-.enhanced-month-chip {
-  min-height: 118px;
-  align-content: start;
-  text-align: left;
-}
-
-.enhanced-month-chip span,
-.enhanced-month-chip strong,
-.enhanced-month-chip small,
-.enhanced-month-chip em {
-  display: block;
-}
-
-.enhanced-month-chip span {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.enhanced-month-chip strong {
-  margin-top: 5px;
-  color: var(--ink);
-  font-size: 22px;
-  line-height: 1.2;
-}
-
-.enhanced-month-chip small {
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1.45;
-}
-
-.enhanced-month-chip em {
-  width: fit-content;
-  margin-top: 8px;
-  padding: 3px 7px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 900;
-}
-
-.enhanced-month-chip em.has-trigger {
-  background: #fff0e8;
-  color: var(--accent-2);
-}
-
-.enhanced-month-chip em.no-trigger {
-  background: var(--soft);
-  color: var(--accent);
-}
-
-/* ===== 当前流月重点卡 ===== */
-
-.month-focus-card {
-  margin-top: 14px;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fffdf8;
-}
-
-.month-focus-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.month-focus-grid article {
-  min-width: 0;
-  padding: 10px;
-  border: 1px solid #eadfce;
-  border-radius: 6px;
-  background: #fffaf1;
-}
-
-.month-focus-grid span {
-  display: block;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.month-focus-grid strong {
-  display: block;
-  margin-top: 4px;
-  color: var(--ink);
-  font-size: 15px;
-  line-height: 1.45;
-}
-
-.month-focus-card p {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-/* ===== 单张流月证据卡铺满整行 ===== */
-
-.transit-evidence-grid.single {
-  grid-template-columns: 1fr;
-}
-
-.transit-evidence-grid.single .transit-evidence-card {
-  width: 100%;
-}
-
-
-.transit-card-main {
-  display: block;
-  color: var(--ink);
-  font-size: 18px;
-  line-height: 1.15;
-  font-weight: 950;
-}
-
-.transit-card-age {
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 850;
-  line-height: 1.25;
-}
-
-.transit-card-years {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
+/* 不同类型卡片的最小宽度 */
 .transit-select-card.is-luck-card {
-  position: relative;
-  display: grid;
-  align-content: start;
-  gap: 4px;
-  min-height: 88px;
+  flex-basis: 142px;
+  min-height: 84px;
   padding: 9px 10px;
 }
 
-.luck-card-title {
+.transit-select-card.is-year-card {
+  flex-basis: 118px;
+}
+
+.transit-select-card.is-month-card {
+  flex-basis: 108px;
+}
+
+/* 普通流年、流月卡片 */
+.transit-select-card strong {
   display: block;
+  min-width: 0;
   color: var(--ink);
-  font-size: 17px;
+  font-size: 15px;
   line-height: 1.18;
   font-weight: 950;
   white-space: nowrap;
@@ -1331,18 +1185,58 @@
   text-overflow: ellipsis;
 }
 
+.transit-select-card span,
+.transit-select-card small,
+.transit-select-card em,
+.transit-select-card i {
+  display: block;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-style: normal;
+  line-height: 1.28;
+  font-weight: 780;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.transit-select-card i {
+  color: var(--accent);
+  font-weight: 900;
+}
+
+/* 大运卡：年龄段 + 干支为第一行 */
+.luck-card-title {
+  display: block;
+  min-width: 0;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.16;
+  font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .luck-card-years {
+  display: block;
+  min-width: 0;
   color: var(--muted);
   font-size: 12px;
-  line-height: 1.2;
-  font-weight: 800;
+  line-height: 1.22;
+  font-weight: 820;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .luck-card-ten-god {
-  color: var(--muted);
+  display: block;
+  min-width: 0;
+  color: #6f6456;
   font-size: 12px;
-  line-height: 1.2;
+  line-height: 1.22;
   font-weight: 850;
   white-space: nowrap;
   overflow: hidden;
@@ -1350,9 +1244,11 @@
 }
 
 .luck-card-relation {
+  display: block;
+  min-width: 0;
   color: var(--accent);
   font-size: 12px;
-  line-height: 1.2;
+  line-height: 1.22;
   font-style: normal;
   font-weight: 900;
   white-space: nowrap;
@@ -1360,74 +1256,79 @@
   text-overflow: ellipsis;
 }
 
-.luck-card-current {
-  position: absolute;
-  right: 8px;
-  bottom: 7px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 18px;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.transit-card-list {
-  display: grid;
-  gap: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 2px;
-  scrollbar-width: thin;
-  scroll-snap-type: x proximity;
-}
-
-.transit-card-list.is-luck-row {
-  grid-template-columns: repeat(var(--card-count), minmax(132px, 1fr));
-}
-
-.transit-card-list.is-year-row {
-  grid-template-columns: repeat(var(--card-count), minmax(118px, 1fr));
-}
-
-.transit-card-list.is-month-row {
-  grid-template-columns: repeat(var(--card-count), minmax(108px, 1fr));
-}
-
-.transit-select-card {
-  min-width: 0;
-  scroll-snap-align: start;
-}
-
+/* 平板：统一横向滑动，不换行 */
 @media (max-width: 900px) {
-  .transit-card-list.is-luck-row {
-    grid-template-columns: repeat(var(--card-count), minmax(126px, 126px));
+  .transit-selector-section {
+    padding: 14px 14px 16px;
   }
 
-  .transit-card-list.is-year-row {
-    grid-template-columns: repeat(var(--card-count), minmax(112px, 112px));
+  .transit-selector-section h2 {
+    font-size: 23px;
   }
 
-  .transit-card-list.is-month-row {
-    grid-template-columns: repeat(var(--card-count), minmax(104px, 104px));
+  .transit-selector-row-header h3 {
+    font-size: 17px;
+  }
+
+  .transit-select-card.is-luck-card {
+    flex: 0 0 132px;
+    min-height: 82px;
+  }
+
+  .transit-select-card.is-year-card {
+    flex: 0 0 112px;
+  }
+
+  .transit-select-card.is-month-card {
+    flex: 0 0 104px;
   }
 }
 
+/* 手机：继续横向滑动 */
 @media (max-width: 600px) {
-  .transit-card-list.is-luck-row {
-    grid-template-columns: repeat(var(--card-count), minmax(118px, 118px));
+  .transit-selector-section {
+    padding: 12px 12px 14px;
   }
 
-  .transit-card-list.is-year-row {
-    grid-template-columns: repeat(var(--card-count), minmax(104px, 104px));
+  .transit-selector-row-header {
+    align-items: flex-start;
   }
 
-  .transit-card-list.is-month-row {
-    grid-template-columns: repeat(var(--card-count), minmax(98px, 98px));
+  .transit-selector-row-header span {
+    max-width: 58%;
+    white-space: normal;
+    text-align: right;
+  }
+
+  .transit-card-list {
+    gap: 7px;
+  }
+
+  .transit-select-card {
+    min-height: 68px;
+    padding: 7px 8px;
+  }
+
+  .transit-select-card.is-luck-card {
+    flex: 0 0 124px;
+    min-height: 78px;
+  }
+
+  .transit-select-card.is-year-card {
+    flex: 0 0 104px;
+  }
+
+  .transit-select-card.is-month-card {
+    flex: 0 0 96px;
+  }
+
+  .luck-card-title {
+    font-size: 15px;
+  }
+
+  .luck-card-years,
+  .luck-card-ten-god,
+  .luck-card-relation {
+    font-size: 11px;
   }
 }

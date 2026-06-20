@@ -190,6 +190,11 @@ function renderAdviceCard({ stage = "luck", item = {}, report = {}, relationGrou
         </div>
         <strong>${escapeHtml(stageMarker(item, stage))}</strong>
       </div>
+      ${advice.basis?.length ? `
+        <div class="stage-advice-basis">
+          ${advice.basis.map((basis) => `<span>${escapeHtml(basis)}</span>`).join("")}
+        </div>
+      ` : ""}
       <ul class="stage-advice-list">
         ${cards.map((card) => `
           <li>

@@ -1585,6 +1585,26 @@
   font-weight: 900;
 }
 
+.stage-advice-basis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 12px;
+}
+
+.stage-advice-basis span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid #d9cbb8;
+  border-radius: 999px;
+  background: #fffdf8;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
 @media (max-width: 900px) {
   .transit-selector-section {
     padding: 14px 14px 16px;

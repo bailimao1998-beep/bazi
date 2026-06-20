@@ -2197,3 +2197,816 @@
   color: #52616b;
   line-height: 1.65;
 }
+
+
+/* ===== 手动精修：核心命盘紧凑主盘 ===== */
+
+.core-chart-matrix {
+  display: grid;
+  gap: 8px;
+}
+
+.core-chart-matrix .plugin-header {
+  margin-bottom: 4px;
+}
+
+.core-chart-matrix .plugin-header h2 {
+  margin: 2px 0 0;
+  font-size: 24px;
+}
+
+.core-chart-matrix .plugin-header .muted {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.core-chart-topline {
+  margin: 4px 0 8px;
+  padding: 6px 0 7px;
+  border-top: 1px solid rgba(221, 211, 194, 0.62);
+  border-bottom: 1px solid rgba(221, 211, 194, 0.62);
+}
+
+.core-chart-topline .chart-topline-primary strong {
+  font-size: 17px;
+}
+
+.core-chart-topline .chart-topline-item strong {
+  font-size: 14px;
+}
+
+.core-chart-topline .element-mini {
+  width: min(100%, 340px);
+  min-width: 300px;
+}
+
+.core-chart-topline .topline-element-bar {
+  min-height: 20px;
+  padding-bottom: 5px;
+}
+
+/* 外层滚动容器 */
+.core-matrix-scroll {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+/* 核心：去掉松散 gap / 大 padding，做成紧凑排盘 */
+.core-matrix-grid {
+  display: grid;
+  min-width: 820px;
+  gap: 3px;
+  padding: 10px;
+  border: 1px solid #e2d7c8;
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.82);
+}
+
+/* 每一行的列宽：左三列岁运更窄，右四柱更宽 */
+.core-matrix-grid .matrix-row {
+  display: grid;
+  grid-template-columns:
+    58px
+    minmax(92px, 0.68fr)
+    minmax(92px, 0.68fr)
+    minmax(92px, 0.68fr)
+    minmax(132px, 1fr)
+    minmax(132px, 1fr)
+    minmax(142px, 1.08fr)
+    minmax(132px, 1fr);
+  gap: 3px;
+  align-items: stretch;
+}
+
+/* 顶部“当前岁运 / 原局四柱” */
+.matrix-corner {
+  border-radius: 5px;
+  background: rgba(247, 239, 227, 0.58);
+}
+
+.matrix-group-label {
+  min-height: 24px;
+  display: grid;
+  place-items: center;
+  padding: 3px 6px;
+  border-radius: 5px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.matrix-group-label.is-transit {
+  grid-column: 2 / span 3;
+  background: rgba(236, 247, 243, 0.42);
+}
+
+.matrix-group-label.is-natal {
+  grid-column: 5 / span 4;
+  background: rgba(255, 250, 241, 0.58);
+}
+
+/* 行标题 */
+.matrix-row-label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 30px;
+  padding: 4px 6px;
+  border-radius: 5px;
+  background: transparent;
+  color: #625d55;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.main-symbol-row .matrix-row-label {
+  min-height: 62px;
+}
+
+/* 列头 */
+.matrix-col-head {
+  min-height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 6px 6px;
+  border-radius: 5px;
+  background: rgba(233, 247, 243, 0.62);
+  color: var(--accent);
+  text-align: center;
+}
+
+.matrix-col-head b {
+  color: var(--accent);
+  font-size: 16px;
+  line-height: 1.1;
+  font-weight: 950;
+}
+
+.matrix-col-head.is-transit {
+  background: rgba(242, 250, 248, 0.56);
+}
+
+.matrix-col-head.is-natal {
+  background: rgba(233, 247, 243, 0.68);
+}
+
+.matrix-col-head.is-day {
+  background: rgba(220, 242, 237, 0.78);
+  box-shadow: inset 0 0 0 1px rgba(47, 111, 115, 0.18);
+}
+
+/* 普通单元格 */
+.matrix-cell {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  min-height: 30px;
+  padding: 4px 4px;
+  border-radius: 5px;
+  background: rgba(255, 253, 248, 0.58);
+  text-align: center;
+}
+
+.matrix-cell.is-transit {
+  background: rgba(236, 247, 243, 0.28);
+}
+
+.matrix-cell.is-natal {
+  background: rgba(255, 250, 241, 0.46);
+}
+
+.matrix-cell.is-day {
+  background: rgba(230, 244, 241, 0.58);
+  box-shadow: inset 0 0 0 1px rgba(47, 111, 115, 0.14);
+}
+
+.has-divider {
+  border-right: 2px solid rgba(154, 120, 76, 0.32);
+}
+
+/* 十神行 */
+.ten-god-row .matrix-cell,
+.matrix-ten-god {
+  color: #a64f37;
+  font-size: 13px;
+  font-weight: 900;
+  font-style: normal;
+  line-height: 1.2;
+}
+
+/* 天干、地支行：缩小高度，但保留五行色彩 */
+.matrix-stem-cell,
+.matrix-branch-cell,
+.main-symbol-row .matrix-cell {
+  min-height: 62px;
+}
+
+.core-matrix-grid .bazi-symbol,
+.core-matrix-grid .matrix-symbol {
+  width: auto;
+  min-width: 50px;
+  min-height: 50px;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  padding: 3px 5px;
+  border: 1px solid #e2d7c8;
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+}
+
+.core-matrix-grid .bazi-symbol strong,
+.core-matrix-grid .matrix-symbol strong {
+  font-size: 36px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.core-matrix-grid .bazi-symbol small,
+.core-matrix-grid .matrix-symbol small {
+  padding: 0;
+  background: transparent;
+  color: currentColor;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+/* 五行色保留，但柔和一点 */
+.core-matrix-grid .bazi-symbol.element-wood,
+.core-matrix-grid .matrix-symbol.element-wood,
+.core-matrix-grid .matrix-symbol.is-wood {
+  border-color: #b8d7bd;
+  background: #f2faf4;
+  color: #287a45;
+}
+
+.core-matrix-grid .bazi-symbol.element-fire,
+.core-matrix-grid .matrix-symbol.element-fire,
+.core-matrix-grid .matrix-symbol.is-fire {
+  border-color: #edc4af;
+  background: #fff3ec;
+  color: #a6422a;
+}
+
+.core-matrix-grid .bazi-symbol.element-earth,
+.core-matrix-grid .matrix-symbol.element-earth,
+.core-matrix-grid .matrix-symbol.is-earth {
+  border-color: #dfc894;
+  background: #fbf4e5;
+  color: #8a5a1f;
+}
+
+.core-matrix-grid .bazi-symbol.element-metal,
+.core-matrix-grid .matrix-symbol.element-metal,
+.core-matrix-grid .matrix-symbol.is-metal {
+  border-color: #c8d0cf;
+  background: #f4f6f6;
+  color: #48565c;
+}
+
+.core-matrix-grid .bazi-symbol.element-water,
+.core-matrix-grid .matrix-symbol.element-water,
+.core-matrix-grid .matrix-symbol.is-water {
+  border-color: #aacddd;
+  background: #eff7fc;
+  color: #1f668e;
+}
+
+.core-matrix-grid .bazi-symbol.is-day-master {
+  border-color: var(--accent);
+  box-shadow:
+    inset 0 0 0 1px rgba(47, 111, 115, 0.2),
+    0 4px 10px rgba(47, 111, 115, 0.06);
+}
+
+/* 藏干行：压缩 */
+.hidden-row .matrix-cell,
+.matrix-hidden-cell {
+  min-height: 48px;
+  padding: 3px;
+}
+
+.matrix-hidden-stems.hidden-chip-list,
+.matrix-hidden-stems {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 3px;
+  width: 100%;
+}
+
+.matrix-hidden-stems .hidden-chip,
+.matrix-hidden-stems span {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  gap: 0 4px;
+  min-width: 30px;
+  padding: 2px 4px;
+  border: 1px solid rgba(226, 215, 200, 0.78);
+  border-radius: 5px;
+  background: rgba(255, 250, 241, 0.7);
+  box-shadow: none;
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.matrix-hidden-stems .hidden-chip b,
+.matrix-hidden-stems span b {
+  color: var(--accent);
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.matrix-hidden-stems .hidden-chip em,
+.matrix-hidden-stems span em {
+  color: var(--ink);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.matrix-hidden-stems .hidden-chip small,
+.matrix-hidden-stems span small {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.matrix-empty {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* 小屏继续横向滚动，不拆卡片 */
+@media (max-width: 900px) {
+  .core-matrix-grid {
+    min-width: 820px;
+  }
+
+  .core-chart-topline {
+    grid-template-columns: auto auto;
+  }
+
+  .core-chart-topline .element-mini {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .core-matrix-grid {
+    min-width: 780px;
+  }
+
+  .core-matrix-grid .bazi-symbol,
+  .core-matrix-grid .matrix-symbol {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .core-matrix-grid .bazi-symbol strong,
+  .core-matrix-grid .matrix-symbol strong {
+    font-size: 32px;
+  }
+
+  .matrix-stem-cell,
+  .matrix-branch-cell,
+  .main-symbol-row .matrix-cell,
+  .main-symbol-row .matrix-row-label {
+    min-height: 56px;
+  }
+}
+
+/* ===== 手动精修：藏干小卡片，保留重要性 ===== */
+
+.hidden-row .matrix-cell,
+.matrix-hidden-cell {
+  min-height: 62px;
+  padding: 4px;
+  align-content: center;
+}
+
+/* 藏干卡片容器 */
+.matrix-hidden-stems.hidden-chip-list,
+.matrix-hidden-stems {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 4px;
+  width: 100%;
+}
+
+/* 每个藏干是小卡片，不是普通文字 */
+.matrix-hidden-stems .hidden-chip,
+.matrix-hidden-stems span {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-items: center;
+  justify-items: center;
+  min-width: 42px;
+  min-height: 46px;
+  padding: 4px 5px;
+  border: 1px solid #eadfce;
+  border-radius: 7px;
+  background: #fffdf8;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 2px 5px rgba(89, 64, 32, 0.04);
+  line-height: 1.05;
+  text-align: center;
+}
+
+/* 藏干字：作为小卡片主视觉 */
+.matrix-hidden-stems .hidden-chip b,
+.matrix-hidden-stems span b {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+/* 十神：重要，但比藏干字小一点 */
+.matrix-hidden-stems .hidden-chip em,
+.matrix-hidden-stems span em {
+  margin-top: 2px;
+  color: #7a4f38;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* 阴阳五行：保留，但很小 */
+.matrix-hidden-stems .hidden-chip small,
+.matrix-hidden-stems span small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* 五行色：藏干卡片也要有五行气质 */
+.matrix-hidden-stems .hidden-chip.is-wood,
+.matrix-hidden-stems span.is-wood {
+  border-color: #b8d7bd;
+  background: #f2faf4;
+}
+
+.matrix-hidden-stems .hidden-chip.is-wood b,
+.matrix-hidden-stems span.is-wood b {
+  color: #287a45;
+}
+
+.matrix-hidden-stems .hidden-chip.is-fire,
+.matrix-hidden-stems span.is-fire {
+  border-color: #edc4af;
+  background: #fff3ec;
+}
+
+.matrix-hidden-stems .hidden-chip.is-fire b,
+.matrix-hidden-stems span.is-fire b {
+  color: #a6422a;
+}
+
+.matrix-hidden-stems .hidden-chip.is-earth,
+.matrix-hidden-stems span.is-earth {
+  border-color: #dfc894;
+  background: #fbf4e5;
+}
+
+.matrix-hidden-stems .hidden-chip.is-earth b,
+.matrix-hidden-stems span.is-earth b {
+  color: #8a5a1f;
+}
+
+.matrix-hidden-stems .hidden-chip.is-metal,
+.matrix-hidden-stems span.is-metal {
+  border-color: #c8d0cf;
+  background: #f4f6f6;
+}
+
+.matrix-hidden-stems .hidden-chip.is-metal b,
+.matrix-hidden-stems span.is-metal b {
+  color: #48565c;
+}
+
+.matrix-hidden-stems .hidden-chip.is-water,
+.matrix-hidden-stems span.is-water {
+  border-color: #aacddd;
+  background: #eff7fc;
+}
+
+.matrix-hidden-stems .hidden-chip.is-water b,
+.matrix-hidden-stems span.is-water b {
+  color: #1f668e;
+}
+
+/* 没有藏干时 */
+.matrix-empty {
+  color: #b6aa99;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* ===== 手动微调：核心命盘字体可读性增强 ===== */
+
+/* 左侧行标题：天干十神、天干、地支、藏干 */
+.matrix-row-label {
+  font-size: 12px;
+  font-weight: 950;
+  color: #514a40;
+}
+
+/* 顶部列头：大运、流年、流月、年柱、月柱、日柱、时柱 */
+.matrix-col-head b {
+  font-size: 18px;
+  font-weight: 950;
+}
+
+/* 天干十神、地支主气十神 */
+.ten-god-row .matrix-cell,
+.matrix-ten-god {
+  font-size: 15px;
+  font-weight: 950;
+}
+
+/* 天干地支主字：丙、庚、己、癸、甲、子等 */
+.core-matrix-grid .bazi-symbol strong,
+.core-matrix-grid .matrix-symbol strong {
+  font-size: 40px;
+}
+
+/* 天干地支下面的阴阳五行：阴火、阳木、阴水等 */
+.core-matrix-grid .bazi-symbol small,
+.core-matrix-grid .matrix-symbol small {
+  font-size: 11px;
+  font-weight: 900;
+}
+
+/* 天干地支小卡片本身稍微放大一点，但不要太大 */
+.core-matrix-grid .bazi-symbol,
+.core-matrix-grid .matrix-symbol {
+  min-width: 54px;
+  min-height: 54px;
+}
+
+/* 藏干行整体稍微高一点，让字不挤 */
+.hidden-row .matrix-cell,
+.matrix-hidden-cell {
+  min-height: 56px;
+}
+
+/* 藏干小卡片略微放大 */
+.matrix-hidden-stems .hidden-chip,
+.matrix-hidden-stems span {
+  min-width: 38px;
+  min-height: 44px;
+  padding: 4px 5px;
+}
+
+/* 藏干主字：甲、丙、戊、癸等 */
+.matrix-hidden-stems .hidden-chip b,
+.matrix-hidden-stems span b {
+  font-size: 14px;
+  font-weight: 950;
+}
+
+/* 藏干十神：比肩、食神、正印等 */
+.matrix-hidden-stems .hidden-chip em,
+.matrix-hidden-stems span em {
+  font-size: 11px;
+  font-weight: 900;
+}
+
+/* 藏干阴阳五行：阳木、阴火等 */
+.matrix-hidden-stems .hidden-chip small,
+.matrix-hidden-stems span small {
+  font-size: 9px;
+  font-weight: 800;
+}
+
+/* ===== 手动微调：核心命盘可读性增强 ===== */
+
+/* 左侧行标题 */
+.matrix-row-label {
+  font-size: 12px;
+  font-weight: 950;
+  color: #514a40;
+}
+
+/* 列头：大运、流年、年柱、月柱、日柱 */
+.matrix-col-head b {
+  font-size: 18px;
+  font-weight: 950;
+}
+
+/* 天干十神 / 地支主气十神 */
+.ten-god-row .matrix-cell,
+.matrix-ten-god {
+  font-size: 15px;
+  font-weight: 950;
+}
+
+/* 天干地支大字 */
+.core-matrix-grid .bazi-symbol strong,
+.core-matrix-grid .matrix-symbol strong {
+  font-size: 40px;
+}
+
+/* 阴火、阳木、阴水这些小字 */
+.core-matrix-grid .bazi-symbol small,
+.core-matrix-grid .matrix-symbol small {
+  font-size: 11px;
+  font-weight: 900;
+}
+
+/* 天干地支牌稍微放大一点 */
+.core-matrix-grid .bazi-symbol,
+.core-matrix-grid .matrix-symbol {
+  min-width: 54px;
+  min-height: 54px;
+}
+
+/* 藏干小卡片：保留重要性，但字更清楚 */
+.hidden-row .matrix-cell,
+.matrix-hidden-cell {
+  min-height: 58px;
+}
+
+.matrix-hidden-stems .hidden-chip,
+.matrix-hidden-stems span {
+  min-width: 40px;
+  min-height: 46px;
+  padding: 4px 5px;
+}
+
+.matrix-hidden-stems .hidden-chip b,
+.matrix-hidden-stems span b {
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.matrix-hidden-stems .hidden-chip em,
+.matrix-hidden-stems span em {
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.matrix-hidden-stems .hidden-chip small,
+.matrix-hidden-stems span small {
+  font-size: 9px;
+  font-weight: 800;
+}
+
+/* ===== 手动微调：核心命盘整体放大，减少格内留白 ===== */
+
+/* 列头：大运、流年、年柱、月柱、日柱 */
+.matrix-col-head {
+  min-height: 44px;
+}
+
+.matrix-col-head b {
+  font-size: 22px;
+  font-weight: 950;
+}
+
+/* 左侧行标题 */
+.matrix-row-label {
+  font-size: 13px;
+  font-weight: 950;
+  color: #514a40;
+}
+
+/* 十神行：食神、七杀、正财、正印 */
+.ten-god-row .matrix-cell,
+.matrix-ten-god {
+  font-size: 17px;
+  font-weight: 950;
+}
+
+/* 天干、地支所在行整体稍微撑开一点 */
+.matrix-stem-cell,
+.matrix-branch-cell,
+.main-symbol-row .matrix-cell {
+  min-height: 82px;
+}
+
+/* 天干地支主牌整体放大 */
+.core-matrix-grid .bazi-symbol,
+.core-matrix-grid .matrix-symbol {
+  min-width: 68px;
+  min-height: 68px;
+  padding: 5px 7px;
+  border-radius: 10px;
+}
+
+/* 天干地支主字：甲、子、午、己、癸 */
+.core-matrix-grid .bazi-symbol strong,
+.core-matrix-grid .matrix-symbol strong {
+  font-size: 50px;
+  line-height: 1;
+}
+
+/* 阴木、阳水、阴火这些小字 */
+.core-matrix-grid .bazi-symbol small,
+.core-matrix-grid .matrix-symbol small {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* 藏干行整体增大一点 */
+.hidden-row .matrix-cell,
+.matrix-hidden-cell {
+  min-height: 76px;
+  padding: 5px;
+}
+
+/* 藏干小牌整体放大 */
+.matrix-hidden-stems .hidden-chip,
+.matrix-hidden-stems span {
+  min-width: 50px;
+  min-height: 54px;
+  padding: 5px 6px;
+  border-radius: 8px;
+}
+
+/* 藏干主字：丙、庚、丁、己、癸 */
+.matrix-hidden-stems .hidden-chip b,
+.matrix-hidden-stems span b {
+  font-size: 17px;
+  font-weight: 950;
+}
+
+/* 藏干十神：食神、七杀、正印 */
+.matrix-hidden-stems .hidden-chip em,
+.matrix-hidden-stems span em {
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* 藏干阴阳五行：阳火、阴金 */
+.matrix-hidden-stems .hidden-chip small,
+.matrix-hidden-stems span small {
+  font-size: 10px;
+  font-weight: 800;
+}
+/* ===== 手动微调：重新分配核心命盘列宽 ===== */
+
+/* 加宽左侧行标题，压缩右侧四柱，让整体比例更均衡 */
+.core-matrix-grid .matrix-row {
+  grid-template-columns:
+    82px
+    minmax(98px, 0.76fr)
+    minmax(98px, 0.76fr)
+    minmax(98px, 0.76fr)
+    minmax(122px, 0.92fr)
+    minmax(122px, 0.92fr)
+    minmax(132px, 1fr)
+    minmax(122px, 0.92fr);
+}
+
+/* 左侧行标题别太容易换行 */
+.matrix-row-label {
+  padding-left: 8px;
+  padding-right: 8px;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+/* 较短的行标题尽量一行显示 */
+.matrix-row-label {
+  white-space: normal;
+}
+
+/* 天干十神这种四字标题尽量不换行 */
+.ten-god-row .matrix-row-label {
+  white-space: nowrap;
+}
+
+/* 天干、地支、藏干这些短标题也不要换行 */
+.main-symbol-row .matrix-row-label,
+.hidden-row .matrix-row-label {
+  white-space: nowrap;
+}
+
+/* 地支主气十神太长，可以允许两行，但不要太散 */
+.ten-god-row + .main-symbol-row + .main-symbol-row + .ten-god-row .matrix-row-label {
+  white-space: normal;
+  line-height: 1.15;
+}

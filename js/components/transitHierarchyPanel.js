@@ -52,10 +52,13 @@ function renderLuckCard(item = {}, currentLuck = {}) {
 
   return `
     <button type="button" class="transit-select-card is-luck-card${active ? " is-active" : ""}${item.isCurrent ? " is-current" : ""}" data-luck-step="${escapeHtml(firstYearOfRange(item.yearRange))}">
-      <strong class="luck-card-title">${escapeHtml([item.ageRange, item.ganZhi].filter(Boolean).join(" · ") || "待查")}</strong>
-      <span class="luck-card-years">${escapeHtml(item.yearRange || "年份待查")}</span>
-      <span class="luck-card-ten-god">${escapeHtml(tenGodText)}</span>
-      <i class="luck-card-relation">${escapeHtml(relationText)}</i>
+      ${renderCardTitle([
+        { value: item.ageRange, className: "transit-card-primary" },
+        { value: item.ganZhi, className: "transit-card-ganzhi" },
+      ], "luck-card-title")}
+      <span class="luck-card-years transit-card-meta">${escapeHtml(item.yearRange || "年份待查")}</span>
+      <span class="luck-card-ten-god transit-card-support">${escapeHtml(tenGodText)}</span>
+      <i class="luck-card-relation transit-card-signal">${escapeHtml(relationText)}</i>
     </button>
   `;
 }
@@ -69,9 +72,12 @@ function renderYearCard(item = {}, selectedYearItem = {}) {
 
   return `
     <button type="button" class="transit-select-card is-year-card${active ? " is-active" : ""}" data-year-step="${escapeHtml(item.year)}">
-      <strong>${escapeHtml(`${item.year || "待查"} · ${item.ganZhi || "待查"}`)}</strong>
-      <small>${escapeHtml(joinTenGods(item.stemTenGod, item.branchTenGod))}</small>
-      <i>${escapeHtml(relationText)}</i>
+      ${renderCardTitle([
+        { value: item.year, className: "transit-card-primary" },
+        { value: item.ganZhi, className: "transit-card-ganzhi" },
+      ])}
+      <small class="transit-card-support">${escapeHtml(joinTenGods(item.stemTenGod, item.branchTenGod))}</small>
+      <i class="transit-card-signal">${escapeHtml(relationText)}</i>
     </button>
   `;
 }
@@ -83,11 +89,32 @@ function renderMonthCard(item = {}, selectedMonth) {
 
   return `
     <button type="button" class="transit-select-card is-month-card${active ? " is-active" : ""}" data-month-select="${escapeHtml(item.month)}">
-      <strong>${escapeHtml(formatFlowMonthLabel(item))}</strong>
-      <small>${escapeHtml(tenGodText)}</small>
-      <i>${escapeHtml(relationText)}</i>
+      ${renderCardTitle([
+        { value: item.month ? `${item.month}月` : "", className: "transit-card-primary" },
+        { value: item.ganZhi, className: "transit-card-ganzhi" },
+      ])}
+      <small class="transit-card-support">${escapeHtml(tenGodText)}</small>
+      <i class="transit-card-signal">${escapeHtml(relationText)}</i>
     </button>
   `;
+}
+
+function renderCardTitle(parts = [], extraClass = "") {
+  const visibleParts = parts
+    .filter((part) => part?.value !== undefined && part?.value !== null && String(part.value).trim())
+    .map((part) => ({
+      ...part,
+      value: String(part.value).trim(),
+    }));
+
+  const content = visibleParts.length
+    ? visibleParts.map((part, index) => `
+        ${index ? `<span class="transit-card-dot">·</span>` : ""}
+        <span class="${escapeHtml(part.className || "transit-card-primary")}">${escapeHtml(part.value)}</span>
+      `).join("")
+    : `<span class="transit-card-primary">待查</span>`;
+
+  return `<strong class="transit-card-title ${escapeHtml(extraClass)}">${content}</strong>`;
 }
 
 function buildYearOptions(currentLuck = {}, selectedYear) {

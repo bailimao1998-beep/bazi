@@ -1,4 +1,5 @@
 import { renderAiText } from "./aiTextRenderer.js";
+import { buildStageAdvice as buildStageAdviceResult } from "../core/advice/stageAdviceEngine.js";
 import { escapeHtml } from "../utils/html.js";
 
 export function renderStageAnalysisPanel(root, {
@@ -9,11 +10,14 @@ export function renderStageAnalysisPanel(root, {
   aiState = {},
   aiTitle = "AI 分析",
   aiButton = "生成 AI 分析",
+  selector,
   onGenerateAi,
+  onSelectStageValue,
 } = {}) {
   if (!root) return;
   const item = pickStageItem(report, stage);
   const hasReport = Boolean(item?.ganZhi || report);
+  const selectorHtml = renderStageLocalSelector(selector);
 
   root.innerHTML = `
     <div class="stage-analysis-header">
@@ -21,19 +25,49 @@ export function renderStageAnalysisPanel(root, {
         <h2>${escapeHtml(title || "阶段分析")}</h2>
         <p>${escapeHtml(description || "围绕当前选中的阶段展开取象与 AI 分析。")}</p>
       </div>
+      ${selectorHtml ? `<div class="stage-analysis-tools">${selectorHtml}</div>` : ""}
+    </div>
+    <section class="stage-image-content">
+      ${hasReport ? renderStageImageCards(report, item, stage) : `<p class="muted">等待基础排盘后生成取象内容。</p>`}
+    </section>
+    <section class="stage-ai-collapse stage-ai-below">
       ${renderAiCollapse({
         title: aiTitle,
         button: aiButton,
         state: aiState,
         hasReport,
       })}
-    </div>
-    <section class="stage-image-content">
-      ${hasReport ? renderStageImageCards(report, item, stage) : `<p class="muted">等待基础排盘后生成取象内容。</p>`}
     </section>
   `;
 
   root.querySelector("[data-stage-ai-generate]")?.addEventListener("click", () => onGenerateAi?.());
+  root.querySelector("[data-stage-selector]")?.addEventListener("change", (event) => {
+    onSelectStageValue?.(event.currentTarget.value);
+  });
+}
+
+function renderStageLocalSelector(selector = {}) {
+  const options = Array.isArray(selector?.options) ? selector.options : [];
+  if (!options.length) return "";
+
+  const value = String(selector.value ?? "");
+  const label = selector.label || "切换阶段";
+
+  return `
+    <label class="stage-local-selector">
+      <span>${escapeHtml(label)}</span>
+      <select data-stage-selector aria-label="${escapeHtml(label)}" ${selector.disabled ? "disabled" : ""}>
+        ${options.map((option) => {
+          const optionValue = String(option.value ?? "");
+          return `
+            <option value="${escapeHtml(optionValue)}" ${optionValue === value ? "selected" : ""}>
+              ${escapeHtml(option.label || optionValue || "待查")}
+            </option>
+          `;
+        }).join("")}
+      </select>
+    </label>
+  `;
 }
 
 export function renderAiCollapse({ title, button, state = {}, hasReport = false } = {}) {
@@ -42,14 +76,20 @@ export function renderAiCollapse({ title, button, state = {}, hasReport = false 
   const helperText = state.loading
     ? "正在生成 AI 分析..."
     : "AI 用来整理语言和扩展解释，不替代原盘判断。";
+  const statusLabel = state.loading ? "生成中" : hasReport ? "AI 辅助" : "等待排盘";
 
   if (!state.text) {
     return `
       <div class="ai-collapse-card ai-collapse-action-only">
-        <button type="button" class="secondary" data-stage-ai-generate ${disabled ? "disabled" : ""}>
-          ${buttonText}
-        </button>
-        <p class="muted">${escapeHtml(helperText)}</p>
+        <div class="ai-collapse-toolbar">
+          <span class="ai-collapse-status">
+            <b>${escapeHtml(statusLabel)}</b>
+            <small>${escapeHtml(helperText)}</small>
+          </span>
+          <button type="button" class="secondary ai-collapse-button" data-stage-ai-generate ${disabled ? "disabled" : ""}>
+            ${buttonText}
+          </button>
+        </div>
         ${state.error ? `<p class="form-error">${escapeHtml(state.error)}</p>` : ""}
       </div>
     `;
@@ -59,12 +99,18 @@ export function renderAiCollapse({ title, button, state = {}, hasReport = false 
     <details class="ai-collapse-card" open>
       <summary>
         <span>${escapeHtml(aiResultTitle(title))}</span>
-        <b>可折叠</b>
+        <b class="ai-collapse-summary-action">展开 / 收起</b>
       </summary>
       <div class="ai-collapse-body">
-        <button type="button" class="secondary" data-stage-ai-generate ${disabled ? "disabled" : ""}>
-          ${buttonText}
-        </button>
+        <div class="ai-collapse-toolbar">
+          <span class="ai-collapse-status">
+            <b>${escapeHtml(statusLabel)}</b>
+            <small>${escapeHtml(helperText)}</small>
+          </span>
+          <button type="button" class="secondary ai-collapse-button" data-stage-ai-generate ${disabled ? "disabled" : ""}>
+            ${buttonText}
+          </button>
+        </div>
         ${state.loading ? `<p class="muted">正在生成 AI 分析...</p>` : ""}
         ${state.error ? `<p class="form-error">${escapeHtml(state.error)}</p>` : ""}
         ${state.text ? `<div class="ai-collapse-output">${renderAiText(state.text)}</div>` : ""}
@@ -81,7 +127,7 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck") {
 
   return `
     <div class="stage-card-grid">
-      <article class="stage-image-card stage-main-card">
+      <article class="stage-image-card stage-main-card stage-overview-card">
         <div class="board-title">
           <h3>${escapeHtml(stageTitle(stage, item))}</h3>
           <span>${escapeHtml(item.ganZhi || item.label || "待查")}</span>
@@ -90,19 +136,27 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck") {
         <p>${escapeHtml(summary)}</p>
       </article>
 
-      ${renderTransitEvidenceCard({
-        title: `${stageLabel(stage)}取象`,
-        marker: stageMarker(item, stage),
-        summary,
-        chips: buildStageChips(item, stage),
-        structure: item.structureImage || item.image,
-        reality: item.reality,
-        boundary: item.boundary,
-        relations: relationTuples,
-        signals: evidence,
-      })}
-      ${renderRelationCard(relationGroups)}
-      ${renderEvidenceCard(evidence, report)}
+      <div class="stage-detail-grid">
+        ${renderTransitEvidenceCard({
+          title: `${stageLabel(stage)}取象`,
+          marker: stageMarker(item, stage),
+          summary,
+          chips: buildStageChips(item, stage),
+          structure: item.structureImage || item.image,
+          reality: item.reality,
+          boundary: item.boundary,
+          relations: relationTuples,
+          signals: evidence,
+        })}
+        <div class="stage-side-stack">
+          ${renderAdviceCard({
+            stage,
+            item,
+            report,
+            relationGroups,
+          })}
+        </div>
+      </div>
     </div>
   `;
 }
@@ -117,24 +171,33 @@ function renderStageFacts(item = {}, stage = "luck") {
   `;
 }
 
-function renderRelationCard(groups = []) {
+function renderAdviceCard({ stage = "luck", item = {}, report = {}, relationGroups = [] } = {}) {
+  const relations = relationGroups.flatMap((group) => normalizeRelations(group.relations));
+  const advice = buildStageAdviceResult({
+    stage,
+    item,
+    relations,
+    confidence: item.confidence,
+  });
+  const cards = Array.isArray(advice.cards) ? advice.cards : [];
+
   return `
-    <article class="stage-image-card stage-relation-groups">
-      <h3>关系触发</h3>
-      ${
-        groups.some((group) => group.relations.length)
-          ? groups.map((group) => `
-              <section>
-                <h4>${escapeHtml(group.title)}</h4>
-                ${
-                  group.relations.length
-                    ? `<ul>${group.relations.map((relation) => `<li>${escapeHtml(formatRelation(relation))}</li>`).join("")}</ul>`
-                    : `<p class="muted">暂未命中明显关系。</p>`
-                }
-              </section>
-            `).join("")
-          : `<p class="muted">暂未命中冲、合、刑、害、破等明显关系。</p>`
-      }
+    <article class="stage-image-card stage-advice-card">
+      <div class="stage-advice-head">
+        <div>
+          <span>师傅复核建议</span>
+          <h3>${escapeHtml(advice.title || `${stageLabel(stage)}建议`)}</h3>
+        </div>
+        <strong>${escapeHtml(stageMarker(item, stage))}</strong>
+      </div>
+      <ul class="stage-advice-list">
+        ${cards.map((card) => `
+          <li>
+            <b>${escapeHtml(card.title)}</b>
+            <span>${escapeHtml(card.content)}</span>
+          </li>
+        `).join("")}
+      </ul>
     </article>
   `;
 }
@@ -243,24 +306,6 @@ function renderSignalPills(title, signals = []) {
         }
       </div>
     </section>
-  `;
-}
-
-function renderEvidenceCard(evidence = [], report = {}) {
-  const reportSignals = [
-    ...(Array.isArray(report.keySignals) ? report.keySignals : []),
-    ...(Array.isArray(report.needVerify) ? report.needVerify : []),
-  ];
-  const lines = [...evidence, ...reportSignals].filter(Boolean).slice(0, 12);
-  return `
-    <article class="stage-image-card stage-evidence-list">
-      <h3>关键证据 / 观察点</h3>
-      ${
-        lines.length
-          ? `<ul>${lines.map((line) => `<li>${escapeHtml(formatEvidence(line))}</li>`).join("")}</ul>`
-          : `<p class="muted">暂无额外证据项，先按十神、地支环境与关系触发复核。</p>`
-      }
-    </article>
   `;
 }
 
@@ -428,11 +473,6 @@ function formatRelationEvidence(relation = {}) {
     || "";
 
   return `${type}${target}`;
-}
-
-function formatEvidence(item) {
-  if (typeof item === "string") return item;
-  return item.description || item.text || item.name || item.title || JSON.stringify(item);
 }
 
 function formatLuck(item = {}) {

@@ -195,30 +195,36 @@ export function createAppController({ roots, initialInput }) {
       description: "围绕当前选中的大运展开取象与 AI 分析。",
       report: store.state.luckImageReport,
       stage: "luck",
+      selector: buildLuckStageSelector(store.state),
       aiState: store.luckAiState,
       aiTitle: "AI 大运分析",
       aiButton: "生成大运 AI 分析",
       onGenerateAi: aiActions.generateLuckAiNarrative,
+      onSelectStageValue: selectTargetYear,
     });
     renderStageAnalysisPanel(roots.yearStageAnalysis, {
       title: "流年分析",
       description: "围绕当前选中的流年展开取象与 AI 分析。",
       report: store.state.yearImageReport,
       stage: "year",
+      selector: buildYearStageSelector(store.state),
       aiState: store.yearAiState,
       aiTitle: "AI 流年分析",
       aiButton: "生成流年 AI 分析",
       onGenerateAi: aiActions.generateYearAiNarrative,
+      onSelectStageValue: selectTargetYear,
     });
     renderStageAnalysisPanel(roots.monthStageAnalysis, {
       title: "流月分析",
       description: "围绕当前选中的流月展开取象与 AI 分析。",
       report: store.state.monthImageReport,
       stage: "month",
+      selector: buildMonthStageSelector(store.state),
       aiState: store.monthAiState,
       aiTitle: "AI 流月分析",
       aiButton: "生成流月 AI 分析",
       onGenerateAi: aiActions.generateMonthAiNarrative,
+      onSelectStageValue: selectTargetMonth,
     });
     renderAiChatPanel(roots.aiChatPanel, {
       state: store.chatState,
@@ -299,6 +305,56 @@ function uniqueRelations(relations = []) {
   });
 }
 
+function buildLuckStageSelector(state = {}) {
+  const luckItems = Array.isArray(state.luckImageReport?.luckItems) ? state.luckImageReport.luckItems : [];
+  const currentLuck = luckItems.find((item) => item?.isCurrent) ?? luckItems[0] ?? {};
+  return {
+    label: "切换大运",
+    value: firstYearOfRange(currentLuck.yearRange),
+    options: luckItems
+      .map((item) => {
+        const value = firstYearOfRange(item.yearRange);
+        return {
+          value,
+          label: [item.ageRange, item.ganZhi].filter(Boolean).join(" · ") || item.yearRange || "待查",
+        };
+      })
+      .filter((option) => option.value !== ""),
+  };
+}
+
+function buildYearStageSelector(state = {}) {
+  const yearReports = Array.isArray(state.yearImageReports) ? state.yearImageReports : [];
+  const currentYear = state.yearImageReport?.yearItem?.year ?? state.input?.targetYear ?? "";
+  return {
+    label: "切换流年",
+    value: currentYear,
+    options: yearReports
+      .map((report) => report.yearItem ?? {})
+      .filter((item) => item.year)
+      .map((item) => ({
+        value: item.year,
+        label: [item.year, item.ganZhi].filter(Boolean).join(" · ") || String(item.year),
+      })),
+  };
+}
+
+function buildMonthStageSelector(state = {}) {
+  const monthReports = Array.isArray(state.monthImageReports) ? state.monthImageReports : [];
+  const currentMonth = state.monthImageReport?.monthItem?.month ?? state.input?.selectedMonth ?? "";
+  return {
+    label: "切换流月",
+    value: currentMonth,
+    options: monthReports
+      .map((report) => report.monthItem ?? {})
+      .filter((item) => item.month)
+      .map((item) => ({
+        value: item.month,
+        label: [item.month ? `${item.month}月` : "", item.ganZhi].filter(Boolean).join(" · ") || "待查",
+      })),
+  };
+}
+
 function buildYearImageReportsForCurrentLuck({
   chart,
   baseBaziViewModel,
@@ -327,6 +383,11 @@ function buildYearImageReportsForCurrentLuck({
       targetYear,
     });
   });
+}
+
+function firstYearOfRange(range = "") {
+  const [start] = parseYearRange(range);
+  return Number.isFinite(start) ? start : "";
 }
 
 function parseYearRange(range = "") {

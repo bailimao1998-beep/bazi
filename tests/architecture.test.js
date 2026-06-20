@@ -8,6 +8,7 @@ import { buildNatalImageReport } from "../js/core/blind-bazi/buildNatalImageRepo
 import { buildLuckImageReport } from "../js/core/blind-bazi/buildLuckImageReport.js";
 import { buildYearImageReport } from "../js/core/blind-bazi/buildYearImageReport.js";
 import { buildMonthImageReport } from "../js/core/blind-bazi/buildMonthImageReport.js";
+import { buildStageAdvice } from "../js/core/advice/stageAdviceEngine.js";
 import { renderStageAnalysisPanel } from "../js/components/stageAnalysisPanel.js";
 
 const requiredPaths = [
@@ -35,6 +36,9 @@ const requiredPaths = [
   "js/core/blind-bazi/buildLuckImageReport.js",
   "js/core/blind-bazi/buildYearImageReport.js",
   "js/core/blind-bazi/buildMonthImageReport.js",
+  "js/core/advice/stageAdviceData.js",
+  "js/core/advice/stageAdviceEngine.js",
+  "data/advice/stageAdvice.json",
   "js/components/birthForm.js",
   "js/components/fortuneTransitPanel.js",
   "js/components/transitHierarchyPanel.js",
@@ -105,6 +109,8 @@ test("index and app use only the current frontend panels", () => {
   const stageAnalysisSource = readFileSync("js/components/stageAnalysisPanel.js", "utf8");
   const birthFormSource = readFileSync("js/components/birthForm.js", "utf8");
   const floatingAssistSource = readFileSync("js/components/floatingAssistPanel.js", "utf8");
+  const stageAdviceDataSource = readFileSync("js/core/advice/stageAdviceData.js", "utf8");
+  const stageAdviceEngineSource = readFileSync("js/core/advice/stageAdviceEngine.js", "utf8");
   const styles = readFileSync("styles/layout.css", "utf8")
     + readFileSync("styles/form.css", "utf8")
     + readFileSync("styles/fortune.css", "utf8")
@@ -122,6 +128,8 @@ test("index and app use only the current frontend panels", () => {
   assert.match(index, /id="floatingAssist"/);
   assert.match(index, /id="natalImagePanel"/);
   assert.match(index, /id="natalAiNarrative"/);
+  assert.match(index, /<section class="stage-image-content" id="natalImagePanel"><\/section>\s*<section class="stage-ai-collapse stage-ai-below" id="natalAiNarrative"><\/section>/);
+  assert.doesNotMatch(index, /<div class="stage-analysis-header">\s*<div>[\s\S]*?<\/div>\s*<section class="stage-ai-collapse" id="natalAiNarrative"><\/section>\s*<\/div>/);
   assert.match(index, /id="luckStageAnalysis"/);
   assert.match(index, /id="yearStageAnalysis"/);
   assert.match(index, /id="monthStageAnalysis"/);
@@ -153,6 +161,9 @@ test("index and app use only the current frontend panels", () => {
   assert.match(appControllerSource, /renderStageAnalysisPanel\(roots\.luckStageAnalysis/);
   assert.match(appControllerSource, /renderStageAnalysisPanel\(roots\.yearStageAnalysis/);
   assert.match(appControllerSource, /renderStageAnalysisPanel\(roots\.monthStageAnalysis/);
+  assert.match(appControllerSource, /buildLuckStageSelector/);
+  assert.match(appControllerSource, /buildYearStageSelector/);
+  assert.match(appControllerSource, /buildMonthStageSelector/);
   assert.match(appControllerSource, /renderFloatingAssistPanel\(roots\.floatingAssist/);
   assert.match(appControllerSource, /renderAiChatPanel\(roots\.aiChatPanel/);
   assert.match(chartSummarySource, /export function renderChartSummary/);
@@ -180,9 +191,16 @@ test("index and app use only the current frontend panels", () => {
   assert.doesNotMatch(chartSummarySource, /core-seven-column|core-seven-grid/);
   assert.match(fortuneTransitSource, /renderTransitHierarchyPanel/);
   assert.match(fortuneTransitSource, /export function renderFortuneTransitPanel/);
+  assert.match(fortuneTransitSource, /transit-context-pill/);
+  assert.match(transitHierarchySource, /transit-card-ganzhi/);
+  assert.match(transitHierarchySource, /transit-card-signal/);
   assert.match(transitHierarchySource + styles, /transit-selector-board/);
   assert.match(transitHierarchySource + styles, /transit-selector-row/);
   assert.match(transitHierarchySource + styles, /transit-select-card/);
+  assert.match(styles, /grid-template-columns:\s*72px minmax\(0,\s*1fr\)/);
+  assert.match(styles, /transit-select-card::before/);
+  assert.match(styles, /transit-card-list::before/);
+  assert.match(styles, /transit-select-card\.is-active \.transit-card-ganzhi/);
   assert.match(birthFormSource + styles, /birth-form-compact/);
   assert.match(birthFormSource + styles, /birth-form-main-grid/);
   assert.match(birthFormSource + styles, /birth-form-inline-row/);
@@ -198,16 +216,82 @@ test("index and app use only the current frontend panels", () => {
   assert.match(styles, /@media \(max-width: 900px\)/);
   assert.match(styles, /@media \(max-width: 600px\)/);
   assert.match(stageAnalysisSource + styles, /stage-analysis-section/);
+  assert.match(stageAnalysisSource, /stageAdviceEngine/);
   assert.match(stageAnalysisSource + styles, /stage-analysis-header/);
   assert.match(stageAnalysisSource + styles, /ai-collapse-card/);
   assert.match(stageAnalysisSource, /AI 原局分析结果|AI 大运分析结果|AI 流年分析结果|AI 流月分析结果/);
   assert.match(stageAnalysisSource, /stage-evidence-list/);
-  assert.match(stageAnalysisSource, /stage-relation-groups/);
+  assert.match(stageAnalysisSource, /stage-advice-card/);
+  assert.match(stageAnalysisSource, /stage-advice-list/);
+  assert.match(stageAnalysisSource, /buildStageAdvice/);
+  assert.doesNotMatch(stageAnalysisSource, /function stageMainAdvice|function stageRealityAdvice/);
+  assert.match(stageAdviceDataSource, /stageRules/);
+  assert.match(stageAdviceDataSource, /tenGodRules/);
+  assert.match(stageAdviceDataSource, /relationRules/);
+  assert.match(stageAdviceDataSource, /confidenceRules/);
+  assert.match(stageAdviceEngineSource, /export function buildStageAdvice/);
+  assert.match(stageAdviceEngineSource, /function detectRelationType/);
+  assert.match(stageAdviceEngineSource, /function joinSentence/);
+  assert.match(stageAnalysisSource, /stage-overview-card/);
+  assert.match(stageAnalysisSource, /stage-detail-grid/);
+  assert.match(stageAnalysisSource, /stage-side-stack/);
+  assert.match(stageAnalysisSource, /renderStageLocalSelector/);
+  assert.match(stageAnalysisSource, /stage-local-selector/);
+  assert.match(stageAnalysisSource, /data-stage-selector/);
+  assert.match(stageAnalysisSource, /onSelectStageValue/);
+  assert.match(stageAnalysisSource, /<section class="stage-ai-collapse stage-ai-below">/);
+  assert.doesNotMatch(stageAnalysisSource, /<div class="stage-analysis-tools">[\s\S]*?renderAiCollapse\(\{[\s\S]*?<\/div>\s*<\/div>\s*<section class="stage-image-content">/);
+  assert.match(styles, /\.stage-ai-below/);
+  assert.match(styles, /\.stage-analysis-header\s*\{\s*display:\s*block/);
   assert.match(stageAnalysisSource + styles, /transit-evidence-mini-grid/);
+  assert.match(styles, /\.stage-detail-grid/);
+  assert.match(styles, /\.stage-side-stack/);
+  assert.match(styles, /\.stage-local-selector/);
+  assert.match(styles, /\.stage-advice-card/);
   assert.match(stageAnalysisSource + styles, /transit-detail-chips/);
   assert.match(stageAnalysisSource + styles, /transit-signal-pills/);
   assert.match(stageAnalysisSource, /formatRelationEvidence/);
+  assert.match(stageAnalysisSource, /ai-collapse-toolbar/);
+  assert.match(stageAnalysisSource, /ai-collapse-status/);
+  assert.match(stageAnalysisSource, /ai-collapse-summary-action/);
+  assert.match(styles, /\.ai-collapse-action-only/);
+  assert.match(styles, /min-height:\s*44px/);
+  assert.match(styles, /\.ai-collapse-card > summary/);
+  assert.match(styles, /\.stage-ai-below \.ai-collapse-output/);
   assert.match(floatingAssistSource + styles, /floating-assist/);
+  assert.match(floatingAssistSource, /shenshaImageMap/);
+  assert.match(floatingAssistSource, /getShenshaImage/);
+  assert.match(floatingAssistSource, /data-shensha-name/);
+  assert.match(floatingAssistSource, /data-pillar-name/);
+  assert.match(floatingAssistSource, /data-pillar-value/);
+  assert.match(floatingAssistSource, /assist-detail-card/);
+  assert.match(floatingAssistSource, /data-assist-detail-close/);
+  assert.match(floatingAssistSource, /handleEscape/);
+  assert.match(floatingAssistSource, /handleOutsideClick/);
+  assert.match(floatingAssistSource, /document\.addEventListener\("keydown", handleEscape\)/);
+  assert.match(floatingAssistSource, /document\.addEventListener\("pointerdown", handleOutsideClick\)/);
+  assert.match(floatingAssistSource, /state\.luckImageReport|state\.yearImageReport|state\.monthImageReport/);
+  assert.match(floatingAssistSource, /assist-relation-panel/);
+  assert.match(floatingAssistSource, /renderRelationSummary/);
+  assert.match(floatingAssistSource, /renderRelationFocus/);
+  assert.match(floatingAssistSource, /dedupeRelations/);
+  assert.match(floatingAssistSource, /detectRelationTags/);
+  assert.match(floatingAssistSource, /relationImageByTags/);
+  assert.match(floatingAssistSource, /assist-empty-compact/);
+  assert.doesNotMatch(floatingAssistSource, /function renderRelationList/);
+  assert.match(styles, /\.assist-relation-summary/);
+  assert.match(styles, /\.assist-relation-card/);
+  assert.match(styles, /\.assist-empty-compact/);
+  assert.match(styles, /\.core-chart-assist \.floating-assist-drawer\s*\{[\s\S]*position:\s*fixed/);
+  assert.match(styles, /\.core-chart-assist \.floating-assist-drawer\[hidden\]\s*\{[\s\S]*display:\s*none/);
+  assert.match(styles, /\.core-chart-assist \.floating-assist-drawer\.is-open\s*\{[\s\S]*display:\s*grid/);
+  assert.match(styles, /top:\s*72px/);
+  assert.match(styles, /bottom:\s*24px/);
+  assert.match(styles, /\.floating-assist-head\s*\{[\s\S]*position:\s*sticky/);
+  assert.match(styles, /\.floating-assist-body\s*\{[\s\S]*overflow-y:\s*auto/);
+  assert.match(styles, /\.assist-chip\.is-clickable/);
+  assert.match(styles, /\.assist-detail-card/);
+  assert.match(styles, /@media \(max-width:\s*700px\)[\s\S]*\.core-chart-assist \.floating-assist-drawer/);
   assert.match(aiActionsSource, /generateWithDeepSeek/);
   assert.match(aiActionsSource, /readAiSettings\(\{ includeSecret: true \}\)/);
   assert.match(chatActionsSource, /buildChatPrompt/);
@@ -328,11 +412,43 @@ test("stage analysis panels render calculated report data without breaking refre
 
   assert.doesNotThrow(() => renderStageAnalysisPanel(root, { report: luckImageReport, stage: "luck" }));
   assert.match(root.innerHTML, /当前大运/);
+  assert.match(root.innerHTML, /先看主线/);
+  assert.match(root.innerHTML, /现实反馈/);
+  assert.match(root.innerHTML, /复核边界/);
+  assert.match(root.innerHTML, /反证提醒/);
+  assert.match(root.innerHTML, /<section class="stage-image-content">[\s\S]*<section class="stage-ai-collapse stage-ai-below">/);
+  assert.doesNotMatch(headerHtml(root.innerHTML), /stage-ai-collapse|ai-collapse-card|data-stage-ai-generate/);
   assert.doesNotThrow(() => renderStageAnalysisPanel(root, { report: yearImageReport, stage: "year" }));
   assert.match(root.innerHTML, /目标流年/);
+  assert.match(root.innerHTML, /当前流年建议/);
+  assert.match(root.innerHTML, /<section class="stage-image-content">[\s\S]*<section class="stage-ai-collapse stage-ai-below">/);
+  assert.doesNotMatch(headerHtml(root.innerHTML), /stage-ai-collapse|ai-collapse-card|data-stage-ai-generate/);
   assert.doesNotThrow(() => renderStageAnalysisPanel(root, { report: monthImageReport, stage: "month" }));
   assert.match(root.innerHTML, /目标流月/);
+  assert.match(root.innerHTML, /当前流月建议/);
+  assert.match(root.innerHTML, /<section class="stage-image-content">[\s\S]*<section class="stage-ai-collapse stage-ai-below">/);
+  assert.doesNotMatch(headerHtml(root.innerHTML), /stage-ai-collapse|ai-collapse-card|data-stage-ai-generate/);
 });
+
+test("stage advice engine combines stage ten-god relation and confidence rules", () => {
+  const advice = buildStageAdvice({
+    stage: "year",
+    item: { stemTenGod: "正官", confidence: "low" },
+    relations: [{ description: "流年与原局见相冲，需要看被触发柱位。" }],
+    confidence: "low",
+  });
+
+  assert.equal(advice.title, "当前流年建议");
+  assert.deepEqual(advice.cards.map((card) => card.title), ["先看主线", "现实反馈", "复核边界", "反证提醒"]);
+  assert.match(advice.cards[0].content, /流年用于观察/);
+  assert.match(advice.cards[0].content, /规则、职位、责任/);
+  assert.match(advice.cards[2].content, /冲/);
+  assert.ok(advice.cards.every((card) => card.content.split(/[。！？；]/).filter(Boolean).length <= 2));
+});
+
+function headerHtml(html) {
+  return html.match(/<div class="stage-analysis-header">[\s\S]*?<\/div>\s*<\/div>/)?.[0] ?? "";
+}
 
 function createRenderRoot() {
   return {

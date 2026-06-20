@@ -461,3 +461,30 @@ small {
   font-size: 12px;
   line-height: 1.45;
 }
+
+/* ===== 阶段分析：AI 结果放在模块下方，不挂右侧 ===== */
+
+.stage-analysis-header {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.stage-analysis-header > div {
+  max-width: 760px;
+}
+
+.stage-analysis-header h2 {
+  margin: 0 0 6px;
+}
+
+.stage-analysis-header p {
+  margin: 0;
+  max-width: 680px;
+}
+
+.stage-ai-below,
+.stage-analysis-section > .stage-ai-collapse {
+  width: 100%;
+  max-width: none;
+  margin-top: 14px;
+}

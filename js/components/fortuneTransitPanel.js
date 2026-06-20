@@ -28,7 +28,7 @@ export function renderFortuneTransitPanel(root, payload = {}) {
           <p class="eyebrow">岁运选择</p>
           <h2>大运 / 流年 / 流月</h2>
         </div>
-        <span>${escapeHtml(formatSelectionSummary(currentLuck, yearItem, monthItem))}</span>
+        <span class="transit-context-pill">${escapeHtml(formatSelectionSummary(currentLuck, yearItem, monthItem))}</span>
       </div>
       ${renderTransitHierarchyPanel({ state, currentLuck, selectedYear, selectedMonth })}
     </section>

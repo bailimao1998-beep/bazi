@@ -77,7 +77,6 @@ export function renderChartSummary(root, currentState) {
         <div>
           <p class="eyebrow">核心命盘</p>
           <h2>基础排盘展示</h2>
-          <p class="muted">左三列为当前岁运，右四列为原局四柱。</p>
         </div>
       </div>
       ${renderChartTopline(viewModel)}
@@ -210,7 +209,7 @@ function renderHiddenCell(hiddenStems = []) {
   return `
     <small class="matrix-hidden-stems hidden-chip-list">
       ${stems.map((item) => `
-        <span class="hidden-chip">
+        <span class="hidden-chip ${escapeHtml(elementClassForSymbol(item.stem, "stem"))}">
           <b>${escapeHtml(item.stem || "待查")}</b>
           <em>${escapeHtml(item.tenGod || "待查")}</em>
           <small>${escapeHtml(item.attributeLabel || symbolAttributeLabel(item.stem, "stem"))}</small>

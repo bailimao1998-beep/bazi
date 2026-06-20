@@ -6,6 +6,7 @@ import { buildYearImageReport } from "../core/blind-bazi/buildYearImageReport.js
 import { buildBaseBaziViewModel } from "../core/bazi/buildBaseBaziViewModel.js";
 import { calculateBazi } from "../core/bazi/calculateBazi.js";
 import { loadLocationCatalog } from "../core/location/locationCatalogClient.js";
+import { loadMasterSummaryDatabase } from "../core/master-summary/masterSummaryEngine.js";
 import { renderAiChatPanel } from "../components/aiChatPanel.js";
 import { renderBaseBaziPanel } from "../components/baseBaziPanel.js";
 import { renderBirthForm } from "../components/birthForm.js";
@@ -28,6 +29,7 @@ export function createAppController({ roots, initialInput }) {
 
   async function init() {
     store.locationCatalog = await loadLocationCatalog();
+    store.masterSummaryDatabase = await loadMasterSummaryDatabase();
     await loadRuntimeAiSettings();
 
     renderBirthForm(roots.birthForm, {
@@ -172,7 +174,11 @@ export function createAppController({ roots, initialInput }) {
   function renderBaseOnly() {
     renderChartSummary(roots.chartSummary, store.state);
     renderBaseBaziPanel(roots.baseBaziPanel, store.state.baseBaziViewModel);
-    renderNatalImagePanel(roots.natalImagePanel, store.state.natalImageReport);
+    renderNatalImagePanel(roots.natalImagePanel, store.state.natalImageReport, {
+      chart: store.state.chart,
+      baseBaziViewModel: store.state.baseBaziViewModel,
+      masterSummaryDatabase: store.masterSummaryDatabase,
+    });
     renderNatalAiNarrativePanel(roots.natalAiNarrative, {
       state: store.natalAiState,
       hasReport: Boolean(store.state.natalImageReport),
@@ -196,6 +202,9 @@ export function createAppController({ roots, initialInput }) {
       report: store.state.luckImageReport,
       stage: "luck",
       selector: buildLuckStageSelector(store.state),
+      evidenceContext: {
+        baseBaziViewModel: store.state.baseBaziViewModel,
+      },
       aiState: store.luckAiState,
       aiTitle: "AI 大运分析",
       aiButton: "生成大运 AI 分析",
@@ -208,6 +217,10 @@ export function createAppController({ roots, initialInput }) {
       report: store.state.yearImageReport,
       stage: "year",
       selector: buildYearStageSelector(store.state),
+      evidenceContext: {
+        baseBaziViewModel: store.state.baseBaziViewModel,
+        luckImageReport: store.state.luckImageReport,
+      },
       aiState: store.yearAiState,
       aiTitle: "AI 流年分析",
       aiButton: "生成流年 AI 分析",
@@ -220,6 +233,11 @@ export function createAppController({ roots, initialInput }) {
       report: store.state.monthImageReport,
       stage: "month",
       selector: buildMonthStageSelector(store.state),
+      evidenceContext: {
+        baseBaziViewModel: store.state.baseBaziViewModel,
+        luckImageReport: store.state.luckImageReport,
+        yearImageReport: store.state.yearImageReport,
+      },
       aiState: store.monthAiState,
       aiTitle: "AI 流月分析",
       aiButton: "生成流月 AI 分析",

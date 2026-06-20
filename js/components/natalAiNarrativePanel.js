@@ -5,8 +5,9 @@ export function renderNatalAiNarrativePanel(root, payload = {}, actions = {}) {
   const state = payload.state ?? {};
   const hasReport = Boolean(payload.hasReport);
   root.innerHTML = renderAiCollapse({
-    title: "AI 原局分析",
-    button: "生成原局 AI 分析",
+    title: "AI 深度分析",
+    button: "生成原局 AI 深度分析",
+    helper: "AI 会基于上方命局画像和命中取象清单扩展说明，不重新排盘。",
     state,
     hasReport,
   });

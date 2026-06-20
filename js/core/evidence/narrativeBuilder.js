@@ -1,6 +1,6 @@
 import { knowledgeBase } from "./knowledgeBase.js";
 
-const sectionTitles = ["命理师讲盘", "现实表现", "需要注意", "怎么验证"];
+const sectionTitles = ["命理师讲盘", "现实画面", "资料解释", "成立条件", "反证边界", "师傅复核点"];
 
 export function buildLocalNarrative(evidencePack) {
   if (!evidencePack) return null;
@@ -8,6 +8,7 @@ export function buildLocalNarrative(evidencePack) {
   const firstHit = evidencePack.hits?.[0] ?? null;
   const secondHit = evidencePack.hits?.[1] ?? null;
   const firstRelation = evidencePack.relations?.[0] ?? null;
+  const explanationText = buildExplanationText(evidencePack);
   const headline = buildHeadline({ evidencePack, stageRule, firstHit, secondHit, firstRelation });
 
   return {
@@ -16,10 +17,10 @@ export function buildLocalNarrative(evidencePack) {
       {
         title: sectionTitles[0],
         text: limitSentences(joinText(
-          stageRule?.masterTalk,
-          firstHit?.masterTalk,
-          secondHit && secondHit.label !== firstHit?.label ? secondHit.masterTalk : "",
-          firstRelation?.masterTalk
+          stageRule?.clientTalk || stageRule?.localTalk,
+          buildHitTalk(firstHit),
+          secondHit && secondHit.label !== firstHit?.label ? buildHitTalk(secondHit, "同时") : "",
+          buildRelationTalk(firstRelation)
         ), 4),
       },
       {
@@ -31,13 +32,21 @@ export function buildLocalNarrative(evidencePack) {
       },
       {
         title: sectionTitles[2],
+        text: limitSentences(explanationText, 4),
+      },
+      {
+        title: sectionTitles[3],
+        text: limitSentences(buildConditionText(evidencePack), 4),
+      },
+      {
+        title: sectionTitles[4],
         text: limitSentences(joinText(
           evidencePack.summary?.caution,
           buildCounterText(evidencePack.hits, evidencePack.relations)
         ), 4),
       },
       {
-        title: sectionTitles[3],
+        title: sectionTitles[5],
         text: limitSentences(joinText(
           evidencePack.summary?.verify,
           stageRule?.verify
@@ -54,13 +63,29 @@ export function buildLocalNarrative(evidencePack) {
 function buildHeadline({ evidencePack, stageRule, firstHit, secondHit, firstRelation }) {
   const target = evidencePack.target && evidencePack.target !== "目标待查" ? `${evidencePack.target}，` : "";
   const hitText = firstHit
-    ? `主线先看${firstHit.label}${firstHit.image?.length ? `，现实里偏向${firstHit.image.slice(0, 3).join("、")}` : ""}`
-    : stageRule?.masterTalk || "";
+    ? `呈现出${firstHit.label}的主题${firstHit.image?.length ? `，现实里容易牵到${firstHit.image.slice(0, 3).join("、")}` : ""}`
+    : stageRule?.clientTalk || stageRule?.localTalk || stageRule?.masterTalk || "";
   const branchText = secondHit && secondHit.label !== firstHit?.label
-    ? `同时地支落点带出${secondHit.label}，要看它在现实环境里怎么承接`
+    ? `同时带出${secondHit.label}，这会成为现实落点里的另一条背景线`
     : "";
   const relationText = firstRelation ? `关系上见${firstRelation.label}，${firstRelation.image?.slice(0, 2).join("、")}感会更明显` : "";
   return limitSentences(joinText(`${target}${hitText}。`, branchText ? `${branchText}。` : "", relationText ? `${relationText}。` : ""), 2);
+}
+
+function buildHitTalk(hit, prefix = "") {
+  if (!hit) return "";
+  const images = hit.realityImages?.slice(0, 3).join("、") || hit.image?.slice(0, 3).join("、");
+  const talk = hit.clientTalk || hit.localTalk || hit.masterTalk;
+  if (talk) return prefix ? `${prefix}${talk}` : talk;
+  return `${prefix}${hit.label}这个象落到现实里，容易带出${images || "对应的人事主题"}。`;
+}
+
+function buildRelationTalk(relation) {
+  if (!relation) return "";
+  const images = relation.realityImages?.slice(0, 3).join("、") || relation.image?.slice(0, 3).join("、");
+  const talk = relation.clientTalk || relation.localTalk || relation.masterTalk;
+  if (talk) return talk;
+  return `${relation.label}被触发时，现实里容易出现${images || "关系和事务变化"}。`;
 }
 
 function buildRealityText(hits = [], relations = []) {
@@ -68,7 +93,17 @@ function buildRealityText(hits = [], relations = []) {
     ...hits.flatMap((hit) => hit.realityImages || []),
     ...relations.flatMap((relation) => relation.realityImages || []),
   ].slice(0, 6);
-  return images.length ? `落到现实里，可以先看${images.join("、")}这些画面有没有浮出来。` : "";
+  return images.length ? `现实中容易出现${images.join("、")}等画面。` : "";
+}
+
+function buildExplanationText(evidencePack = {}) {
+  const explanations = evidencePack.explanations?.bookExplanations || evidencePack.aiContext?.资料解释 || [];
+  return explanations.length ? `资料解释：${explanations.slice(0, 3).join("")}` : "";
+}
+
+function buildConditionText(evidencePack = {}) {
+  const conditions = evidencePack.explanations?.conditions || evidencePack.aiContext?.成立条件 || [];
+  return conditions.length ? `成立条件：${conditions.slice(0, 3).join("")}` : "";
 }
 
 function buildCounterText(hits = [], relations = []) {

@@ -9,6 +9,18 @@ import { buildLuckImageReport } from "../js/core/blind-bazi/buildLuckImageReport
 import { buildYearImageReport } from "../js/core/blind-bazi/buildYearImageReport.js";
 import { buildMonthImageReport } from "../js/core/blind-bazi/buildMonthImageReport.js";
 import { buildStageAdvice } from "../js/core/advice/stageAdviceEngine.js";
+import {
+  buildLuckEvidencePack,
+  buildMonthEvidencePack,
+  buildNatalEvidencePack,
+  buildYearEvidencePack,
+} from "../js/core/evidence/evidencePackBuilder.js";
+import { buildLocalNarrative } from "../js/core/evidence/narrativeBuilder.js";
+import {
+  buildNatalMasterSummary,
+  defaultMasterSummaryDatabase,
+} from "../js/core/master-summary/masterSummaryEngine.js";
+import { renderNatalImagePanel } from "../js/components/natalImagePanel.js";
 import { renderStageAnalysisPanel } from "../js/components/stageAnalysisPanel.js";
 
 const requiredPaths = [
@@ -36,9 +48,18 @@ const requiredPaths = [
   "js/core/blind-bazi/buildLuckImageReport.js",
   "js/core/blind-bazi/buildYearImageReport.js",
   "js/core/blind-bazi/buildMonthImageReport.js",
+  "js/core/domain/domainRuleDatabase.js",
+  "js/core/domain/combinationRuleDatabase.js",
+  "js/core/domain/domainEvidenceEngine.js",
+  "js/core/domain/domainNarrativeEngine.js",
+  "js/core/master-summary/masterSummaryEngine.js",
   "js/core/advice/stageAdviceData.js",
   "js/core/advice/stageAdviceEngine.js",
+  "js/core/evidence/knowledgeBase.js",
+  "js/core/evidence/evidencePackBuilder.js",
+  "js/core/evidence/narrativeBuilder.js",
   "data/advice/stageAdvice.json",
+  "data/rules/bazi/master-summary.json",
   "js/components/birthForm.js",
   "js/components/fortuneTransitPanel.js",
   "js/components/transitHierarchyPanel.js",
@@ -109,8 +130,20 @@ test("index and app use only the current frontend panels", () => {
   const stageAnalysisSource = readFileSync("js/components/stageAnalysisPanel.js", "utf8");
   const birthFormSource = readFileSync("js/components/birthForm.js", "utf8");
   const floatingAssistSource = readFileSync("js/components/floatingAssistPanel.js", "utf8");
+  const natalAiPanelSource = readFileSync("js/components/natalAiNarrativePanel.js", "utf8");
   const stageAdviceDataSource = readFileSync("js/core/advice/stageAdviceData.js", "utf8");
   const stageAdviceEngineSource = readFileSync("js/core/advice/stageAdviceEngine.js", "utf8");
+  const knowledgeBaseSource = readFileSync("js/core/evidence/knowledgeBase.js", "utf8");
+  const evidencePackSource = readFileSync("js/core/evidence/evidencePackBuilder.js", "utf8");
+  const narrativeBuilderSource = readFileSync("js/core/evidence/narrativeBuilder.js", "utf8");
+  const natalReportSource = readFileSync("js/core/blind-bazi/buildNatalImageReport.js", "utf8");
+  const domainRuleSource = readFileSync("js/core/domain/domainRuleDatabase.js", "utf8");
+  const combinationRuleSource = readFileSync("js/core/domain/combinationRuleDatabase.js", "utf8");
+  const domainEvidenceSource = readFileSync("js/core/domain/domainEvidenceEngine.js", "utf8");
+  const domainNarrativeSource = readFileSync("js/core/domain/domainNarrativeEngine.js", "utf8");
+  const masterSummaryEngineSource = readFileSync("js/core/master-summary/masterSummaryEngine.js", "utf8");
+  const masterSummaryJson = JSON.parse(readFileSync("data/rules/bazi/master-summary.json", "utf8"));
+  const natalImagePanelSource = readFileSync("js/components/natalImagePanel.js", "utf8");
   const styles = readFileSync("styles/layout.css", "utf8")
     + readFileSync("styles/form.css", "utf8")
     + readFileSync("styles/fortune.css", "utf8")
@@ -154,6 +187,7 @@ test("index and app use only the current frontend panels", () => {
   assert.match(appControllerSource, /calculateBazi\(.*locations: .*locationCatalog/s);
   assert.match(appControllerSource, /buildBaseBaziViewModel\(chart\)/);
   assert.match(appControllerSource, /buildNatalImageReport\(\{ chart, baseBaziViewModel \}\)/);
+  assert.match(appControllerSource, /renderNatalImagePanel\(roots\.natalImagePanel, store\.state\.natalImageReport, \{/);
   assert.match(appControllerSource, /buildLuckImageReport/);
   assert.match(appControllerSource, /buildYearImageReport/);
   assert.match(appControllerSource, /buildMonthImageReport/);
@@ -216,6 +250,108 @@ test("index and app use only the current frontend panels", () => {
   assert.match(styles, /@media \(max-width: 900px\)/);
   assert.match(styles, /@media \(max-width: 600px\)/);
   assert.match(stageAnalysisSource + styles, /stage-analysis-section/);
+  assert.match(stageAnalysisSource, /buildLuckEvidencePack/);
+  assert.match(stageAnalysisSource, /buildLocalNarrative/);
+  assert.match(stageAnalysisSource + styles, /stage-local-narrative-card/);
+  assert.match(stageAnalysisSource + styles, /stage-local-narrative-main/);
+  assert.match(stageAnalysisSource + styles, /stage-local-evidence-chain/);
+  assert.match(stageAnalysisSource + styles, /stage-local-review-details/);
+  assert.match(stageAnalysisSource, /命理师讲盘/);
+  assert.match(natalImagePanelSource, /buildNatalEvidencePack/);
+  assert.match(natalImagePanelSource, /buildNatalMasterSummary/);
+  assert.doesNotMatch(natalImagePanelSource, /buildLocalNarrative/);
+  assert.match(natalImagePanelSource + styles, /natal-master-summary/);
+  assert.match(natalImagePanelSource + styles, /natal-domain-section/);
+  assert.match(natalImagePanelSource + styles, /natal-domain-card/);
+  assert.match(natalImagePanelSource + styles, /natal-domain-grid/);
+  assert.match(natalImagePanelSource + styles, /natal-hit-list-section/);
+  assert.match(natalImagePanelSource + styles, /natal-hit-card/);
+  assert.match(natalImagePanelSource, /renderNatalDomainReport/);
+  assert.match(natalImagePanelSource, /renderNatalHitListSection/);
+  assert.match(natalImagePanelSource, /buildNatalHitList/);
+  assert.match(natalImagePanelSource, /buildNatalAiEvidencePack/);
+  assert.match(natalImagePanelSource, /buildNatalMasterSummary/);
+  assert.doesNotMatch(natalImagePanelSource, /function buildNatalMasterSummaryText/);
+  assert.doesNotMatch(natalImagePanelSource, /function buildNatalRealityCompareText/);
+  assert.match(natalImagePanelSource, /renderDomainEvidenceDetail/);
+  assert.doesNotMatch(natalImagePanelSource, /renderProfessionalReviewPanel/);
+  assert.doesNotMatch(natalImagePanelSource + styles, /natal-professional-review/);
+  assert.match(natalImagePanelSource, /命理师总批/);
+  assert.match(natalAiPanelSource, /AI 深度分析/);
+  assert.match(natalAiPanelSource, /AI 会基于上方命局画像和命中取象清单扩展说明，不重新排盘。/);
+  assert.match(natalAiPanelSource, /生成原局 AI 深度分析/);
+  assert.match(natalReportSource, /buildTwelveDomainPortrait/);
+  assert.match(natalReportSource, /twelveDomains:\s*buildTwelveDomainPortrait/);
+  assert.doesNotMatch(natalReportSource, /function buildTwelveDomainCards/);
+  assert.match(domainRuleSource, /export const domainRules/);
+  assert.match(domainRuleSource, /key:\s*"self"/);
+  assert.match(domainRuleSource, /key:\s*"fortune"/);
+  assert.match(domainRuleSource, /命主自身/);
+  assert.match(domainRuleSource, /福德精神/);
+  assert.match(combinationRuleSource, /export const combinationRules/);
+  assert.ok((combinationRuleSource.match(/id:\s*"/g) || []).length >= 20);
+  for (const label of [
+    "比劫重而财星不显",
+    "比劫重而财星有迹",
+    "印星明显而食伤弱",
+    "印星明显而食伤明显",
+    "官杀明显而印星承接",
+    "官杀明显而伤官明显",
+    "财星明显而比劫明显",
+    "食伤明显而财星有迹",
+    "食伤明显而官杀有压力",
+    "日支被冲",
+    "日支被合",
+    "日支被刑害破",
+    "年月被冲合刑害",
+    "时柱食伤明显",
+    "时柱被冲",
+    "土气明显而财印有迹",
+    "水气明显而寒湿感较重",
+    "火弱或火受制",
+    "五行流通较好",
+    "五行偏颇明显",
+  ]) {
+    assert.match(combinationRuleSource, new RegExp(label));
+  }
+  assert.match(domainEvidenceSource, /export function buildDomainEvidence/);
+  assert.match(domainEvidenceSource, /domainRules/);
+  assert.match(domainEvidenceSource, /combinationRules/);
+  assert.match(domainNarrativeSource, /export function buildTwelveDomainPortrait/);
+  assert.match(domainNarrativeSource, /function buildDomainHumanTitle/);
+  assert.match(domainNarrativeSource, /function buildDomainFrontText/);
+  assert.match(domainNarrativeSource, /buildDomainEvidence/);
+  assert.match(domainNarrativeSource, /domainRules/);
+  assert.match(masterSummaryEngineSource, /export function buildNatalMasterSummary/);
+  assert.match(masterSummaryEngineSource, /export async function loadMasterSummaryDatabase/);
+  assert.match(masterSummaryEngineSource, /defaultMasterSummaryDatabase/);
+  assert.ok(Array.isArray(masterSummaryJson.rules));
+  assert.ok(masterSummaryJson.rules.length >= 7);
+  for (const rule of masterSummaryJson.rules) {
+    assert.ok(rule.id);
+    assert.ok(rule.label);
+    assert.ok(Array.isArray(rule.hitKeywords));
+    assert.ok(Array.isArray(rule.domains));
+    assert.ok(Number.isFinite(rule.priority));
+    assert.ok(rule.headline);
+    assert.ok(rule.paragraph);
+    assert.ok(rule.reality);
+    assert.ok(rule.boundary);
+    assert.doesNotMatch(JSON.stringify(rule), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
+  }
+  assert.match(knowledgeBaseSource, /比劫重/);
+  assert.match(knowledgeBaseSource, /印星透/);
+  assert.match(knowledgeBaseSource, /财星弱/);
+  assert.match(knowledgeBaseSource, /clientTalk/);
+  assert.match(evidencePackSource, /命中取象/);
+  assert.match(evidencePackSource, /资料解释/);
+  assert.match(evidencePackSource, /成立条件/);
+  assert.match(evidencePackSource, /反证/);
+  assert.match(evidencePackSource, /现实取象/);
+  assert.match(narrativeBuilderSource, /资料解释/);
+  assert.match(narrativeBuilderSource, /成立条件/);
+  assert.match(narrativeBuilderSource, /反证边界/);
+  assert.match(narrativeBuilderSource, /师傅复核点/);
   assert.match(stageAnalysisSource, /stageAdviceEngine/);
   assert.match(stageAnalysisSource + styles, /stage-analysis-header/);
   assert.match(stageAnalysisSource + styles, /ai-collapse-card/);
@@ -359,6 +495,86 @@ test("frontend bazi and blind-bazi chain calculates reports locally", () => {
   });
   const baseBaziViewModel = buildBaseBaziViewModel(chart);
   const natalImageReport = buildNatalImageReport({ chart, baseBaziViewModel });
+  assert.equal(natalImageReport.twelveDomains.length, 12);
+  assert.deepEqual(natalImageReport.twelveDomains.map((domain) => domain.label), [
+    "命主自身",
+    "父母家庭",
+    "兄弟同辈",
+    "夫妻感情",
+    "子女结果",
+    "财帛财富",
+    "疾厄健康",
+    "迁移环境",
+    "交友人脉",
+    "官禄事业",
+    "田宅资产",
+    "福德精神",
+  ]);
+  for (const domain of natalImageReport.twelveDomains) {
+    assert.ok(domain.key);
+    assert.ok(domain.title);
+    assert.ok(domain.judgement);
+    assert.ok(domain.manifestation);
+    assert.ok(Array.isArray(domain.keywords));
+    assert.ok(Array.isArray(domain.evidence));
+    assert.ok(Array.isArray(domain.matchedCombinations));
+    assert.ok(Array.isArray(domain.condition));
+    assert.ok(domain.bookExplanation);
+    assert.ok(Array.isArray(domain.counterEvidence));
+    assert.match(domain.confidence, /^(high|medium|low)$/);
+    assert.doesNotMatch(
+      `${domain.judgement} ${domain.manifestation}`,
+      /现实中可观察|需观察|需要观察|需复核|需要复核|需要结合|先看|再看|待查|不宜直接|资料取象中|成立条件|反证方式|命中来源|命中依据/,
+    );
+    assert.doesNotMatch(
+      domain.title,
+      /日支被冲|日支被合|比劫重而财星不显|印星明显而食伤明显|官杀明显而印星承接|食伤明显而财星有迹|五行偏颇明显/,
+    );
+    assert.ok(sentenceCount(domain.judgement) <= 2);
+    assert.ok(sentenceCount(domain.manifestation) <= 2);
+  }
+  const selfDomain = natalImageReport.twelveDomains.find((domain) => domain.key === "self");
+  const selfFrontText = `${selfDomain?.title ?? ""}${selfDomain?.judgement ?? ""}${selfDomain?.manifestation ?? ""}`;
+  assert.ok(
+    countMatchedTerms(selfFrontText, ["性格", "主见", "脾气", "节奏", "边界"]) >= 3,
+    "命主自身正面文案要聚焦性格、主见、脾气、做事节奏和边界感",
+  );
+  const uniqueFrontTexts = new Set(natalImageReport.twelveDomains.map((domain) => `${domain.judgement} ${domain.manifestation}`));
+  assert.ok(uniqueFrontTexts.size >= 10, "十二维卡片正面文案不应大面积复用同一套关系牵动话术");
+  const masterSummary = buildNatalMasterSummary({
+    summary: natalImageReport.summary,
+    twelveDomains: natalImageReport.twelveDomains,
+    hitList: [
+      {
+        name: "比劫重而财星不显",
+        category: "组合象",
+        brief: "自我、同辈、竞争合作和财务资源分配之间有牵连。",
+        domains: ["命主自身", "兄弟同辈", "交友人脉", "财帛财富"],
+        importance: "high",
+      },
+      {
+        name: "日支被冲",
+        category: "关系象",
+        brief: "感情、环境和现实责任容易互相牵动。",
+        domains: ["夫妻感情", "迁移环境", "疾厄健康"],
+        importance: "medium",
+      },
+    ],
+    database: defaultMasterSummaryDatabase,
+  });
+  assert.ok(masterSummary.headline);
+  assert.ok(masterSummary.paragraph);
+  assert.ok(masterSummary.realityLine);
+  assert.ok(masterSummary.mainLines.length >= 2);
+  assert.ok(masterSummary.mainLines.length <= 3);
+  assert.ok(masterSummary.evidence.length > 0);
+  assert.match(masterSummary.paragraph, /这个盘|这个人|原局/);
+  assert.match(masterSummary.realityLine, /现实/);
+  assert.notEqual(
+    masterSummary.paragraph,
+    natalImageReport.twelveDomains.slice(0, 3).map((domain) => domain.title).join(""),
+  );
+  assert.doesNotMatch(JSON.stringify(masterSummary), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
   const luckImageReport = buildLuckImageReport({ chart, baseBaziViewModel, natalImageReport, targetYear: 2026 });
   const yearImageReport = buildYearImageReport({ chart, baseBaziViewModel, natalImageReport, luckImageReport, targetYear: 2026 });
   const monthImageReport = buildMonthImageReport({
@@ -412,6 +628,13 @@ test("stage analysis panels render calculated report data without breaking refre
 
   assert.doesNotThrow(() => renderStageAnalysisPanel(root, { report: luckImageReport, stage: "luck" }));
   assert.match(root.innerHTML, /当前大运/);
+  assert.match(root.innerHTML, /命理师讲盘/);
+  assert.match(root.innerHTML, /stage-local-narrative-card/);
+  assert.match(root.innerHTML, /stage-local-narrative-main/);
+  assert.match(root.innerHTML, /stage-local-evidence-chain/);
+  assert.match(root.innerHTML, /stage-local-review-details/);
+  assert.ok(root.innerHTML.indexOf("stage-local-narrative-main") < root.innerHTML.indexOf("stage-local-evidence-chain"));
+  assert.ok(root.innerHTML.indexOf("stage-local-evidence-chain") < root.innerHTML.indexOf("stage-local-review-details"));
   assert.match(root.innerHTML, /先看主线/);
   assert.match(root.innerHTML, /现实反馈/);
   assert.match(root.innerHTML, /复核边界/);
@@ -420,14 +643,146 @@ test("stage analysis panels render calculated report data without breaking refre
   assert.doesNotMatch(headerHtml(root.innerHTML), /stage-ai-collapse|ai-collapse-card|data-stage-ai-generate/);
   assert.doesNotThrow(() => renderStageAnalysisPanel(root, { report: yearImageReport, stage: "year" }));
   assert.match(root.innerHTML, /目标流年/);
+  assert.match(root.innerHTML, /命理师讲盘/);
   assert.match(root.innerHTML, /当前流年建议/);
   assert.match(root.innerHTML, /<section class="stage-image-content">[\s\S]*<section class="stage-ai-collapse stage-ai-below">/);
   assert.doesNotMatch(headerHtml(root.innerHTML), /stage-ai-collapse|ai-collapse-card|data-stage-ai-generate/);
   assert.doesNotThrow(() => renderStageAnalysisPanel(root, { report: monthImageReport, stage: "month" }));
   assert.match(root.innerHTML, /目标流月/);
+  assert.match(root.innerHTML, /命理师讲盘/);
   assert.match(root.innerHTML, /当前流月建议/);
   assert.match(root.innerHTML, /<section class="stage-image-content">[\s\S]*<section class="stage-ai-collapse stage-ai-below">/);
   assert.doesNotMatch(headerHtml(root.innerHTML), /stage-ai-collapse|ai-collapse-card|data-stage-ai-generate/);
+
+  assert.doesNotThrow(() => renderNatalImagePanel(root, natalImageReport, { chart, baseBaziViewModel }));
+  assert.match(root.innerHTML, /原局整体取象/);
+  assert.match(root.innerHTML, /命理师总批/);
+  assert.match(root.innerHTML, /natal-master-summary/);
+  assert.match(root.innerHTML, /这个原局|这个人|现实中|容易|倾向/);
+  const masterSummaryHtml = root.innerHTML.match(/<section class="natal-master-summary">[\s\S]*?<\/section>/)?.[0] ?? "";
+  assert.doesNotMatch(masterSummaryHtml, /同时[^。]+现实中容易带出|整体来看，/);
+  assert.match(masterSummaryHtml, /现实里|现实中/);
+  assert.match(root.innerHTML, /十二维命局画像/);
+  assert.match(root.innerHTML, /12 个方面/);
+  assert.match(root.innerHTML, /natal-domain-section/);
+  assert.match(root.innerHTML, /natal-domain-grid/);
+  assert.match(root.innerHTML, /natal-domain-card/);
+  assert.match(root.innerHTML, /natal-domain-index/);
+  assert.match(root.innerHTML, /natal-domain-judgement/);
+  assert.match(root.innerHTML, /natal-domain-manifestation/);
+  assert.match(root.innerHTML, /natal-domain-keywords/);
+  assert.equal((root.innerHTML.match(/<article class="natal-domain-card/g) || []).length, 12);
+  for (const label of natalImageReport.twelveDomains.map((domain) => domain.label)) {
+    assert.match(root.innerHTML, new RegExp(label));
+  }
+  assert.match(root.innerHTML, /命中取象清单/);
+  assert.match(root.innerHTML, /轻量索引/);
+  assert.match(root.innerHTML, /系统从四柱、十神、藏干、五行、关系、神煞和结构中提取到的主要象/);
+  assert.match(root.innerHTML, /<details class="natal-hit-list-section is-compact natal-hit-collapsed">/);
+  assert.match(root.innerHTML, /natal-hit-summary/);
+  assert.match(root.innerHTML, /展开查看/);
+  assert.doesNotMatch(root.innerHTML, /<details class="natal-hit-list-section is-compact natal-hit-collapsed" open/);
+  assert.match(root.innerHTML, /natal-hit-list/);
+  assert.doesNotMatch(root.innerHTML, /重点取象|查看更多取象|natal-hit-more/);
+  assert.match(root.innerHTML, /natal-hit-card/);
+  assert.match(root.innerHTML, /natal-hit-card is-high/);
+  assert.match(root.innerHTML, /natal-hit-main/);
+  assert.match(root.innerHTML, /natal-hit-domains/);
+  assert.match(root.innerHTML, /取象依据/);
+  assert.match(root.innerHTML, /natal-hit-evidence-button/);
+  assert.doesNotMatch(root.innerHTML, /查看更多取象 <span>0 个<\/span>/);
+  assert.equal((root.innerHTML.match(/<div class="natal-hit-list">/g) || []).length, 1);
+  assert.match(root.innerHTML, /对应方面/);
+  assert.match(root.innerHTML, /命盘依据/);
+  assert.match(root.innerHTML, /命中组合/);
+  assert.match(root.innerHTML, /成立条件/);
+  assert.match(root.innerHTML, /资料解释/);
+  assert.match(root.innerHTML, /现实对应/);
+  assert.match(root.innerHTML, /反证方式/);
+  assert.ok(root.innerHTML.indexOf("natal-master-summary") < root.innerHTML.indexOf("natal-domain-section"));
+  assert.ok(root.innerHTML.indexOf("natal-domain-section") < root.innerHTML.indexOf("natal-hit-list-section"));
+  assert.ok(root.innerHTML.indexOf("命盘依据") < root.innerHTML.indexOf("资料解释"));
+  assert.ok(root.innerHTML.indexOf("资料解释") < root.innerHTML.indexOf("成立条件"));
+  assert.ok(root.innerHTML.indexOf("成立条件") < root.innerHTML.indexOf("现实对应"));
+  assert.ok(root.innerHTML.indexOf("现实对应") < root.innerHTML.indexOf("反证方式"));
+  assert.ok(root.innerHTML.indexOf("natal-domain-card") < root.innerHTML.indexOf("命盘依据"));
+  assert.doesNotMatch(root.innerHTML, /专业复核资料|natal-professional-review|专业推理链|完整取象依据|原局九项取象明细|natal-evidence-sequence-card|natal-image-evidence-card|natal-image-card-evidence-grid|重点提醒|natal-focus-summary|<details class="natal-full-evidence"|原局总论|关键取象摘要|natal-overview-hero|natal-keyword-section/);
+});
+
+test("evidence packs drive local narratives without AI or recalculation", () => {
+  global.window = {};
+  Function(readFileSync("js/locationData.js", "utf8"))();
+
+  const chart = calculateBazi({
+    birthDate: "1992-08-18",
+    birthTime: "14:30",
+    birthProvince: "北京市",
+    birthplace: "北京",
+    gender: "female",
+    targetYear: 2026,
+    selectedMonth: 6,
+    trueSolarTime: true,
+  }, {
+    locations: global.window.FortuneLocationData,
+  });
+  const baseBaziViewModel = buildBaseBaziViewModel(chart);
+  const natalImageReport = buildNatalImageReport({ chart, baseBaziViewModel });
+  const luckImageReport = buildLuckImageReport({ chart, baseBaziViewModel, natalImageReport, targetYear: 2026 });
+  const yearImageReport = buildYearImageReport({ chart, baseBaziViewModel, natalImageReport, luckImageReport, targetYear: 2026 });
+  const monthImageReport = buildMonthImageReport({
+    chart,
+    baseBaziViewModel,
+    natalImageReport,
+    luckImageReport,
+    yearImageReport,
+    targetYear: 2026,
+    selectedMonth: 6,
+  });
+
+  const packs = [
+    buildNatalEvidencePack({ chart, baseBaziViewModel, natalImageReport }),
+    buildLuckEvidencePack({ baseBaziViewModel, luckImageReport }),
+    buildYearEvidencePack({ baseBaziViewModel, luckImageReport, yearImageReport }),
+    buildMonthEvidencePack({ baseBaziViewModel, luckImageReport, yearImageReport, monthImageReport }),
+  ];
+
+  for (const pack of packs) {
+    assert.ok(pack.stage);
+    assert.ok(pack.title);
+    assert.ok(Array.isArray(pack.hits));
+    assert.ok(Array.isArray(pack.relations));
+    assert.ok(Array.isArray(pack.aiContext["命中取象"]));
+    assert.ok(Array.isArray(pack.aiContext["资料解释"]));
+    assert.ok(Array.isArray(pack.aiContext["成立条件"]));
+    assert.ok(Array.isArray(pack.aiContext["反证"]));
+    assert.ok(Array.isArray(pack.aiContext["现实取象"]));
+    assert.match(pack.aiContext.instruction, /不能重新排盘/);
+    const narrative = buildLocalNarrative(pack);
+    assert.deepEqual(narrative.sections.map((section) => section.title), [
+      "命理师讲盘",
+      "现实画面",
+      "资料解释",
+      "成立条件",
+      "反证边界",
+      "师傅复核点",
+    ]);
+    assert.match(narrative.sections[0].text, /呈现|这步大运|这个流年|这个流月|原局/);
+    assert.doesNotMatch(narrative.sections[0].text, /主线先看|怎么验证|要看它在现实环境里怎么承接|资料解释：|成立条件：/);
+    assert.match(narrative.sections.find((section) => section.title === "资料解释")?.text ?? "", /资料解释/);
+    assert.match(narrative.sections.find((section) => section.title === "成立条件")?.text ?? "", /成立条件/);
+    assert.match(narrative.sections.find((section) => section.title === "反证边界")?.text ?? "", /若|不直接|未必|反证|边界/);
+    assert.match(narrative.sections.find((section) => section.title === "师傅复核点")?.text ?? "", /复核|验证|观察|现实反馈/);
+    assert.doesNotMatch(JSON.stringify({ pack, narrative }), /\/api\/|generateWithDeepSeek|readAiSettings/);
+  }
+
+  const noRelationPack = buildLuckEvidencePack({
+    luckImageReport: {
+      luckItems: [{ ganZhi: "甲子", stemTenGod: "正印", branchTenGod: "比肩", confidence: "low" }],
+    },
+  });
+  const noRelationNarrative = buildLocalNarrative(noRelationPack);
+  assert.equal(noRelationPack.relations.length, 0);
+  assert.match(noRelationNarrative.basis.join("；"), /暂无明显冲合刑害破触发/);
 });
 
 test("stage advice engine combines stage ten-god relation and confidence rules", () => {
@@ -450,9 +805,20 @@ function headerHtml(html) {
   return html.match(/<div class="stage-analysis-header">[\s\S]*?<\/div>\s*<\/div>/)?.[0] ?? "";
 }
 
+function sentenceCount(text = "") {
+  return String(text).split(/[。！？!?]/).filter((item) => item.trim()).length;
+}
+
+function countMatchedTerms(text = "", terms = []) {
+  return terms.filter((term) => String(text).includes(term)).length;
+}
+
 function createRenderRoot() {
   return {
     innerHTML: "",
+    querySelectorAll() {
+      return [];
+    },
     querySelector() {
       return { addEventListener() {} };
     },

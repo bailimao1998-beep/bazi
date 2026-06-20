@@ -17,6 +17,7 @@ export function renderStageAnalysisPanel(root, {
   aiTitle = "AI 分析",
   aiButton = "生成 AI 分析",
   selector,
+  evidenceContext = {},
   onGenerateAi,
   onSelectStageValue,
 } = {}) {
@@ -34,7 +35,7 @@ export function renderStageAnalysisPanel(root, {
       ${selectorHtml ? `<div class="stage-analysis-tools">${selectorHtml}</div>` : ""}
     </div>
     <section class="stage-image-content">
-      ${hasReport ? renderStageImageCards(report, item, stage) : `<p class="muted">等待基础排盘后生成取象内容。</p>`}
+      ${hasReport ? renderStageImageCards(report, item, stage, evidenceContext) : `<p class="muted">等待基础排盘后生成取象内容。</p>`}
     </section>
     <section class="stage-ai-collapse stage-ai-below">
       ${renderAiCollapse({
@@ -76,12 +77,12 @@ function renderStageLocalSelector(selector = {}) {
   `;
 }
 
-export function renderAiCollapse({ title, button, state = {}, hasReport = false } = {}) {
+export function renderAiCollapse({ title, button, helper, state = {}, hasReport = false } = {}) {
   const disabled = state.loading || !hasReport;
   const buttonText = state.loading ? "生成中..." : escapeHtml(button || "生成 AI 分析");
   const helperText = state.loading
     ? "正在生成 AI 分析..."
-    : "AI 用来整理语言和扩展解释，不替代原盘判断。";
+    : (helper || "AI 用来整理语言和扩展解释，不替代原盘判断。");
   const statusLabel = state.loading ? "生成中" : hasReport ? "AI 辅助" : "等待排盘";
 
   if (!state.text) {
@@ -125,12 +126,12 @@ export function renderAiCollapse({ title, button, state = {}, hasReport = false 
   `;
 }
 
-function renderStageImageCards(report = {}, item = {}, stage = "luck") {
+function renderStageImageCards(report = {}, item = {}, stage = "luck", evidenceContext = {}) {
   const summary = report.summary?.overview || item.shortImage || item.image || item.structureImage || "当前阶段取象待复核。";
   const relationGroups = buildRelationGroups(item, stage);
   const evidence = buildEvidenceSignals(report, item, stage);
   const relationTuples = relationGroups.map((group) => [`${group.title}关系触发`, group.relations]);
-  const evidencePack = buildStageEvidencePack({ report, stage });
+  const evidencePack = buildStageEvidencePack({ report, stage, evidenceContext });
   const localNarrative = buildLocalNarrative(evidencePack);
 
   return `
@@ -170,36 +171,82 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck") {
   `;
 }
 
-function buildStageEvidencePack({ report, stage }) {
-  if (stage === "luck") return buildLuckEvidencePack({ luckImageReport: report });
-  if (stage === "year") return buildYearEvidencePack({ yearImageReport: report });
-  if (stage === "month") return buildMonthEvidencePack({ monthImageReport: report });
+function buildStageEvidencePack({ report, stage, evidenceContext = {} }) {
+  if (stage === "luck") return buildLuckEvidencePack({
+    baseBaziViewModel: evidenceContext.baseBaziViewModel,
+    luckImageReport: report,
+  });
+  if (stage === "year") return buildYearEvidencePack({
+    baseBaziViewModel: evidenceContext.baseBaziViewModel,
+    luckImageReport: evidenceContext.luckImageReport,
+    yearImageReport: report,
+  });
+  if (stage === "month") return buildMonthEvidencePack({
+    baseBaziViewModel: evidenceContext.baseBaziViewModel,
+    luckImageReport: evidenceContext.luckImageReport,
+    yearImageReport: evidenceContext.yearImageReport,
+    monthImageReport: report,
+  });
   return null;
 }
 
 function renderLocalNarrativeCard(localNarrative) {
   if (!localNarrative) return "";
   const sections = Array.isArray(localNarrative.sections) ? localNarrative.sections : [];
+  const mainSection = findNarrativeSection(sections, "命理师讲盘");
+  const evidenceSections = ["现实画面", "资料解释"]
+    .map((title) => findNarrativeSection(sections, title))
+    .filter(Boolean);
+  const reviewSections = ["成立条件", "反证边界", "师傅复核点"]
+    .map((title) => findNarrativeSection(sections, title))
+    .filter(Boolean);
   return `
     <article class="stage-image-card stage-local-narrative-card">
       <div class="stage-local-narrative-head">
         <span>命理师讲盘</span>
-        <h3>${escapeHtml(localNarrative.headline || "当前阶段先看系统取象，再看现实反馈。")}</h3>
+        <h3>${escapeHtml(localNarrative.headline || "当前阶段呈现出系统命中的取象主题，现实反馈会围绕这些象展开。")}</h3>
       </div>
       ${localNarrative.basis?.length ? `
         <div class="stage-local-narrative-basis">
           ${localNarrative.basis.map((basis) => `<span>${escapeHtml(basis)}</span>`).join("")}
         </div>
       ` : ""}
-      <div class="stage-local-narrative-body">
-        ${sections.map((section) => `
-          <section>
-            <h4>${escapeHtml(section.title)}</h4>
-            <p>${escapeHtml(section.text)}</p>
-          </section>
-        `).join("")}
-      </div>
+      ${mainSection ? `
+        <section class="stage-local-narrative-main">
+          <h4>${escapeHtml(mainSection.title)}</h4>
+          <p>${escapeHtml(mainSection.text)}</p>
+        </section>
+      ` : ""}
+      ${evidenceSections.length ? `
+        <div class="stage-local-evidence-chain">
+          ${evidenceSections.map((section) => renderNarrativeMiniSection(section)).join("")}
+        </div>
+      ` : ""}
+      ${reviewSections.length ? `
+        <details class="stage-local-review-details">
+          <summary>
+            <span>专业复核</span>
+            <b>成立条件 / 反证边界 / 师傅复核点</b>
+          </summary>
+          <div class="stage-local-review-grid">
+            ${reviewSections.map((section) => renderNarrativeMiniSection(section)).join("")}
+          </div>
+        </details>
+      ` : ""}
     </article>
+  `;
+}
+
+function findNarrativeSection(sections = [], title) {
+  return sections.find((section) => section?.title === title);
+}
+
+function renderNarrativeMiniSection(section = {}) {
+  return `
+    <section>
+      <h4>${escapeHtml(section.title)}</h4>
+      <p>${escapeHtml(section.text)}</p>
+    </section>
   `;
 }
 
@@ -386,6 +433,7 @@ function stageMarker(item = {}, stage = "luck") {
 }
 
 function aiResultTitle(title = "") {
+  if (title.includes("深度")) return "AI 深度分析结果";
   if (title.includes("原局")) return "AI 原局分析结果";
   if (title.includes("大运")) return "AI 大运分析结果";
   if (title.includes("流年")) return "AI 流年分析结果";

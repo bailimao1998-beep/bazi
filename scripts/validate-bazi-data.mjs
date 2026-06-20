@@ -9,6 +9,7 @@ const required = [
   "data/rules/bazi/liunian.json",
   "data/rules/bazi/liuyue.json",
   "data/rules/bazi/shensha.json",
+  "data/rules/bazi/master-summary.json",
   "data/story-templates/year-themes.json",
   "data/story-templates/month-roles.json",
   "data/story-templates/relationship-stories.json",

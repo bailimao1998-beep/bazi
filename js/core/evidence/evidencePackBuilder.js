@@ -17,19 +17,23 @@ const stageLabels = {
 export function buildNatalEvidencePack({ chart, baseBaziViewModel, natalImageReport } = {}) {
   const dayMaster = chart?.dayMaster?.label || chart?.dayMaster?.stem || baseBaziViewModel?.dayMaster?.label || "日主待查";
   const pillarHits = collectNatalTenGodHits({ chart, baseBaziViewModel });
-  const relations = collectRelationEvidence(natalImageReport?.relations || natalImageReport?.relationGroups || natalImageReport?.keyRelations, "原局关系");
+  const patternHits = collectNatalPatternHits({ chart, baseBaziViewModel, natalImageReport });
+  const relations = collectRelationEvidence(
+    chart?.relations || baseBaziViewModel?.relations || natalImageReport?.relations || natalImageReport?.relationGroups || natalImageReport?.keyRelations,
+    "原局关系"
+  );
   const summaryText = natalImageReport?.summary?.overview || natalImageReport?.summary?.mainLine || natalImageReport?.overview || "";
 
   return createPack({
     stage: "natal",
     target: `${dayMaster}原局`,
-    hits: pillarHits,
+    hits: [...patternHits, ...pillarHits],
     relations,
     summarySource: {
-      mainLine: summaryText || `${dayMaster}原局先看日主、四柱十神和原局关系。`,
+      mainLine: summaryText || `${dayMaster}原局呈现出日主、四柱十神和原局关系共同构成的底层结构。`,
       reality: natalImageReport?.summary?.reality || natalImageReport?.summary?.usefulHint || "",
       caution: natalImageReport?.summary?.caution || "原局是底层结构，仍要等岁运触发后再看具体应象。",
-      verify: "先用长期性格、关系模式、职业取向和反复出现的人生主题验证原局。",
+      verify: "复核原局时，可回到长期性格、关系模式、职业取向和反复出现的人生主题。",
     },
   });
 }
@@ -93,7 +97,7 @@ function createStagePack({ stage, item = {}, report = {}, target, relationSource
     hits,
     relations,
     summarySource: {
-      mainLine: item.image || item.shortImage || summary.overview || `${stageLabels[stage]}主线待结合当前取象复核。`,
+      mainLine: item.image || item.shortImage || summary.overview || `${stageLabels[stage]}主线围绕当前命中的十神、关系和阶段背景展开。`,
       reality: item.reality || summary.reality || "",
       caution: item.boundary || summary.caution || "阶段取象只提示结构方向，不直接等同具体事件。",
       verify: buildVerifyText(stage, item, report),
@@ -110,6 +114,7 @@ function createPack({ stage, target, hits = [], relations = [], summarySource = 
   const stageRule = knowledgeBase.stages[stage] ?? knowledgeBase.stages.natal;
   const uniqueHits = uniqueById(hits);
   const uniqueRelations = uniqueById(relations);
+  const explanations = buildExplanationContext(uniqueHits, uniqueRelations);
   const facts = compact([
     `阶段：${stageRule?.label || stageLabels[stage] || stage}`,
     target ? `目标：${target}` : "",
@@ -128,6 +133,7 @@ function createPack({ stage, target, hits = [], relations = [], summarySource = 
     target: target || "目标待查",
     hits: uniqueHits,
     relations: uniqueRelations,
+    explanations,
     summary: {
       mainLine: summarySource.mainLine || stageRule?.masterTalk || "",
       reality: summarySource.reality || buildRealityLine(uniqueHits, uniqueRelations),
@@ -136,10 +142,27 @@ function createPack({ stage, target, hits = [], relations = [], summarySource = 
     },
     aiContext: {
       instruction: "AI 只能基于本证据包扩展说明，不能重新排盘，不能脱离证据另起判断。",
+      阶段: stageRule?.label || stageLabels[stage] || stage,
+      命中取象: uniqueHits.map((hit) => hit.label),
+      资料解释: explanations.bookExplanations,
+      成立条件: explanations.conditions,
+      反证: explanations.counterEvidence,
+      现实取象: explanations.realityImages,
       facts,
       evidence,
       questionHints: buildQuestionHints(stage, uniqueHits, uniqueRelations),
     },
+  };
+}
+
+function buildExplanationContext(hits = [], relations = []) {
+  const sources = [...hits, ...relations];
+  return {
+    bookExplanations: uniqueText(sources.map((item) => item.bookExplanation)),
+    conditions: uniqueText(sources.flatMap((item) => item.condition || [])),
+    counterEvidence: uniqueText(sources.flatMap((item) => item.counterEvidence || [])),
+    realityImages: uniqueText(sources.flatMap((item) => item.realityImages || [])),
+    masterTalk: uniqueText(sources.map((item) => item.masterTalk)),
   };
 }
 
@@ -168,8 +191,63 @@ function buildTenGodHit(label, source) {
     condition: info.condition,
     counterEvidence: info.counterEvidence,
     realityImages: info.realityImages,
+    clientTalk: info.clientTalk,
     masterTalk: info.masterTalk,
   };
+}
+
+function collectNatalPatternHits({ chart = {}, baseBaziViewModel = {}, natalImageReport = {} } = {}) {
+  const tenGodStats = chart?.tenGodStats || baseBaziViewModel?.tenGods || {};
+  const mainQi = tenGodStats.mainQi || {};
+  const fullHidden = tenGodStats.fullHidden || {};
+  const pillars = Array.isArray(baseBaziViewModel?.pillars)
+    ? baseBaziViewModel.pillars
+    : Object.values(chart?.pillars || {});
+  const relationCount = normalizeRelationList(chart?.relations || baseBaziViewModel?.relations || []).length;
+  const reportText = JSON.stringify(natalImageReport || {});
+
+  return [
+    countTenGodGroup(["比肩", "劫财"], mainQi, fullHidden) >= 2
+      ? buildPatternHit("比劫重", "原局十神统计")
+      : null,
+    pillars.some((pillar) => ["正印", "偏印"].includes(pillar?.stemTenGod || pillar?.tenGod))
+      ? buildPatternHit("印星透", "原局天干十神")
+      : null,
+    isWeakWealth(mainQi, fullHidden)
+      ? buildPatternHit("财星弱", "原局十神统计")
+      : null,
+    relationCount || /冲|合|刑|害|破|伏吟|反吟/.test(reportText)
+      ? buildPatternHit("关系触发", "原局关系")
+      : null,
+  ].filter(Boolean);
+}
+
+function buildPatternHit(label, source) {
+  const info = knowledgeBase.patterns?.[label];
+  if (!info) return null;
+  return {
+    id: `pattern:${label}:${source}`,
+    type: "pattern",
+    label,
+    source,
+    image: info.image,
+    bookExplanation: info.bookExplanation,
+    condition: info.condition,
+    counterEvidence: info.counterEvidence,
+    realityImages: info.realityImages,
+    clientTalk: info.clientTalk,
+    masterTalk: info.masterTalk,
+  };
+}
+
+function countTenGodGroup(labels = [], mainQi = {}, fullHidden = {}) {
+  return labels.reduce((sum, label) => sum + Number(mainQi[label] || 0) + Number(fullHidden[label] || 0), 0);
+}
+
+function isWeakWealth(mainQi = {}, fullHidden = {}) {
+  const visibleWealth = Number(mainQi.正财 || 0) + Number(mainQi.偏财 || 0);
+  const totalWealth = visibleWealth + Number(fullHidden.正财 || 0) + Number(fullHidden.偏财 || 0);
+  return visibleWealth === 0 && totalWealth <= 1;
 }
 
 function collectRelationEvidence(relations, source = "关系触发") {
@@ -190,6 +268,7 @@ function collectRelationEvidence(relations, source = "关系触发") {
         condition: info.condition,
         counterEvidence: info.counterEvidence,
         realityImages: info.realityImages,
+        clientTalk: info.clientTalk,
         masterTalk: info.masterTalk,
       };
     })
@@ -236,7 +315,7 @@ function buildVerifyText(stage, item, report) {
   const stageRule = knowledgeBase.stages[stage] ?? knowledgeBase.stages.natal;
   const reportVerify = compact(report?.needVerify).join("；");
   if (reportVerify) return reportVerify;
-  if (item?.confidence === "low") return "当前证据偏少，先把命中的十神和关系作为观察线索。";
+  if (item?.confidence === "low") return "当前证据偏少，命中的十神和关系可作为观察线索保留。";
   return stageRule?.verify || "";
 }
 
@@ -279,6 +358,10 @@ function uniqueById(items = []) {
     seen.add(item.id);
     return true;
   });
+}
+
+function uniqueText(items = []) {
+  return [...new Set(compact(items))];
 }
 
 function compact(items = []) {

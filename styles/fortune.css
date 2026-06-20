@@ -1652,35 +1652,89 @@
   font-weight: 900;
 }
 
-.stage-local-narrative-body {
+.stage-local-narrative-main {
+  padding: 14px;
+  border: 1px solid rgba(47, 111, 115, 0.18);
+  border-radius: 10px;
+  background: rgba(233, 247, 243, 0.48);
+}
+
+.stage-local-narrative-main h4,
+.stage-local-evidence-chain h4,
+.stage-local-review-grid h4 {
+  margin: 0 0 7px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.stage-local-narrative-main p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 760;
+  line-height: 1.82;
+}
+
+.stage-local-evidence-chain,
+.stage-local-review-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
-.stage-local-narrative-body section {
+.stage-local-evidence-chain section,
+.stage-local-review-grid section {
   padding: 12px;
   border: 1px solid #eadfce;
   border-radius: 10px;
   background: rgba(255, 253, 248, 0.76);
 }
 
-.stage-local-narrative-body h4 {
-  margin: 0 0 7px;
-  color: var(--accent);
-  font-size: 14px;
-  font-weight: 950;
-}
-
-.stage-local-narrative-body p {
+.stage-local-evidence-chain p,
+.stage-local-review-grid p {
   margin: 0;
-  color: var(--ink);
-  font-size: 15px;
+  color: var(--muted);
+  font-size: 14px;
   line-height: 1.78;
 }
 
+.stage-local-review-details {
+  border: 1px solid #e4d6c3;
+  border-radius: 10px;
+  background: rgba(255, 250, 241, 0.72);
+  overflow: hidden;
+}
+
+.stage-local-review-details > summary {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--accent);
+  font-weight: 950;
+}
+
+.stage-local-review-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.stage-local-review-details > summary b {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.stage-local-review-grid {
+  padding: 0 12px 12px;
+}
+
 @media (max-width: 900px) {
-  .stage-local-narrative-body {
+  .stage-local-evidence-chain,
+  .stage-local-review-grid {
     grid-template-columns: 1fr;
   }
 

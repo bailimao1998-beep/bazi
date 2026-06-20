@@ -40,6 +40,7 @@ export function createAppState(initialInput = defaultInput) {
     aiChatOpen: false,
     yearAiGenerationId: 0,
     locationCatalog: { cities: [] },
+    masterSummaryDatabase: null,
   };
 }
 

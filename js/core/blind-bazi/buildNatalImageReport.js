@@ -1,3 +1,5 @@
+import { buildTwelveDomainPortrait } from "../domain/domainNarrativeEngine.js";
+
 const elementLabels = { wood: "木", fire: "火", earth: "土", metal: "金", water: "水" };
 const elementImages = {
   wood: "生发、规划、伸展、重成长",
@@ -31,12 +33,20 @@ export function buildNatalImageReport({ chart, baseBaziViewModel } = {}) {
     buildMovementCard(context),
     buildLifePatternCard(context),
   ].map(normalizeCard);
-  return {
+  const report = {
     summary: buildSummary(context, imageCards),
     imageCards,
     keySignals: buildKeySignals(context, imageCards),
     weakSignals: buildWeakSignals(context),
     needVerify: buildNeedVerify(context, imageCards),
+  };
+  return {
+    ...report,
+    twelveDomains: buildTwelveDomainPortrait({
+      chart: safeChart,
+      baseBaziViewModel: viewModel,
+      natalImageReport: report,
+    }),
   };
 }
 

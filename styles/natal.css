@@ -975,12 +975,12 @@
 .natal-master-summary {
   display: grid;
   gap: 12px;
-  padding: 18px;
-  border: 1px solid #d9cbb8;
-  border-radius: 12px;
+  padding: 18px 20px;
+  border: 1px solid #eadfce;
+  border-radius: 14px;
   background:
-    radial-gradient(circle at 96% 8%, rgba(47, 111, 115, 0.08), transparent 160px),
-    linear-gradient(180deg, #fffdf8, #fffaf1);
+    radial-gradient(circle at 100% 0%, rgba(47, 111, 115, 0.06), transparent 140px),
+    linear-gradient(180deg, #fffdf8, #fff8ed);
 }
 
 .natal-master-summary .eyebrow {
@@ -991,18 +991,38 @@
 }
 
 .natal-master-summary h3 {
-  margin: 0;
+  margin: 6px 0 2px;
   color: var(--ink);
-  font-size: 21px;
-  line-height: 1.65;
+  font-size: 22px;
+  line-height: 1.45;
   font-weight: 950;
 }
 
 .natal-master-summary p:not(.eyebrow) {
   margin: 0;
   color: var(--ink);
-  font-size: 15px;
-  line-height: 1.8;
+  font-size: 14px;
+  line-height: 1.85;
+}
+
+.natal-master-sections {
+  display: grid;
+  gap: 10px;
+}
+
+.natal-master-sections p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.85;
+}
+
+.natal-master-sections b {
+  display: inline-flex;
+  margin-right: 8px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 950;
 }
 
 .natal-portrait-section {
@@ -1096,20 +1116,26 @@
   gap: 12px;
 }
 
+@media (min-width: 1500px) {
+  .natal-domain-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .natal-domain-card {
   min-width: 0;
-  min-height: 0;
+  min-height: 240px;
   position: relative;
   display: grid;
-  gap: 10px;
+  gap: 12px;
   align-content: start;
-  padding: 15px;
-  border: 1px solid #deceb7;
-  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #eadfce;
+  border-radius: 14px;
   background:
-    radial-gradient(circle at 100% 0%, rgba(47, 111, 115, 0.08), transparent 92px),
-    #fffdf8;
-  box-shadow: 0 10px 22px rgba(55, 44, 28, 0.04);
+    radial-gradient(circle at 100% 0%, rgba(47, 111, 115, 0.06), transparent 120px),
+    linear-gradient(180deg, #fffdf8, #fffaf1);
+  box-shadow: 0 8px 22px rgba(89, 64, 32, 0.04);
 }
 
 .natal-domain-card::before {
@@ -1175,6 +1201,101 @@
   color: var(--muted);
   font-size: 13px;
   line-height: 1.65;
+}
+
+.natal-domain-pressure {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.68;
+}
+
+.natal-hit-index {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #eadfce;
+  border-radius: 12px;
+  background: rgba(255, 253, 248, 0.72);
+}
+
+.natal-hit-summary-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.natal-hit-summary-chips span {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border: 1px solid #d9cbb8;
+  border-radius: 999px;
+  background: #fffdf8;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.natal-hit-details {
+  border: 1px dashed #d9cbb8;
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.66);
+}
+
+.natal-hit-details > summary {
+  cursor: pointer;
+  padding: 10px 12px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.natal-hit-compact-list {
+  display: grid;
+  gap: 8px;
+  padding: 0 10px 10px;
+}
+
+.natal-hit-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #eadfce;
+  border-radius: 10px;
+  background: #fffdf8;
+}
+
+.natal-hit-row .natal-hit-main {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.natal-hit-row .natal-hit-main span {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.natal-hit-row .natal-hit-main strong {
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.natal-hit-row .natal-hit-main p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.natal-hit-row .natal-hit-detail {
+  flex: 0 0 auto;
 }
 
 .natal-domain-keywords {

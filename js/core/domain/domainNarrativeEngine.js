@@ -6,72 +6,84 @@ const domainCopy = {
     title: "性格有主见，做事讲节奏和边界",
     judgement: "这个人性格里主见和边界感比较明，做事讲自己的节奏，不喜欢被别人安排得太死。",
     manifestation: "脾气上不太喜欢被逼着走，遇事容易先按自己的判断回应，也会比较在意自己是否被尊重。",
+    pressure: "压力点在于关系、人事或环境变化一多，状态容易被牵动，容易较快进入判断和调整模式。",
     low: "命主自身这一项不是最外放的主线，但日主、月令和五行底色仍会影响做事节奏与反应方式。",
   },
   parents: {
     title: "早年环境和家庭秩序有存在感",
     judgement: "早年环境和家庭秩序对这个人的底色有影响，家中规则、父母分工、成长资源或早期压力容易留下痕迹。",
     manifestation: "容易在现实里体现为重家庭规则、在意稳定来源，也会把早年经验带进后来的选择方式。",
+    pressure: "压力点在于家庭责任和个人选择容易互相牵扯，现实里要看边界能不能分清。",
     low: "父母家庭不是原局最突出的主线，更多从年柱月柱看基础背景和早年环境。",
   },
   siblings: {
     title: "同辈关系带出竞争合作和资源边界",
     judgement: "同辈关系是这个盘里有存在感的一条线，兄弟姐妹、同龄人、合作伙伴容易带来竞争、分工和资源分配议题。",
     manifestation: "容易在朋友、同事、合伙关系里遇到分利、协作、边界和谁来主导的问题。",
+    pressure: "压力点在于人情和利益混在一起时，容易出现消耗、比较或分配不均。",
     low: "兄弟同辈不是原局最突出的主线，更多作为同龄关系、合作分工和资源边界的辅助线索。",
   },
   spouse: {
     title: "感情里安全感和边界感较重要",
     judgement: "感情里安全感和边界感是重点，关系推进不只是情绪互动，也容易牵到沟通、责任和现实分配。",
     manifestation: "容易表现为在亲密关系中既重连接，也会在意对方是否尊重自己的节奏和边界。",
+    pressure: "压力点在于关系里一旦牵涉现实责任，沟通节奏和边界感就会被放大。",
     low: "夫妻感情不是原局最重的外显主题，先以日支关系宫看基本相处模式。",
   },
   children: {
     title: "子女结果层偏向输出、作品和长期规划",
     judgement: "子女和结果层更多体现为输出、作品、项目成果和长期规划，这个方向看时柱和食伤能不能把想法落成结果。",
     manifestation: "容易通过表达、技能、项目、作品或后续规划来呈现成果感。",
+    pressure: "压力点在于想法要持续落地，不能只停在计划、表达或短期热度里。",
     low: "子女结果这一项不是原局最突出的主线，更多要等大运流年引动时柱或食伤后才会明显。",
   },
   wealth: {
     title: "财务要看资源调度和承载力",
     judgement: "财不是不能有，而是要看资源怎么被调度、能不能留住，钱财容易和技能、项目、合作、人情或后天运势产生关系。",
     manifestation: "容易表现为收入来源不只一种，财务稳定度会受到合作分配、专业能力和资源承接影响。",
+    pressure: "压力点在于钱财进出容易被合作、人情、项目周转或资源分配牵动。",
     low: "财帛财富这一项不是原局最突出的主线，更多要等大运流年把财星或食伤引出来后才会明显。",
   },
   health: {
     title: "体质层面更像长期倾向",
     judgement: "体质层面更像一种长期倾向，不是直接断疾病，这个盘更适合看睡眠、消化、压力反应和寒湿燥热的体感变化。",
     manifestation: "容易在作息、精力、情绪压力和身体反应之间形成固定模式。",
+    pressure: "压力点在于长期紧绷、作息不稳或情绪消耗时，体感反应会更明显。",
     low: "疾厄健康只作体质取象，原局证据不重时以生活习惯和五行偏性作辅助参考。",
   },
   movement: {
     title: "环境变化和空间转换容易应事",
     judgement: "环境变化感比较明显，容易通过搬迁、出行、异地、岗位环境变化或生活节奏切换来应事。",
     manifestation: "容易在通勤、跨城、外部环境、人际圈层或工作场景变化中触发状态变化。",
+    pressure: "压力点在于外部环境一动，生活节奏、关系安排和工作状态也容易跟着调整。",
     low: "迁移环境不是原局最突出的主线，更多等岁运冲动或现实计划引动后才明显。",
   },
   friends: {
     title: "外部圈层带机会，也带人情牵连",
     judgement: "外部朋友和人脉资源容易带来机会，也容易带来牵连，合作、人情、资源边界是交友里要处理的重点。",
     manifestation: "容易在朋友圈、合作圈、资源交换里出现互相帮忙、互相消耗或边界不清的情况。",
+    pressure: "压力点在于机会和牵连常常一起出现，人情成本和资源边界需要提前说清。",
     low: "交友人脉不是原局最突出的主线，外部圈层更多要看后天环境和岁运牵动。",
   },
   career: {
     title: "事业围绕规则、职责和能力输出展开",
     judgement: "事业上更容易围绕规则、岗位身份、职责压力、考核和技术输出展开，职业发展看规则承接和能力输出能否配合。",
     manifestation: "容易在岗位责任、专业能力、流程要求和成果交付之间找到事业落点。",
+    pressure: "压力点在于规则压力和个人表达要能配合，否则容易在职责和自由度之间拉扯。",
     low: "官禄事业不是原局最突出的主线，事业落点更多要看后天行业和岁运承接。",
   },
   property: {
     title: "田宅资产看固定承载和家庭资源",
     judgement: "田宅资产这条线更适合看固定资产、居住环境、家庭资产和稳定承载力。",
     manifestation: "容易通过居住环境、家庭资源、长期积累或固定资产议题体现出来。",
+    pressure: "压力点在于固定承载要看后天积累和家庭资源，不能只凭原局一处信号下结论。",
     low: "田宅资产取象证据不强，先看家庭背景、财星承接和土气稳定度。",
   },
   fortune: {
     title: "精神安全感和长期心态是重点",
     judgement: "福德精神不是单纯说享福，而是看这个人的精神安全感、长期心态、兴趣系统和内在消耗。",
     manifestation: "容易在学习兴趣、信念系统、享受能力、孤独感、内耗和舒适度上形成固定倾向。",
+    pressure: "压力点在于内在消耗和安全感需求会反复出现，需要稳定系统来承接。",
     low: "福德精神不是原局最外显的主线，更多从印星、食伤和五行流通看长期心态。",
   },
 };
@@ -89,6 +101,21 @@ const domainCoreKeywords = {
   career: ["岗位职责", "规则压力", "专业承接", "成果交付", "事业稳定"],
   property: ["居住环境", "固定资产", "家庭资源", "稳定承载", "长期积累"],
   fortune: ["精神安全感", "长期心态", "兴趣系统", "内在消耗", "放松能力"],
+};
+
+const domainCombinationPreference = {
+  self: ["peer_heavy_wealth_weak", "element_bias_clear", "day_branch_clashed", "officer_visible_resource_support"],
+  parents: ["earth_visible_wealth_resource_trace", "officer_visible_resource_support"],
+  siblings: ["peer_heavy_wealth_weak", "peer_heavy_wealth_visible"],
+  spouse: ["day_branch_clashed", "day_branch_combined", "day_branch_punished_harmed_broken"],
+  children: ["resource_visible_output_visible", "output_visible_wealth_trace"],
+  wealth: ["peer_heavy_wealth_weak", "peer_heavy_wealth_visible", "output_visible_wealth_trace", "earth_visible_wealth_resource_trace"],
+  health: ["water_visible_cold_damp", "element_bias_clear", "day_branch_punished_harmed_broken", "day_branch_clashed"],
+  movement: ["day_branch_clashed", "water_visible_cold_damp"],
+  friends: ["peer_heavy_wealth_weak", "peer_heavy_wealth_visible", "day_branch_combined"],
+  career: ["officer_visible_resource_support", "officer_visible_hurting_visible", "output_visible_wealth_trace", "resource_visible_output_visible"],
+  property: ["earth_visible_wealth_resource_trace"],
+  fortune: ["resource_visible_output_visible", "officer_visible_resource_support", "water_visible_cold_damp", "element_bias_clear"],
 };
 
 const domainFrontOverrides = {
@@ -320,6 +347,7 @@ const domainFrontOverrides = {
 
 export function buildTwelveDomainPortrait({ chart, baseBaziViewModel, natalImageReport } = {}) {
   const evidenceResult = buildDomainEvidence({ chart, baseBaziViewModel, natalImageReport });
+  const primaryCombinationUse = new Map();
   return domainRules.map((rule) => {
     const evidence = evidenceResult.domainEvidence[rule.key] ?? {
       score: 0,
@@ -328,11 +356,15 @@ export function buildTwelveDomainPortrait({ chart, baseBaziViewModel, natalImage
       matchedCombinations: [],
       confidence: "low",
     };
-    return buildDomainPortrait(rule, evidence);
+    const primaryCombination = pickPrimaryCombinationForDomain(rule.key, evidence, primaryCombinationUse);
+    if (primaryCombination?.id) {
+      primaryCombinationUse.set(primaryCombination.id, (primaryCombinationUse.get(primaryCombination.id) || 0) + 1);
+    }
+    return buildDomainPortrait(rule, evidence, primaryCombination);
   });
 }
 
-function buildDomainPortrait(rule, evidence) {
+function buildDomainPortrait(rule, evidence, primaryCombination = null) {
   const copy = domainCopy[rule.key] ?? {};
   const combinations = evidence.matchedCombinations ?? [];
   const confidence = evidence.confidence ?? "low";
@@ -348,15 +380,15 @@ function buildDomainPortrait(rule, evidence) {
     confidence === "low" ? "这一项在原局不是主线，阶段运势不引动时表现会收敛。" : "",
     "若现实经历与命盘取象不贴合，优先回到柱位、十神强弱和岁运触发复核。",
   ]).slice(0, 6);
-  const frontText = buildDomainFrontText(rule.key, evidence, rule);
+  const frontText = buildDomainFrontText(rule.key, evidence, rule, primaryCombination);
 
   return {
     key: rule.key,
     label: rule.label,
-    title: buildDomainHumanTitle(rule.key, evidence),
+    title: buildDomainHumanTitle(rule.key, evidence, primaryCombination),
     judgement: frontText.judgement,
     manifestation: frontText.manifestation,
-    pressure: combinations.map((item) => item.pressure).filter(Boolean).join(" ") || rule.pressureImages.join("、"),
+    pressure: frontText.pressure,
     keywords,
     tags: keywords,
     evidence: evidenceTexts.length ? evidenceTexts : [rule.defaultJudgement],
@@ -377,8 +409,8 @@ function buildDomainPortrait(rule, evidence) {
   };
 }
 
-function buildDomainHumanTitle(domainKey, evidence = {}) {
-  const override = findDomainFrontOverride(domainKey, evidence);
+function buildDomainHumanTitle(domainKey, evidence = {}, primaryCombination = null) {
+  const override = findDomainFrontOverride(domainKey, evidence, primaryCombination);
   const copy = domainCopy[domainKey] ?? {};
   return cleanFrontText(override?.title || copy.title || "这一项要看后天引动后的表现");
 }
@@ -392,9 +424,9 @@ function buildDomainKeywords(rule = {}, combinations = []) {
   ]).slice(0, 5);
 }
 
-function buildDomainFrontText(domainKey, evidence = {}, rule = {}) {
+function buildDomainFrontText(domainKey, evidence = {}, rule = {}, primaryCombination = null) {
   const copy = domainCopy[domainKey] ?? {};
-  const override = findDomainFrontOverride(domainKey, evidence);
+  const override = findDomainFrontOverride(domainKey, evidence, primaryCombination);
   const confidence = evidence.confidence ?? "low";
   const lowText = copy.low || rule.weakEvidenceText || "这一项不是原局最突出的主线，更多要等大运流年引动后才会明显。";
   const judgement = confidence === "low"
@@ -403,19 +435,37 @@ function buildDomainFrontText(domainKey, evidence = {}, rule = {}) {
   const manifestation = confidence === "low"
     ? "阶段环境和岁运触发到位时，这个方面才更容易显出来。"
     : (override?.manifestation || copy.manifestation || rule.weakEvidenceText || "");
+  const pressure = confidence === "low"
+    ? (copy.pressure || "压力点在于这一项原局证据较轻，阶段运势不引动时表现会收敛。")
+    : (override?.pressure || copy.pressure || compact(evidence.matchedCombinations?.map((item) => item.pressure))[0] || rule.pressureImages.join("、"));
 
   return {
     judgement: limitSentences(cleanFrontText(judgement), 2),
     manifestation: limitSentences(cleanFrontText(manifestation), 2),
+    pressure: limitSentences(cleanFrontText(pressure), 1),
   };
 }
 
-function findDomainFrontOverride(domainKey, evidence = {}) {
-  for (const combination of evidence.matchedCombinations ?? []) {
+function pickPrimaryCombinationForDomain(domainKey, evidence = {}, useCounts = new Map()) {
+  const combinations = evidence.matchedCombinations ?? [];
+  const preferred = domainCombinationPreference[domainKey] ?? [];
+  const ranked = [...combinations].sort((a, b) => {
+    const aIndex = preferred.indexOf(a.id);
+    const bIndex = preferred.indexOf(b.id);
+    const aScore = aIndex >= 0 ? 100 - aIndex : 0;
+    const bScore = bIndex >= 0 ? 100 - bIndex : 0;
+    return bScore - aScore;
+  });
+  return ranked.find((combination) => {
     const copy = domainFrontOverrides[combination.id]?.[domainKey];
-    if (copy) return copy;
-  }
-  return null;
+    if (!copy) return false;
+    return (useCounts.get(combination.id) || 0) < 2;
+  }) || null;
+}
+
+function findDomainFrontOverride(domainKey, evidence = {}, primaryCombination = null) {
+  const primary = primaryCombination || pickPrimaryCombinationForDomain(domainKey, evidence);
+  return primary ? domainFrontOverrides[primary.id]?.[domainKey] || null : null;
 }
 
 function buildBookExplanation(rule) {
@@ -460,9 +510,13 @@ function joinText(...parts) {
     .join(" ");
 }
 
-function unique(items = []) {
-  return [...new Set((Array.isArray(items) ? items : [items])
+function compact(items = []) {
+  return (Array.isArray(items) ? items : [items])
     .flat()
     .filter((item) => item !== undefined && item !== null && String(item).trim())
-    .map((item) => String(item).trim()))];
+    .map((item) => String(item).trim());
+}
+
+function unique(items = []) {
+  return [...new Set(compact(items))];
 }

@@ -150,12 +150,21 @@ function renderNatalMasterSummary(report = {}, context = {}) {
     hitList,
     database: context.masterSummaryDatabase,
   });
+  const sectionTexts = Array.isArray(summary.sections) && summary.sections.length
+    ? summary.sections
+    : [
+      { key: "main", title: "命局主线", text: summary.paragraph },
+      { key: "reality", title: "现实牵动", text: summary.realityLine },
+    ].filter((section) => section.text);
   return `
     <section class="natal-master-summary">
       <p class="eyebrow">命理师总批</p>
       <h3>${display(summary.headline)}</h3>
-      <p>${display(summary.paragraph)}</p>
-      ${summary.realityLine ? `<p class="natal-master-reality">${display(summary.realityLine)}</p>` : ""}
+      <div class="natal-master-sections">
+        ${sectionTexts.map((section) => `
+          <p><b>${display(section.title)}</b>${display(section.text)}</p>
+        `).join("")}
+      </div>
       ${summary.mainLines?.length ? `
         <div class="natal-master-lines">
           ${summary.mainLines.map((line) => `
@@ -193,8 +202,9 @@ function renderNatalDomainCard(domain = {}, index = 0) {
         </div>
         <strong>${display(domain.title)}</strong>
       </div>
-      <p class="natal-domain-judgement">${display(firstSentence(domain.judgement || domain.summary || "这一项不是原局最突出的主线，更多要等大运流年引动后才会明显。"))}</p>
-      <p class="natal-domain-manifestation">${display(firstSentence(domain.manifestation || domain.reality || "这一项会通过阶段环境、现实选择和岁运触发慢慢显出来。"))}</p>
+      <p class="natal-domain-judgement">${display(cleanCardText(domain.judgement || domain.summary || "这一项不是原局最突出的主线，更多要等大运流年引动后才会明显。", 2))}</p>
+      <p class="natal-domain-manifestation">${display(cleanCardText(domain.manifestation || domain.reality || "这一项会通过阶段环境、现实选择和岁运触发慢慢显出来。", 2))}</p>
+      <p class="natal-domain-pressure">${display(cleanCardText(domain.pressure || "压力点要回到对应柱位、十神强弱和岁运触发里确认。", 1))}</p>
       <div class="natal-domain-keywords">
         ${keywords.map((keyword) => `<span>${display(keyword)}</span>`).join("")}
       </div>
@@ -208,48 +218,45 @@ function renderNatalDomainCard(domain = {}, index = 0) {
 
 function renderNatalHitListSection(report = {}) {
   const rows = buildNatalHitList(report);
+  const chips = rows.slice(0, 8);
   return `
-    <details class="natal-hit-list-section is-compact natal-hit-collapsed">
-      <summary class="natal-hit-summary">
-        <div class="board-title">
-          <h3>命中取象清单</h3>
-          <span>轻量索引 · 共 ${safe(rows.length)} 个象</span>
-        </div>
-        <b>展开查看</b>
-      </summary>
-      <div class="natal-hit-panel-body">
-        <p class="natal-hit-intro">系统从四柱、十神、藏干、五行、关系、神煞和结构中提取到的主要象。</p>
-        ${rows.length
-          ? `
-            <div class="natal-hit-list">
-              ${rows.map(renderNatalHitCard).join("")}
-            </div>
-          `
-          : `<p class="muted">当前原局未形成可列出的明显取象。</p>`}
+    <section class="natal-hit-index">
+      <div class="board-title">
+        <h3>取象索引</h3>
+        <span>共 ${safe(rows.length)} 个象</span>
       </div>
-    </details>
+      <p class="natal-hit-intro">系统从四柱、十神、藏干、五行、关系和结构中提取到的主要取象。</p>
+      ${chips.length ? `
+        <div class="natal-hit-summary-chips">
+          ${chips.map((item) => `<span>${display(item.name)}</span>`).join("")}
+        </div>
+      ` : `<p class="muted">当前原局未形成可列出的明显取象。</p>`}
+      ${rows.length ? `
+        <details class="natal-hit-details">
+          <summary>展开全部取象依据</summary>
+          <div class="natal-hit-compact-list">
+            ${rows.map(renderNatalHitCard).join("")}
+          </div>
+        </details>
+      ` : ""}
+    </section>
   `;
 }
 
 function renderNatalHitCard(item = {}) {
   const detailItems = compact(item.evidence).slice(0, 5);
   return `
-    <article class="natal-hit-card is-${safe(item.importance || "medium")}">
+    <article class="natal-hit-row is-${safe(item.importance || "medium")}">
       <div class="natal-hit-main">
         <span>${display(item.category || item.type || "取象")} · ${display(confidenceLabel(item.importance || item.confidence || "medium"))}</span>
         <strong>${display(item.name)}</strong>
-        <p>${display(item.brief || compact(item.image).join("、") || "该象用于支撑原局命局画像。")}</p>
-      </div>
-      <div class="natal-hit-domain-wrap">
-        <b>对应方面</b>
-        <div class="natal-hit-domains">
-          ${compact(item.domains).map((domain) => `<span>${display(domain)}</span>`).join("")}
-        </div>
+        <p class="natal-hit-domains">对应方面：${display(compact(item.domains).join("、") || "原局命局画像")}</p>
       </div>
       <details class="natal-hit-detail">
-        <summary class="natal-hit-evidence-button">取象依据</summary>
+        <summary class="natal-hit-evidence-button">依据</summary>
         <div class="natal-hit-detail-body">
           <p><b>来源</b><span>${display(item.source || "原局结构")}</span></p>
+          <p><b>含义</b><span>${display(item.brief || compact(item.image).join("、") || "该象用于支撑原局命局画像。")}</span></p>
           ${detailItems.length ? `
             <ul>
               ${detailItems.map((detail) => `<li>${display(detail)}</li>`).join("")}
@@ -473,6 +480,13 @@ function limitText(text = "", maxLength = 52) {
 function firstSentence(text = "") {
   const value = String(text).replace(/\s+/g, " ").trim();
   return value.match(/[^。！？!?]+[。！？!?]?/)?.[0]?.trim() || value;
+}
+
+function cleanCardText(text = "", maxSentences = 2) {
+  const value = String(text).replace(/\s+/g, " ").trim();
+  if (!value) return "";
+  const parts = value.match(/[^。！？!?]+[。！？!?]?/g) ?? [value];
+  return parts.slice(0, maxSentences).join("").trim();
 }
 
 function confidenceScore(value) {

@@ -261,16 +261,24 @@ test("index and app use only the current frontend panels", () => {
   assert.match(natalImagePanelSource, /buildNatalMasterSummary/);
   assert.doesNotMatch(natalImagePanelSource, /buildLocalNarrative/);
   assert.match(natalImagePanelSource + styles, /natal-master-summary/);
+  assert.match(natalImagePanelSource + styles, /natal-master-sections/);
   assert.match(natalImagePanelSource + styles, /natal-domain-section/);
   assert.match(natalImagePanelSource + styles, /natal-domain-card/);
   assert.match(natalImagePanelSource + styles, /natal-domain-grid/);
-  assert.match(natalImagePanelSource + styles, /natal-hit-list-section/);
-  assert.match(natalImagePanelSource + styles, /natal-hit-card/);
+  assert.match(natalImagePanelSource + styles, /natal-domain-pressure/);
+  assert.match(natalImagePanelSource + styles, /natal-hit-index/);
+  assert.match(natalImagePanelSource + styles, /natal-hit-summary-chips/);
+  assert.match(natalImagePanelSource + styles, /natal-hit-details/);
+  assert.match(natalImagePanelSource + styles, /natal-hit-compact-list/);
+  assert.match(natalImagePanelSource + styles, /natal-hit-row/);
   assert.match(natalImagePanelSource, /renderNatalDomainReport/);
   assert.match(natalImagePanelSource, /renderNatalHitListSection/);
   assert.match(natalImagePanelSource, /buildNatalHitList/);
   assert.match(natalImagePanelSource, /buildNatalAiEvidencePack/);
   assert.match(natalImagePanelSource, /buildNatalMasterSummary/);
+  assert.match(natalImagePanelSource, /cleanCardText/);
+  assert.doesNotMatch(natalImagePanelSource, /firstSentence\(domain\.judgement/);
+  assert.doesNotMatch(natalImagePanelSource, /firstSentence\(domain\.manifestation/);
   assert.doesNotMatch(natalImagePanelSource, /function buildNatalMasterSummaryText/);
   assert.doesNotMatch(natalImagePanelSource, /function buildNatalRealityCompareText/);
   assert.match(natalImagePanelSource, /renderDomainEvidenceDetail/);
@@ -320,10 +328,14 @@ test("index and app use only the current frontend panels", () => {
   assert.match(domainNarrativeSource, /export function buildTwelveDomainPortrait/);
   assert.match(domainNarrativeSource, /function buildDomainHumanTitle/);
   assert.match(domainNarrativeSource, /function buildDomainFrontText/);
+  assert.match(domainNarrativeSource, /function pickPrimaryCombinationForDomain/);
+  assert.match(domainNarrativeSource, /pressure/);
   assert.match(domainNarrativeSource, /buildDomainEvidence/);
   assert.match(domainNarrativeSource, /domainRules/);
   assert.match(masterSummaryEngineSource, /export function buildNatalMasterSummary/);
   assert.match(masterSummaryEngineSource, /export async function loadMasterSummaryDatabase/);
+  assert.match(masterSummaryEngineSource, /function buildMasterSections/);
+  assert.match(masterSummaryEngineSource, /function composeMasterHeadline/);
   assert.match(masterSummaryEngineSource, /defaultMasterSummaryDatabase/);
   assert.ok(Array.isArray(masterSummaryJson.rules));
   assert.ok(masterSummaryJson.rules.length >= 7);
@@ -565,11 +577,30 @@ test("frontend bazi and blind-bazi chain calculates reports locally", () => {
   assert.ok(masterSummary.headline);
   assert.ok(masterSummary.paragraph);
   assert.ok(masterSummary.realityLine);
+  assert.deepEqual(masterSummary.sections.map((section) => section.key), [
+    "main",
+    "personality",
+    "reality",
+    "future",
+  ]);
+  assert.deepEqual(masterSummary.sections.map((section) => section.title), [
+    "命局主线",
+    "性格与能力",
+    "现实牵动",
+    "后续重点",
+  ]);
   assert.ok(masterSummary.mainLines.length >= 2);
   assert.ok(masterSummary.mainLines.length <= 3);
+  assert.ok(masterSummary.tags.length >= 2);
   assert.ok(masterSummary.evidence.length > 0);
   assert.match(masterSummary.paragraph, /这个盘|这个人|原局/);
   assert.match(masterSummary.realityLine, /现实/);
+  assert.doesNotMatch(
+    JSON.stringify(masterSummary),
+    /观察入口|开盘先看|先看|再看|资料取象|命中依据|需复核|可观察/,
+  );
+  assert.ok(masterSummary.headline.length <= 28);
+  assert.doesNotMatch(masterSummary.headline, /。$/);
   assert.notEqual(
     masterSummary.paragraph,
     natalImageReport.twelveDomains.slice(0, 3).map((domain) => domain.title).join(""),
@@ -660,7 +691,12 @@ test("stage analysis panels render calculated report data without breaking refre
   assert.match(root.innerHTML, /natal-master-summary/);
   assert.match(root.innerHTML, /这个原局|这个人|现实中|容易|倾向/);
   const masterSummaryHtml = root.innerHTML.match(/<section class="natal-master-summary">[\s\S]*?<\/section>/)?.[0] ?? "";
-  assert.doesNotMatch(masterSummaryHtml, /同时[^。]+现实中容易带出|整体来看，/);
+  assert.match(masterSummaryHtml, /natal-master-sections/);
+  assert.match(masterSummaryHtml, /命局主线/);
+  assert.match(masterSummaryHtml, /性格与能力/);
+  assert.match(masterSummaryHtml, /现实牵动/);
+  assert.match(masterSummaryHtml, /后续重点/);
+  assert.doesNotMatch(masterSummaryHtml, /同时[^。]+现实中容易带出|整体来看，|观察入口|开盘先看|先看|再看|资料取象|命中依据|需复核|可观察/);
   assert.match(masterSummaryHtml, /现实里|现实中/);
   assert.match(root.innerHTML, /十二维命局画像/);
   assert.match(root.innerHTML, /12 个方面/);
@@ -670,28 +706,27 @@ test("stage analysis panels render calculated report data without breaking refre
   assert.match(root.innerHTML, /natal-domain-index/);
   assert.match(root.innerHTML, /natal-domain-judgement/);
   assert.match(root.innerHTML, /natal-domain-manifestation/);
+  assert.match(root.innerHTML, /natal-domain-pressure/);
   assert.match(root.innerHTML, /natal-domain-keywords/);
   assert.equal((root.innerHTML.match(/<article class="natal-domain-card/g) || []).length, 12);
   for (const label of natalImageReport.twelveDomains.map((domain) => domain.label)) {
     assert.match(root.innerHTML, new RegExp(label));
   }
-  assert.match(root.innerHTML, /命中取象清单/);
-  assert.match(root.innerHTML, /轻量索引/);
-  assert.match(root.innerHTML, /系统从四柱、十神、藏干、五行、关系、神煞和结构中提取到的主要象/);
-  assert.match(root.innerHTML, /<details class="natal-hit-list-section is-compact natal-hit-collapsed">/);
-  assert.match(root.innerHTML, /natal-hit-summary/);
-  assert.match(root.innerHTML, /展开查看/);
-  assert.doesNotMatch(root.innerHTML, /<details class="natal-hit-list-section is-compact natal-hit-collapsed" open/);
-  assert.match(root.innerHTML, /natal-hit-list/);
+  assert.match(root.innerHTML, /取象索引/);
+  assert.match(root.innerHTML, /系统从四柱、十神、藏干、五行、关系和结构中提取到的主要取象/);
+  assert.match(root.innerHTML, /natal-hit-index/);
+  assert.match(root.innerHTML, /natal-hit-summary-chips/);
+  assert.match(root.innerHTML, /natal-hit-details/);
+  assert.match(root.innerHTML, /展开全部取象依据/);
+  assert.doesNotMatch(root.innerHTML, /<details class="natal-hit-details" open/);
+  assert.match(root.innerHTML, /natal-hit-compact-list/);
   assert.doesNotMatch(root.innerHTML, /重点取象|查看更多取象|natal-hit-more/);
-  assert.match(root.innerHTML, /natal-hit-card/);
-  assert.match(root.innerHTML, /natal-hit-card is-high/);
-  assert.match(root.innerHTML, /natal-hit-main/);
+  assert.match(root.innerHTML, /natal-hit-row/);
   assert.match(root.innerHTML, /natal-hit-domains/);
-  assert.match(root.innerHTML, /取象依据/);
+  assert.match(root.innerHTML, /依据/);
   assert.match(root.innerHTML, /natal-hit-evidence-button/);
   assert.doesNotMatch(root.innerHTML, /查看更多取象 <span>0 个<\/span>/);
-  assert.equal((root.innerHTML.match(/<div class="natal-hit-list">/g) || []).length, 1);
+  assert.equal((root.innerHTML.match(/<details class="natal-hit-details">/g) || []).length, 1);
   assert.match(root.innerHTML, /对应方面/);
   assert.match(root.innerHTML, /命盘依据/);
   assert.match(root.innerHTML, /命中组合/);
@@ -700,7 +735,7 @@ test("stage analysis panels render calculated report data without breaking refre
   assert.match(root.innerHTML, /现实对应/);
   assert.match(root.innerHTML, /反证方式/);
   assert.ok(root.innerHTML.indexOf("natal-master-summary") < root.innerHTML.indexOf("natal-domain-section"));
-  assert.ok(root.innerHTML.indexOf("natal-domain-section") < root.innerHTML.indexOf("natal-hit-list-section"));
+  assert.ok(root.innerHTML.indexOf("natal-domain-section") < root.innerHTML.indexOf("natal-hit-index"));
   assert.ok(root.innerHTML.indexOf("命盘依据") < root.innerHTML.indexOf("资料解释"));
   assert.ok(root.innerHTML.indexOf("资料解释") < root.innerHTML.indexOf("成立条件"));
   assert.ok(root.innerHTML.indexOf("成立条件") < root.innerHTML.indexOf("现实对应"));

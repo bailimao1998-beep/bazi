@@ -1605,7 +1605,85 @@
   font-weight: 900;
 }
 
+.stage-local-narrative-card {
+  display: grid;
+  gap: 14px;
+  border-color: #d9cbb8;
+  background:
+    radial-gradient(circle at 96% 8%, rgba(47, 111, 115, 0.08), transparent 140px),
+    linear-gradient(180deg, #fffdf8, #fffaf1);
+}
+
+.stage-local-narrative-head {
+  display: grid;
+  gap: 6px;
+}
+
+.stage-local-narrative-head span {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.stage-local-narrative-head h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 19px;
+  line-height: 1.55;
+  font-weight: 950;
+}
+
+.stage-local-narrative-basis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.stage-local-narrative-basis span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid #d9cbb8;
+  border-radius: 999px;
+  background: #fffdf8;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.stage-local-narrative-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stage-local-narrative-body section {
+  padding: 12px;
+  border: 1px solid #eadfce;
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.76);
+}
+
+.stage-local-narrative-body h4 {
+  margin: 0 0 7px;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.stage-local-narrative-body p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.78;
+}
+
 @media (max-width: 900px) {
+  .stage-local-narrative-body {
+    grid-template-columns: 1fr;
+  }
+
   .transit-selector-section {
     padding: 14px 14px 16px;
   }

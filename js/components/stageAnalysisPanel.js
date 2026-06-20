@@ -1,5 +1,11 @@
 import { renderAiText } from "./aiTextRenderer.js";
 import { buildStageAdvice as buildStageAdviceResult } from "../core/advice/stageAdviceEngine.js";
+import {
+  buildLuckEvidencePack,
+  buildMonthEvidencePack,
+  buildYearEvidencePack,
+} from "../core/evidence/evidencePackBuilder.js";
+import { buildLocalNarrative } from "../core/evidence/narrativeBuilder.js";
 import { escapeHtml } from "../utils/html.js";
 
 export function renderStageAnalysisPanel(root, {
@@ -124,9 +130,12 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck") {
   const relationGroups = buildRelationGroups(item, stage);
   const evidence = buildEvidenceSignals(report, item, stage);
   const relationTuples = relationGroups.map((group) => [`${group.title}关系触发`, group.relations]);
+  const evidencePack = buildStageEvidencePack({ report, stage });
+  const localNarrative = buildLocalNarrative(evidencePack);
 
   return `
     <div class="stage-card-grid">
+      ${renderLocalNarrativeCard(localNarrative)}
       <article class="stage-image-card stage-main-card stage-overview-card">
         <div class="board-title">
           <h3>${escapeHtml(stageTitle(stage, item))}</h3>
@@ -158,6 +167,39 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck") {
         </div>
       </div>
     </div>
+  `;
+}
+
+function buildStageEvidencePack({ report, stage }) {
+  if (stage === "luck") return buildLuckEvidencePack({ luckImageReport: report });
+  if (stage === "year") return buildYearEvidencePack({ yearImageReport: report });
+  if (stage === "month") return buildMonthEvidencePack({ monthImageReport: report });
+  return null;
+}
+
+function renderLocalNarrativeCard(localNarrative) {
+  if (!localNarrative) return "";
+  const sections = Array.isArray(localNarrative.sections) ? localNarrative.sections : [];
+  return `
+    <article class="stage-image-card stage-local-narrative-card">
+      <div class="stage-local-narrative-head">
+        <span>命理师讲盘</span>
+        <h3>${escapeHtml(localNarrative.headline || "当前阶段先看系统取象，再看现实反馈。")}</h3>
+      </div>
+      ${localNarrative.basis?.length ? `
+        <div class="stage-local-narrative-basis">
+          ${localNarrative.basis.map((basis) => `<span>${escapeHtml(basis)}</span>`).join("")}
+        </div>
+      ` : ""}
+      <div class="stage-local-narrative-body">
+        ${sections.map((section) => `
+          <section>
+            <h4>${escapeHtml(section.title)}</h4>
+            <p>${escapeHtml(section.text)}</p>
+          </section>
+        `).join("")}
+      </div>
+    </article>
   `;
 }
 

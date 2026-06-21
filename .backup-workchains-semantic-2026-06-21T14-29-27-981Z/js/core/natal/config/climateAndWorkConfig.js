@@ -32,23 +32,13 @@ export const TEN_GOD_GROUPS = {
   officer: ["正官", "七杀"],
 };
 
-export const WORK_ROLE_MAPPING_VERSION = "work-role-mapping-v1";
-
-export const DEFAULT_WORK_ROLE_MAPPING = {
-  id: "blind-school-neutral-v1",
-  version: WORK_ROLE_MAPPING_VERSION,
-  byTenGodGroup: {
-    peer: "body",
-    resource: "body",
-    output: "mediator",
-    wealth: "use",
-    officer: "use",
-    unknown: "unknown",
-  },
-};
-
 export const ROLE_BY_TEN_GOD_GROUP = {
-  ...DEFAULT_WORK_ROLE_MAPPING.byTenGodGroup,
+  peer: "body",
+  resource: "body",
+  output: "body",
+  wealth: "use",
+  officer: "use",
+  unknown: "unknown",
 };
 
 export const MONTH_CLIMATE_BASE = {
@@ -94,44 +84,4 @@ export function tenGodGroup(tenGod) {
     if (names.includes(tenGod)) return group;
   }
   return "unknown";
-}
-
-export function resolveWorkRole({
-  tenGod,
-  isDayMaster = false,
-  pillar = "",
-  position = "",
-  visibility = "",
-  mapping = DEFAULT_WORK_ROLE_MAPPING,
-} = {}) {
-  if (isDayMaster) {
-    return {
-      mappingVersion: mapping.version ?? WORK_ROLE_MAPPING_VERSION,
-      mappingId: mapping.id ?? DEFAULT_WORK_ROLE_MAPPING.id,
-      defaultRole: "self",
-      resolvedRole: "self",
-      roleEvidence: ["日干节点固定标记为self"],
-    };
-  }
-
-  const group = tenGodGroup(tenGod);
-  const defaultRole = mapping?.byTenGodGroup?.[group] ?? "unknown";
-  const roleEvidence = [
-    `十神${tenGod || "unknown"}归入${group}组，默认角色为${defaultRole}`,
-  ];
-
-  if (visibility === "hidden") {
-    roleEvidence.push("藏干节点保留默认角色，但参与路径时降低置信度");
-  }
-  if (pillar === "month" && position === "branch.mainQi") {
-    roleEvidence.push("月支主气为月令位置，后续规则可提升结构权重");
-  }
-
-  return {
-    mappingVersion: mapping.version ?? WORK_ROLE_MAPPING_VERSION,
-    mappingId: mapping.id ?? DEFAULT_WORK_ROLE_MAPPING.id,
-    defaultRole,
-    resolvedRole: defaultRole,
-    roleEvidence,
-  };
 }

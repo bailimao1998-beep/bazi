@@ -255,15 +255,7 @@ export function validateNatalFeatureVector(input) {
     if (!isPlainObject(vector.workChains)) {
       errors.push("missing feature group workChains");
     } else {
-      for (const key of [
-        "nodes",
-        "edges",
-        "potentialEdges",
-        "activatedEdges",
-        "chains",
-        "coexistenceCandidates",
-        "actualConflictCandidates",
-      ]) {
+      for (const key of ["nodes", "edges", "chains"]) {
         if (!Array.isArray(vector.workChains[key])) {
           errors.push(`workChains.${key} should be an array`);
         }
@@ -498,35 +490,22 @@ function emptyClimateProfile() {
 function emptyWorkChains() {
   return {
     version: "work-chains-v1",
-    semanticVersion: "work-chains-semantic-v1",
-    roleMappingVersion: "",
-    roleMappingId: "",
     nodes: [],
     edges: [],
-    potentialEdges: [],
-    activatedEdges: [],
     chains: [],
     bodyToUseCandidates: [],
     useToBodyCandidates: [],
     selfInvolvedCandidates: [],
     interruptionSignals: [],
-    coexistenceCandidates: [],
-    actualConflictCandidates: [],
     passThroughCandidates: [],
     summary: {
       nodeCount: 0,
       edgeCount: 0,
-      potentialEdgeCount: 0,
-      activatedEdgeCount: 0,
       chainCount: 0,
-      activatedChainCount: 0,
       bodyNodeCount: 0,
-      mediatorNodeCount: 0,
       useNodeCount: 0,
-      hiddenNodeCount: 0,
       bodyToUseCount: 0,
       interruptionCount: 0,
-      actualConflictCount: 0,
     },
     confidence: "unknown",
     evidence: [],

@@ -9,8 +9,6 @@ import { buildKinshipFeatures } from "./featureBuilders/buildKinshipFeatures.js"
 import { buildVoidFeatures } from "./featureBuilders/buildVoidFeatures.js";
 import { buildStorageFeatures } from "./featureBuilders/buildStorageFeatures.js";
 import { buildGrowthStageFeatures } from "./featureBuilders/buildGrowthStageFeatures.js";
-import { buildClimateProfile } from "./featureBuilders/buildClimateProfile.js";
-import { buildWorkChains } from "./featureBuilders/buildWorkChains.js";
 
 const pillarKeys = ["year", "month", "day", "hour"];
 const pillarLabels = { year: "年柱", month: "月柱", day: "日柱", hour: "时柱" };
@@ -77,19 +75,6 @@ export function buildNatalFeatureVector({ chart, baseBaziViewModel } = {}) {
   const growthStageFeatures = buildGrowthStageFeatures({
     dayMaster,
     pillars,
-  });
-
-  const climateProfile = buildClimateProfile({
-    pillars,
-    elements,
-    structure,
-  });
-
-  const workChains = buildWorkChains({
-    dayMaster,
-    pillars,
-    relationMatrix,
-    climateProfile,
   });
 
   const legacyFields = {

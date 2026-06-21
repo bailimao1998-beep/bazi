@@ -9,8 +9,6 @@ export function createEmptyNatalFeatureVector() {
     voidFeatures: emptyVoidFeatures(),
     storageFeatures: emptyStorageFeatures(),
     growthStageFeatures: emptyGrowthStageFeatures(),
-    climateProfile: emptyClimateProfile(),
-    workChains: emptyWorkChains(),
     meta: {
       gender: "unknown",
       source: "chart",
@@ -226,8 +224,6 @@ export function validateNatalFeatureVector(input) {
         "voidFeatures",
         "storageFeatures",
         "growthStageFeatures",
-        "climateProfile",
-        "workChains",
       ]
     ) {
       if (
@@ -446,55 +442,6 @@ function findNonFiniteNumberPaths(value, path = "input", seen = new WeakSet()) {
 
 function isPlainObject(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function emptyClimateProfile() {
-  return {
-    version: "climate-profile-v1",
-    monthBranch: "",
-    season: "unknown",
-    seasonLabel: "",
-    baseClimate: { cold: 0, warm: 0, dry: 0, wet: 0 },
-    scores: { cold: 0, warm: 0, dry: 0, wet: 0 },
-    tendencies: { temperature: "unknown", moisture: "unknown" },
-    severity: { temperature: "unknown", moisture: "unknown" },
-    elementAvailability: {},
-    priorityNeeds: [],
-    candidateElements: [],
-    existingSupport: [],
-    missingSupport: [],
-    passThroughCandidates: [],
-    legacyHint: {},
-    confidence: "unknown",
-    evidence: [],
-    warnings: [],
-  };
-}
-
-function emptyWorkChains() {
-  return {
-    version: "work-chains-v1",
-    nodes: [],
-    edges: [],
-    chains: [],
-    bodyToUseCandidates: [],
-    useToBodyCandidates: [],
-    selfInvolvedCandidates: [],
-    interruptionSignals: [],
-    passThroughCandidates: [],
-    summary: {
-      nodeCount: 0,
-      edgeCount: 0,
-      chainCount: 0,
-      bodyNodeCount: 0,
-      useNodeCount: 0,
-      bodyToUseCount: 0,
-      interruptionCount: 0,
-    },
-    confidence: "unknown",
-    evidence: [],
-    warnings: [],
-  };
 }
 
 function emptySpecialPillarMap(factory) {

@@ -59,14 +59,6 @@ test("natal feature V2 integrates with the real bazi calculation entry", () => {
   assert.equal(typeof featureVector.storageFeatures.byPillar, "object");
   assert.equal(typeof featureVector.growthStageFeatures.byPillar, "object");
   assert.equal(featureVector.growthStageFeatures.referenceStem, featureVector.dayMaster.stem);
-  assert.ok(featureVector.climateProfile);
-  assert.ok(featureVector.workChains);
-  assert.equal(typeof featureVector.climateProfile.scores, "object");
-  assert.ok(Array.isArray(featureVector.climateProfile.priorityNeeds));
-  assert.ok(Array.isArray(featureVector.workChains.nodes));
-  assert.ok(Array.isArray(featureVector.workChains.edges));
-  assert.ok(Array.isArray(featureVector.workChains.chains));
-  assert.equal(typeof featureVector.workChains.summary, "object");
 
   for (const state of Object.values(featureVector.tenGodStates)) {
     assert.equal(Number.isFinite(state.weightedCount), true);

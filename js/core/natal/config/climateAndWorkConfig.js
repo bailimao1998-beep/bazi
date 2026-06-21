@@ -104,10 +104,13 @@ export function resolveWorkRole({
   visibility = "",
   mapping = DEFAULT_WORK_ROLE_MAPPING,
 } = {}) {
+  const resolvedMapping =
+    normalizeWorkRoleMapping(mapping);
+
   if (isDayMaster) {
     return {
-      mappingVersion: mapping.version ?? WORK_ROLE_MAPPING_VERSION,
-      mappingId: mapping.id ?? DEFAULT_WORK_ROLE_MAPPING.id,
+      mappingVersion: resolvedMapping.version,
+      mappingId: resolvedMapping.id,
       defaultRole: "self",
       resolvedRole: "self",
       roleEvidence: ["日干节点固定标记为self"],
@@ -115,7 +118,9 @@ export function resolveWorkRole({
   }
 
   const group = tenGodGroup(tenGod);
-  const defaultRole = mapping?.byTenGodGroup?.[group] ?? "unknown";
+  const defaultRole =
+    resolvedMapping.byTenGodGroup?.[group] ??
+    "unknown";
   const roleEvidence = [
     `十神${tenGod || "unknown"}归入${group}组，默认角色为${defaultRole}`,
   ];
@@ -128,10 +133,44 @@ export function resolveWorkRole({
   }
 
   return {
-    mappingVersion: mapping.version ?? WORK_ROLE_MAPPING_VERSION,
-    mappingId: mapping.id ?? DEFAULT_WORK_ROLE_MAPPING.id,
+    mappingVersion: resolvedMapping.version,
+    mappingId: resolvedMapping.id,
     defaultRole,
     resolvedRole: defaultRole,
     roleEvidence,
+  };
+}
+
+export function normalizeWorkRoleMapping(mapping) {
+  const safeMapping =
+    mapping &&
+    typeof mapping === "object" &&
+    !Array.isArray(mapping)
+      ? mapping
+      : DEFAULT_WORK_ROLE_MAPPING;
+
+  return {
+    ...DEFAULT_WORK_ROLE_MAPPING,
+    ...safeMapping,
+    version:
+      typeof safeMapping.version === "string" &&
+      safeMapping.version
+        ? safeMapping.version
+        : WORK_ROLE_MAPPING_VERSION,
+    id:
+      typeof safeMapping.id === "string" &&
+      safeMapping.id
+        ? safeMapping.id
+        : DEFAULT_WORK_ROLE_MAPPING.id,
+    byTenGodGroup: {
+      ...DEFAULT_WORK_ROLE_MAPPING.byTenGodGroup,
+      ...(
+        safeMapping.byTenGodGroup &&
+        typeof safeMapping.byTenGodGroup === "object" &&
+        !Array.isArray(safeMapping.byTenGodGroup)
+          ? safeMapping.byTenGodGroup
+          : {}
+      ),
+    },
   };
 }

@@ -3,6 +3,9 @@ import assert from "node:assert/strict";
 
 import { buildRelationMatrix } from "../js/core/natal/featureBuilders/buildRelationMatrix.js";
 import { buildWorkChains } from "../js/core/natal/featureBuilders/buildWorkChains.js";
+import {
+  DEFAULT_WORK_ROLE_MAPPING,
+} from "../js/core/natal/config/climateAndWorkConfig.js";
 
 const pillars = {
   year: {
@@ -176,4 +179,222 @@ test("main qi is not duplicated and chain summary remains internally consistent"
   assert.equal(result.summary.edgeCount, result.edges.length);
   assert.equal(result.summary.chainCount, result.chains.length);
   assert.doesNotMatch(JSON.stringify(result), /NaN|undefined/);
+});
+
+test("potential confidence does not raise activated low confidence", () => {
+  const relationMatrix = buildRelationMatrix({
+    pillars,
+    relations: [{
+      type: "天干相克",
+      pillars: ["日柱", "时柱"],
+      ganzhi: ["甲寅", "庚申"],
+      confidence: "low",
+    }],
+  });
+
+  const result = buildWorkChains({
+    dayMaster: { stem: "甲" },
+    pillars,
+    relationMatrix,
+  });
+
+  const edge = result.edges.find((item) =>
+    item.semanticType === "control" &&
+    item.source === "hour.stem" &&
+    item.target === "day.stem",
+  );
+
+  assert.equal(edge.activation, "activated");
+  assert.equal(edge.potentialConfidence, "medium");
+  assert.equal(edge.activatedConfidence, "low");
+  assert.equal(edge.confidence, "low");
+});
+
+test("multiple activated sources can raise activated confidence", () => {
+  const relationMatrix = {
+    items: [
+      {
+        id: "low-control",
+        relationType: "stem_control",
+        confidence: "low",
+        direction: {
+          controller: { pillar: "hour", position: "stem", value: "庚" },
+          controlled: { pillar: "day", position: "stem", value: "甲" },
+        },
+      },
+      {
+        id: "medium-control",
+        relationType: "stem_control",
+        confidence: "medium",
+        direction: {
+          controller: { pillar: "hour", position: "stem", value: "庚" },
+          controlled: { pillar: "day", position: "stem", value: "甲" },
+        },
+      },
+    ],
+  };
+
+  const result = buildWorkChains({
+    dayMaster: { stem: "甲" },
+    pillars,
+    relationMatrix,
+  });
+
+  const edge = result.edges.find((item) =>
+    item.semanticType === "control" &&
+    item.source === "hour.stem" &&
+    item.target === "day.stem",
+  );
+
+  assert.equal(edge.activation, "activated");
+  assert.equal(edge.activatedConfidence, "medium");
+  assert.equal(edge.confidence, "medium");
+  assert.deepEqual(edge.relationIds.sort(), ["low-control", "medium-control"]);
+});
+
+test("potential edge keeps potential confidence when not activated", () => {
+  const result = buildWorkChains({
+    dayMaster: { stem: "甲" },
+    pillars,
+    relationMatrix: { items: [] },
+  });
+
+  const edge = result.edges.find((item) =>
+    item.semanticType === "control" &&
+    item.source === "hour.stem" &&
+    item.target === "day.stem",
+  );
+
+  assert.equal(edge.activation, "potential");
+  assert.equal(edge.potentialConfidence, "medium");
+  assert.equal(edge.activatedConfidence, "unknown");
+  assert.equal(edge.confidence, "medium");
+});
+
+test("coexistence candidates preserve available compatibility status", () => {
+  const result = buildWorkChains({
+    dayMaster: { stem: "甲" },
+    pillars,
+    relationMatrix: { items: [] },
+    climateProfile: {
+      passThroughCandidates: [{
+        conflictElements: ["metal", "wood"],
+        mediatorElement: "water",
+        mediatorPresent: true,
+        status: "available",
+        label: "金木之间以水作通关候选",
+      }],
+    },
+  });
+
+  const candidate = result.coexistenceCandidates[0];
+  assert.equal(candidate.candidateLevel, "coexistence_candidate");
+  assert.equal(candidate.candidateStatus, "candidate");
+  assert.equal(candidate.availabilityStatus, "available");
+  assert.equal(candidate.status, "available");
+  assert.equal(result.passThroughCandidates[0].status, "available");
+});
+
+test("coexistence candidates preserve missing compatibility status", () => {
+  const result = buildWorkChains({
+    dayMaster: { stem: "甲" },
+    pillars,
+    relationMatrix: { items: [] },
+    climateProfile: {
+      passThroughCandidates: [{
+        conflictElements: ["metal", "wood"],
+        mediatorElement: "water",
+        mediatorPresent: false,
+        status: "missing",
+        label: "金木之间以水作通关候选",
+      }],
+    },
+  });
+
+  const candidate = result.coexistenceCandidates[0];
+  assert.equal(candidate.availabilityStatus, "missing");
+  assert.equal(candidate.status, "missing");
+  assert.equal(result.passThroughCandidates[0].status, "missing");
+});
+
+test("actual conflict candidates inherit coexistence availability", () => {
+  const relationMatrix = buildRelationMatrix({
+    pillars,
+    relations: [{
+      type: "天干相克",
+      pillars: ["日柱", "时柱"],
+      ganzhi: ["甲寅", "庚申"],
+      confidence: "low",
+    }],
+  });
+
+  const result = buildWorkChains({
+    dayMaster: { stem: "甲" },
+    pillars,
+    relationMatrix,
+    climateProfile: {
+      passThroughCandidates: [{
+        conflictElements: ["metal", "wood"],
+        mediatorElement: "water",
+        mediatorPresent: true,
+        status: "available",
+        label: "金木之间以水作通关候选",
+      }],
+    },
+  });
+
+  const actual = result.actualConflictCandidates.find((item) =>
+    item.sourceNodeId === "hour.stem" &&
+    item.targetNodeId === "day.stem",
+  );
+
+  assert.equal(actual.candidateLevel, "actual_conflict_candidate");
+  assert.equal(actual.candidateStatus, "candidate");
+  assert.equal(actual.availabilityStatus, "available");
+  assert.equal(actual.status, "available");
+  assert.equal(actual.confidence, "low");
+});
+
+test("null role mapping falls back to default mapping", () => {
+  assert.doesNotThrow(() =>
+    buildWorkChains({
+      dayMaster: { stem: "甲" },
+      pillars,
+      relationMatrix: { items: [] },
+      roleMapping: null,
+    }),
+  );
+
+  const result = buildWorkChains({
+    dayMaster: { stem: "甲" },
+    pillars,
+    relationMatrix: { items: [] },
+    roleMapping: null,
+  });
+
+  assert.equal(result.roleMappingId, DEFAULT_WORK_ROLE_MAPPING.id);
+});
+
+test("partial custom role mapping falls back by missing groups", () => {
+  const result = buildWorkChains({
+    dayMaster: { stem: "甲" },
+    pillars,
+    relationMatrix: { items: [] },
+    roleMapping: {
+      id: "custom-test",
+      version: "custom-v1",
+      byTenGodGroup: {
+        output: "body",
+      },
+    },
+  });
+
+  const output = result.nodes.find((item) => item.id === "month.stem");
+  const wealth = result.nodes.find((item) => item.id === "year.stem");
+  const peer = result.nodes.find((item) => item.id === "day.branch.mainQi");
+
+  assert.equal(result.roleMappingId, "custom-test");
+  assert.equal(output.resolvedRole, "body");
+  assert.equal(wealth.resolvedRole, "use");
+  assert.equal(peer.resolvedRole, "body");
 });

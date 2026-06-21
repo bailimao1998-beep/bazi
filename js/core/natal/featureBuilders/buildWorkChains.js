@@ -6,6 +6,7 @@ import {
   ELEMENT_GENERATING,
   ELEMENT_LABELS,
   WORK_ROLE_MAPPING_VERSION,
+  normalizeWorkRoleMapping,
   resolveWorkRole,
   tenGodGroup,
 } from "../config/climateAndWorkConfig.js";
@@ -39,8 +40,10 @@ export function buildWorkChains({
   roleMapping = DEFAULT_WORK_ROLE_MAPPING,
 } = {}) {
   const safePillars = pillars ?? {};
+  const safeRoleMapping =
+    normalizeWorkRoleMapping(roleMapping);
   const relations = Array.isArray(relationMatrix?.items) ? relationMatrix.items : [];
-  const nodes = buildNodes(safePillars, dayMaster?.stem ?? "", relations, roleMapping);
+  const nodes = buildNodes(safePillars, dayMaster?.stem ?? "", relations, safeRoleMapping);
   const nodeIndex = Object.fromEntries(nodes.map((node) => [node.id, node]));
 
   const potentialEdges = buildPotentialEdges(nodeIndex);
@@ -78,10 +81,10 @@ export function buildWorkChains({
     version: "work-chains-v1",
     semanticVersion: "work-chains-semantic-v1",
     roleMappingVersion:
-      roleMapping?.version ??
+      safeRoleMapping.version ??
       WORK_ROLE_MAPPING_VERSION,
     roleMappingId:
-      roleMapping?.id ??
+      safeRoleMapping.id ??
       DEFAULT_WORK_ROLE_MAPPING.id,
 
     nodes,
@@ -99,7 +102,9 @@ export function buildWorkChains({
     actualConflictCandidates,
 
     // Compatibility field retained for current downstream consumers.
-    passThroughCandidates: coexistenceCandidates,
+    passThroughCandidates: coexistenceCandidates.map(
+      toCompatiblePassThroughCandidate,
+    ),
 
     summary: {
       nodeCount: nodes.length,
@@ -559,8 +564,16 @@ function makeEdge(value) {
     value.activation === "activated"
       ? "activated"
       : "potential";
+  const potentialConfidence =
+    activation === "potential"
+      ? normalizeConfidence(value.confidence)
+      : "unknown";
+  const activatedConfidence =
+    activation === "activated"
+      ? normalizeConfidence(value.confidence)
+      : "unknown";
 
-  return {
+  const edge = {
     id: buildEdgeId({
       source,
       target,
@@ -586,9 +599,9 @@ function makeEdge(value) {
     relationId,
     relationIds: unique([relationId]),
 
-    confidence: normalizeConfidence(
-      value.confidence,
-    ),
+    potentialConfidence,
+    activatedConfidence,
+    confidence: "unknown",
     scope: value.scope ?? "unknown",
     scopes: unique([value.scope]),
     chainEligible:
@@ -600,6 +613,11 @@ function makeEdge(value) {
       text: `${source}通过${relationType}连接${target}，状态为${activation}`,
     }],
   };
+
+  edge.confidence =
+    resolveFinalEdgeConfidence(edge);
+
+  return edge;
 }
 
 function mergeEdges(edges) {
@@ -648,10 +666,16 @@ function mergeEdges(edges) {
     ]);
     current.scope =
       current.scopes.join("+");
-    current.confidence = higherConfidence(
-      current.confidence,
-      edge.confidence,
+    current.potentialConfidence = mergePotentialConfidence(
+      current.potentialConfidence,
+      edge.potentialConfidence,
     );
+    current.activatedConfidence = mergeActivatedConfidence(
+      current.activatedConfidence,
+      edge.activatedConfidence,
+    );
+    current.confidence =
+      resolveFinalEdgeConfidence(current);
     current.chainEligible =
       current.chainEligible ||
       edge.chainEligible;
@@ -663,6 +687,7 @@ function mergeEdges(edges) {
 
   return [...map.values()].map((edge) => ({
     ...edge,
+    confidence: resolveFinalEdgeConfidence(edge),
     id: buildEdgeId(edge),
   }));
 }
@@ -921,13 +946,31 @@ function normalizeCoexistenceCandidates(
     Array.isArray(candidates)
       ? candidates
       : []
-  ).map((candidate) => ({
-    ...candidate,
-    candidateLevel:
-      "coexistence_candidate",
-    status:
-      "coexistence_candidate",
-  }));
+  ).map((candidate) => {
+    const availabilityStatus =
+      normalizeAvailabilityStatus(
+        candidate.availabilityStatus ??
+        candidate.status ??
+        (
+          candidate.mediatorPresent
+            ? "available"
+            : "missing"
+        ),
+      );
+
+    return {
+      ...candidate,
+      candidateLevel:
+        "coexistence_candidate",
+      candidateStatus:
+        "candidate",
+      availabilityStatus,
+      status:
+        availabilityStatus,
+      mediatorPresent:
+        Boolean(candidate.mediatorPresent),
+    };
+  });
 }
 
 function buildActualConflictCandidates({
@@ -980,8 +1023,14 @@ function buildActualConflictCandidates({
         false,
       candidateLevel:
         "actual_conflict_candidate",
+      candidateStatus:
+        "candidate",
+      availabilityStatus:
+        coexistence?.availabilityStatus ??
+        "unknown",
       status:
-        "actual_conflict_candidate",
+        coexistence?.status ??
+        "unknown",
       confidence:
         edge.confidence,
       evidence: [
@@ -1005,6 +1054,31 @@ function buildActualConflictCandidates({
       id: `actual_conflict__${candidate.edgeId}`,
     })),
   );
+}
+
+function toCompatiblePassThroughCandidate(candidate) {
+  return {
+    conflictElements:
+      Array.isArray(candidate.conflictElements)
+        ? [...candidate.conflictElements]
+        : [],
+    mediatorElement:
+      candidate.mediatorElement ?? "",
+    mediatorPresent:
+      Boolean(candidate.mediatorPresent),
+    label:
+      candidate.label ?? "",
+    status:
+      normalizeAvailabilityStatus(
+        candidate.status ??
+        candidate.availabilityStatus,
+      ),
+    availabilityStatus:
+      normalizeAvailabilityStatus(
+        candidate.availabilityStatus ??
+        candidate.status,
+      ),
+  };
 }
 
 function sameElementPair(
@@ -1083,16 +1157,52 @@ function normalizeConfidence(value) {
     : "medium";
 }
 
-function higherConfidence(
+function resolveFinalEdgeConfidence(edge) {
+  if (edge.activation === "activated") {
+    return normalizeConfidence(
+      edge.activatedConfidence,
+    );
+  }
+
+  return normalizeConfidence(
+    edge.potentialConfidence,
+  );
+}
+
+function mergePotentialConfidence(
   left,
   right,
 ) {
-  return (
-    confidenceRank[right] >
-    confidenceRank[left]
-  )
+  return higherConfidence(
+    normalizeConfidence(left),
+    normalizeConfidence(right),
+  );
+}
+
+function mergeActivatedConfidence(
+  left,
+  right,
+) {
+  return higherConfidence(
+    normalizeConfidence(left),
+    normalizeConfidence(right),
+  );
+}
+
+function higherConfidence(left, right) {
+  return confidenceRank[right] > confidenceRank[left]
     ? right
     : left;
+}
+
+function normalizeAvailabilityStatus(value) {
+  return [
+    "available",
+    "missing",
+    "unknown",
+  ].includes(value)
+    ? value
+    : "unknown";
 }
 
 function dedupeEvidence(items) {

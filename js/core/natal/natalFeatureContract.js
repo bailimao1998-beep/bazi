@@ -2,6 +2,9 @@ export const NATAL_FEATURE_VERSION = "natal-feature-v2";
 
 const pillarKeys = ["year", "month", "day", "hour"];
 const allowedGenders = new Set(["male", "female", "unknown"]);
+const allowedEdgeActivations = new Set(["potential", "activated"]);
+const allowedConfidenceValues = new Set(["unknown", "low", "medium", "high"]);
+const allowedAvailabilityStatuses = new Set(["available", "missing", "unknown"]);
 
 export function createEmptyNatalFeatureVector() {
   return {
@@ -271,6 +274,18 @@ export function validateNatalFeatureVector(input) {
       if (!isPlainObject(vector.workChains.summary)) {
         errors.push("workChains.summary should be an object");
       }
+      for (const [index, edge] of (vector.workChains.edges ?? []).entries()) {
+        validateWorkChainEdge(edge, index, errors);
+      }
+      for (const [index, candidate] of (vector.workChains.coexistenceCandidates ?? []).entries()) {
+        validateCoexistenceCandidate(candidate, index, errors);
+      }
+      for (const [index, candidate] of (vector.workChains.actualConflictCandidates ?? []).entries()) {
+        validateActualConflictCandidate(candidate, index, errors);
+      }
+      if (!Array.isArray(vector.workChains.passThroughCandidates)) {
+        errors.push("workChains.passThroughCandidates should be an array");
+      }
     }
 
     return {
@@ -309,6 +324,62 @@ function emptyPillar(key) {
     twelveGrowth: "",
     voidBranches: [],
   };
+}
+
+function validateWorkChainEdge(edge, index, errors) {
+  if (!isPlainObject(edge)) {
+    errors.push(`workChains.edges[${index}] should be an object`);
+    return;
+  }
+  if (!allowedEdgeActivations.has(edge.activation)) {
+    errors.push(`workChains.edges[${index}].activation is invalid`);
+  }
+  for (const key of ["potentialConfidence", "activatedConfidence", "confidence"]) {
+    if (!allowedConfidenceValues.has(edge[key])) {
+      errors.push(`workChains.edges[${index}].${key} is invalid`);
+    }
+  }
+  if (!Array.isArray(edge.relationIds)) {
+    errors.push(`workChains.edges[${index}].relationIds should be an array`);
+  }
+  if (!Array.isArray(edge.scopes)) {
+    errors.push(`workChains.edges[${index}].scopes should be an array`);
+  }
+}
+
+function validateCoexistenceCandidate(candidate, index, errors) {
+  if (!isPlainObject(candidate)) {
+    errors.push(`workChains.coexistenceCandidates[${index}] should be an object`);
+    return;
+  }
+  if (candidate.candidateLevel !== "coexistence_candidate") {
+    errors.push(`workChains.coexistenceCandidates[${index}].candidateLevel is invalid`);
+  }
+  if (candidate.candidateStatus !== "candidate") {
+    errors.push(`workChains.coexistenceCandidates[${index}].candidateStatus is invalid`);
+  }
+  if (!allowedAvailabilityStatuses.has(candidate.availabilityStatus)) {
+    errors.push(`workChains.coexistenceCandidates[${index}].availabilityStatus is invalid`);
+  }
+}
+
+function validateActualConflictCandidate(candidate, index, errors) {
+  if (!isPlainObject(candidate)) {
+    errors.push(`workChains.actualConflictCandidates[${index}] should be an object`);
+    return;
+  }
+  if (candidate.candidateLevel !== "actual_conflict_candidate") {
+    errors.push(`workChains.actualConflictCandidates[${index}].candidateLevel is invalid`);
+  }
+  if (candidate.candidateStatus !== "candidate") {
+    errors.push(`workChains.actualConflictCandidates[${index}].candidateStatus is invalid`);
+  }
+  if (typeof candidate.edgeId !== "string") {
+    errors.push(`workChains.actualConflictCandidates[${index}].edgeId should be a string`);
+  }
+  if (!Array.isArray(candidate.relationIds)) {
+    errors.push(`workChains.actualConflictCandidates[${index}].relationIds should be an array`);
+  }
 }
 
 function emptyPalaceFeature(key) {

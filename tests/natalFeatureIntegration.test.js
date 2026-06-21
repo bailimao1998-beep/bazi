@@ -82,6 +82,22 @@ test("natal feature V2 integrates with the real bazi calculation entry", () => {
   assert.ok(featureVector.workChains.edges.every((edge) =>
     ["potential", "activated"].includes(edge.activation)
   ));
+  assert.ok(featureVector.workChains.edges.every((edge) =>
+    typeof edge.potentialConfidence === "string" &&
+    typeof edge.activatedConfidence === "string" &&
+    typeof edge.confidence === "string" &&
+    Array.isArray(edge.relationIds) &&
+    Array.isArray(edge.scopes)
+  ));
+  assert.ok(featureVector.workChains.coexistenceCandidates.every((item) =>
+    item.candidateStatus === "candidate" &&
+    ["available", "missing", "unknown"].includes(item.availabilityStatus)
+  ));
+  assert.ok(featureVector.workChains.actualConflictCandidates.every((item) =>
+    item.candidateStatus === "candidate" &&
+    ["available", "missing", "unknown"].includes(item.availabilityStatus) &&
+    Array.isArray(item.relationIds)
+  ));
   assert.ok(featureVector.workChains.nodes.length >= 8);
   assert.ok(featureVector.workChains.edges.length > 0);
   assert.equal(featureVector.workChains.summary.nodeCount, featureVector.workChains.nodes.length);

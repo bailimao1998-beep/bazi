@@ -117,67 +117,154 @@ export function normalizeNatalFeatureVector(input) {
 }
 
 export function validateNatalFeatureVector(input) {
-  for (const key of [
-  "voidFeatures",
-  "storageFeatures",
-  "growthStageFeatures",
-]) {
-  if (!isPlainObject(vector[key])) {
-    errors.push(`missing feature group ${key}`);
-  }
-}
   const errors = [];
   const warnings = [];
 
   try {
-    const rawNaNPaths = findNonFiniteNumberPaths(input);
+    const rawNaNPaths =
+      findNonFiniteNumberPaths(input);
+
     for (const path of rawNaNPaths) {
-      errors.push(`NaN or non-finite number at ${path}`);
+      errors.push(
+        `NaN or non-finite number at ${path}`,
+      );
     }
 
-    const vector = normalizeNatalFeatureVector(input);
-    if (vector.featureVersion !== NATAL_FEATURE_VERSION) {
-      errors.push("featureVersion mismatch");
+    const vector =
+      normalizeNatalFeatureVector(input);
+
+    if (
+      vector.featureVersion !==
+      NATAL_FEATURE_VERSION
+    ) {
+      errors.push(
+        "featureVersion mismatch",
+      );
     }
 
-    if (!allowedGenders.has(input?.meta?.gender ?? vector.meta.gender)) {
-      warnings.push(`unknown gender value: ${String(input?.meta?.gender)}`);
+    if (
+      !allowedGenders.has(
+        input?.meta?.gender ??
+        vector.meta.gender,
+      )
+    ) {
+      warnings.push(
+        `unknown gender value: ${
+          String(input?.meta?.gender)
+        }`,
+      );
     }
 
     for (const key of pillarKeys) {
-      if (!isPlainObject(vector.pillars?.[key])) {
-        errors.push(`missing pillar ${key}`);
+      if (
+        !isPlainObject(
+          vector.pillars?.[key],
+        )
+      ) {
+        errors.push(
+          `missing pillar ${key}`,
+        );
       }
-      if (!isPlainObject(vector.palaceFeatures?.[key])) {
-        errors.push(`missing palace feature ${key}`);
+
+      if (
+        !isPlainObject(
+          vector.palaceFeatures?.[key],
+        )
+      ) {
+        errors.push(
+          `missing palace feature ${key}`,
+        );
       }
-    }
-    if (!isPlainObject(vector.palaceFeatures?.spousePalace)) {
-      errors.push("missing palace feature spousePalace");
     }
 
-    for (const key of ["father", "mother", "siblings", "spouse", "children"]) {
-      if (!isPlainObject(vector.kinshipFeatures?.[key])) {
-        errors.push(`missing kinship feature ${key}`);
+    if (
+      !isPlainObject(
+        vector.palaceFeatures
+          ?.spousePalace,
+      )
+    ) {
+      errors.push(
+        "missing palace feature spousePalace",
+      );
+    }
+
+    for (
+      const key of [
+        "father",
+        "mother",
+        "siblings",
+        "spouse",
+        "children",
+      ]
+    ) {
+      if (
+        !isPlainObject(
+          vector.kinshipFeatures?.[key],
+        )
+      ) {
+        errors.push(
+          `missing kinship feature ${key}`,
+        );
       }
     }
-    if (!Array.isArray(vector.kinshipFeatures?.warnings)) {
-      warnings.push("kinshipFeatures.warnings should be an array");
+
+    if (
+      !Array.isArray(
+        vector.kinshipFeatures
+          ?.warnings,
+      )
+    ) {
+      warnings.push(
+        "kinshipFeatures.warnings should be an array",
+      );
+    }
+
+    for (
+      const key of [
+        "voidFeatures",
+        "storageFeatures",
+        "growthStageFeatures",
+      ]
+    ) {
+      if (
+        !isPlainObject(vector[key])
+      ) {
+        errors.push(
+          `missing feature group ${key}`,
+        );
+      }
+
+      if (
+        !isPlainObject(
+          vector[key]?.byPillar,
+        )
+      ) {
+        errors.push(
+          `${key}.byPillar should be an object`,
+        );
+      }
     }
 
     return {
       valid: errors.length === 0,
       errors,
-      warnings: [...warnings, ...vector.meta.warnings],
+      warnings: [
+        ...warnings,
+        ...(vector.meta.warnings ?? []),
+      ],
     };
   } catch (error) {
     return {
       valid: false,
-      errors: [error?.message ?? "unknown validation error"],
+      errors: [
+        error?.message ??
+        "unknown validation error",
+      ],
       warnings,
     };
   }
 }
+
 
 function emptyPillar(key) {
   return {

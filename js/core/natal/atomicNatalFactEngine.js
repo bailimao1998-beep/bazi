@@ -1,12 +1,18 @@
 import { atomicNatalRules } from "./atomicNatalRuleDatabase.js";
 import { evaluateNatalRules } from "./natalRuleEvaluator.js";
 import { resolveNatalFacts } from "./natalFactResolver.js";
+
 import {
   buildAtomicFactContract,
 } from "./facts/buildAtomicFactContract.js";
+
 import {
   validateAtomicNatalFacts,
 } from "./facts/atomicFactContract.js";
+
+import {
+  compareLegacyAndContractFacts,
+} from "./facts/atomicFactShadowComparator.js";
 
 export function buildAtomicNatalFacts(
   featureVector = {},
@@ -47,7 +53,11 @@ export function buildAtomicNatalFacts(
     validateAtomicNatalFacts(
       contract,
     );
-
+  const shadowComparison =
+    compareLegacyAndContractFacts({
+      legacyFacts: resolved.facts,
+      contractFacts: contract.facts,
+    });
   return {
     factContractVersion:
       contract.version,
@@ -80,19 +90,27 @@ export function buildAtomicNatalFacts(
       resolved.suppressedFacts,
 
     debug: {
-      ...resolved.debug,
-      baseFactCount:
-        baseFacts.length,
-      ruleFactCount:
-        ruleEvaluation.facts.length,
-      ruleEvaluation:
-        ruleEvaluation.debug,
-      contractValidation,
-      contractFactCount:
-        contract.facts.length,
-      contractCategoryCounts:
-        contract.summary.byCategory,
-    },
+    ...resolved.debug,
+
+    baseFactCount:
+      baseFacts.length,
+
+    ruleFactCount:
+      ruleEvaluation.facts.length,
+
+    ruleEvaluation:
+      ruleEvaluation.debug,
+
+    contractValidation,
+
+    contractFactCount:
+      contract.facts.length,
+
+    contractCategoryCounts:
+      contract.summary.byCategory,
+
+    shadowComparison,
+  },
   };
 }
 

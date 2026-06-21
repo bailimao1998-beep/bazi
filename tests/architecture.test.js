@@ -334,9 +334,17 @@ test("index and app use only the current frontend panels", () => {
   assert.match(domainNarrativeSource, /domainRules/);
   assert.match(masterSummaryEngineSource, /export function buildNatalMasterSummary/);
   assert.match(masterSummaryEngineSource, /export async function loadMasterSummaryDatabase/);
+  assert.match(masterSummaryEngineSource, /function filterNatalOnlyHits/);
+  assert.match(masterSummaryEngineSource, /function filterNatalOnlyEvidence/);
+  assert.match(masterSummaryEngineSource, /function isStrongRelationshipMovement/);
+  assert.match(masterSummaryEngineSource, /function weightMasterRulePriority/);
   assert.match(masterSummaryEngineSource, /function buildMasterSections/);
   assert.match(masterSummaryEngineSource, /function composeMasterHeadline/);
   assert.match(masterSummaryEngineSource, /defaultMasterSummaryDatabase/);
+  assert.match(domainNarrativeSource, /主见和理解系统较强，做事讲自己的节奏/);
+  assert.match(domainNarrativeSource, /财星有迹，但更偏长期承载和现实责任/);
+  assert.match(domainNarrativeSource, /原局输出不算最外放，后天引动后成果感更明显/);
+  assert.match(domainNarrativeSource, /环境适应和信息流动感较明显/);
   assert.ok(Array.isArray(masterSummaryJson.rules));
   assert.ok(masterSummaryJson.rules.length >= 7);
   for (const rule of masterSummaryJson.rules) {
@@ -606,6 +614,143 @@ test("frontend bazi and blind-bazi chain calculates reports locally", () => {
     natalImageReport.twelveDomains.slice(0, 3).map((domain) => domain.title).join(""),
   );
   assert.doesNotMatch(JSON.stringify(masterSummary), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
+
+  const foundingChart = calculateBazi({
+    birthDate: "1949-10-01",
+    birthTime: "00:30",
+    birthProvince: "北京市",
+    birthplace: "北京",
+    gender: "male",
+    targetYear: 2026,
+    selectedMonth: 6,
+    trueSolarTime: false,
+  }, {
+    locations: global.window.FortuneLocationData,
+  });
+  assert.deepEqual([
+    foundingChart.pillars.year.label,
+    foundingChart.pillars.month.label,
+    foundingChart.pillars.day.label,
+    foundingChart.pillars.hour.label,
+  ], ["己丑", "癸酉", "甲子", "甲子"]);
+  const foundingViewModel = buildBaseBaziViewModel(foundingChart);
+  const foundingNatalReport = buildNatalImageReport({
+    chart: foundingChart,
+    baseBaziViewModel: foundingViewModel,
+  });
+  const foundingDomains = Object.fromEntries(foundingNatalReport.twelveDomains.map((domain) => [domain.key, domain]));
+  const foundingSelfText = `${foundingDomains.self.title}${foundingDomains.self.judgement}${foundingDomains.self.manifestation}`;
+  assert.ok(
+    countMatchedTerms(foundingSelfText, ["主见", "理解系统", "节奏", "边界", "学习吸收"]) >= 3,
+    "1949 子时命主自身应优先讲性格、主见、理解系统和边界感",
+  );
+  const foundingWealthText = `${foundingDomains.wealth.title}${foundingDomains.wealth.judgement}${foundingDomains.wealth.manifestation}`;
+  assert.match(foundingWealthText, /长期承载|稳定资源|家庭承载|岗位收益|现实责任|固定承载/);
+  assert.doesNotMatch(foundingDomains.wealth.title, /合作|人情|分配牵动/);
+  const foundingChildrenText = `${foundingDomains.children.title}${foundingDomains.children.judgement}${foundingDomains.children.manifestation}`;
+  assert.match(foundingChildrenText, /原局输出不算最外放|后天引动|成果感/);
+  const foundingMovementText = `${foundingDomains.movement.title}${foundingDomains.movement.judgement}${foundingDomains.movement.manifestation}`;
+  assert.match(foundingMovementText, /环境适应|信息流动|环境变化|节奏/);
+
+  const foundingMasterSummary = buildNatalMasterSummary({
+    summary: foundingNatalReport.summary,
+    twelveDomains: foundingNatalReport.twelveDomains,
+    hitList: [
+      {
+        name: "流年伤官引动",
+        type: "流年",
+        source: "当前流年",
+        evidence: ["当前流年食伤带出输出"],
+        domains: ["子女结果"],
+        importance: "high",
+      },
+      {
+        name: "大运冲日支",
+        type: "大运",
+        source: "当前步运",
+        evidence: ["当前步运带动关系环境"],
+        domains: ["迁移环境", "夫妻感情"],
+        importance: "high",
+      },
+      {
+        name: "官印承接",
+        type: "原局十神",
+        source: "原局十神统计",
+        evidence: ["癸印透月", "酉月正官"],
+        domains: ["官禄事业", "福德精神"],
+        supports: ["career", "fortune"],
+        importance: "high",
+      },
+      {
+        name: "财星固定承载有迹",
+        type: "原局四柱",
+        source: "原局四柱",
+        evidence: ["己丑财星与土气承载"],
+        domains: ["财帛财富", "田宅资产", "父母家庭"],
+        supports: ["wealth", "property", "parents"],
+        importance: "high",
+      },
+      {
+        name: "子酉破",
+        type: "原局关系",
+        source: "原局关系",
+        evidence: ["子酉破带来细碎关系和节奏压力"],
+        domains: ["夫妻感情", "迁移环境"],
+        supports: ["spouse", "movement"],
+        importance: "medium",
+      },
+    ],
+    database: defaultMasterSummaryDatabase,
+  });
+  assert.doesNotMatch(JSON.stringify(foundingMasterSummary), /流年|大运|流月|当前步运|岁运|流日/);
+  assert.doesNotMatch(foundingMasterSummary.headline, /^关系环境易动/);
+  assert.match(
+    `${foundingMasterSummary.headline}${foundingMasterSummary.paragraph}`,
+    /官印|规则|印气|家庭|承载|自我节奏|主见/,
+  );
+
+  const variedInputs = [
+    { birthDate: "1949-10-01", birthTime: "00:30", gender: "male" },
+    { birthDate: "1992-08-18", birthTime: "14:30", gender: "female" },
+    { birthDate: "1988-03-12", birthTime: "09:20", gender: "male" },
+    { birthDate: "2001-11-05", birthTime: "22:10", gender: "female" },
+  ];
+  const variedReports = variedInputs.map((input) => {
+    const itemChart = calculateBazi({
+      ...input,
+      birthProvince: "北京市",
+      birthplace: "北京",
+      targetYear: 2026,
+      selectedMonth: 6,
+      trueSolarTime: false,
+    }, {
+      locations: global.window.FortuneLocationData,
+    });
+    const itemViewModel = buildBaseBaziViewModel(itemChart);
+    const itemReport = buildNatalImageReport({ chart: itemChart, baseBaziViewModel: itemViewModel });
+    const itemSummary = buildNatalMasterSummary({
+      summary: itemReport.summary,
+      twelveDomains: itemReport.twelveDomains,
+      hitList: [],
+      database: defaultMasterSummaryDatabase,
+    });
+    return {
+      headline: itemSummary.headline,
+      domainSignature: itemReport.twelveDomains
+        .filter((domain) => ["self", "wealth", "children", "movement", "career", "spouse"].includes(domain.key))
+        .map((domain) => domain.title)
+        .join("|"),
+    };
+  });
+  assert.ok(
+    new Set(variedReports.map((item) => item.headline)).size >= 2,
+    "不同八字的命理师总批标题不应固定成同一句",
+  );
+  assert.ok(
+    new Set(variedReports.map((item) => item.domainSignature)).size >= 3,
+    "不同八字的十二维卡片正面标题组合不应像固定模板",
+  );
+
   const luckImageReport = buildLuckImageReport({ chart, baseBaziViewModel, natalImageReport, targetYear: 2026 });
   const yearImageReport = buildYearImageReport({ chart, baseBaziViewModel, natalImageReport, luckImageReport, targetYear: 2026 });
   const monthImageReport = buildMonthImageReport({

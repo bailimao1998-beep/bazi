@@ -10,7 +10,7 @@ export const defaultMasterSummaryDatabase = {
       headline: "自我节奏和内在边界是主线。",
       paragraph: "这个盘先落在人本身，性格里有自己的节奏和判断，不是完全随环境走。遇到人事压力、合作分工或环境变化时，内在反应会比较快，边界感和被尊重感也容易被带出来。",
       reality: "现实落点多在做事节奏、主见、脾气反应、边界感和与人配合的方式上。",
-      boundary: "复核时要回到日主强弱、月令承接、比劫轻重和岁运触发，不能只凭一个自我信号定性。",
+      boundary: "复核时要回到日主强弱、月令承接、比劫轻重和现实阶段，不能只凭一个自我信号定性。",
     },
     {
       id: "wealth_people",
@@ -21,7 +21,7 @@ export const defaultMasterSummaryDatabase = {
       headline: "钱财和人情合作容易绑在一起看。",
       paragraph: "这个盘的财务线不适合只看有没有财星，还要看钱财进入之后怎么被人情、合作、项目和资源分配牵动。若同辈或合作信号同时明显，财务方式更像一边有机会，一边也要处理分摊和边界。",
       reality: "现实落点多在合伙分利、朋友人情、项目开销、资源调度和钱财能否留住上。",
-      boundary: "复核时要看食伤能否生财、财星是否透藏有根，以及大运流年是否把财星或食伤引出来。",
+      boundary: "复核时要看食伤能否生财、财星是否透藏有根，以及后续阶段是否把财星或食伤带出来。",
     },
     {
       id: "career_rules",
@@ -54,7 +54,7 @@ export const defaultMasterSummaryDatabase = {
       headline: "关系和环境变化容易互相牵动。",
       paragraph: "这个盘遇到关系、人事或环境变化时，状态容易被带动。亲密关系、合作关系、居住环境或岗位环境不只是外部事件，也会影响安全感、节奏和现实责任分配。",
       reality: "现实落点多在感情沟通、合作牵连、搬动出行、岗位环境变化和压力反应上。",
-      boundary: "复核时要看具体是哪一柱被触发、关系类型是否成局，以及岁运是否再次引动同一位置。",
+      boundary: "复核时要看具体是哪一柱被触发、关系类型是否成局，以及后续阶段是否再次带动同一位置。",
     },
     {
       id: "learning_output",
@@ -76,7 +76,7 @@ export const defaultMasterSummaryDatabase = {
       headline: "体质和精神状态要从长期偏性看。",
       paragraph: "这个盘的身心状态更适合看长期倾向，不是单独落到某个断语。五行偏性、寒暖燥湿、压力反应和精神安全感会共同影响这个人是否容易放松、恢复和稳定。",
       reality: "现实落点多在睡眠、消化、紧绷感、精神消耗、兴趣系统和长期心态上。",
-      boundary: "复核时要区分体质取象和医学判断，并结合生活习惯、现实压力和岁运引动确认轻重。",
+      boundary: "复核时要区分体质取象和医学判断，并结合生活习惯、现实压力和后续阶段确认轻重。",
     },
   ],
 };
@@ -99,25 +99,28 @@ export function buildNatalMasterSummary({
   hitList = [],
   database = defaultMasterSummaryDatabase,
 } = {}) {
+  const natalSummary = filterNatalOnlyEvidence(summary);
+  const natalHitList = filterNatalOnlyHits(hitList);
   const rules = normalizeDatabase(database).rules;
+  const context = { summary: natalSummary, twelveDomains, hitList: natalHitList };
   const scored = rules
-    .map((rule) => scoreMasterRule(rule, { summary, twelveDomains, hitList }))
+    .map((rule) => scoreMasterRule(rule, context))
     .sort((a, b) => b.score - a.score || b.rule.priority - a.rule.priority);
   const selected = ensureMainLineCount(scored).slice(0, 3);
 
-  if (!selected.length) return buildFallbackSummary({ summary, twelveDomains });
+  if (!selected.length) return buildFallbackSummary({ summary: natalSummary, twelveDomains });
 
   const mainLines = selected.map(({ rule, evidence }) => ({
     id: rule.id,
     label: rule.label,
-    headline: rule.headline,
-    reality: rule.reality,
-    boundary: rule.boundary,
+    headline: stripTransitSignal(rule.headline),
+    reality: stripTransitSignal(rule.reality),
+    boundary: stripTransitSignal(rule.boundary),
     evidence,
   }));
   const selectedRules = selected.map((item) => item.rule);
-  const headline = composeMasterHeadline(selectedRules);
-  const sections = buildMasterSections(selectedRules, { summary, twelveDomains, hitList });
+  const headline = composeMasterHeadline(selectedRules, context);
+  const sections = buildMasterSections(selectedRules, context);
   const paragraph = sections.map((section) => section.text).join("");
   const realityLine = sections.find((section) => section.key === "reality")?.text || buildRealityLine(selectedRules);
   const evidence = uniqueText(selected.flatMap((item) => item.evidence)).slice(0, 8);
@@ -151,6 +154,7 @@ function normalizeDatabase(database = {}) {
 function scoreMasterRule(rule, { summary = {}, twelveDomains = [], hitList = [] } = {}) {
   const keywords = compact(rule.hitKeywords);
   const domains = compact(rule.domains);
+  const context = { summary, twelveDomains, hitList };
   const domainMatches = twelveDomains
     .filter((domain) => domains.includes(domain.key))
     .map((domain) => ({
@@ -173,6 +177,7 @@ function scoreMasterRule(rule, { summary = {}, twelveDomains = [], hitList = [] 
   ]).join(" ");
   const summaryMatches = keywords.filter((keyword) => summaryText.includes(keyword));
   const score = rule.priority
+    + weightMasterRulePriority(rule, context)
     + domainMatches.reduce((total, item) => total + item.weight * 9 + keywordScore(item.text, keywords), 0)
     + hitMatches.reduce((total, item) => total + item.weight * 12 + keywordScore(item.text, keywords), 0)
     + summaryMatches.length * 6;
@@ -194,19 +199,50 @@ function ensureMainLineCount(scored = []) {
   return source.slice(0, Math.min(3, Math.max(2, source.length)));
 }
 
-function composeMasterHeadline(selectedRules = []) {
+function composeMasterHeadline(selectedRules = [], context = {}) {
   const ids = selectedRules.map((rule) => rule.id);
-  const parts = [];
-  if (ids.includes("self_rhythm")) parts.push("自我节奏有主");
-  if (ids.includes("career_rules")) parts.push("规则责任较重");
-  if (ids.includes("wealth_people")) parts.push("资源分配牵财");
-  if (ids.includes("relationship_movement")) parts.push("关系环境易动");
-  if (ids.includes("family_early")) parts.push("家庭早年留底");
-  if (ids.includes("learning_output")) parts.push("学习输出成线");
-  if (ids.includes("health_spirit")) parts.push("身心偏性需养");
-  const headline = (parts.length ? parts : selectedRules.map((rule) => rule.label.replace(/线$/, "")))
-    .slice(0, 3)
-    .join("，");
+  const strongRelation = isStrongRelationshipMovement(context);
+  const domainByKey = Object.fromEntries((context.twelveDomains ?? []).map((domain) => [domain.key, domain]));
+  const wealthText = domainFrontText(domainByKey.wealth);
+  const childrenText = domainFrontText(domainByKey.children);
+  const movementText = domainFrontText(domainByKey.movement);
+  const fixedWealth = /长期承载|稳定资源|家庭承载|固定承载|现实责任|岗位收益/.test(wealthText);
+  const skillWealth = /技能|项目|后天转化|成果交付|专业服务/.test(wealthText);
+  const weakOutput = /原局输出不算最外放|后天引动|成果感更明显/.test(childrenText);
+  const strongMovement = strongRelation && /空间转换容易应事|搬动|出行|异地|岗位环境变化/.test(movementText);
+
+  if (skillWealth && ids.includes("career_rules")) {
+    return trimHeadline("技能项目牵财，规则责任同看");
+  }
+  if (strongMovement && ids.includes("career_rules")) {
+    return trimHeadline(fixedWealth ? "关系环境易动，规则承载并行" : "关系环境易动，职责节奏并行");
+  }
+  if (ids.includes("career_rules") && ids.includes("wealth_people")) {
+    return trimHeadline(fixedWealth && weakOutput
+      ? "官印承接较明，现实承载是主线"
+      : "规则责任较重，固定承载同看");
+  }
+  if (ids.includes("career_rules") && ids.includes("family_early") && ids.includes("self_rhythm")) {
+    return trimHeadline("自我节奏有根，规则责任和家庭底色较重");
+  }
+  if (ids.includes("learning_output") && ids.includes("career_rules")) {
+    return trimHeadline("学习吸收较强，专业承接与现实责任并存");
+  }
+  if (ids.includes("career_rules") && ids.includes("family_early")) {
+    return trimHeadline("规则责任较重，家庭承载并行");
+  }
+
+  const orderedParts = [
+    ids.includes("career_rules") ? "规则责任较重" : "",
+    ids.includes("learning_output") ? "学习吸收成线" : "",
+    ids.includes("wealth_people") ? "现实承载有迹" : "",
+    ids.includes("self_rhythm") ? "自我节奏有主" : "",
+    ids.includes("family_early") ? "家庭早年留底" : "",
+    strongRelation && ids.includes("relationship_movement") ? "关系环境易动" : "",
+    ids.includes("health_spirit") ? "身心偏性需养" : "",
+  ];
+  const headline = compact(orderedParts).slice(0, 3).join("，")
+    || selectedRules.map((rule) => rule.label.replace(/线$/, "")).slice(0, 3).join("，");
   return trimHeadline(headline || "命局主线需从结构与现实同看");
 }
 
@@ -230,8 +266,8 @@ function buildMasterSections(selectedRules = [], context = {}) {
     hasHealth ? "身心偏性" : "",
   ]).slice(0, 4);
   const mainText = mainSubjects.length
-    ? `这个原局不是单点看财或单点看感情，主线更像${joinChineseList(mainSubjects)}同时有存在感。后面的选择容易围绕${joinChineseList(mainSubjects.slice(0, 3))}展开，轻重要看岁运把哪一条先带出来。`
-    : "这个原局的主线不算特别外放，更多是几个结构在底层同时铺开，后面要看岁运把哪一条先带出来。";
+    ? `这个原局不是单点看财或单点看感情，主线更像${joinChineseList(mainSubjects)}同时有存在感。后面的选择容易围绕${joinChineseList(mainSubjects.slice(0, 3))}展开，轻重要看哪一条结构被现实先带出来。`
+    : "这个原局的主线不算特别外放，更多是几个结构在底层同时铺开，后面要看哪一条结构被现实先带出来。";
 
   const personalityText = compact([
     hasSelf ? "性格上有主见，也重边界，不太喜欢完全被别人安排，遇事往往会先建立自己的判断，再决定怎么配合外部环境。" : "",
@@ -247,7 +283,7 @@ function buildMasterSections(selectedRules = [], context = {}) {
     hasHealth ? "睡眠、压力反应和精神消耗会影响稳定度" : "",
   ]);
   const realityText = realityItems.length
-    ? `现实里更容易落在${joinChineseList(realityItems.slice(0, 4))}。这些事不必同时出现，但一旦被阶段运势引动，就会比单独一个象更有存在感。`
+    ? `现实里更容易落在${joinChineseList(realityItems.slice(0, 4))}。这些事不必同时出现，但遇到对应阶段或现实事件时，会比单独一个象更有存在感。`
     : "现实里更容易从性格反应、关系互动和阶段事件里显出轻重。";
 
   const futureItems = compact([
@@ -259,8 +295,8 @@ function buildMasterSections(selectedRules = [], context = {}) {
     hasHealth ? "作息压力和身心恢复" : "",
   ]);
   const futureText = futureItems.length
-    ? `这个盘不是完全静态守成型，后续重点落在${joinChineseList(futureItems.slice(0, 5))}。这些位置被大运流年带动时，事业、关系、财务或居住环境就容易一起应事。`
-    : "后续重点要等大运流年引动命局主线，再判断事业、关系、财务和居住环境哪一端先应事。";
+    ? `这个盘不是完全静态守成型，后续重点落在${joinChineseList(futureItems.slice(0, 5))}。这些位置被现实阶段带动时，事业、关系、财务或居住环境就容易一起显出来。`
+    : "后续重点要等现实阶段带动命局主线，再判断事业、关系、财务和居住环境哪一端先显出来。";
 
   return [
     { key: "main", title: "命局主线", text: mainText },
@@ -279,11 +315,75 @@ function buildRealityLine(rules = []) {
   return `现实里更容易从${realities.join("，以及")}这些地方显出来。`;
 }
 
+function filterNatalOnlyHits(hitList = []) {
+  return (Array.isArray(hitList) ? hitList : [])
+    .filter((hit) => !transitSignalPattern.test(hitText(hit)));
+}
+
+function filterNatalOnlyEvidence(evidence = {}) {
+  if (Array.isArray(evidence)) {
+    return evidence
+      .map((item) => filterNatalOnlyEvidence(item))
+      .filter((item) => {
+        if (item === undefined || item === null || item === "") return false;
+        return !transitSignalPattern.test(JSON.stringify(item));
+      });
+  }
+  if (evidence && typeof evidence === "object") {
+    return Object.fromEntries(
+      Object.entries(evidence)
+        .map(([key, value]) => [key, filterNatalOnlyEvidence(value)])
+        .filter(([, value]) => value !== undefined && value !== null && value !== ""),
+    );
+  }
+  const value = String(evidence ?? "");
+  return transitSignalPattern.test(value) ? "" : evidence;
+}
+
+function stripTransitSignal(text = "") {
+  return String(text)
+    .replace(/[^。！？!?]*(大运|流年|流月|当前步运|岁运|运势|流日)[^。！？!?]*[。！？!?]?/g, "")
+    .trim();
+}
+
+function weightMasterRulePriority(rule, context = {}) {
+  const text = contextText(context);
+  if (rule.id === "relationship_movement") {
+    return isStrongRelationshipMovement(context) ? 18 : -55;
+  }
+  if (rule.id === "career_rules") {
+    return /(官印|正官|官杀|印星|癸印|酉月|规则|职责|岗位|专业承接)/.test(text) ? 28 : 8;
+  }
+  if (rule.id === "family_early") {
+    return /(年柱|月柱|家庭|父母|早年|己丑|土气|固定承载|现实责任|家庭承载)/.test(text) ? 22 : 6;
+  }
+  if (rule.id === "wealth_people") {
+    return /(固定承载|长期承载|稳定资源|土气|己丑|财印|财星.*承载|家庭资产)/.test(text) ? 18 : 2;
+  }
+  if (rule.id === "self_rhythm") {
+    return /(甲木|日主|比肩|主见|理解系统|边界|自我节奏|学习吸收)/.test(text) ? 16 : 6;
+  }
+  if (rule.id === "learning_output") {
+    return /(印星|癸印|学习|吸收|资料|输出|食伤)/.test(text) ? 10 : 2;
+  }
+  return 0;
+}
+
+function isStrongRelationshipMovement(context = {}) {
+  const text = contextText(context);
+  if (/日支被冲|日柱[^。；，,]*冲|冲[^。；，,]*日柱/.test(text)) return true;
+  if (/(三合|三会|成局|驿马|迁移强|多处|多组|集中)/.test(text)) return true;
+  const relationCount = (text.match(/冲|合|刑|害|破|穿/g) || []).length;
+  if (/子酉破/.test(text) && relationCount <= 3) return false;
+  if (/日支被刑害破/.test(text) && relationCount <= 3) return false;
+  return relationCount >= 5;
+}
+
 function buildFallbackSummary({ summary = {}, twelveDomains = [] } = {}) {
   const domains = twelveDomains.slice(0, 3);
   const headline = summary.mainImage || "原局主线需要回到命盘结构里复核。";
   const paragraph = domains.length
-    ? `这个盘先从人本身和现实落点一起看，${domains.map((domain) => domain.label).join("、")}会参与主线。具体轻重要回到命盘证据和岁运触发里复核。`
+    ? `这个盘先从人本身和现实落点一起看，${domains.map((domain) => domain.label).join("、")}会参与主线。具体轻重要回到命盘证据和现实阶段里复核。`
     : "这个盘主线不算特别外放，先从日主、月令、十神和关系触发里慢慢落点。";
   return {
     headline,
@@ -291,7 +391,7 @@ function buildFallbackSummary({ summary = {}, twelveDomains = [] } = {}) {
       { key: "main", title: "命局主线", text: paragraph },
       { key: "personality", title: "性格与能力", text: "性格和能力要从日主、月令、十神与现实训练共同落点。" },
       { key: "reality", title: "现实牵动", text: "现实里要从性格反应、关系互动和阶段事件里复核轻重。" },
-      { key: "future", title: "后续重点", text: "后续重点看大运流年如何引动事业、关系、财务和居住环境。" },
+      { key: "future", title: "后续重点", text: "后续重点看现实阶段如何带动事业、关系、财务和居住环境。" },
     ],
     paragraph,
     realityLine: "现实里要从性格反应、关系互动和阶段事件里复核轻重。",
@@ -318,6 +418,36 @@ function hitText(hit = {}) {
     hit.domains,
     hit.image,
     hit.evidence,
+  ]).join(" ");
+}
+
+function contextText(context = {}) {
+  return compact([
+    context.summary?.mainImage,
+    context.summary?.mainStructure,
+    context.summary?.usefulHint,
+    context.summary?.dayMaster,
+    context.twelveDomains?.map((domain) => compact([
+      domain.key,
+      domain.label,
+      domain.title,
+      domain.judgement,
+      domain.manifestation,
+      domain.pressure,
+      domain.keywords,
+      domain.evidence,
+      domain.matchedCombinations?.map((item) => compact([item.id, item.label, item.judgement, item.evidenceText]).join(" ")),
+    ]).join(" ")),
+    context.hitList?.map((hit) => hitText(hit)),
+  ]).join(" ");
+}
+
+function domainFrontText(domain = {}) {
+  return compact([
+    domain.title,
+    domain.judgement,
+    domain.manifestation,
+    domain.pressure,
   ]).join(" ");
 }
 
@@ -358,3 +488,5 @@ function compact(value) {
 function uniqueText(items = []) {
   return [...new Set(compact(items).map((item) => String(item).trim()))];
 }
+
+const transitSignalPattern = /大运|流年|流月|当前步运|岁运|运势|流日/;

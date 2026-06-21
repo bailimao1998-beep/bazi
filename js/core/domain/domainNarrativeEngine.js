@@ -3,9 +3,9 @@ import { buildDomainEvidence } from "./domainEvidenceEngine.js";
 
 const domainCopy = {
   self: {
-    title: "性格有主见，做事讲节奏和边界",
-    judgement: "这个人性格里主见和边界感比较明，做事讲自己的节奏，不喜欢被别人安排得太死。",
-    manifestation: "脾气上不太喜欢被逼着走，遇事容易先按自己的判断回应，也会比较在意自己是否被尊重。",
+    title: "主见和理解系统较强，做事讲自己的节奏",
+    judgement: "这个人有自己的理解系统，遇事喜欢先想清楚再行动，不太喜欢被别人安排得太死。",
+    manifestation: "现实里容易表现为主见、边界感、学习吸收和自我判断，也会比较在意自己是否被尊重。",
     pressure: "压力点在于关系、人事或环境变化一多，状态容易被牵动，容易较快进入判断和调整模式。",
     low: "命主自身这一项不是最外放的主线，但日主、月令和五行底色仍会影响做事节奏与反应方式。",
   },
@@ -31,18 +31,18 @@ const domainCopy = {
     low: "夫妻感情不是原局最重的外显主题，先以日支关系宫看基本相处模式。",
   },
   children: {
-    title: "子女结果层偏向输出、作品和长期规划",
-    judgement: "子女和结果层更多体现为输出、作品、项目成果和长期规划，这个方向看时柱和食伤能不能把想法落成结果。",
-    manifestation: "容易通过表达、技能、项目、作品或后续规划来呈现成果感。",
-    pressure: "压力点在于想法要持续落地，不能只停在计划、表达或短期热度里。",
-    low: "子女结果这一项不是原局最突出的主线，更多要等大运流年引动时柱或食伤后才会明显。",
+    title: "原局输出不算最外放，后天引动后成果感更明显",
+    judgement: "子女和结果层不能直接断数量，原局更适合看后续作品、项目、表达和结果层。",
+    manifestation: "这个方向要等食伤或时柱被现实阶段带动时，成果感才会更明显。",
+    pressure: "压力点在于想法要持续落地，不能只停在计划或短期热度里。",
+    low: "原局输出不算最外放，后天引动后成果感更明显。",
   },
   wealth: {
-    title: "财务要看资源调度和承载力",
-    judgement: "财不是不能有，而是要看资源怎么被调度、能不能留住，钱财容易和技能、项目、合作、人情或后天运势产生关系。",
-    manifestation: "容易表现为收入来源不只一种，财务稳定度会受到合作分配、专业能力和资源承接影响。",
-    pressure: "压力点在于钱财进出容易被合作、人情、项目周转或资源分配牵动。",
-    low: "财帛财富这一项不是原局最突出的主线，更多要等大运流年把财星或食伤引出来后才会明显。",
+    title: "财星有迹，但更偏长期承载和现实责任",
+    judgement: "钱财不是完全没有基础，但不太像纯流动快财，更适合看稳定资源、家庭承载、长期积累和岗位收益。",
+    manifestation: "财务稳定度会受到现实责任、固定承载和资源承接影响。",
+    pressure: "压力点在于财星有迹也要看能不能承住，不能只看钱财有没有出现。",
+    low: "财帛财富这一项不是原局最突出的主线，更多要等现实阶段把财星或食伤带出来后才会明显。",
   },
   health: {
     title: "体质层面更像长期倾向",
@@ -52,25 +52,25 @@ const domainCopy = {
     low: "疾厄健康只作体质取象，原局证据不重时以生活习惯和五行偏性作辅助参考。",
   },
   movement: {
-    title: "环境变化和空间转换容易应事",
-    judgement: "环境变化感比较明显，容易通过搬迁、出行、异地、岗位环境变化或生活节奏切换来应事。",
-    manifestation: "容易在通勤、跨城、外部环境、人际圈层或工作场景变化中触发状态变化。",
+    title: "环境适应和信息流动感较明显",
+    judgement: "这个人对环境、节奏和信息变化比较敏感，外部场景一变，状态和表现容易跟着调整。",
+    manifestation: "它不一定代表强搬迁，而是说明环境变化会影响做事节奏。",
     pressure: "压力点在于外部环境一动，生活节奏、关系安排和工作状态也容易跟着调整。",
-    low: "迁移环境不是原局最突出的主线，更多等岁运冲动或现实计划引动后才明显。",
+    low: "迁移环境不是原局最突出的主线，更多等现实计划或外部环境带动后才明显。",
   },
   friends: {
     title: "外部圈层带机会，也带人情牵连",
     judgement: "外部朋友和人脉资源容易带来机会，也容易带来牵连，合作、人情、资源边界是交友里要处理的重点。",
     manifestation: "容易在朋友圈、合作圈、资源交换里出现互相帮忙、互相消耗或边界不清的情况。",
     pressure: "压力点在于机会和牵连常常一起出现，人情成本和资源边界需要提前说清。",
-    low: "交友人脉不是原局最突出的主线，外部圈层更多要看后天环境和岁运牵动。",
+    low: "交友人脉不是原局最突出的主线，外部圈层更多要看后天环境和现实阶段牵动。",
   },
   career: {
     title: "事业围绕规则、职责和能力输出展开",
     judgement: "事业上更容易围绕规则、岗位身份、职责压力、考核和技术输出展开，职业发展看规则承接和能力输出能否配合。",
     manifestation: "容易在岗位责任、专业能力、流程要求和成果交付之间找到事业落点。",
     pressure: "压力点在于规则压力和个人表达要能配合，否则容易在职责和自由度之间拉扯。",
-    low: "官禄事业不是原局最突出的主线，事业落点更多要看后天行业和岁运承接。",
+    low: "官禄事业不是原局最突出的主线，事业落点更多要看后天行业和现实阶段承接。",
   },
   property: {
     title: "田宅资产看固定承载和家庭资源",
@@ -104,12 +104,12 @@ const domainCoreKeywords = {
 };
 
 const domainCombinationPreference = {
-  self: ["peer_heavy_wealth_weak", "element_bias_clear", "day_branch_clashed", "officer_visible_resource_support"],
+  self: ["officer_visible_resource_support", "resource_visible_output_visible", "peer_heavy_wealth_weak", "element_bias_clear", "day_branch_clashed"],
   parents: ["earth_visible_wealth_resource_trace", "officer_visible_resource_support"],
   siblings: ["peer_heavy_wealth_weak", "peer_heavy_wealth_visible"],
   spouse: ["day_branch_clashed", "day_branch_combined", "day_branch_punished_harmed_broken"],
   children: ["resource_visible_output_visible", "output_visible_wealth_trace"],
-  wealth: ["peer_heavy_wealth_weak", "peer_heavy_wealth_visible", "output_visible_wealth_trace", "earth_visible_wealth_resource_trace"],
+  wealth: ["earth_visible_wealth_resource_trace", "output_visible_wealth_trace", "peer_heavy_wealth_weak", "peer_heavy_wealth_visible"],
   health: ["water_visible_cold_damp", "element_bias_clear", "day_branch_punished_harmed_broken", "day_branch_clashed"],
   movement: ["day_branch_clashed", "water_visible_cold_damp"],
   friends: ["peer_heavy_wealth_weak", "peer_heavy_wealth_visible", "day_branch_combined"],
@@ -210,8 +210,8 @@ const domainFrontOverrides = {
     },
     wealth: {
       title: "财富方式更看合作规则和资源调度",
-      judgement: "钱财容易和同辈合作、人情资源绑在一起，有资源入口，也有分配压力。",
-      manifestation: "适合看项目合作、收益分成、人情支出和资源调度能力。",
+      judgement: "钱财会受到合作规则和资源调度影响，有资源入口，也会带来分配压力。",
+      manifestation: "适合看项目收益、规则边界和资源承接能力。",
     },
   },
   resource_visible_output_visible: {
@@ -255,9 +255,9 @@ const domainFrontOverrides = {
   },
   officer_visible_resource_support: {
     self: {
-      title: "责任感和规则意识会塑造自我节奏",
-      judgement: "这个人容易把责任、标准和身份感放进自己的做事方式里。",
-      manifestation: "遇到规则压力时，反而可能通过学习、资质和稳定系统来承接。",
+      title: "主见和理解系统较强，做事讲自己的节奏",
+      judgement: "这个人有自己的理解系统，遇事喜欢先想清楚再行动，责任和标准也会放进做事方式里。",
+      manifestation: "现实里容易表现为主见、边界感、学习吸收和自我判断，规则压力来了反而会促使他找稳定承接。",
     },
     parents: {
       title: "家庭规则和成长秩序较有影响",
@@ -301,11 +301,11 @@ const domainFrontOverrides = {
     property: {
       title: "固定资产和居住承载有观察点",
       judgement: "田宅资产这条线更适合看固定资产、居住环境、家庭资产和稳定承载力。",
-      manifestation: "证据明显时说明有固定承载的观察点，证据弱时则要等岁运再引动。",
+      manifestation: "证据明显时说明有固定承载的观察点，证据弱时则要等现实阶段再带动。",
     },
     wealth: {
-      title: "财富方式带有稳定积累和承载感",
-      judgement: "钱财不只看流动收入，也更适合看长期积累、家庭资源和固定承载。",
+      title: "财星有迹，但更偏长期承载和现实责任",
+      judgement: "钱财不是完全没有基础，但不太像纯流动快财，更适合看稳定资源、家庭承载、长期积累和岗位收益。",
       manifestation: "资产、居住、稳定项目和现实责任容易和财务方式连在一起。",
     },
   },
@@ -377,8 +377,8 @@ function buildDomainPortrait(rule, evidence, primaryCombination = null) {
   ]).slice(0, 8);
   const counterEvidence = unique([
     ...combinations.map((item) => item.pressure),
-    confidence === "low" ? "这一项在原局不是主线，阶段运势不引动时表现会收敛。" : "",
-    "若现实经历与命盘取象不贴合，优先回到柱位、十神强弱和岁运触发复核。",
+    confidence === "low" ? "这一项在原局不是主线，现实阶段不带动时表现会收敛。" : "",
+    "若现实经历与命盘取象不贴合，优先回到柱位、十神强弱和现实阶段复核。",
   ]).slice(0, 6);
   const frontText = buildDomainFrontText(rule.key, evidence, rule, primaryCombination);
 
@@ -410,6 +410,9 @@ function buildDomainPortrait(rule, evidence, primaryCombination = null) {
 }
 
 function buildDomainHumanTitle(domainKey, evidence = {}, primaryCombination = null) {
+  if (domainKey === "wealth" && hasFixedWealthBearing(evidence)) return domainCopy.wealth.title;
+  if (domainKey === "children" && !hasOriginalOutputSignal(evidence)) return domainCopy.children.title;
+  if (domainKey === "movement" && !hasStrongMovementSignal(evidence)) return domainCopy.movement.title;
   const override = findDomainFrontOverride(domainKey, evidence, primaryCombination);
   const copy = domainCopy[domainKey] ?? {};
   return cleanFrontText(override?.title || copy.title || "这一项要看后天引动后的表现");
@@ -426,17 +429,21 @@ function buildDomainKeywords(rule = {}, combinations = []) {
 
 function buildDomainFrontText(domainKey, evidence = {}, rule = {}, primaryCombination = null) {
   const copy = domainCopy[domainKey] ?? {};
-  const override = findDomainFrontOverride(domainKey, evidence, primaryCombination);
+  const shouldUseDomainCopy =
+    (domainKey === "wealth" && hasFixedWealthBearing(evidence))
+    || (domainKey === "children" && !hasOriginalOutputSignal(evidence))
+    || (domainKey === "movement" && !hasStrongMovementSignal(evidence));
+  const override = shouldUseDomainCopy ? null : findDomainFrontOverride(domainKey, evidence, primaryCombination);
   const confidence = evidence.confidence ?? "low";
-  const lowText = copy.low || rule.weakEvidenceText || "这一项不是原局最突出的主线，更多要等大运流年引动后才会明显。";
+  const lowText = copy.low || rule.weakEvidenceText || "这一项不是原局最突出的主线，更多要等现实阶段带动后才会明显。";
   const judgement = confidence === "low"
     ? lowText
     : (override?.judgement || copy.judgement || rule.defaultJudgement || lowText);
   const manifestation = confidence === "low"
-    ? "阶段环境和岁运触发到位时，这个方面才更容易显出来。"
+    ? "阶段环境和现实触发到位时，这个方面才更容易显出来。"
     : (override?.manifestation || copy.manifestation || rule.weakEvidenceText || "");
   const pressure = confidence === "low"
-    ? (copy.pressure || "压力点在于这一项原局证据较轻，阶段运势不引动时表现会收敛。")
+    ? (copy.pressure || "压力点在于这一项原局证据较轻，现实阶段不带动时表现会收敛。")
     : (override?.pressure || copy.pressure || compact(evidence.matchedCombinations?.map((item) => item.pressure))[0] || rule.pressureImages.join("、"));
 
   return {
@@ -466,6 +473,33 @@ function pickPrimaryCombinationForDomain(domainKey, evidence = {}, useCounts = n
 function findDomainFrontOverride(domainKey, evidence = {}, primaryCombination = null) {
   const primary = primaryCombination || pickPrimaryCombinationForDomain(domainKey, evidence);
   return primary ? domainFrontOverrides[primary.id]?.[domainKey] || null : null;
+}
+
+function hasFixedWealthBearing(evidence = {}) {
+  const text = signalText(evidence);
+  return /正财|偏财|财星/.test(text) && /(年柱|月柱|丑|辰|未|戌|土|固定|承载|家庭|资产)/.test(text);
+}
+
+function hasOriginalOutputSignal(evidence = {}) {
+  const text = signalText(evidence);
+  return /食神|伤官/.test(text);
+}
+
+function hasStrongMovementSignal(evidence = {}) {
+  const text = signalText(evidence);
+  if (/驿马|迁移强|多处|多组|集中/.test(text)) return true;
+  const clashCount = (text.match(/冲/g) || []).length;
+  return clashCount >= 2;
+}
+
+function signalText(evidence = {}) {
+  return compact((evidence.matchedSignals ?? []).map((signal) => compact([
+    signal.type,
+    signal.label,
+    signal.value,
+    signal.source,
+    signal.text,
+  ]).join(" "))).join(" ");
 }
 
 function buildBookExplanation(rule) {

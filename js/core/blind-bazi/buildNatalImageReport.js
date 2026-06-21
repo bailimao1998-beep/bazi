@@ -73,40 +73,75 @@ export function buildNatalImageReport({ chart, baseBaziViewModel } = {}) {
       atomicFacts,
       domainEvidence,
       hitList,
+      hitListGroups: hitList,
+      suppressedFacts: atomicFacts.suppressedFacts ?? [],
     },
   };
 }
 
 function buildNatalHitListFromFacts(facts = []) {
-  return facts
-    .filter((fact) => fact.score >= 58 && fact.specificity !== "generic")
-    .slice(0, 18)
+  const all = facts
+    .filter((fact) => fact.specificity !== "generic")
     .map((fact) => ({
       id: fact.id,
-      name: fact.label,
+      name: fact.name || fact.label,
       category: categoryLabel(fact.category),
+      subcategory: fact.subcategory || "",
+      status: fact.status || "confirmed",
       score: fact.score,
-      importance: fact.score >= 78 ? "high" : fact.score >= 66 ? "medium" : "low",
+      importance: fact.importance || (fact.score >= 78 ? "high" : fact.score >= 62 ? "medium" : "low"),
+      confidence: fact.confidence || (fact.score >= 78 ? "high" : fact.score >= 58 ? "medium" : "low"),
+      specificity: fact.specificity ?? "medium",
+      sourceRuleId: fact.sourceRuleId || fact.id,
+      relatedFactIds: fact.relatedFactIds ?? [],
+      semanticGroup: fact.semanticGroup || fact.id,
       domains: fact.domains,
       supports: fact.domains,
       evidence: fact.evidence ?? [],
-      specificity: fact.specificity ?? "medium",
-      source: "原子命理事实",
-      brief: fact.meaning,
+      conditions: fact.conditions ?? [],
+      counterEvidence: fact.counterEvidence ?? [],
+      source: "原局四柱",
+      brief: fact.brief || fact.meaning,
       image: fact.tags ?? [],
-      confidence: fact.score >= 78 ? "high" : fact.score >= 66 ? "medium" : "low",
+      tags: fact.tags ?? [],
     }));
+  const confirmed = all.filter((fact) => fact.status === "confirmed");
+  const conditional = all.filter((fact) => fact.status === "conditional");
+  const weak = all.filter((fact) => fact.status === "weak");
+  const featured = all
+    .filter((fact) => fact.category !== "神煞辅助" && fact.importance !== "low")
+    .slice(0, 8);
+  return {
+    all,
+    confirmed,
+    conditional,
+    weak,
+    featured,
+    byCategory: groupByCategory(all),
+  };
 }
 
 function categoryLabel(category = "") {
+  if (/日主根气|十神透藏|组合结构|干支关系|柱位重复|五行调候|神煞辅助/.test(category)) return category;
   return {
     day_master: "日主象",
     ten_god: "十神象",
+    ten_god_position: "十神象",
     combination: "组合象",
     relation: "关系象",
     pillar: "柱位象",
     element: "五行象",
+    shensha: "神煞辅助",
   }[category] ?? "结构象";
+}
+
+function groupByCategory(items = []) {
+  const result = {};
+  for (const item of items) {
+    if (!result[item.category]) result[item.category] = [];
+    result[item.category].push(item);
+  }
+  return result;
 }
 
 function createContext(chart, viewModel, structure) {

@@ -62,20 +62,24 @@ function buildPillars(chart = {}) {
 }
 
 function buildTenGodVector(chart = {}, viewModel = {}, pillars = {}) {
-  const hiddenCounts = viewModel.tenGods?.fullHidden ?? chart.tenGodStats?.fullHidden ?? {};
-  const visibleCounts = countVisibleTenGods(pillars);
-  const mainQiCounts = viewModel.tenGods?.mainQi ?? chart.tenGodStats?.mainQi ?? {};
-  const weightedCounts = sumCountMaps(visibleCounts, mainQiCounts, hiddenCounts);
+  const stemVisibleCounts = countStemVisibleTenGods(pillars);
+  const branchMainQiCounts = countBranchMainQiTenGods(pillars);
+  const hiddenCounts = countHiddenTenGods(pillars);
+  const hiddenWeightedCounts = countHiddenWeightedTenGods(pillars);
+  const weightedCounts = sumCountMaps(stemVisibleCounts, hiddenWeightedCounts);
   const groupCounts = Object.fromEntries(Object.entries(tenGodGroups).map(([key, names]) => [
     key,
     names.reduce((sum, name) => sum + Number(weightedCounts[name] ?? 0), 0),
   ]));
 
   return {
-    weightedCounts,
-    visibleCounts,
+    stemVisibleCounts,
+    branchMainQiCounts,
     hiddenCounts,
-    mainQiCounts,
+    hiddenWeightedCounts,
+    weightedCounts,
+    visibleCounts: stemVisibleCounts,
+    mainQiCounts: branchMainQiCounts,
     byPillar: Object.fromEntries(Object.entries(pillars).map(([key, pillar]) => [key, {
       stemTenGod: pillar.stemTenGod,
       branchMainTenGod: pillar.branchMainTenGod,
@@ -92,7 +96,7 @@ function buildTenGodVector(chart = {}, viewModel = {}, pillars = {}) {
 }
 
 function buildElementVector(chart = {}, viewModel = {}) {
-  const counts = sumElementCounts(chart.elements ?? chart.elementStats ?? viewModel.fiveElements ?? {});
+  const counts = normalizeElementCounts(chart.elements ?? chart.elementStats ?? viewModel.fiveElements ?? {});
   const total = Object.values(counts).reduce((sum, value) => sum + Number(value || 0), 0) || 1;
   const ratios = Object.fromEntries(Object.entries(counts).map(([key, value]) => [key, Number(value || 0) / total]));
   const sorted = Object.entries(counts).sort((a, b) => Number(b[1] || 0) - Number(a[1] || 0));
@@ -117,7 +121,13 @@ function buildRelations(relations = []) {
       type: relation.type ?? relation.name ?? "",
       name: relation.name ?? relation.type ?? "",
       pillars: relation.pillars ?? [],
-      branches: relation.branches ?? relation.ganzhi ?? [],
+      members: relation.members ?? [],
+      branches: relation.branches ?? relation.members ?? [],
+      ganzhi: relation.ganzhi ?? [],
+      confidence: relation.confidence ?? "medium",
+      needVerify: relation.needVerify ?? [],
+      effect: relation.effect ?? "",
+      evidence: relation.evidence ?? "",
       target: text,
       importance: /日柱|月柱/.test(text) ? "high" : "medium",
       affectsDayBranch: /日柱/.test(text),
@@ -127,15 +137,54 @@ function buildRelations(relations = []) {
   });
 }
 
-function countVisibleTenGods(pillars = {}) {
+function countStemVisibleTenGods(pillars = {}) {
   const result = {};
   for (const pillar of Object.values(pillars)) {
-    for (const name of [pillar.stemTenGod, pillar.branchMainTenGod]) {
-      if (!name) continue;
-      result[name] = (result[name] || 0) + 1;
+    if (!pillar.stemTenGod) continue;
+    result[pillar.stemTenGod] = (result[pillar.stemTenGod] || 0) + 1;
+  }
+  return result;
+}
+
+function countBranchMainQiTenGods(pillars = {}) {
+  const result = {};
+  for (const pillar of Object.values(pillars)) {
+    if (!pillar.branchMainTenGod) continue;
+    result[pillar.branchMainTenGod] = (result[pillar.branchMainTenGod] || 0) + 1;
+  }
+  return result;
+}
+
+function countHiddenTenGods(pillars = {}) {
+  const result = {};
+  for (const pillar of Object.values(pillars)) {
+    for (const hidden of pillar.hiddenStems ?? []) {
+      if (!hidden.tenGod) continue;
+      result[hidden.tenGod] = (result[hidden.tenGod] || 0) + 1;
     }
   }
   return result;
+}
+
+function countHiddenWeightedTenGods(pillars = {}) {
+  const result = {};
+  for (const pillar of Object.values(pillars)) {
+    for (const hidden of pillar.hiddenStems ?? []) {
+      if (!hidden.tenGod) continue;
+      const weight = hiddenWeight(hidden);
+      result[hidden.tenGod] = (result[hidden.tenGod] || 0) + weight;
+    }
+  }
+  return result;
+}
+
+function hiddenWeight(hidden = {}) {
+  if (Number.isFinite(hidden.weight)) return Number(hidden.weight);
+  if (Number.isFinite(hidden.percentage)) return Number(hidden.percentage);
+  if (/主气|本气/.test(hidden.role || hidden.qiLevel || "")) return 0.7;
+  if (/中气/.test(hidden.role || hidden.qiLevel || "")) return 0.4;
+  if (/余气|杂气/.test(hidden.role || hidden.qiLevel || "")) return 0.25;
+  return 0.25;
 }
 
 function sumCountMaps(...maps) {
@@ -148,7 +197,13 @@ function sumCountMaps(...maps) {
   return result;
 }
 
-function sumElementCounts(fiveElements = {}) {
+function normalizeElementCounts(fiveElements = {}) {
+  if (hasNumericElementCounts(fiveElements)) {
+    return sumElementCounts(fiveElements);
+  }
+  if (hasNumericElementCounts(fiveElements.counts)) {
+    return sumElementCounts(fiveElements.counts);
+  }
   const result = {};
   for (const map of [fiveElements.visible?.counts, fiveElements.hidden?.counts, fiveElements.counts]) {
     for (const [key, value] of Object.entries(map || {})) {
@@ -156,6 +211,14 @@ function sumElementCounts(fiveElements = {}) {
     }
   }
   return result;
+}
+
+function hasNumericElementCounts(value = {}) {
+  return ["wood", "fire", "earth", "metal", "water"].some((key) => Number.isFinite(Number(value?.[key])));
+}
+
+function sumElementCounts(map = {}) {
+  return Object.fromEntries(["wood", "fire", "earth", "metal", "water"].map((key) => [key, Number(map?.[key] ?? 0)]));
 }
 
 function buildFlowChains(counts = {}) {

@@ -145,6 +145,8 @@ export function renderNatalImagePanel(root, report, context = {}) {
       domainEvidence: report.domainEvidence,
       masterSummarySelection: report.masterSummarySelection,
       hitList: report.hitList,
+      hitListGroups: report.hitList,
+      suppressedFacts: report.atomicFacts?.suppressedFacts ?? [],
     };
   }
   bindNatalEvidencePopup(root);
@@ -156,7 +158,7 @@ function renderNatalMasterSummary(report = {}, context = {}) {
   const summary = buildNatalMasterSummary({
     summary: report.summary,
     twelveDomains: domains,
-    hitList,
+    hitList: hitList.all ?? [],
     featureVector: report.featureVector,
     atomicFacts: report.atomicFacts,
     domainEvidence: report.domainEvidence,
@@ -229,8 +231,9 @@ function renderNatalDomainCard(domain = {}, index = 0) {
 }
 
 function renderNatalHitListSection(report = {}) {
-  const rows = buildNatalHitList(report);
-  const chips = rows.slice(0, 8);
+  const hitList = buildNatalHitList(report);
+  const rows = hitList.all;
+  const chips = hitList.featured;
   return `
     <section class="natal-hit-index">
       <div class="board-title">
@@ -256,24 +259,30 @@ function renderNatalHitListSection(report = {}) {
 }
 
 function renderNatalHitCard(item = {}) {
-  const detailItems = compact(item.evidence).slice(0, 5);
+  const detailItems = compact(item.evidence).slice(0, 8);
   return `
     <article class="natal-hit-row is-${safe(item.importance || "medium")}">
       <div class="natal-hit-main">
-        <span>${display(item.category || item.type || "取象")} · ${display(confidenceLabel(item.importance || item.confidence || "medium"))}</span>
+        <span>${display(item.category || item.type || "取象")} · ${display(statusLabel(item.status))} · ${display(confidenceLabel(item.importance || item.confidence || "medium"))}</span>
         <strong>${display(item.name)}</strong>
-        <p class="natal-hit-domains">对应方面：${display(compact(item.domains).join("、") || "原局命局画像")}</p>
+        <p class="natal-hit-domains">${display(item.brief || compact(item.image).join("、") || "该象用于支撑原局取象清单。")}</p>
       </div>
       <details class="natal-hit-detail">
         <summary class="natal-hit-evidence-button">依据</summary>
         <div class="natal-hit-detail-body">
           <p><b>来源</b><span>${display(item.source || "原局结构")}</span></p>
-          <p><b>含义</b><span>${display(item.brief || compact(item.image).join("、") || "该象用于支撑原局命局画像。")}</span></p>
+          <p><b>含义</b><span>${display(item.brief || compact(item.image).join("、") || "该象用于支撑原局取象清单。")}</span></p>
           ${detailItems.length ? `
             <ul>
-              ${detailItems.map((detail) => `<li>${display(detail)}</li>`).join("")}
+              ${detailItems.map((detail) => `<li>${display(evidenceText(detail))}</li>`).join("")}
             </ul>
           ` : `<p class="muted">详细证据可在查看依据弹窗和内部证据包中追溯。</p>`}
+          ${compact(item.conditions).length ? `
+            <p><b>成立条件</b><span>${display(compact(item.conditions).join("；"))}</span></p>
+          ` : ""}
+          ${compact(item.counterEvidence).length ? `
+            <p><b>反证</b><span>${display(compact(item.counterEvidence).join("；"))}</span></p>
+          ` : ""}
         </div>
       </details>
     </article>
@@ -332,19 +341,49 @@ function buildNatalDomainCards(report = {}) {
 }
 
 export function buildNatalHitList(report = {}) {
-  if (Array.isArray(report.hitList) && report.hitList.length) {
-    return report.hitList.slice(0, 18).map((item) => ({
-      ...item,
-      type: item.type || item.category,
-      category: item.category || item.type || "结构象",
-      importance: normalizeImportance(item.importance || item.confidence),
-      evidence: compact(item.evidence),
-      image: compact(item.image),
-      domains: domainLabelsFromKeys(item.domains || item.supports, buildNatalDomainCards(report)),
-      supports: compact(item.supports || item.domains),
-      confidence: item.confidence || item.importance || "medium",
-    }));
+  if (report.hitList?.all) {
+    const all = report.hitList.all.map((item) => normalizeHitRow(item, report));
+    return {
+      all,
+      featured: (report.hitList.featured ?? []).map((item) => normalizeHitRow(item, report)),
+      confirmed: (report.hitList.confirmed ?? []).map((item) => normalizeHitRow(item, report)),
+      conditional: (report.hitList.conditional ?? []).map((item) => normalizeHitRow(item, report)),
+      weak: (report.hitList.weak ?? []).map((item) => normalizeHitRow(item, report)),
+      byCategory: report.hitList.byCategory ?? {},
+    };
   }
+  if (Array.isArray(report.hitList) && report.hitList.length) {
+    const all = report.hitList.map((item) => normalizeHitRow(item, report));
+    return {
+      all,
+      featured: all.slice(0, 8),
+      confirmed: all.filter((item) => item.status === "confirmed"),
+      conditional: all.filter((item) => item.status === "conditional"),
+      weak: all.filter((item) => item.status === "weak"),
+      byCategory: groupHitRowsByCategory(all),
+    };
+  }
+  return buildFallbackHitList(report);
+}
+
+function normalizeHitRow(item = {}, report = {}) {
+  return {
+    ...item,
+    type: item.type || item.category,
+    category: item.category || item.type || "结构象",
+    status: item.status || "confirmed",
+    importance: normalizeImportance(item.importance || item.confidence),
+    evidence: compact(item.evidence),
+    image: compact(item.image),
+    domains: domainLabelsFromKeys(item.domains || item.supports, buildNatalDomainCards(report)),
+    supports: compact(item.supports || item.domains),
+    confidence: item.confidence || item.importance || "medium",
+    conditions: compact(item.conditions),
+    counterEvidence: compact(item.counterEvidence),
+  };
+}
+
+function buildFallbackHitList(report = {}) {
   const domains = buildNatalDomainCards(report);
   const byKey = new Map(domains.map((domain) => [domain.key, domain]));
   const rows = [];
@@ -428,9 +467,26 @@ export function buildNatalHitList(report = {}) {
     });
   }
 
-  return dedupeHitRows(rows)
+  const all = dedupeHitRows(rows)
     .sort((a, b) => confidenceScore(b.confidence) - confidenceScore(a.confidence))
     .slice(0, 18);
+  return {
+    all,
+    featured: all.slice(0, 8),
+    confirmed: all.filter((item) => item.status === "confirmed"),
+    conditional: all.filter((item) => item.status === "conditional"),
+    weak: all.filter((item) => item.status === "weak"),
+    byCategory: groupHitRowsByCategory(all),
+  };
+}
+
+function groupHitRowsByCategory(rows = []) {
+  const result = {};
+  for (const row of rows) {
+    if (!result[row.category]) result[row.category] = [];
+    result[row.category].push(row);
+  }
+  return result;
 }
 
 function domainLabelsFromKeys(keys = [], domains = []) {
@@ -1115,6 +1171,15 @@ function display(value) {
 
 function confidenceLabel(value) {
   return confidenceLabels[value] ?? value ?? "可参考";
+}
+
+function statusLabel(value = "") {
+  return { confirmed: "明确", conditional: "条件", weak: "辅助" }[value] || "明确";
+}
+
+function evidenceText(item) {
+  if (typeof item === "string") return item;
+  return item?.text || compact([item?.position, item?.value]).join("：") || "";
 }
 
 function humanizeText(value) {

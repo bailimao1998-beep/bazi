@@ -106,7 +106,7 @@ test("package metadata points at the static Electron shell", () => {
 
   assert.equal(packageJson.main, "electron/main.js");
   assert.equal(packageJson.scripts.start, "electron .");
-  assert.equal(packageJson.scripts.test, "node --test tests/architecture.test.js");
+  assert.equal(packageJson.scripts.test, "node --test tests/*.test.js");
   assert.equal(packageJson.scripts["dist:win"], "electron-builder --win nsis --publish never");
   assert.equal(packageJson.scripts["dist:win-portable"], "electron-builder --win portable --publish never");
   assert.deepEqual(packageJson.build.files, [
@@ -769,7 +769,7 @@ test("frontend bazi and blind-bazi chain calculates reports locally", () => {
       selectedFactIds: itemSummary.selectedFactIds ?? [],
       factIds: atomicFacts.facts.map((fact) => fact.id),
       reportFactIds: itemReport.atomicFacts?.facts?.map((fact) => fact.id) ?? [],
-      hitIds: itemReport.hitList?.map((hit) => hit.id) ?? [],
+      hitIds: itemReport.hitList?.all?.map((hit) => hit.id) ?? [],
       domainSignature: itemReport.twelveDomains
         .filter((domain) => ["self", "wealth", "children", "movement", "career", "spouse"].includes(domain.key))
         .map((domain) => domain.title)
@@ -936,7 +936,7 @@ test("stage analysis panels render calculated report data without breaking refre
   assert.match(root.innerHTML, /natal-hit-evidence-button/);
   assert.doesNotMatch(root.innerHTML, /查看更多取象 <span>0 个<\/span>/);
   assert.equal((root.innerHTML.match(/<details class="natal-hit-details">/g) || []).length, 1);
-  assert.match(root.innerHTML, /对应方面/);
+  assert.doesNotMatch(root.innerHTML, /对应方面/);
   assert.match(root.innerHTML, /命盘依据/);
   assert.match(root.innerHTML, /命中组合/);
   assert.match(root.innerHTML, /成立条件/);

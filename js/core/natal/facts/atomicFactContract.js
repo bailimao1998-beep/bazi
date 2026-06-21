@@ -96,18 +96,11 @@ export function validateAtomicNatalFacts(input) {
       };
     }
 
-    const facts = Array.isArray(input.contractFacts)
-      ? input.contractFacts
-      : Array.isArray(input.facts)
-        ? input.facts
-        : [];
-    const indexes = input.indexes ?? {};
-    const summary = input.summary ?? {};
+    const projection = machineContractProjection(input, errors);
+    const facts = projection.facts;
+    const indexes = projection.indexes;
+    const summary = projection.summary;
     const ids = new Set();
-
-    if (!Array.isArray(facts)) {
-      errors.push("facts should be an array");
-    }
 
     for (const [index, fact] of facts.entries()) {
       validateFact(fact, index, ids, errors);
@@ -115,13 +108,13 @@ export function validateAtomicNatalFacts(input) {
 
     validateIndexes(indexes, ids, errors);
     validateSummary(summary, facts, errors);
-    findForbiddenKeys(input, "input", errors);
-    for (const path of findNonFiniteNumberPaths(input)) {
+    findForbiddenKeys(projection, "contract", errors);
+    for (const path of findNonFiniteNumberPaths(projection, "contract")) {
       errors.push(`NaN or non-finite number at ${path}`);
     }
 
     try {
-      JSON.stringify(input);
+      JSON.stringify(projection);
     } catch (error) {
       errors.push(`value is not JSON serializable: ${error?.message ?? "unknown"}`);
     }
@@ -138,6 +131,63 @@ export function validateAtomicNatalFacts(input) {
       warnings,
     };
   }
+}
+
+function machineContractProjection(input, errors) {
+  const hasContractFacts =
+    Object.hasOwn(input, "contractFacts");
+  const hasPureFacts =
+    Object.hasOwn(input, "facts");
+
+  if (hasContractFacts) {
+    if (!Array.isArray(input.contractFacts)) {
+      errors.push("contractFacts should be an array");
+    }
+    return {
+      version:
+        input.factContractVersion ??
+        input.version ??
+        ATOMIC_NATAL_FACT_CONTRACT_VERSION,
+      facts:
+        Array.isArray(input.contractFacts)
+          ? input.contractFacts
+          : [],
+      indexes:
+        input.indexes ?? {},
+      summary:
+        input.summary ?? {},
+      warnings:
+        Array.isArray(input.warnings)
+          ? input.warnings
+          : [],
+    };
+  }
+
+  if (hasPureFacts) {
+    if (!Array.isArray(input.facts)) {
+      errors.push("facts should be an array");
+    }
+    return {
+      version:
+        input.version ??
+        ATOMIC_NATAL_FACT_CONTRACT_VERSION,
+      facts:
+        Array.isArray(input.facts)
+          ? input.facts
+          : [],
+      indexes:
+        input.indexes ?? {},
+      summary:
+        input.summary ?? {},
+      warnings:
+        Array.isArray(input.warnings)
+          ? input.warnings
+          : [],
+    };
+  }
+
+  errors.push("machine facts array is required");
+  return createEmptyAtomicNatalFacts();
 }
 
 export function normalizeFact(input = {}) {

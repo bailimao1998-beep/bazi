@@ -4,6 +4,9 @@ import { resolveNatalFacts } from "./natalFactResolver.js";
 import {
   buildAtomicFactContract,
 } from "./facts/buildAtomicFactContract.js";
+import {
+  validateAtomicNatalFacts,
+} from "./facts/atomicFactContract.js";
 
 export function buildAtomicNatalFacts(
   featureVector = {},
@@ -40,10 +43,12 @@ export function buildAtomicNatalFacts(
     buildAtomicFactContract(
       featureVector,
     );
+  const contractValidation =
+    validateAtomicNatalFacts(
+      contract,
+    );
 
   return {
-    version:
-      contract.version,
     factContractVersion:
       contract.version,
 
@@ -82,6 +87,11 @@ export function buildAtomicNatalFacts(
         ruleEvaluation.facts.length,
       ruleEvaluation:
         ruleEvaluation.debug,
+      contractValidation,
+      contractFactCount:
+        contract.facts.length,
+      contractCategoryCounts:
+        contract.summary.byCategory,
     },
   };
 }

@@ -1,5 +1,6 @@
 import {
   normalizeAtomicNatalFacts,
+  stableStringify,
 } from "./atomicFactContract.js";
 
 const pillarKeys = ["year", "month", "day", "hour"];
@@ -31,8 +32,8 @@ function extractDayMasterFacts(fv) {
     scalarFact("day_master", "day_master", "day_master", "day_master_stem", dayMaster.stem, "observed", "high", "dayMaster", "stem"),
     scalarFact("day_master", "day_master", "day_master", "day_master_element", dayMaster.element, "observed", "high", "dayMaster", "element"),
     scalarFact("day_master", "day_master", "day_master", "strength_level", dayMaster.strengthLevel, "derived", "medium", "dayMaster", "strengthLevel"),
-    Number.isFinite(Number(dayMaster.strengthScore))
-      ? scalarFact("day_master", "day_master", "day_master", "strength_score", Number(dayMaster.strengthScore), "derived", "medium", "dayMaster", "strengthScore")
+    parseFiniteNumber(dayMaster.strengthScore) !== null
+      ? scalarFact("day_master", "day_master", "day_master", "strength_score", parseFiniteNumber(dayMaster.strengthScore), "derived", "medium", "dayMaster", "strengthScore")
       : null,
     scalarFact("day_master", "day_master", "day_master", "in_season", Boolean(dayMaster.inSeason), "derived", "medium", "dayMaster", "inSeason"),
     scalarFact("day_master", "day_master", "day_master", "root_level", dayMaster.rootLevel, "derived", "medium", "dayMaster", "rootLevel"),
@@ -52,21 +53,30 @@ function extractPillarFacts(fv) {
       scalarFact("pillar", "pillar", key, "pillar_twelve_growth", pillar.twelveGrowth, "derived", "medium", "pillars", `${key}.twelveGrowth`),
       scalarFact("pillar", "pillar", key, "pillar_void_reference", pillar.voidBranches ?? [], "observed", "medium", "pillars", `${key}.voidBranches`),
     );
-    for (const [index, hidden] of (pillar.hiddenStems ?? []).entries()) {
-      facts.push(baseFact({
-        category: "pillar",
-        subject: subject("hidden_stem", `${key}.hidden.${index}`, [key], `${key}藏干${index}`),
-        predicate: "hidden_stem",
-        value: {
+    for (const hidden of pillar.hiddenStems ?? []) {
+      const hiddenKey =
+        stableEntityKey("hidden", {
+          pillar: key,
           stem: hidden.stem ?? "",
           tenGod: hidden.tenGod ?? "",
           role: hidden.role ?? hidden.qiLevel ?? "",
-          weight: finiteOrNull(hidden.weight ?? hidden.percentage),
-          position: `${key}.branch.hidden.${index}`,
-        },
+          weight: parseFiniteNumber(hidden.weight ?? hidden.percentage),
+        });
+      const hiddenValue = {
+        stem: hidden.stem ?? "",
+        tenGod: hidden.tenGod ?? "",
+        role: hidden.role ?? hidden.qiLevel ?? "",
+        position: `${key}.branch.hidden`,
+      };
+      assignFinite(hiddenValue, "weight", hidden.weight ?? hidden.percentage);
+      facts.push(baseFact({
+        category: "pillar",
+        subject: subject("hidden_stem", `${key}.${hiddenKey}`, [key], `${key}藏干`),
+        predicate: "hidden_stem",
+        value: hiddenValue,
         status: "observed",
         confidence: "medium",
-        sourceRefs: [sourceRef("pillars", `${key}.hiddenStems`, String(index))],
+        sourceRefs: [sourceRef("pillars", `${key}.hiddenStems`, hiddenKey)],
         tags: ["hidden_stem", hidden.tenGod ?? ""],
       }));
     }
@@ -78,11 +88,13 @@ function extractElementFacts(fv) {
   const elements = fv.elements ?? {};
   const facts = [];
   for (const key of elementKeys) {
-    if (Number.isFinite(Number(elements.counts?.[key]))) {
-      facts.push(scalarFact("element", "element", key, "element_count", Number(elements.counts[key]), "observed", "medium", "elements", `counts.${key}`));
+    const count = parseFiniteNumber(elements.counts?.[key]);
+    if (count !== null) {
+      facts.push(scalarFact("element", "element", key, "element_count", count, "observed", "medium", "elements", `counts.${key}`));
     }
-    if (Number.isFinite(Number(elements.ratios?.[key]))) {
-      facts.push(scalarFact("element", "element", key, "element_ratio", Number(elements.ratios[key]), "derived", "medium", "elements", `ratios.${key}`));
+    const ratio = parseFiniteNumber(elements.ratios?.[key]);
+    if (ratio !== null) {
+      facts.push(scalarFact("element", "element", key, "element_ratio", ratio, "derived", "medium", "elements", `ratios.${key}`));
     }
   }
   facts.push(
@@ -91,7 +103,9 @@ function extractElementFacts(fv) {
     scalarFact("element", "element_profile", "bias", "bias_level", elements.biasLevel, "derived", "medium", "elements", "biasLevel"),
   );
   for (const chain of elements.flowChains ?? []) {
-    facts.push(scalarFact("element", "flow_chain", String(chain), "flow_chain_candidate", chain, "candidate", "medium", "elements", "flowChains"));
+    const chainKey =
+      stableEntityKey("flow_chain", chain);
+    facts.push(scalarFact("element", "flow_chain", chainKey, "flow_chain_candidate", chain, "candidate", "medium", "elements", "flowChains"));
   }
   return facts.filter(Boolean);
 }
@@ -99,17 +113,18 @@ function extractElementFacts(fv) {
 function extractTenGodStateFacts(fv) {
   const facts = [];
   for (const [name, state] of Object.entries(fv.tenGodStates ?? {})) {
+    const presenceValue = {
+      tenGod: name,
+    };
+    assignFinite(presenceValue, "weightedCount", state.weightedCount);
+    assignFinite(presenceValue, "visibleCount", state.visibleCount);
+    assignFinite(presenceValue, "hiddenCount", state.hiddenCount);
+    assignFinite(presenceValue, "mainQiCount", state.mainQiCount);
     facts.push(baseFact({
       category: "ten_god",
       subject: subject("ten_god", name, [], name),
       predicate: "ten_god_presence",
-      value: {
-        tenGod: name,
-        weightedCount: finiteOrZero(state.weightedCount),
-        visibleCount: finiteOrZero(state.visibleCount),
-        hiddenCount: finiteOrZero(state.hiddenCount),
-        mainQiCount: finiteOrZero(state.mainQiCount),
-      },
+      value: presenceValue,
       status: "observed",
       confidence: "medium",
       sourceRefs: [sourceRef("tenGodStates", name, name)],
@@ -221,7 +236,7 @@ function extractKinshipFacts(fv) {
   const facts = [];
   for (const key of ["father", "mother", "siblings", "spouse", "children"]) {
     const item = fv.kinshipFeatures?.[key] ?? {};
-    const status = item.mappingStatus === "gender_required" ? "candidate" : "derived";
+    const status = kinshipFactStatus(item.mappingStatus);
     facts.push(baseFact({
       category: "kinship",
       subject: subject("kinship", key, [], item.label ?? key),
@@ -243,10 +258,7 @@ function extractKinshipFacts(fv) {
       category: "kinship",
       subject: subject("kinship", key, [], item.label ?? key),
       predicate: "kinship_star_presence",
-      value: {
-        weightedCount: finiteOrZero(item.starProfile?.weightedCount),
-        weightedByTenGod: item.starProfile?.weightedByTenGod ?? {},
-      },
+      value: kinshipStarPresenceValue(item.starProfile),
       status,
       confidence: "medium",
       sourceRefs: [sourceRef("kinshipFeatures", `${key}.starProfile`, key)],
@@ -287,37 +299,102 @@ function extractKinshipFacts(fv) {
 function extractVoidFacts(fv) {
   const facts = [];
   const voidFeatures = fv.voidFeatures ?? {};
+  const references = voidFeatures.references ?? {};
+
   facts.push(baseFact({
     category: "void",
-    subject: subject("void_reference", "references", [], "旬空参考"),
-    predicate: "void_references",
+    subject: subject("void_primary_reference", "primary", [], "旬空主要参考"),
+    predicate: "primary_void_reference",
     value: {
       primaryReference: voidFeatures.primaryReference ?? "day",
-      references: voidFeatures.references ?? {},
-      voidBranches: voidFeatures.voidBranches ?? [],
+    },
+    status: "observed",
+    confidence: "medium",
+    sourceRefs: [sourceRef("voidFeatures", "primaryReference", "primary")],
+    tags: ["void", "primary_reference"],
+  }));
+
+  for (const referenceKey of ["day", "year"]) {
+    const reference =
+      references[referenceKey] ??
+      (referenceKey === voidFeatures.primaryReference
+        ? {
+            sourcePillar: referenceKey,
+            voidBranches: voidFeatures.voidBranches ?? [],
+          }
+        : null);
+    if (!reference) continue;
+    facts.push(baseFact({
+      category: "void",
+      subject: subject("void_reference", referenceKey, [], `${referenceKey}旬空参考`),
+      predicate: "void_reference",
+      value: {
+        referencePillar:
+          reference.referencePillar ??
+          reference.sourcePillar ??
+          referenceKey,
+        sourceGanzhi:
+          reference.sourceGanzhi ?? "",
+        voidBranches:
+          reference.voidBranches ?? [],
+      },
+      status: "observed",
+      confidence: "medium",
+      sourceRefs: [sourceRef("voidFeatures", `references.${referenceKey}`, referenceKey)],
+      evidence: evidenceList(reference.evidence),
+      tags: ["void", referenceKey],
+      warnings: reference.warnings ?? [],
+    }));
+  }
+
+  const referenceEntries =
+    Object.keys(references).length > 0
+      ? Object.entries(references)
+      : [[voidFeatures.primaryReference ?? "day", voidFeatures]];
+  for (const [referenceKey, reference] of referenceEntries) {
+    for (const key of pillarKeys) {
+      const item =
+        reference?.byPillar?.[key] ??
+        voidFeatures.byReference?.[referenceKey]?.byPillar?.[key] ??
+        null;
+      if (!item) continue;
+      facts.push(baseFact({
+        category: "void",
+        subject: subject("pillar", `${referenceKey}:${key}`, [referenceKey, key], item.label ?? key),
+        predicate: "pillar_void_state",
+        value: {
+          isVoid: Boolean(item.isVoid),
+          referencePillar:
+            item.referencePillar ??
+            referenceKey,
+          voidBranches:
+            reference?.voidBranches ?? [],
+          branchMainTenGod:
+            item.branchMainTenGod ?? "",
+        },
+        status: "observed",
+        confidence: "medium",
+        sourceRefs: [sourceRef("voidFeatures", `references.${referenceKey}.byPillar.${key}`, `${referenceKey}:${key}`)],
+        evidence: evidenceList(item.evidence),
+        tags: ["void", referenceKey, key],
+        warnings: item.warnings ?? [],
+      }));
+    }
+  }
+
+  facts.push(baseFact({
+    category: "void",
+    subject: subject("void_reference_set", "references", [], "旬空参考集合"),
+    predicate: "void_reference_set",
+    value: {
+      primaryReference: voidFeatures.primaryReference ?? "day",
+      referenceKeys: Object.keys(references),
     },
     status: "observed",
     confidence: "medium",
     sourceRefs: [sourceRef("voidFeatures", "references", "")],
     tags: ["void"],
   }));
-  for (const key of pillarKeys) {
-    const item = voidFeatures.byPillar?.[key] ?? {};
-    facts.push(baseFact({
-      category: "void",
-      subject: subject("pillar", key, [key], item.label ?? key),
-      predicate: "pillar_void_state",
-      value: {
-        isVoid: Boolean(item.isVoid),
-        referencePillar: item.referencePillar ?? "day",
-        branchMainTenGod: item.branchMainTenGod ?? "",
-      },
-      status: "observed",
-      confidence: "medium",
-      sourceRefs: [sourceRef("voidFeatures", `byPillar.${key}`, key)],
-      tags: ["void", key],
-    }));
-  }
   facts.push(baseFact({
     category: "void",
     subject: subject("spouse_palace", "spousePalace", ["day"], "夫妻宫"),
@@ -351,21 +428,23 @@ function extractStorageFacts(fv) {
       sourceRefs: [sourceRef("storageFeatures", `byPillar.${key}`, key)],
       tags: ["storage", key],
     }));
-    facts.push(baseFact({
-      category: "storage",
-      subject: subject("pillar", key, [key], item.label ?? key),
-      predicate: "opening_signal",
-      value: {
-        hasOpeningSignal: Boolean(item.hasOpeningSignal),
-        openingSignalTypes: item.openingSignalTypes ?? [],
-        openingSignalRelationIds: item.openingSignalRelationIds ?? [],
-        openState: item.openState ?? "unknown",
-      },
-      status: "candidate",
-      confidence: "medium",
-      sourceRefs: [sourceRef("storageFeatures", `byPillar.${key}.openingSignalTypes`, key)],
-      tags: ["storage_opening_candidate", key],
-    }));
+    if (hasRealOpeningSignal(item)) {
+      facts.push(baseFact({
+        category: "storage",
+        subject: subject("pillar", key, [key], item.label ?? key),
+        predicate: "opening_signal",
+        value: {
+          hasOpeningSignal: true,
+          openingSignalTypes: item.openingSignalTypes ?? [],
+          openingSignalRelationIds: item.openingSignalRelationIds ?? [],
+          openState: item.openState ?? "unknown",
+        },
+        status: "candidate",
+        confidence: "medium",
+        sourceRefs: [sourceRef("storageFeatures", `byPillar.${key}.openingSignalTypes`, key)],
+        tags: ["storage_opening_candidate", key],
+      }));
+    }
   }
   return facts;
 }
@@ -373,17 +452,18 @@ function extractStorageFacts(fv) {
 function extractGrowthStageFacts(fv) {
   return pillarKeys.flatMap((key) => {
     const item = fv.growthStageFeatures?.byPillar?.[key] ?? {};
+    const growthValue = {
+      referenceStem: fv.growthStageFeatures?.referenceStem ?? "",
+      stage: item.stage ?? "unknown",
+      isKnown: Boolean(item.isKnown),
+    };
+    assignFinite(growthValue, "stageIndex", item.stageIndex);
     return [
       baseFact({
         category: "growth_stage",
         subject: subject("pillar", key, [key], item.label ?? key),
         predicate: "growth_stage",
-        value: {
-          referenceStem: fv.growthStageFeatures?.referenceStem ?? "",
-          stage: item.stage ?? "unknown",
-          stageIndex: Number.isFinite(Number(item.stageIndex)) ? Number(item.stageIndex) : -1,
-          isKnown: Boolean(item.isKnown),
-        },
+        value: growthValue,
         status: "derived",
         confidence: "medium",
         sourceRefs: [sourceRef("growthStageFeatures", `byPillar.${key}`, key)],
@@ -425,22 +505,32 @@ function extractClimateFacts(fv) {
     scalarFact("climate", "climate", "temperature", "temperature_severity", climate.severity?.temperature, "derived", climate.confidence ?? "unknown", "climateProfile", "severity.temperature"),
     scalarFact("climate", "climate", "moisture", "moisture_severity", climate.severity?.moisture, "derived", climate.confidence ?? "unknown", "climateProfile", "severity.moisture"),
   ];
-  for (const [index, need] of (climate.priorityNeeds ?? []).entries()) {
-    facts.push(scalarFact("climate", "priority_need", String(index), "climate_priority_need", need, "candidate", climate.confidence ?? "unknown", "climateProfile", "priorityNeeds"));
+  for (const need of climate.priorityNeeds ?? []) {
+    const itemKey =
+      stableEntityKey("priority_need", need);
+    facts.push(scalarFact("climate", "priority_need", itemKey, "climate_priority_need", need, "candidate", climate.confidence ?? "unknown", "climateProfile", "priorityNeeds", itemKey));
   }
-  for (const [index, candidate] of (climate.candidateElements ?? []).entries()) {
-    facts.push(scalarFact("climate", "candidate_element", String(candidate.element ?? index), "climate_candidate_element", candidate, "candidate", candidate.confidence ?? climate.confidence ?? "unknown", "climateProfile", "candidateElements"));
+  for (const candidate of climate.candidateElements ?? []) {
+    const itemKey =
+      stableEntityKey("candidate_element", candidate.element ?? candidate);
+    facts.push(scalarFact("climate", "candidate_element", itemKey, "climate_candidate_element", candidate, "candidate", candidate.confidence ?? climate.confidence ?? "unknown", "climateProfile", "candidateElements", itemKey));
   }
-  for (const [index, item] of (climate.existingSupport ?? []).entries()) {
-    facts.push(scalarFact("climate", "existing_support", String(index), "climate_existing_support", item, "derived", "medium", "climateProfile", "existingSupport"));
+  for (const item of climate.existingSupport ?? []) {
+    const itemKey =
+      stableEntityKey("existing_support", item);
+    facts.push(scalarFact("climate", "existing_support", itemKey, "climate_existing_support", item, "derived", "medium", "climateProfile", "existingSupport", itemKey));
   }
-  for (const [index, item] of (climate.missingSupport ?? []).entries()) {
-    facts.push(scalarFact("climate", "missing_support", String(index), "climate_missing_support", item, "candidate", "medium", "climateProfile", "missingSupport"));
+  for (const item of climate.missingSupport ?? []) {
+    const itemKey =
+      stableEntityKey("missing_support", item);
+    facts.push(scalarFact("climate", "missing_support", itemKey, "climate_missing_support", item, "candidate", "medium", "climateProfile", "missingSupport", itemKey));
   }
-  for (const [index, item] of (climate.passThroughCandidates ?? []).entries()) {
+  for (const item of climate.passThroughCandidates ?? []) {
+    const itemKey =
+      stableElementPairKey(item);
     facts.push(baseFact({
       category: "pass_through",
-      subject: subject("element_pair", (item.conflictElements ?? []).join("-") || String(index), item.conflictElements ?? [], item.label ?? ""),
+      subject: subject("element_pair", itemKey, item.conflictElements ?? [], item.label ?? ""),
       predicate: "coexistence_pass_through_candidate",
       value: {
         conflictElements: item.conflictElements ?? [],
@@ -450,7 +540,7 @@ function extractClimateFacts(fv) {
       },
       status: "candidate",
       confidence: "medium",
-      sourceRefs: [sourceRef("climateProfile", "passThroughCandidates", String(index))],
+      sourceRefs: [sourceRef("climateProfile", "passThroughCandidates", itemKey)],
       tags: ["pass_through", item.mediatorElement ?? ""],
     }));
   }
@@ -461,25 +551,26 @@ function extractWorkChainFacts(fv) {
   const workChains = fv.workChains ?? {};
   const facts = [];
   for (const node of workChains.nodes ?? []) {
+    const nodeValue = {
+      nodeId: node.id,
+      pillar: node.pillar ?? "",
+      position: node.position ?? "",
+      visibility: node.visibility ?? "",
+      stem: node.stem ?? "",
+      branch: node.branch ?? "",
+      element: node.element ?? "",
+      tenGod: node.tenGod ?? "",
+      defaultRole: node.defaultRole ?? "unknown",
+      resolvedRole: node.resolvedRole ?? "unknown",
+      relationIds: node.relationIds ?? [],
+      roleMappingId: node.roleMappingId ?? workChains.roleMappingId ?? "",
+    };
+    assignFinite(nodeValue, "weight", node.weight);
     facts.push(baseFact({
       category: "work_node",
       subject: subject("work_node", node.id, [node.pillar], node.id),
       predicate: "work_node_role",
-      value: {
-        nodeId: node.id,
-        pillar: node.pillar ?? "",
-        position: node.position ?? "",
-        visibility: node.visibility ?? "",
-        stem: node.stem ?? "",
-        branch: node.branch ?? "",
-        element: node.element ?? "",
-        tenGod: node.tenGod ?? "",
-        defaultRole: node.defaultRole ?? "unknown",
-        resolvedRole: node.resolvedRole ?? "unknown",
-        weight: finiteOrZero(node.weight),
-        relationIds: node.relationIds ?? [],
-        roleMappingId: node.roleMappingId ?? workChains.roleMappingId ?? "",
-      },
+      value: nodeValue,
       status: "derived",
       confidence: "medium",
       sourceRefs: [sourceRef("workChains", "nodes", node.id ?? "")],
@@ -511,22 +602,23 @@ function extractWorkChainFacts(fv) {
     }));
   }
   for (const chain of workChains.chains ?? []) {
+    const chainValue = {
+      chainId: chain.id,
+      chainType: chain.chainType ?? "",
+      nodeIds: chain.nodeIds ?? [],
+      edgeIds: chain.edgeIds ?? [],
+      roleFlow: chain.roleFlow ?? "unknown",
+      selfInvolved: Boolean(chain.selfInvolved),
+      activationLevel: chain.activationLevel ?? "unknown",
+      confidence: chain.confidence ?? "unknown",
+    };
+    assignFinite(chainValue, "hiddenNodeCount", chain.hiddenNodeCount);
+    assignFinite(chainValue, "priorityScore", chain.priorityScore);
     facts.push(baseFact({
       category: "work_chain",
       subject: subject("work_chain", chain.id, chain.nodeIds ?? [], chain.id),
       predicate: "work_chain_candidate",
-      value: {
-        chainId: chain.id,
-        chainType: chain.chainType ?? "",
-        nodeIds: chain.nodeIds ?? [],
-        edgeIds: chain.edgeIds ?? [],
-        roleFlow: chain.roleFlow ?? "unknown",
-        selfInvolved: Boolean(chain.selfInvolved),
-        hiddenNodeCount: finiteOrZero(chain.hiddenNodeCount),
-        activationLevel: chain.activationLevel ?? "unknown",
-        confidence: chain.confidence ?? "unknown",
-        priorityScore: finiteOrZero(chain.priorityScore),
-      },
+      value: chainValue,
       status: "candidate",
       confidence: chain.confidence ?? "unknown",
       sourceRefs: [sourceRef("workChains", "chains", chain.id ?? "")],
@@ -535,9 +627,11 @@ function extractWorkChainFacts(fv) {
     }));
   }
   for (const candidate of workChains.actualConflictCandidates ?? []) {
+    const candidateKey =
+      stableConflictKey(candidate);
     facts.push(baseFact({
       category: "conflict",
-      subject: subject("work_edge", candidate.edgeId ?? "", [candidate.sourceNodeId, candidate.targetNodeId], candidate.edgeId ?? ""),
+      subject: subject("work_edge", candidateKey, [candidate.sourceNodeId, candidate.targetNodeId], candidate.edgeId ?? ""),
       predicate: "actual_conflict_candidate",
       value: {
         edgeId: candidate.edgeId ?? "",
@@ -552,15 +646,15 @@ function extractWorkChainFacts(fv) {
       },
       status: "candidate",
       confidence: candidate.confidence ?? "unknown",
-      sourceRefs: [sourceRef("workChains", "actualConflictCandidates", candidate.id ?? candidate.edgeId ?? "")],
+      sourceRefs: [sourceRef("workChains", "actualConflictCandidates", candidate.id ?? candidateKey)],
       tags: ["conflict", candidate.mediatorElement ?? ""],
     }));
   }
   return facts;
 }
 
-function scalarFact(category, subjectType, key, predicate, value, status, confidence, featureGroup, path) {
-  if (value === undefined || value === null || value === "") return null;
+function scalarFact(category, subjectType, key, predicate, value, status, confidence, featureGroup, path, itemId = "") {
+  if (isMissingValue(value)) return null;
   if (typeof value === "number" && !Number.isFinite(value)) return null;
   return baseFact({
     category,
@@ -569,7 +663,7 @@ function scalarFact(category, subjectType, key, predicate, value, status, confid
     value,
     status,
     confidence,
-    sourceRefs: [sourceRef(featureGroup, path, "")],
+    sourceRefs: [sourceRef(featureGroup, path, itemId || `${subjectType}:${key}:${predicate}`)],
     tags: [predicate],
   });
 }
@@ -631,12 +725,123 @@ function pillarPairKey(participants = []) {
   return keys.join("-") || "unknown";
 }
 
-function finiteOrZero(value) {
+function parseFiniteNumber(value) {
+  if (value === undefined || value === null) return null;
+  if (typeof value === "string" && value.trim() === "") return null;
   const number = Number(value);
-  return Number.isFinite(number) ? Math.round(number * 100) / 100 : 0;
+  if (!Number.isFinite(number)) return null;
+  return Math.round(number * 100) / 100;
 }
 
-function finiteOrNull(value) {
-  const number = Number(value);
-  return Number.isFinite(number) ? Math.round(number * 100) / 100 : null;
+function assignFinite(target, key, value) {
+  const number =
+    parseFiniteNumber(value);
+  if (number !== null) {
+    target[key] = number;
+  }
+}
+
+function cleanNumericRecord(record = {}) {
+  const result = {};
+  for (const [key, value] of Object.entries(record ?? {})) {
+    const number =
+      parseFiniteNumber(value);
+    if (number !== null) {
+      result[key] = number;
+    }
+  }
+  return result;
+}
+
+function kinshipStarPresenceValue(starProfile = {}) {
+  const value = {
+    weightedByTenGod:
+      cleanNumericRecord(starProfile?.weightedByTenGod),
+  };
+  assignFinite(value, "weightedCount", starProfile?.weightedCount);
+  return value;
+}
+
+function kinshipFactStatus(mappingStatus) {
+  const status =
+    String(mappingStatus ?? "unknown");
+  if (new Set([
+    "resolved",
+    "mapped",
+    "available",
+    "confirmed",
+  ]).has(status)) {
+    return "derived";
+  }
+  return "candidate";
+}
+
+function hasRealOpeningSignal(item = {}) {
+  if (item.isStorage !== true) return false;
+  if (item.hasOpeningSignal !== true) return false;
+  return [
+    ...(item.openingSignalTypes ?? []),
+    ...(item.openingSignalRelationIds ?? []),
+  ].some((value) => !isMissingValue(value));
+}
+
+function isMissingValue(value) {
+  return (
+    value === undefined ||
+    value === null ||
+    (typeof value === "string" && value.trim() === "")
+  );
+}
+
+function stableEntityKey(prefix, value) {
+  const base =
+    typeof value === "object" && value !== null
+      ? stableStringify(value)
+      : String(value ?? "");
+  const clean =
+    base
+      .trim()
+      .replace(/\s+/g, "_")
+      .replace(/[^\p{L}\p{N}_:-]+/gu, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 80);
+  return `${prefix}:${clean || shortHash(base)}`;
+}
+
+function stableElementPairKey(item = {}) {
+  return stableEntityKey("element_pair", {
+    conflictElements:
+      [...(item.conflictElements ?? [])].sort(),
+    mediatorElement:
+      item.mediatorElement ?? "",
+    availabilityStatus:
+      item.availabilityStatus ?? item.status ?? "unknown",
+  });
+}
+
+function stableConflictKey(item = {}) {
+  return item.edgeId
+    ? String(item.edgeId)
+    : stableEntityKey("actual_conflict", {
+        sourceNodeId:
+          item.sourceNodeId ?? "",
+        targetNodeId:
+          item.targetNodeId ?? "",
+        conflictElements:
+          [...(item.conflictElements ?? [])].sort(),
+        mediatorElement:
+          item.mediatorElement ?? "",
+        relationIds:
+          [...(item.relationIds ?? [])].sort(),
+      });
+}
+
+function shortHash(value) {
+  let hash = 0x811c9dc5;
+  const text = String(value ?? "");
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0").slice(0, 8);
 }

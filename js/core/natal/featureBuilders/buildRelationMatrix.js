@@ -53,6 +53,7 @@ function normalizeRelation(raw = {}, pillars = {}) {
   const direction = relationType === "stem_control"
     ? resolveStemControlDirection(participants, warnings)
     : null;
+  addUnmodeledRelationWarnings(relationType, text, warnings);
 
   const affects = {
     dayStem: affectsPosition(participants, "day", "stem"),
@@ -62,7 +63,15 @@ function normalizeRelation(raw = {}, pillars = {}) {
     spousePalace: affectsPosition(participants, "day", "branch"),
   };
 
-  const confidence = normalizeConfidence(raw.confidence, warnings);
+  const confidence = normalizeConfidence(
+    raw.confidence,
+    {
+      relationType,
+      participants,
+      direction,
+    },
+    warnings,
+  );
 
   return {
     id: buildRelationId(left, right, relationType, raw),
@@ -88,7 +97,7 @@ function normalizeRelationType(value = "") {
   const text = String(value);
   if (/天干.*合|天干五合|五合/.test(text)) return "stem_combine";
   if (/天干.*冲|天干相冲/.test(text)) return "stem_clash";
-  if (/天干.*克|天克|相克/.test(text)) return "stem_control";
+  if (/天干.*克|天克/.test(text)) return "stem_control";
   if (/地支.*六合|六合/.test(text)) return "branch_combine";
   if (/地支.*六冲|六冲|相冲|冲/.test(text)) return "branch_clash";
   if (/自刑/.test(text)) return "branch_self_punish";
@@ -160,9 +169,36 @@ function affectsPosition(sides, pillar, position) {
   return sides.some((side) => side.pillar === pillar && side.position === position);
 }
 
-function normalizeConfidence(confidence, warnings) {
-  if (["high", "medium", "low"].includes(confidence)) return confidence;
+function normalizeConfidence(requestedConfidence, {
+  relationType,
+  participants,
+  direction,
+} = {}, warnings = []) {
+  const hasUnknownParticipant = (participants ?? []).some((item) =>
+    item.pillar === "unknown" ||
+    item.position === "unknown",
+  );
+  const unresolvedControl = relationType === "stem_control" && !direction;
+
+  if (
+    relationType === "unknown" ||
+    hasUnknownParticipant ||
+    unresolvedControl
+  ) {
+    return "low";
+  }
+
+  if (["high", "medium", "low"].includes(requestedConfidence)) return requestedConfidence;
   return warnings.length ? "low" : "medium";
+}
+
+function addUnmodeledRelationWarnings(relationType, text, warnings) {
+  if (
+    relationType === "unknown" &&
+    /地支.*克|地支相克|[子丑寅卯辰巳午未申酉戌亥].*克/.test(String(text))
+  ) {
+    warnings.push("branch control relation is not modeled in natal-feature-v2 phase 1");
+  }
 }
 
 function resolveStemControlDirection(participants, warnings) {

@@ -175,3 +175,62 @@ test("stem clash stays separate from stem control", () => {
   assert.equal(matrix.items[0].relationType, "stem_clash");
   assert.equal(matrix.items[0].direction, null);
 });
+
+test("branch control wording is not modeled as stem control in phase 1", () => {
+  const matrix = buildRelationMatrix({
+    pillars,
+    relations: [
+      {
+        type: "地支相克",
+        members: ["卯", "酉"],
+        pillars: ["月柱", "日柱"],
+      },
+    ],
+  });
+
+  const relation = matrix.items[0];
+  assert.equal(relation.relationType, "unknown");
+  assert.equal(relation.confidence, "low");
+  assert.ok(relation.warnings.includes("branch control relation is not modeled in natal-feature-v2 phase 1"));
+});
+
+test("unknown relation is forced to low confidence even when upstream says high", () => {
+  const matrix = buildRelationMatrix({
+    pillars,
+    relations: [
+      {
+        name: "无法识别的关系",
+        confidence: "high",
+      },
+    ],
+  });
+
+  assert.equal(matrix.items[0].relationType, "unknown");
+  assert.equal(matrix.items[0].confidence, "low");
+});
+
+test("stem control with unresolved direction is forced to low confidence", () => {
+  const matrix = buildRelationMatrix({
+    pillars: {
+      year: { key: "year", stem: "甲", branch: "子", label: "甲子" },
+      month: { key: "month", stem: "乙", branch: "丑", label: "乙丑" },
+      day: { key: "day", stem: "庚", branch: "寅", label: "庚寅" },
+      hour: { key: "hour", stem: "辛", branch: "卯", label: "辛卯" },
+    },
+    relations: [
+      {
+        type: "天干克",
+        members: ["甲", "乙"],
+        pillars: ["年柱", "月柱"],
+        ganzhi: ["甲子", "乙丑"],
+        confidence: "high",
+      },
+    ],
+  });
+
+  const relation = matrix.items[0];
+  assert.equal(relation.relationType, "stem_control");
+  assert.equal(relation.direction, null);
+  assert.equal(relation.confidence, "low");
+  assert.ok(relation.warnings.includes("stem control direction could not be determined"));
+});

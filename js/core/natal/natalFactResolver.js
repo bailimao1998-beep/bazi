@@ -398,6 +398,9 @@ function compareFactStrength(
   right,
 ) {
   return (
+    factLevelRank(right.factLevel) -
+      factLevelRank(left.factLevel) ||
+
     Number(right.priority ?? 0) -
       Number(left.priority ?? 0) ||
 
@@ -413,6 +416,15 @@ function compareFactStrength(
     specificityRank(right.specificity) -
       specificityRank(left.specificity)
   );
+}
+
+function factLevelRank(factLevel) {
+  return {
+    pattern: 4,
+    structural: 3,
+    base: 2,
+    raw: 1,
+  }[factLevel] ?? 0;
 }
 
 function compareForOutput(

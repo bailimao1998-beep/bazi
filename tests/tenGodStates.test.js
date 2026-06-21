@@ -151,3 +151,62 @@ test("controlled ten god receives stem_control id while controller does not", ()
   assert.ok(states.正官.controlledBy.includes(relationId));
   assert.equal(states.偏财.controlledBy.includes(relationId), false);
 });
+
+test("main qi does not double count hidden presence for strength", () => {
+  const states = buildTenGodStates({
+    pillars: {
+      year: {
+        key: "year",
+        stemTenGod: "",
+        branchMainTenGod: "正印",
+        hiddenStems: [
+          { stem: "癸", tenGod: "正印", role: "主气" },
+        ],
+      },
+      month: { key: "month", hiddenStems: [] },
+      day: { key: "day", hiddenStems: [] },
+      hour: { key: "hour", hiddenStems: [] },
+    },
+    tenGods: {},
+    relationMatrix: { items: [] },
+  });
+
+  assert.equal(states.正印.visibleCount, 0);
+  assert.equal(states.正印.hiddenCount, 1);
+  assert.equal(states.正印.mainQiCount, 1);
+  assert.equal(states.正印.strengthLevel, "medium");
+});
+
+test("explicit weightedCount 70 is ignored and recalculated", () => {
+  const states = buildTenGodStates({
+    pillars: buildMockPillars(),
+    tenGods: { weightedCounts: { 正印: 70 } },
+    relationMatrix: { items: [] },
+  });
+
+  assert.ok(states.正印.weightedCount < 20);
+  assert.ok(states.正印.warnings.some((item) => /explicit weightedCount was invalid/.test(item)));
+});
+
+test("invalid hidden weight records warning before role fallback", () => {
+  const states = buildTenGodStates({
+    pillars: {
+      year: {
+        key: "year",
+        stemTenGod: "",
+        branchMainTenGod: "正印",
+        hiddenStems: [
+          { stem: "癸", tenGod: "正印", role: "主气", weight: 200 },
+        ],
+      },
+      month: { key: "month", hiddenStems: [] },
+      day: { key: "day", hiddenStems: [] },
+      hour: { key: "hour", hiddenStems: [] },
+    },
+    tenGods: {},
+    relationMatrix: { items: [] },
+  });
+
+  assert.equal(states.正印.weightedCount, 0.7);
+  assert.ok(states.正印.warnings.includes("hidden weight or percentage ignored because it is outside 0-100"));
+});

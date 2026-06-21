@@ -129,8 +129,13 @@ function collectMainQiState(state, pillars) {
 }
 
 function resolveWeightedCount(name, tenGods = {}, pillars = {}, state) {
-  const explicit = tenGods?.weightedCounts?.[name];
-  if (Number.isFinite(Number(explicit))) return Number(explicit);
+  const rawExplicit = tenGods?.weightedCounts?.[name];
+  const explicit = normalizeWeightedCount(rawExplicit);
+  if (explicit !== null) return explicit;
+
+  if (rawExplicit !== undefined) {
+    addWarning(state, `${name} explicit weightedCount was invalid and has been recalculated`);
+  }
 
   let count = 0;
   for (const key of pillarKeys) {
@@ -143,6 +148,13 @@ function resolveWeightedCount(name, tenGods = {}, pillars = {}, state) {
 }
 
 function hiddenWeight(hidden = {}, state) {
+  const weightInvalid = hasInvalidFraction(hidden.weight);
+  const percentageInvalid = hasInvalidFraction(hidden.percentage);
+
+  if (weightInvalid || percentageInvalid) {
+    addWarning(state, "hidden weight or percentage ignored because it is outside 0-100");
+  }
+
   const normalizedWeight = normalizeFraction(hidden.weight);
   if (normalizedWeight !== null) return normalizedWeight;
 
@@ -152,10 +164,13 @@ function hiddenWeight(hidden = {}, state) {
   if (/主气|本气/.test(hidden.role || hidden.qiLevel || "")) return 0.7;
   if (/中气/.test(hidden.role || hidden.qiLevel || "")) return 0.4;
   if (/余气|杂气/.test(hidden.role || hidden.qiLevel || "")) return 0.25;
-  if (hasInvalidFraction(hidden.weight) || hasInvalidFraction(hidden.percentage)) {
-    addWarning(state, "hidden weight or percentage ignored because it is outside 0-100");
-  }
   return 0.25;
+}
+
+function normalizeWeightedCount(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 0 || number > 20) return null;
+  return number;
 }
 
 function normalizeFraction(value) {
@@ -220,7 +235,8 @@ function stateHasSide(state, side = {}) {
 }
 
 function resolveStrengthLevel(state) {
-  if (state.visibleCount + state.hiddenCount + state.mainQiCount === 0) return "absent";
+  const presenceCount = state.visibleCount + state.hiddenCount;
+  if (presenceCount === 0) return "absent";
   if (state.visibleCount === 0 && state.mainQiCount === 0 && state.hiddenCount > 0) return "weak";
   if (state.inMonthBranchMainQi && state.visibleCount > 0 && state.hasRoot && state.weightedCount >= 2) return "strong";
   if (state.visibleCount > 0 || state.mainQiCount > 0) return "medium";

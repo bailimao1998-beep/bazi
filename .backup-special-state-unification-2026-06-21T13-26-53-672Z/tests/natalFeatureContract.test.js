@@ -41,18 +41,6 @@ test("empty natal feature vector has the full stable V2 structure", () => {
   assert.deepEqual(vector.kinshipFeatures.spouse.starProfile.secondary.tenGods, []);
   assert.deepEqual(vector.kinshipFeatures.spouse.starProfile.weightedByTenGod, {});
   assert.deepEqual(vector.kinshipFeatures.spouse.candidateStarProfiles, []);
-  assert.deepEqual(
-    Object.keys(vector.voidFeatures.byPillar),
-    ["year", "month", "day", "hour"],
-  );
-  assert.deepEqual(
-    Object.keys(vector.storageFeatures.byPillar),
-    ["year", "month", "day", "hour"],
-  );
-  assert.deepEqual(
-    Object.keys(vector.growthStageFeatures.byPillar),
-    ["year", "month", "day", "hour"],
-  );
 });
 
 test("normalizing sparse input preserves legacy fields and removes NaN", () => {

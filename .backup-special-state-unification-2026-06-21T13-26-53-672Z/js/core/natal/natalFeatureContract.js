@@ -444,64 +444,6 @@ function isPlainObject(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-function emptySpecialPillarMap(factory) {
-  return Object.fromEntries(
-    pillarKeys.map((key) => [key, factory(key)]),
-  );
-}
-
-function emptyVoidPillarFeature(key) {
-  return {
-    key,
-    label: "",
-    branch: "",
-    isVoid: false,
-    referencePillar: "day",
-    branchMainTenGod: "",
-    hiddenTenGods: [],
-    evidence: [],
-    warnings: [],
-  };
-}
-
-function emptyStoragePillarFeature(key) {
-  return {
-    key,
-    label: "",
-    branch: "",
-    isStorage: false,
-    storageElement: "",
-    storageElementLabel: "",
-    storageLabel: "",
-    storedStem: "",
-    storedTenGod: "",
-    hiddenStems: [],
-    hiddenTenGods: [],
-    relationIds: [],
-    relationTypes: [],
-    openingSignalRelationIds: [],
-    openingSignalTypes: [],
-    hasOpeningSignal: false,
-    openState: "unknown",
-    evidence: [],
-    warnings: [],
-  };
-}
-
-function emptyGrowthStagePillarFeature(key) {
-  return {
-    key,
-    label: "",
-    branch: "",
-    stage: "unknown",
-    stageIndex: -1,
-    phase: "unknown",
-    isKnown: false,
-    evidence: [],
-    warnings: [],
-  };
-}
-
 function emptyVoidFeatures() {
   return {
     convention: "xunkong-reference-v1",
@@ -511,7 +453,7 @@ function emptyVoidFeatures() {
       year: {},
     },
     voidBranches: [],
-    byPillar: emptySpecialPillarMap(emptyVoidPillarFeature),
+    byPillar: {},
     voidPillars: [],
     nonVoidPillars: [],
     voidTenGods: {
@@ -535,7 +477,7 @@ function emptyVoidFeatures() {
 function emptyStorageFeatures() {
   return {
     convention: "four-storage-branches-v1",
-    byPillar: emptySpecialPillarMap(emptyStoragePillarFeature),
+    byPillar: {},
     storagePillars: [],
     count: 0,
     branchesPresent: [],
@@ -551,7 +493,7 @@ function emptyGrowthStageFeatures() {
     convention: "day-master-twelve-growth-v1",
     referenceStem: "",
     stages: [],
-    byPillar: emptySpecialPillarMap(emptyGrowthStagePillarFeature),
+    byPillar: {},
     byStage: {},
     stageCounts: {},
     knownPillars: [],

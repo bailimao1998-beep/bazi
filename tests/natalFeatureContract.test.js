@@ -22,6 +22,19 @@ test("empty natal feature vector has the full stable V2 structure", () => {
   assert.deepEqual(vector.relationMatrix.dayStemRelations, []);
   assert.deepEqual(vector.relationMatrix.dayBranchRelations, []);
   assert.deepEqual(vector.tenGodStates, {});
+  assert.deepEqual(Object.keys(vector.palaceFeatures), ["year", "month", "day", "hour", "spousePalace"]);
+  assert.deepEqual(Object.keys(vector.kinshipFeatures), [
+    "mappingVersion",
+    "mappingId",
+    "gender",
+    "father",
+    "mother",
+    "siblings",
+    "spouse",
+    "children",
+    "warnings",
+  ]);
+  assert.equal(vector.kinshipFeatures.gender, "unknown");
 });
 
 test("normalizing sparse input preserves legacy fields and removes NaN", () => {
@@ -38,6 +51,8 @@ test("normalizing sparse input preserves legacy fields and removes NaN", () => {
   assert.equal(vector.pillars.day.stem, "");
   assert.equal(vector.dayMaster.strengthScore, null);
   assert.equal(vector.tenGods.weightedCounts.正印, null);
+  assert.ok(vector.palaceFeatures.spousePalace);
+  assert.ok(vector.kinshipFeatures.spouse);
   assert.doesNotMatch(JSON.stringify(vector), /NaN/);
 });
 

@@ -4,6 +4,8 @@ import {
 } from "./natalFeatureContract.js";
 import { buildRelationMatrix } from "./featureBuilders/buildRelationMatrix.js";
 import { buildTenGodStates } from "./featureBuilders/buildTenGodStates.js";
+import { buildPalaceFeatures } from "./featureBuilders/buildPalaceFeatures.js";
+import { buildKinshipFeatures } from "./featureBuilders/buildKinshipFeatures.js";
 
 const pillarKeys = ["year", "month", "day", "hour"];
 const pillarLabels = { year: "年柱", month: "月柱", day: "日柱", hour: "时柱" };
@@ -35,6 +37,18 @@ export function buildNatalFeatureVector({ chart, baseBaziViewModel } = {}) {
     relationMatrix,
     structure,
   });
+  const gender = resolveGender(safeChart, viewModel);
+  const palaceFeatures = buildPalaceFeatures({
+    pillars,
+    relationMatrix,
+    tenGodStates,
+  });
+  const kinshipFeatures = buildKinshipFeatures({
+    gender,
+    tenGodStates,
+    palaceFeatures,
+    relationMatrix,
+  });
 
   const legacyFields = {
     dayMaster: {
@@ -62,13 +76,15 @@ export function buildNatalFeatureVector({ chart, baseBaziViewModel } = {}) {
   return normalizeNatalFeatureVector({
     featureVersion: NATAL_FEATURE_VERSION,
     meta: {
-      gender: resolveGender(safeChart, viewModel),
+      gender,
       source: "chart",
       warnings: [],
     },
     ...legacyFields,
     relationMatrix,
     tenGodStates,
+    palaceFeatures,
+    kinshipFeatures,
   });
 }
 
@@ -221,6 +237,13 @@ function hiddenWeight(hidden = {}) {
 }
 
 function normalizeFraction(value) {
+  if (
+    value === undefined ||
+    value === null ||
+    value === ""
+  ) {
+    return null;
+  }
   const number = Number(value);
   if (!Number.isFinite(number)) return null;
   if (number < 0 || number > 100) return null;

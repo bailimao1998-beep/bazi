@@ -36,6 +36,16 @@ test("natal feature V2 integrates with the real bazi calculation entry", () => {
   assert.ok(featureVector.pillars.hour);
   assert.equal(Object.keys(featureVector.tenGodStates).length, 10);
   assert.ok(Array.isArray(featureVector.relationMatrix.items));
+  assert.ok(featureVector.palaceFeatures.year);
+  assert.ok(featureVector.palaceFeatures.month);
+  assert.ok(featureVector.palaceFeatures.day);
+  assert.ok(featureVector.palaceFeatures.hour);
+  assert.ok(featureVector.palaceFeatures.spousePalace);
+  assert.ok(featureVector.kinshipFeatures.father);
+  assert.ok(featureVector.kinshipFeatures.mother);
+  assert.ok(featureVector.kinshipFeatures.siblings);
+  assert.ok(featureVector.kinshipFeatures.spouse);
+  assert.ok(featureVector.kinshipFeatures.children);
 
   for (const state of Object.values(featureVector.tenGodStates)) {
     assert.equal(Number.isFinite(state.weightedCount), true);
@@ -57,4 +67,5 @@ test("natal feature V2 integrates with the real bazi calculation entry", () => {
   }
 
   assert.doesNotMatch(JSON.stringify(featureVector), /NaN/);
+  assert.doesNotMatch(JSON.stringify(featureVector), /undefined/);
 });

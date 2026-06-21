@@ -63,6 +63,26 @@ export function createEmptyNatalFeatureVector() {
       monthBranchRelations: [],
     },
 
+    palaceFeatures: {
+      year: {},
+      month: {},
+      day: {},
+      hour: {},
+      spousePalace: {},
+    },
+
+    kinshipFeatures: {
+      mappingVersion: "",
+      mappingId: "",
+      gender: "unknown",
+      father: {},
+      mother: {},
+      siblings: {},
+      spouse: {},
+      children: {},
+      warnings: [],
+    },
+
     structure: {
       monthCommand: {},
       visibleStems: [],
@@ -117,6 +137,21 @@ export function validateNatalFeatureVector(input) {
       if (!isPlainObject(vector.pillars?.[key])) {
         errors.push(`missing pillar ${key}`);
       }
+      if (!isPlainObject(vector.palaceFeatures?.[key])) {
+        errors.push(`missing palace feature ${key}`);
+      }
+    }
+    if (!isPlainObject(vector.palaceFeatures?.spousePalace)) {
+      errors.push("missing palace feature spousePalace");
+    }
+
+    for (const key of ["father", "mother", "siblings", "spouse", "children"]) {
+      if (!isPlainObject(vector.kinshipFeatures?.[key])) {
+        errors.push(`missing kinship feature ${key}`);
+      }
+    }
+    if (!Array.isArray(vector.kinshipFeatures?.warnings)) {
+      warnings.push("kinshipFeatures.warnings should be an array");
     }
 
     return {

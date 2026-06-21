@@ -210,3 +210,47 @@ test("invalid hidden weight records warning before role fallback", () => {
   assert.equal(states.正印.weightedCount, 0.7);
   assert.ok(states.正印.warnings.includes("hidden weight or percentage ignored because it is outside 0-100"));
 });
+
+test("empty numeric values are ignored instead of becoming zero", () => {
+  const states = buildTenGodStates({
+    pillars: {
+      year: {
+        key: "year",
+        stemTenGod: "",
+        branchMainTenGod: "正印",
+        hiddenStems: [
+          { stem: "癸", tenGod: "正印", role: "主气", weight: null, percentage: 70 },
+        ],
+      },
+      month: { key: "month", hiddenStems: [] },
+      day: { key: "day", hiddenStems: [] },
+      hour: { key: "hour", hiddenStems: [] },
+    },
+    tenGods: { weightedCounts: { 正印: null } },
+    relationMatrix: { items: [] },
+  });
+
+  assert.equal(states.正印.weightedCount, 0.7);
+  assert.ok(states.正印.warnings.some((item) => /explicit weightedCount was invalid/.test(item)));
+});
+
+test("branch main ten god alone is present when hidden stems are missing", () => {
+  const states = buildTenGodStates({
+    pillars: {
+      year: {
+        key: "year",
+        stemTenGod: "",
+        branchMainTenGod: "正印",
+      },
+      month: { key: "month" },
+      day: { key: "day" },
+      hour: { key: "hour" },
+    },
+    tenGods: {},
+    relationMatrix: { items: [] },
+  });
+
+  assert.equal(states.正印.hiddenCount, 0);
+  assert.equal(states.正印.mainQiCount, 1);
+  assert.equal(states.正印.strengthLevel, "medium");
+});

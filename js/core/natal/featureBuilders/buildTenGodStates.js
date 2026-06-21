@@ -168,12 +168,26 @@ function hiddenWeight(hidden = {}, state) {
 }
 
 function normalizeWeightedCount(value) {
+  if (
+    value === undefined ||
+    value === null ||
+    value === ""
+  ) {
+    return null;
+  }
   const number = Number(value);
   if (!Number.isFinite(number) || number < 0 || number > 20) return null;
   return number;
 }
 
 function normalizeFraction(value) {
+  if (
+    value === undefined ||
+    value === null ||
+    value === ""
+  ) {
+    return null;
+  }
   const number = Number(value);
   if (!Number.isFinite(number)) return null;
   if (number < 0 || number > 100) return null;
@@ -235,8 +249,11 @@ function stateHasSide(state, side = {}) {
 }
 
 function resolveStrengthLevel(state) {
-  const presenceCount = state.visibleCount + state.hiddenCount;
-  if (presenceCount === 0) return "absent";
+  const hasPresence =
+    state.visibleCount > 0 ||
+    state.hiddenCount > 0 ||
+    state.mainQiCount > 0;
+  if (!hasPresence) return "absent";
   if (state.visibleCount === 0 && state.mainQiCount === 0 && state.hiddenCount > 0) return "weak";
   if (state.inMonthBranchMainQi && state.visibleCount > 0 && state.hasRoot && state.weightedCount >= 2) return "strong";
   if (state.visibleCount > 0 || state.mainQiCount > 0) return "medium";

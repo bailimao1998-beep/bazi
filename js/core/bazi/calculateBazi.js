@@ -189,7 +189,26 @@ function buildElementStats(pillars) {
 }
 
 function createFetalOrigin(monthPillar) {
-  return createPillarByIndex(getGanzhiIndex(monthPillar.stem, monthPillar.branch) + 1, "胎元", { method: "月柱后一干三支近似法" });
+  const stemIndex = stems.indexOf(monthPillar?.stem);
+  const branchIndex = branches.indexOf(monthPillar?.branch);
+
+  if (stemIndex < 0 || branchIndex < 0) {
+    throw new Error("无法计算胎元：月柱干支无效");
+  }
+
+  // 胎元常用口径：月干进一位，月支进三位。
+  const fetalStem = stems[(stemIndex + 1) % stems.length];
+  const fetalBranch = branches[(branchIndex + 3) % branches.length];
+
+  return createPillarByIndex(
+    getGanzhiIndex(fetalStem, fetalBranch),
+    "胎元",
+    {
+      method: "胎元按月干进一、月支进三计算。",
+      sourceMonthPillar:
+        monthPillar.label ?? `${monthPillar.stem}${monthPillar.branch}`,
+    },
+  );
 }
 
 function createPalacePillar(monthPillar, hourPillar, role, isBodyPalace) {

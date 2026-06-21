@@ -20,6 +20,8 @@ export function renderFortuneTransitPanel(root, payload = {}) {
   const monthItem = state.monthImageReport?.monthItem ?? {};
   const selectedYear = Number(yearItem.year ?? state.input?.targetYear);
   const selectedMonth = Number(monthItem.month ?? state.input?.selectedMonth ?? 1);
+  const luckCycleInfo = state.chart?.luckCycles ?? {};
+  const startNote = luckCycleInfo.startNote ?? "";
 
   root.innerHTML = `
     <section class="transit-selector-shell">
@@ -30,9 +32,18 @@ export function renderFortuneTransitPanel(root, payload = {}) {
         </div>
         <span class="transit-context-pill">${escapeHtml(formatSelectionSummary(currentLuck, yearItem, monthItem))}</span>
       </div>
-      ${renderTransitHierarchyPanel({ state, currentLuck, selectedYear, selectedMonth })}
-    </section>
-  `;
+      ${renderTransitHierarchyPanel({
+        state,
+        currentLuck,
+        selectedYear,
+        selectedMonth,
+      })}
+
+      ${startNote
+        ? `<p class="fine-print transit-start-note">${escapeHtml(startNote)}</p>`
+        : ""}
+          </section>
+        `;
 
   bindTransitEvents(root, payload);
 }
@@ -53,6 +64,8 @@ function formatSelectionSummary(currentLuck = {}, yearItem = {}, monthItem = {})
   return [
     currentLuck.ganZhi ? `大运 ${currentLuck.ganZhi}` : "",
     yearItem.year ? `${yearItem.year} ${yearItem.ganZhi || ""}` : "",
-    monthItem.month ? `${monthItem.month}月 ${monthItem.ganZhi || ""}` : "",
+    monthItem.branch
+  ? `${monthItem.branch}月 ${monthItem.ganZhi || ""}`
+  : "",
   ].filter(Boolean).join(" · ") || "当前选择待查";
 }

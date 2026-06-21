@@ -90,7 +90,10 @@ function renderMonthCard(item = {}, selectedMonth) {
   return `
     <button type="button" class="transit-select-card is-month-card${active ? " is-active" : ""}" data-month-select="${escapeHtml(item.month)}">
       ${renderCardTitle([
-        { value: item.month ? `${item.month}月` : "", className: "transit-card-primary" },
+        {
+          value: item.branch ? `${item.branch}月` : "流月",
+          className: "transit-card-primary",
+        },
         { value: item.ganZhi, className: "transit-card-ganzhi" },
       ])}
       <small class="transit-card-support">${escapeHtml(tenGodText)}</small>

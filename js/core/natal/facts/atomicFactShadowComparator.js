@@ -1,694 +1,629 @@
 const validPillarKeys = new Set([
-"year",
-"month",
-"day",
-"hour",
+  "year",
+  "month",
+  "day",
+  "hour",
 ]);
 
 const validPositionTypes = new Set([
-"stem",
-"branch_main",
+  "stem",
+  "branch_main",
 ]);
 
 const validElementKeys = new Set([
-"wood",
-"fire",
-"earth",
-"metal",
-"water",
+  "wood",
+  "fire",
+  "earth",
+  "metal",
+  "water",
 ]);
 
 export function compareLegacyAndContractFacts({
-legacyFacts = [],
-contractFacts = [],
+  legacyFacts = [],
+  contractFacts = [],
 } = {}) {
-const warnings = [];
+  const warnings = [];
 
-const safeLegacyFacts = Array.isArray(legacyFacts)
-? legacyFacts
-: [];
+  const safeLegacyFacts = Array.isArray(legacyFacts)
+    ? legacyFacts
+    : [];
 
-const safeContractFacts = Array.isArray(contractFacts)
-? contractFacts
-: [];
+  const safeContractFacts = Array.isArray(contractFacts)
+    ? contractFacts
+    : [];
 
-if (!Array.isArray(legacyFacts)) {
-warnings.push(
-"legacyFacts should be an array",
-);
-}
+  if (!Array.isArray(legacyFacts)) {
+    warnings.push("legacyFacts should be an array");
+  }
 
-if (!Array.isArray(contractFacts)) {
-warnings.push(
-"contractFacts should be an array",
-);
-}
+  if (!Array.isArray(contractFacts)) {
+    warnings.push("contractFacts should be an array");
+  }
 
-const legacyProjection =
-buildSignalProjection(
-safeLegacyFacts,
-projectLegacyFactSignals,
-warnings,
-"legacy",
-);
+  const legacyProjection = buildSignalProjection(
+    safeLegacyFacts,
+    projectLegacyFactSignals,
+    warnings,
+    "legacy",
+  );
 
-const contractProjection =
-buildSignalProjection(
-safeContractFacts,
-projectContractFactSignals,
-warnings,
-"contract",
-);
+  const contractProjection = buildSignalProjection(
+    safeContractFacts,
+    projectContractFactSignals,
+    warnings,
+    "contract",
+  );
 
-const matched = [];
-const missingComparable = [];
-const contractOnly = [];
+  const matched = [];
+  const missingComparable = [];
+  const contractOnly = [];
 
-for (
-const signal of
-legacyProjection.signals.values()
-) {
-const contractSignal =
-contractProjection.signals.get(
-signal.signalKey,
-);
+  for (const signal of legacyProjection.signals.values()) {
+    const contractSignal = contractProjection.signals.get(
+      signal.signalKey,
+    );
 
-```
-if (contractSignal) {
-  matched.push({
-    family: signal.family,
-    signalKey: signal.signalKey,
-    legacyFactIds:
-      signal.sourceIds,
-    contractFactIds:
-      contractSignal.sourceIds,
-  });
-} else {
-  missingComparable.push({
-    family: signal.family,
-    signalKey: signal.signalKey,
-    legacyFactIds:
-      signal.sourceIds,
-    reason: "no_contract_signal",
-  });
-}
-```
+    if (contractSignal) {
+      matched.push({
+        family: signal.family,
+        signalKey: signal.signalKey,
+        legacyFactIds: signal.sourceIds,
+        contractFactIds: contractSignal.sourceIds,
+      });
+    } else {
+      missingComparable.push({
+        family: signal.family,
+        signalKey: signal.signalKey,
+        legacyFactIds: signal.sourceIds,
+        reason: "no_contract_signal",
+      });
+    }
+  }
 
-}
+  for (const signal of contractProjection.signals.values()) {
+    if (!legacyProjection.signals.has(signal.signalKey)) {
+      contractOnly.push({
+        family: signal.family,
+        signalKey: signal.signalKey,
+        contractFactIds: signal.sourceIds,
+      });
+    }
+  }
 
-for (
-const signal of
-contractProjection.signals.values()
-) {
-if (
-!legacyProjection.signals.has(
-signal.signalKey,
-)
-) {
-contractOnly.push({
-family: signal.family,
-signalKey: signal.signalKey,
-contractFactIds:
-signal.sourceIds,
-});
-}
-}
+  const intentionallyUncompared =
+    legacyProjection.unprojected.map((fact) => ({
+      legacyFactId: normalizeText(fact?.id),
+      legacyCategory: normalizeText(fact?.category),
+      reason: classifyUncomparedLegacyFact(
+        fact ?? {},
+      ),
+    }));
 
-const intentionallyUncompared =
-legacyProjection.unprojected.map(
-(fact) => ({
-legacyFactId:
-normalizeText(fact.id),
-legacyCategory:
-normalizeText(fact.category),
-reason:
-classifyUncomparedLegacyFact(
-fact,
-),
-}),
-);
+  matched.sort(compareSignalItems);
+  missingComparable.sort(compareSignalItems);
+  contractOnly.sort(compareSignalItems);
 
-matched.sort(compareSignalItems);
-missingComparable.sort(
-compareSignalItems,
-);
-contractOnly.sort(compareSignalItems);
+  intentionallyUncompared.sort(
+    (left, right) =>
+      left.reason.localeCompare(right.reason) ||
+      left.legacyFactId.localeCompare(
+        right.legacyFactId,
+      ),
+  );
 
-intentionallyUncompared.sort(
-(left, right) =>
-left.reason.localeCompare(
-right.reason,
-) ||
-left.legacyFactId.localeCompare(
-right.legacyFactId,
-),
-);
+  const comparableLegacyCount =
+    legacyProjection.signals.size;
 
-const comparableLegacyCount =
-legacyProjection.signals.size;
+  const matchedLegacyCount = matched.length;
 
-const matchedLegacyCount =
-matched.length;
+  return {
+    version: "atomic-fact-shadow-v1",
+    mode: "read_only",
 
-return {
-version:
-"atomic-fact-shadow-v1",
+    comparableLegacyCount,
+    matchedLegacyCount,
 
-mode: "read_only",
+    missingComparableCount:
+      missingComparable.length,
 
-comparableLegacyCount,
+    intentionallyUncomparedCount:
+      intentionallyUncompared.length,
 
-matchedLegacyCount,
+    coverageRate:
+      comparableLegacyCount > 0
+        ? matchedLegacyCount /
+          comparableLegacyCount
+        : 0,
 
-missingComparableCount:
-  missingComparable.length,
+    matched,
+    missingComparable,
+    intentionallyUncompared,
+    contractOnly,
 
-intentionallyUncomparedCount:
-  intentionallyUncompared.length,
-
-coverageRate:
-  comparableLegacyCount > 0
-    ? matchedLegacyCount /
-      comparableLegacyCount
-    : 0,
-
-matched,
-
-missingComparable,
-
-intentionallyUncompared,
-
-contractOnly,
-
-warnings:
-  [...new Set(warnings)].sort(),
-
-};
+    warnings: [...new Set(warnings)].sort(),
+  };
 }
 
 export function projectLegacyStemTenGodSignal(
-fact = {},
+  fact = {},
 ) {
-const id = normalizeText(fact.id);
+  const id = normalizeText(fact.id);
 
-const match =
-/^stem-visible-(year|month|day|hour)-(.+)$/.exec(
-id,
-);
+  const match =
+    /^stem-visible-(year|month|day|hour)-(.+)$/.exec(
+      id,
+    );
 
-if (!match) {
-return null;
-}
+  if (!match) {
+    return null;
+  }
 
-const [, pillar, tenGod] = match;
+  const [, pillar, tenGod] = match;
 
-return createTenGodPositionSignal(
-"stem",
-pillar,
-tenGod,
-id,
-);
+  return createTenGodPositionSignal(
+    "stem",
+    pillar,
+    tenGod,
+    id,
+  );
 }
 
 export function projectContractStemTenGodSignal(
-fact = {},
+  fact = {},
 ) {
-if (
-fact.category !== "pillar" ||
-fact.predicate !==
-"pillar_stem_ten_god"
-) {
-return null;
-}
+  if (
+    fact.category !== "pillar" ||
+    fact.predicate !== "pillar_stem_ten_god"
+  ) {
+    return null;
+  }
 
-return createTenGodPositionSignal(
-"stem",
-fact.subject?.key,
-fact.value,
-fact.id,
-);
+  return createTenGodPositionSignal(
+    "stem",
+    fact.subject?.key,
+    fact.value,
+    fact.id,
+  );
 }
 
 export function projectLegacyBranchMainTenGodSignal(
-fact = {},
+  fact = {},
 ) {
-const id = normalizeText(fact.id);
+  const id = normalizeText(fact.id);
 
-const match =
-/^branch-main-(year|month|day|hour)-(.+)$/.exec(
-id,
-);
+  const match =
+    /^branch-main-(year|month|day|hour)-(.+)$/.exec(
+      id,
+    );
 
-if (!match) {
-return null;
-}
+  if (!match) {
+    return null;
+  }
 
-const [, pillar, tenGod] = match;
+  const [, pillar, tenGod] = match;
 
-return createTenGodPositionSignal(
-"branch_main",
-pillar,
-tenGod,
-id,
-);
+  return createTenGodPositionSignal(
+    "branch_main",
+    pillar,
+    tenGod,
+    id,
+  );
 }
 
 export function projectContractBranchMainTenGodSignal(
-fact = {},
+  fact = {},
 ) {
-if (
-fact.category !== "pillar" ||
-fact.predicate !==
-"pillar_branch_main_ten_god"
-) {
-return null;
-}
+  if (
+    fact.category !== "pillar" ||
+    fact.predicate !==
+      "pillar_branch_main_ten_god"
+  ) {
+    return null;
+  }
 
-return createTenGodPositionSignal(
-"branch_main",
-fact.subject?.key,
-fact.value,
-fact.id,
-);
+  return createTenGodPositionSignal(
+    "branch_main",
+    fact.subject?.key,
+    fact.value,
+    fact.id,
+  );
 }
 
 export function projectLegacyDayMasterSeasonSignal(
-fact = {},
+  fact = {},
 ) {
-const id = normalizeText(fact.id);
+  const id = normalizeText(fact.id);
 
-if (
-!id.startsWith(
-"day-master-season-",
-)
-) {
-return null;
-}
+  if (!id.startsWith("day-master-season-")) {
+    return null;
+  }
 
-const text = [
-fact.name,
-fact.label,
-...(Array.isArray(fact.tags)
-? fact.tags
-: []),
-]
-.map(normalizeText)
-.join("|");
+  const text = [
+    fact.name,
+    fact.label,
+    ...(Array.isArray(fact.tags)
+      ? fact.tags
+      : []),
+  ]
+    .map(normalizeText)
+    .join("|");
 
-if (text.includes("失令")) {
-return createSimpleSignal(
-"day_master",
-"day_master",
-id,
-);
-}
+  if (text.includes("失令")) {
+    return createSimpleSignal(
+      "day_master",
+      "day_master:in_season:false",
+      id,
+    );
+  }
 
-if (text.includes("得令")) {
-return createSimpleSignal(
-"day_master",
-"day_master",
-id,
-);
-}
+  if (text.includes("得令")) {
+    return createSimpleSignal(
+      "day_master",
+      "day_master:in_season:true",
+      id,
+    );
+  }
 
-return null;
+  return null;
 }
 
 export function projectContractDayMasterSeasonSignal(
-fact = {},
+  fact = {},
 ) {
-if (
-fact.category !== "day_master" ||
-fact.predicate !== "in_season" ||
-typeof fact.value !== "boolean"
-) {
-return null;
-}
+  if (
+    fact.category !== "day_master" ||
+    fact.predicate !== "in_season" ||
+    typeof fact.value !== "boolean"
+  ) {
+    return null;
+  }
 
-return createSimpleSignal(
-"day_master",
-`day_master:in_season:${fact.value}`,
-fact.id,
-);
+  return createSimpleSignal(
+    "day_master",
+    `day_master:in_season:${fact.value}`,
+    fact.id,
+  );
 }
 
 export function projectLegacyDayMasterRootSignal(
-fact = {},
+  fact = {},
 ) {
-const id = normalizeText(fact.id);
+  const id = normalizeText(fact.id);
 
-const match =
-/^day-master-root-(.+)$/.exec(id);
+  const match =
+    /^day-master-root-(.+)$/.exec(id);
 
-if (!match) {
-return null;
-}
+  if (!match) {
+    return null;
+  }
 
-const rootLevel =
-normalizeText(match[1]);
+  const rootLevel = normalizeText(match[1]);
 
-if (!rootLevel) {
-return null;
-}
+  if (!rootLevel) {
+    return null;
+  }
 
-return createSimpleSignal(
-"day_master",
-`day_master:root_level:${rootLevel}`,
-id,
-);
+  return createSimpleSignal(
+    "day_master",
+    `day_master:root_level:${rootLevel}`,
+    id,
+  );
 }
 
 export function projectContractDayMasterRootSignal(
-fact = {},
+  fact = {},
 ) {
-if (
-fact.category !== "day_master" ||
-fact.predicate !== "root_level"
-) {
-return null;
-}
+  if (
+    fact.category !== "day_master" ||
+    fact.predicate !== "root_level"
+  ) {
+    return null;
+  }
 
-const rootLevel =
-normalizeText(fact.value);
+  const rootLevel = normalizeText(fact.value);
 
-if (!rootLevel) {
-return null;
-}
+  if (!rootLevel) {
+    return null;
+  }
 
-return createSimpleSignal(
-"day_master",
-`day_master:root_level:${rootLevel}`,
-fact.id,
-);
+  return createSimpleSignal(
+    "day_master",
+    `day_master:root_level:${rootLevel}`,
+    fact.id,
+  );
 }
 
 export function projectLegacyElementWeakSignal(
-fact = {},
+  fact = {},
 ) {
-const id = normalizeText(fact.id);
+  const id = normalizeText(fact.id);
 
-const match =
-/^element-(wood|fire|earth|metal|water)-weak$/.exec(
-id,
-);
+  const match =
+    /^element-(wood|fire|earth|metal|water)-weak$/.exec(
+      id,
+    );
 
-if (!match) {
-return null;
-}
+  if (!match) {
+    return null;
+  }
 
-return createSimpleSignal(
-"element",
-`element:weak:${match[1]}`,
-id,
-);
+  return createSimpleSignal(
+    "element",
+    `element:weak:${match[1]}`,
+    id,
+  );
 }
 
 export function projectContractElementWeakSignal(
-fact = {},
+  fact = {},
 ) {
-if (
-fact.category !== "element" ||
-fact.predicate !== "element_count"
-) {
-return null;
-}
+  if (
+    fact.category !== "element" ||
+    fact.predicate !== "element_count"
+  ) {
+    return null;
+  }
 
-const element =
-normalizeText(fact.subject?.key);
+  const element = normalizeText(
+    fact.subject?.key,
+  );
 
-const count =
-parseFiniteNumber(fact.value);
+  const count = parseFiniteNumber(
+    fact.value,
+  );
 
-if (
-!validElementKeys.has(element) ||
-count === null ||
-count > 0.5
-) {
-return null;
-}
+  if (
+    !validElementKeys.has(element) ||
+    count === null ||
+    count > 0.5
+  ) {
+    return null;
+  }
 
-return createSimpleSignal(
-"element",
-`element:weak:${element}`,
-fact.id,
-);
+  return createSimpleSignal(
+    "element",
+    `element:weak:${element}`,
+    fact.id,
+  );
 }
 
 function projectLegacyFactSignals(
-fact = {},
+  fact = {},
 ) {
-return compactSignals([
-projectLegacyStemTenGodSignal(
-fact,
-),
+  return compactSignals([
+    projectLegacyStemTenGodSignal(fact),
 
-```
-projectLegacyBranchMainTenGodSignal(
-  fact,
-),
+    projectLegacyBranchMainTenGodSignal(
+      fact,
+    ),
 
-projectLegacyDayMasterSeasonSignal(
-  fact,
-),
+    projectLegacyDayMasterSeasonSignal(
+      fact,
+    ),
 
-projectLegacyDayMasterRootSignal(
-  fact,
-),
+    projectLegacyDayMasterRootSignal(
+      fact,
+    ),
 
-projectLegacyElementWeakSignal(
-  fact,
-),
-```
-
-]);
+    projectLegacyElementWeakSignal(fact),
+  ]);
 }
 
 function projectContractFactSignals(
-fact = {},
+  fact = {},
 ) {
-return compactSignals([
-projectContractStemTenGodSignal(
-fact,
-),
+  return compactSignals([
+    projectContractStemTenGodSignal(fact),
 
-```
-projectContractBranchMainTenGodSignal(
-  fact,
-),
+    projectContractBranchMainTenGodSignal(
+      fact,
+    ),
 
-projectContractDayMasterSeasonSignal(
-  fact,
-),
+    projectContractDayMasterSeasonSignal(
+      fact,
+    ),
 
-projectContractDayMasterRootSignal(
-  fact,
-),
+    projectContractDayMasterRootSignal(
+      fact,
+    ),
 
-projectContractElementWeakSignal(
-  fact,
-),
-```
-
-]);
+    projectContractElementWeakSignal(
+      fact,
+    ),
+  ]);
 }
 
 function buildSignalProjection(
-facts,
-projector,
-warnings,
-sourceLabel,
+  facts,
+  projector,
+  warnings,
+  sourceLabel,
 ) {
-const signals = new Map();
-const unprojected = [];
+  const signals = new Map();
+  const unprojected = [];
 
-for (const fact of facts) {
-try {
-const projected =
-projector(fact);
+  for (const fact of facts) {
+    try {
+      const projected = projector(fact);
 
-  if (projected.length === 0) {
-    unprojected.push(fact);
-    continue;
-  }
+      if (projected.length === 0) {
+        unprojected.push(fact);
+        continue;
+      }
 
-  for (const signal of projected) {
-    const current =
-      signals.get(
-        signal.signalKey,
+      for (const signal of projected) {
+        const current = signals.get(
+          signal.signalKey,
+        );
+
+        if (!current) {
+          signals.set(
+            signal.signalKey,
+            signal,
+          );
+          continue;
+        }
+
+        current.sourceIds =
+          uniqueSortedStrings([
+            ...current.sourceIds,
+            ...signal.sourceIds,
+          ]);
+      }
+    } catch (error) {
+      warnings.push(
+        `${sourceLabel} projection failed: ${
+          error?.message ??
+          "unknown error"
+        }`,
       );
 
-    if (!current) {
-      signals.set(
-        signal.signalKey,
-        signal,
-      );
-      continue;
+      unprojected.push(fact);
     }
-
-    current.sourceIds =
-      uniqueSortedStrings([
-        ...current.sourceIds,
-        ...signal.sourceIds,
-      ]);
   }
-} catch (error) {
-  warnings.push(
-    `${sourceLabel} projection failed: ${
-      error?.message ??
-      "unknown error"
-    }`,
-  );
 
-  unprojected.push(fact);
-}
-
-}
-
-return {
-signals,
-unprojected,
-};
+  return {
+    signals,
+    unprojected,
+  };
 }
 
 function createTenGodPositionSignal(
-positionType,
-pillar,
-tenGod,
-sourceId,
+  positionType,
+  pillar,
+  tenGod,
+  sourceId,
 ) {
-const normalizedPositionType =
-normalizeText(positionType);
+  const normalizedPositionType =
+    normalizeText(positionType);
 
-const normalizedPillar =
-normalizeText(pillar);
+  const normalizedPillar =
+    normalizeText(pillar);
 
-const normalizedTenGod =
-normalizeText(tenGod);
+  const normalizedTenGod =
+    normalizeText(tenGod);
 
-if (
-!validPositionTypes.has(
-normalizedPositionType,
-) ||
-!validPillarKeys.has(
-normalizedPillar,
-) ||
-!normalizedTenGod ||
-normalizedTenGod === "日主"
-) {
-return null;
-}
+  if (
+    !validPositionTypes.has(
+      normalizedPositionType,
+    ) ||
+    !validPillarKeys.has(
+      normalizedPillar,
+    ) ||
+    !normalizedTenGod ||
+    normalizedTenGod === "日主"
+  ) {
+    return null;
+  }
 
-return createSimpleSignal(
-"ten_god_position",
-`ten_god_position:${normalizedPositionType}:${normalizedPillar}:${normalizedTenGod}`,
-sourceId,
-);
+  return createSimpleSignal(
+    "ten_god_position",
+    `ten_god_position:${normalizedPositionType}:${normalizedPillar}:${normalizedTenGod}`,
+    sourceId,
+  );
 }
 
 function createSimpleSignal(
-family,
-signalKey,
-sourceId,
+  family,
+  signalKey,
+  sourceId,
 ) {
-const normalizedFamily =
-normalizeText(family);
+  const normalizedFamily =
+    normalizeText(family);
 
-const normalizedSignalKey =
-normalizeText(signalKey);
+  const normalizedSignalKey =
+    normalizeText(signalKey);
 
-if (
-!normalizedFamily ||
-!normalizedSignalKey
-) {
-return null;
-}
+  if (
+    !normalizedFamily ||
+    !normalizedSignalKey
+  ) {
+    return null;
+  }
 
-const normalizedSourceId =
-normalizeText(sourceId);
+  const normalizedSourceId =
+    normalizeText(sourceId);
 
-return {
-family: normalizedFamily,
-signalKey:
-normalizedSignalKey,
-sourceIds:
-normalizedSourceId
-? [normalizedSourceId]
-: [],
-};
+  return {
+    family: normalizedFamily,
+    signalKey: normalizedSignalKey,
+
+    sourceIds: normalizedSourceId
+      ? [normalizedSourceId]
+      : [],
+  };
 }
 
 function classifyUncomparedLegacyFact(
-fact = {},
+  fact = {},
 ) {
-const category =
-normalizeText(fact.category);
+  const category = normalizeText(
+    fact.category,
+  );
 
-if (category === "神煞辅助") {
-return "shensha_not_in_contract_v1";
-}
+  if (category === "神煞辅助") {
+    return "shensha_not_in_contract_v1";
+  }
 
-if (
-category === "组合结构" ||
-fact.factLevel === "pattern"
-) {
-return "interpretive_rule_waiting_for_composition";
-}
+  if (
+    category === "组合结构" ||
+    fact.factLevel === "pattern"
+  ) {
+    return "interpretive_rule_waiting_for_composition";
+  }
 
-return "unsupported_legacy_shape";
+  return "unsupported_legacy_shape";
 }
 
 function compactSignals(items) {
-return items.filter(Boolean);
+  return items.filter(Boolean);
 }
 
 function uniqueSortedStrings(items) {
-return [
-...new Set(
-items
-.map(normalizeText)
-.filter(Boolean),
-),
-].sort();
+  return [
+    ...new Set(
+      items
+        .map(normalizeText)
+        .filter(Boolean),
+    ),
+  ].sort();
 }
 
-function compareSignalItems(
-left,
-right,
-) {
-return (
-left.family.localeCompare(
-right.family,
-) ||
-left.signalKey.localeCompare(
-right.signalKey,
-)
-);
+function compareSignalItems(left, right) {
+  return (
+    left.family.localeCompare(
+      right.family,
+    ) ||
+    left.signalKey.localeCompare(
+      right.signalKey,
+    )
+  );
 }
 
 function parseFiniteNumber(value) {
-if (
-value === undefined ||
-value === null
-) {
-return null;
-}
+  if (
+    value === undefined ||
+    value === null
+  ) {
+    return null;
+  }
 
-if (
-typeof value === "string" &&
-value.trim() === ""
-) {
-return null;
-}
+  if (
+    typeof value === "string" &&
+    value.trim() === ""
+  ) {
+    return null;
+  }
 
-const parsed = Number(value);
+  const parsed = Number(value);
 
-return Number.isFinite(parsed)
-? parsed
-: null;
+  return Number.isFinite(parsed)
+    ? parsed
+    : null;
 }
 
 function normalizeText(value) {
-return typeof value === "string"
-? value.trim()
-: "";
+  return typeof value === "string"
+    ? value.trim()
+    : "";
 }

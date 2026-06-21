@@ -2,6 +2,7 @@ import {
   KINSHIP_MAPPING_VERSION,
   resolveKinshipMapping,
 } from "../config/kinshipMapping.js";
+import { createTenGodStateSnapshot } from "./tenGodStateSnapshot.js";
 
 const kinshipLabels = {
   father: "父亲",
@@ -10,14 +11,6 @@ const kinshipLabels = {
   spouse: "配偶",
   children: "子女",
 };
-
-const kinshipKeys = [
-  "father",
-  "mother",
-  "siblings",
-  "spouse",
-  "children",
-];
 
 export function buildKinshipFeatures({
   gender,
@@ -28,6 +21,7 @@ export function buildKinshipFeatures({
 } = {}) {
   const resolvedMapping = resolveKinshipMapping(gender, mapping);
   const warnings = [...(resolvedMapping.warnings ?? [])];
+  const relationTypeById = buildRelationTypeById(relationMatrix?.items);
 
   return {
     mappingVersion:
@@ -42,11 +36,11 @@ export function buildKinshipFeatures({
       resolvedMapping.gender ||
       "unknown",
 
-    father: buildKinshipProfile("father", resolvedMapping, tenGodStates, palaceFeatures),
-    mother: buildKinshipProfile("mother", resolvedMapping, tenGodStates, palaceFeatures),
-    siblings: buildKinshipProfile("siblings", resolvedMapping, tenGodStates, palaceFeatures),
-    spouse: buildKinshipProfile("spouse", resolvedMapping, tenGodStates, palaceFeatures),
-    children: buildKinshipProfile("children", resolvedMapping, tenGodStates, palaceFeatures),
+    father: buildKinshipProfile("father", resolvedMapping, tenGodStates, palaceFeatures, relationTypeById),
+    mother: buildKinshipProfile("mother", resolvedMapping, tenGodStates, palaceFeatures, relationTypeById),
+    siblings: buildKinshipProfile("siblings", resolvedMapping, tenGodStates, palaceFeatures, relationTypeById),
+    spouse: buildKinshipProfile("spouse", resolvedMapping, tenGodStates, palaceFeatures, relationTypeById),
+    children: buildKinshipProfile("children", resolvedMapping, tenGodStates, palaceFeatures, relationTypeById),
 
     warnings,
   };
@@ -57,6 +51,7 @@ function buildKinshipProfile(
   mapping,
   tenGodStates = {},
   palaceFeatures = {},
+  relationTypeById = {},
 ) {
   const role = mapping.roles?.[key];
   const candidates = mapping.candidateRoles?.[key] ?? [];
@@ -74,10 +69,16 @@ function buildKinshipProfile(
     secondaryTenGods: item.secondaryTenGods ?? [],
     palaceRefs: item.palaceRefs ?? [],
   }));
-  const tenGodNames = unique([
-    ...primaryTenGods,
-    ...secondaryTenGods,
-  ]);
+  const candidateStarProfiles = candidates.map((item) => ({
+    gender: item.gender,
+    primaryTenGods: item.primaryTenGods ?? [],
+    secondaryTenGods: item.secondaryTenGods ?? [],
+    starProfile: buildStarProfile(
+      item.primaryTenGods ?? [],
+      item.secondaryTenGods ?? [],
+      tenGodStates,
+    ),
+  }));
 
   const profile = {
     key,
@@ -88,11 +89,12 @@ function buildKinshipProfile(
     primaryTenGods,
     secondaryTenGods,
     candidateMappings,
+    candidateStarProfiles,
 
     palaceRefs,
 
-    starProfile: buildStarProfile(tenGodNames, tenGodStates),
-    palaceProfile: buildPalaceProfile(palaceRefs, palaceFeatures),
+    starProfile: buildStarProfile(primaryTenGods, secondaryTenGods, tenGodStates),
+    palaceProfile: buildPalaceProfile(palaceRefs, palaceFeatures, relationTypeById),
 
     evidence: [],
     warnings: [],
@@ -113,15 +115,20 @@ function buildKinshipProfile(
   return profile;
 }
 
-function buildStarProfile(tenGodNames, tenGodStates = {}) {
-  const states = tenGodNames
-    .map((name) => tenGodStates?.[name])
-    .filter(Boolean);
+function buildStarProfile(primaryTenGods, secondaryTenGods, tenGodStates = {}) {
+  const tenGodNames = unique([
+    ...primaryTenGods,
+    ...secondaryTenGods,
+  ]);
+  const primary = buildStarSegment(primaryTenGods, tenGodStates);
+  const secondary = buildStarSegment(secondaryTenGods, tenGodStates);
+  const states = uniqueSnapshots([
+    ...primary.states,
+    ...secondary.states,
+  ]);
   const weightedCount = round(
-    states.reduce((sum, state) => {
-      const value = Number(state.weightedCount);
-      return Number.isFinite(value) ? sum + value : sum;
-    }, 0),
+    primary.weightedCount +
+    secondary.weightedCount,
   );
 
   return {
@@ -132,49 +139,77 @@ function buildStarProfile(tenGodNames, tenGodStates = {}) {
     mainQiPositions: unique(states.flatMap((state) => state.mainQiPositions ?? [])),
     weightedCount,
     strengthLevels: unique(states.map((state) => state.strengthLevel).filter(Boolean)),
-    relationIds: unique(states.flatMap((state) =>
-      (state.relatedRelations ?? []).map((relation) => relation.id),
-    )),
+    relationIds: unique(states.flatMap((state) => state.relationIds ?? [])),
     evidence: states.flatMap((state) =>
-      (state.evidence ?? []).map((item) => ({
-        ...item,
-        tenGod: state.name,
-      })),
+      state.evidence ?? [],
+    ),
+    primary,
+    secondary,
+    weightedByTenGod: Object.fromEntries(
+      tenGodNames.map((name) => [
+        name,
+        finiteWeight(tenGodStates?.[name]?.weightedCount),
+      ]),
     ),
   };
 }
 
-function buildPalaceProfile(palaceRefs, palaceFeatures = {}) {
+function buildStarSegment(tenGodNames, tenGodStates = {}) {
+  const states = uniqueSnapshots(
+    tenGodNames
+      .map((name) => createTenGodStateSnapshot(tenGodStates?.[name]))
+      .filter(Boolean),
+  );
+  const weightedCount = round(
+    states.reduce((sum, state) => sum + finiteWeight(state.weightedCount), 0),
+  );
+
+  return {
+    tenGods: unique(tenGodNames),
+    states,
+    weightedCount,
+    visiblePositions: unique(states.flatMap((state) => state.visiblePositions ?? [])),
+    hiddenPositions: unique(states.flatMap((state) => state.hiddenPositions ?? [])),
+    mainQiPositions: unique(states.flatMap((state) => state.mainQiPositions ?? [])),
+    relationIds: unique(states.flatMap((state) => state.relationIds ?? [])),
+    evidence: states.flatMap((state) => state.evidence ?? []),
+  };
+}
+
+function buildPalaceProfile(palaceRefs, palaceFeatures = {}, relationTypeById = {}) {
   const palaces = palaceRefs
     .map((ref) => palaceFeatures?.[ref])
     .filter(Boolean);
+  const relationIds = unique(palaces.flatMap((palace) => palace.relationIds ?? []));
+  const exactRelationTypes = unique(palaces.flatMap((palace) =>
+    Array.isArray(palace.relationTypes)
+      ? palace.relationTypes
+      : [],
+  ));
 
   return {
     refs: palaceRefs,
-    relationIds: unique(palaces.flatMap((palace) => palace.relationIds ?? [])),
-    relationTypes: unique(palaces.flatMap((palace) =>
-      palace.relationTypes ??
-      relationTypesFromSummary(palace.relationSummary),
-    )),
+    relationIds,
+    relationTypes: exactRelationTypes.length
+      ? exactRelationTypes
+      : unique(relationIds.map((id) => relationTypeById[id])),
     evidence: uniqueEvidence(palaces.flatMap((palace) => palace.evidence ?? [])),
   };
 }
 
-function relationTypesFromSummary(summary = {}) {
-  const types = [];
-  if (summary.combineCount > 0) types.push("combine");
-  if (summary.clashCount > 0) types.push("clash");
-  if (summary.punishCount > 0) types.push("punish");
-  if (summary.harmCount > 0) types.push("harm");
-  if (summary.breakCount > 0) types.push("break");
-  if (summary.controlCount > 0) types.push("control");
-  if (summary.repetitionCount > 0) types.push("repetition");
-  if (summary.harmonyCount > 0) types.push("harmony");
-  return types;
-}
-
 function unique(items = []) {
   return [...new Set(items.filter((item) => item !== undefined && item !== null && item !== ""))];
+}
+
+function uniqueSnapshots(items = []) {
+  const seen = new Set();
+  const result = [];
+  for (const item of items) {
+    if (!item?.name || seen.has(item.name)) continue;
+    seen.add(item.name);
+    result.push(item);
+  }
+  return result;
 }
 
 function union(items = []) {
@@ -197,4 +232,17 @@ function round(value) {
   const number = Number(value);
   if (!Number.isFinite(number)) return 0;
   return Math.round(number * 100) / 100;
+}
+
+function finiteWeight(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? round(number) : 0;
+}
+
+function buildRelationTypeById(items = []) {
+  return Object.fromEntries(
+    (Array.isArray(items) ? items : [])
+      .filter((item) => item?.id)
+      .map((item) => [item.id, item.relationType]),
+  );
 }

@@ -55,6 +55,12 @@ function buildFeatureInput(gender) {
     pillars,
     relations: [
       {
+        type: "天干五合",
+        members: ["甲", "乙"],
+        pillars: ["年柱", "月柱"],
+        ganzhi: ["甲子", "乙午"],
+      },
+      {
         type: "地支六冲",
         members: ["午", "子"],
         pillars: ["月柱", "日柱"],
@@ -125,10 +131,18 @@ test("male kinship features separate spouse star profile from spouse palace prof
   assert.deepEqual(features.spouse.secondaryTenGods, ["偏财"]);
   assert.deepEqual(features.spouse.palaceRefs, ["spousePalace"]);
   assert.ok(features.spouse.starProfile.tenGods.includes("正财"));
+  assert.deepEqual(features.spouse.starProfile.primary.tenGods, ["正财"]);
+  assert.deepEqual(features.spouse.starProfile.secondary.tenGods, ["偏财"]);
+  assert.equal(features.spouse.starProfile.weightedByTenGod.正财, 1);
+  assert.equal(features.spouse.starProfile.weightedByTenGod.偏财, 1);
+  assert.ok(features.spouse.starProfile.primary.visiblePositions.includes("month.stem"));
+  assert.ok(features.spouse.starProfile.secondary.visiblePositions.includes("year.stem"));
   assert.ok(features.spouse.starProfile.visiblePositions.includes("month.stem"));
   assert.ok(features.spouse.palaceProfile.refs.includes("spousePalace"));
   assert.ok(features.spouse.palaceProfile.relationTypes.includes("branch_clash"));
   assert.notDeepEqual(features.spouse.starProfile.relationIds, features.spouse.palaceProfile.relationIds);
+  assert.equal("relatedRelations" in features.spouse.starProfile.states[0], false);
+  assert.equal("raw" in features.spouse.starProfile.states[0], false);
 });
 
 test("female kinship features use officer star for spouse and output stars for children", () => {
@@ -137,6 +151,40 @@ test("female kinship features use officer star for spouse and output stars for c
   assert.deepEqual(features.spouse.primaryTenGods, ["正官"]);
   assert.deepEqual(features.spouse.secondaryTenGods, ["七杀"]);
   assert.deepEqual(features.children.primaryTenGods, ["食神", "伤官"]);
+  assert.deepEqual(features.spouse.starProfile.primary.tenGods, ["正官"]);
+  assert.deepEqual(features.spouse.starProfile.secondary.tenGods, ["七杀"]);
+  assert.equal(features.spouse.starProfile.weightedByTenGod.正官, 1);
+  assert.equal(features.spouse.starProfile.weightedByTenGod.七杀, 0.7);
   assert.ok(features.spouse.starProfile.tenGods.includes("正官"));
   assert.ok(features.spouse.starProfile.visiblePositions.includes("hour.stem"));
+});
+
+test("parent palace profile keeps exact relation types from palace features", () => {
+  const features = buildKinshipFeatures(buildFeatureInput("male"));
+
+  assert.ok(features.father.palaceProfile.refs.includes("year"));
+  assert.ok(features.father.palaceProfile.refs.includes("month"));
+  assert.ok(features.father.palaceProfile.relationTypes.includes("stem_combine"));
+  assert.ok(features.father.palaceProfile.relationTypes.includes("branch_clash"));
+  assert.equal(features.father.palaceProfile.relationTypes.includes("combine"), false);
+});
+
+test("unknown gender creates candidate star profiles without selecting a side", () => {
+  const features = buildKinshipFeatures(buildFeatureInput("unknown"));
+
+  assert.equal(features.spouse.mappingStatus, "gender_required");
+  assert.deepEqual(features.spouse.starProfile.tenGods, []);
+  assert.equal(features.spouse.starProfile.weightedCount, 0);
+  assert.equal(features.spouse.candidateStarProfiles.length, 2);
+  assert.deepEqual(
+    features.spouse.candidateStarProfiles.map((item) => item.gender).sort(),
+    ["female", "male"],
+  );
+
+  const male = features.spouse.candidateStarProfiles.find((item) => item.gender === "male");
+  const female = features.spouse.candidateStarProfiles.find((item) => item.gender === "female");
+  assert.deepEqual(male.primaryTenGods, ["正财"]);
+  assert.deepEqual(female.primaryTenGods, ["正官"]);
+  assert.ok(male.starProfile.primary.visiblePositions.includes("month.stem"));
+  assert.ok(female.starProfile.primary.visiblePositions.includes("hour.stem"));
 });

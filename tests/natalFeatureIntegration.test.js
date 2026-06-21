@@ -46,6 +46,12 @@ test("natal feature V2 integrates with the real bazi calculation entry", () => {
   assert.ok(featureVector.kinshipFeatures.siblings);
   assert.ok(featureVector.kinshipFeatures.spouse);
   assert.ok(featureVector.kinshipFeatures.children);
+  assert.ok(Array.isArray(featureVector.palaceFeatures.year.relationTypes));
+  assert.ok(Array.isArray(featureVector.palaceFeatures.year.pillarRelationIds));
+  assert.ok(featureVector.kinshipFeatures.spouse.starProfile.primary);
+  assert.ok(featureVector.kinshipFeatures.spouse.starProfile.secondary);
+  assert.equal(typeof featureVector.kinshipFeatures.spouse.starProfile.weightedByTenGod, "object");
+  assert.ok(Array.isArray(featureVector.kinshipFeatures.spouse.candidateStarProfiles));
 
   for (const state of Object.values(featureVector.tenGodStates)) {
     assert.equal(Number.isFinite(state.weightedCount), true);
@@ -68,4 +74,23 @@ test("natal feature V2 integrates with the real bazi calculation entry", () => {
 
   assert.doesNotMatch(JSON.stringify(featureVector), /NaN/);
   assert.doesNotMatch(JSON.stringify(featureVector), /undefined/);
+  assertNoRelationRaw(featureVector.palaceFeatures);
+  assertNoRelationRaw(featureVector.kinshipFeatures);
 });
+
+function assertNoRelationRaw(value, seen = new WeakSet()) {
+  if (!value || typeof value !== "object") return;
+  if (seen.has(value)) return;
+  seen.add(value);
+
+  if (Object.hasOwn(value, "raw")) {
+    assert.fail("feature snapshots should not embed relation raw objects");
+  }
+  if (Object.hasOwn(value, "relatedRelations")) {
+    assert.fail("feature snapshots should not embed full relatedRelations objects");
+  }
+
+  for (const item of Object.values(value)) {
+    assertNoRelationRaw(item, seen);
+  }
+}

@@ -74,6 +74,8 @@ test("four pillar palace features always exist with stable fields", () => {
       repetitionCount: 0,
       harmonyCount: 0,
     });
+    assert.deepEqual(features[key].relationTypes, []);
+    assert.deepEqual(features[key].pillarRelationIds, []);
     assert.ok(Array.isArray(features[key].traditionalThemes));
   }
   assert.equal(features.spousePalace.key, "spousePalace");
@@ -113,7 +115,9 @@ test("stem and branch relations are separated and summary counts once", () => {
 
   assert.equal(features.day.stemRelationIds.length, 1);
   assert.equal(features.day.branchRelationIds.length, 1);
+  assert.equal(features.day.pillarRelationIds.length, 0);
   assert.equal(features.day.relationIds.length, 2);
+  assert.deepEqual(features.day.relationTypes.sort(), ["branch_clash", "stem_combine"]);
   assert.equal(features.day.relationSummary.combineCount, 1);
   assert.equal(features.day.relationSummary.clashCount, 1);
 });
@@ -148,4 +152,66 @@ test("spouse palace only uses day branch relations including third harmony membe
   assert.equal(features.spousePalace.hasCombine, false);
   assert.ok(features.spousePalace.relationTypes.includes("branch_clash"));
   assert.ok(features.spousePalace.relationTypes.includes("three_harmony"));
+});
+
+test("pillar repetition enters pillarRelationIds and day repetition enters spouse palace", () => {
+  const features = buildFeatures([
+    {
+      type: "伏吟",
+      pillars: ["年柱", "日柱"],
+      ganzhi: ["甲申", "戊辰"],
+    },
+    {
+      type: "天干五合",
+      members: ["丙", "戊"],
+      pillars: ["月柱", "日柱"],
+      ganzhi: ["丙子", "戊辰"],
+    },
+  ]);
+
+  assert.equal(features.year.pillarRelationIds.length, 1);
+  assert.equal(features.day.pillarRelationIds.length, 1);
+  assert.ok(features.day.relationTypes.includes("repetition"));
+  assert.equal(features.day.relationSummary.repetitionCount, 1);
+  assert.ok(features.spousePalace.relationTypes.includes("repetition"));
+  assert.equal(features.spousePalace.hasRepetition, true);
+  assert.equal(features.spousePalace.hasCombine, false);
+});
+
+test("harmony and direct combine are counted separately", () => {
+  const features = buildFeatures([
+    {
+      type: "地支三合",
+      members: ["申", "子", "辰"],
+      pillars: ["年柱", "月柱", "日柱"],
+      ganzhi: ["甲申", "丙子", "戊辰"],
+    },
+    {
+      type: "地支六合",
+      members: ["辰", "酉"],
+      pillars: ["日柱", "时柱"],
+      ganzhi: ["戊辰", "庚午"],
+    },
+  ]);
+
+  assert.equal(features.day.relationSummary.harmonyCount, 1);
+  assert.equal(features.day.relationSummary.combineCount, 1);
+  assert.ok(features.day.relationTypes.includes("three_harmony"));
+  assert.ok(features.day.relationTypes.includes("branch_combine"));
+});
+
+test("palace ten god states are snapshots without related relation objects", () => {
+  const features = buildFeatures([
+    {
+      type: "地支六冲",
+      members: ["子", "辰"],
+      pillars: ["月柱", "日柱"],
+      ganzhi: ["丙子", "戊辰"],
+    },
+  ]);
+
+  assert.equal(features.day.mainQiTenGodState.name, "偏印");
+  assert.ok(Array.isArray(features.day.mainQiTenGodState.relationIds));
+  assert.equal("relatedRelations" in features.day.mainQiTenGodState, false);
+  assert.equal("raw" in features.day.mainQiTenGodState, false);
 });

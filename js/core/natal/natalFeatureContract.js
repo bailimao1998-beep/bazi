@@ -64,22 +64,22 @@ export function createEmptyNatalFeatureVector() {
     },
 
     palaceFeatures: {
-      year: {},
-      month: {},
-      day: {},
-      hour: {},
-      spousePalace: {},
+      year: emptyPalaceFeature("year"),
+      month: emptyPalaceFeature("month"),
+      day: emptyPalaceFeature("day"),
+      hour: emptyPalaceFeature("hour"),
+      spousePalace: emptySpousePalaceFeature(),
     },
 
     kinshipFeatures: {
       mappingVersion: "",
       mappingId: "",
       gender: "unknown",
-      father: {},
-      mother: {},
-      siblings: {},
-      spouse: {},
-      children: {},
+      father: emptyKinshipFeature("father"),
+      mother: emptyKinshipFeature("mother"),
+      siblings: emptyKinshipFeature("siblings"),
+      spouse: emptyKinshipFeature("spouse"),
+      children: emptyKinshipFeature("children"),
       warnings: [],
     },
 
@@ -179,6 +179,120 @@ function emptyPillar(key) {
     branchMainTenGod: "",
     hiddenStems: [],
     shensha: [],
+  };
+}
+
+function emptyPalaceFeature(key) {
+  return {
+    key,
+    label: "",
+    stem: "",
+    branch: "",
+    pillarLabel: "",
+    stemTenGod: "",
+    branchMainTenGod: "",
+    hiddenTenGods: [],
+    visibleTenGodState: null,
+    mainQiTenGodState: null,
+    hiddenTenGodStates: [],
+    relationIds: [],
+    relationTypes: [],
+    stemRelationIds: [],
+    branchRelationIds: [],
+    pillarRelationIds: [],
+    relationSummary: {
+      combineCount: 0,
+      clashCount: 0,
+      punishCount: 0,
+      harmCount: 0,
+      breakCount: 0,
+      controlCount: 0,
+      repetitionCount: 0,
+      harmonyCount: 0,
+    },
+    isDayPillar: key === "day",
+    isMonthCommandPillar: key === "month",
+    traditionalThemes: [],
+    evidence: [],
+    warnings: [],
+  };
+}
+
+function emptySpousePalaceFeature() {
+  return {
+    key: "spousePalace",
+    label: "夫妻宫",
+    pillar: "day",
+    position: "branch",
+    branch: "",
+    mainTenGod: "",
+    hiddenTenGods: [],
+    mainTenGodState: null,
+    hiddenTenGodStates: [],
+    relationIds: [],
+    relationTypes: [],
+    hasCombine: false,
+    hasClash: false,
+    hasPunish: false,
+    hasSelfPunish: false,
+    hasHarm: false,
+    hasBreak: false,
+    hasHarmony: false,
+    hasRepetition: false,
+    evidence: [],
+    warnings: [],
+  };
+}
+
+function emptyKinshipFeature(key) {
+  return {
+    key,
+    label: "",
+    mappingStatus: "unknown",
+    primaryTenGods: [],
+    secondaryTenGods: [],
+    candidateMappings: [],
+    candidateStarProfiles: [],
+    palaceRefs: [],
+    starProfile: emptyStarProfile(),
+    palaceProfile: {
+      refs: [],
+      relationIds: [],
+      relationTypes: [],
+      evidence: [],
+    },
+    evidence: [],
+    warnings: [],
+  };
+}
+
+function emptyStarProfile() {
+  return {
+    tenGods: [],
+    states: [],
+    visiblePositions: [],
+    hiddenPositions: [],
+    mainQiPositions: [],
+    weightedCount: 0,
+    strengthLevels: [],
+    relationIds: [],
+    evidence: [],
+    primary: emptyStarSegment(),
+    secondary: emptyStarSegment(),
+    weightedByTenGod: {},
+  };
+}
+
+function emptyStarSegment() {
+  return {
+    tenGods: [],
+    states: [],
+    weightedCount: 0,
+    visiblePositions: [],
+    hiddenPositions: [],
+    mainQiPositions: [],
+    relationIds: [],
+    evidence: [],
   };
 }
 

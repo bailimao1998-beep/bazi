@@ -56,11 +56,11 @@ function normalizeRelation(raw = {}, pillars = {}) {
   addUnmodeledRelationWarnings(relationType, text, warnings);
 
   const affects = {
-    dayStem: affectsPosition(participants, "day", "stem"),
-    dayBranch: affectsPosition(participants, "day", "branch"),
-    monthStem: affectsPosition(participants, "month", "stem"),
-    monthBranch: affectsPosition(participants, "month", "branch"),
-    spousePalace: affectsPosition(participants, "day", "branch"),
+    dayStem: affectsPosition(participants, "day", "stem", relationType),
+    dayBranch: affectsPosition(participants, "day", "branch", relationType),
+    monthStem: affectsPosition(participants, "month", "stem", relationType),
+    monthBranch: affectsPosition(participants, "month", "branch", relationType),
+    spousePalace: affectsPosition(participants, "day", "branch", relationType),
   };
 
   const confidence = normalizeConfidence(
@@ -165,8 +165,17 @@ function normalizeParticipants(raw, rawPillars, values, layer) {
   );
 }
 
-function affectsPosition(sides, pillar, position) {
-  return sides.some((side) => side.pillar === pillar && side.position === position);
+function affectsPosition(sides, pillar, position, relationType) {
+  return sides.some((side) =>
+    side.pillar === pillar &&
+    (
+      side.position === position ||
+      (
+        relationType === "repetition" &&
+        side.position === "pillar"
+      )
+    ),
+  );
 }
 
 function normalizeConfidence(requestedConfidence, {

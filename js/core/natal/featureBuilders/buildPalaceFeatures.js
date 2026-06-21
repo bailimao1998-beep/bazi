@@ -1,3 +1,5 @@
+import { createTenGodStateSnapshot } from "./tenGodStateSnapshot.js";
+
 const pillarKeys = ["year", "month", "day", "hour"];
 const pillarLabels = {
   year: "年柱",
@@ -83,12 +85,21 @@ function buildPillarPalace({
       .filter((relation) => hasParticipant(relation, key, "branch"))
       .map((relation) => relation.id),
   );
+  const pillarRelationIds = unique(
+    relations
+      .filter((relation) => hasParticipant(relation, key, "pillar"))
+      .map((relation) => relation.id),
+  );
   const relationIds = unique([
     ...stemRelationIds,
     ...branchRelationIds,
+    ...pillarRelationIds,
   ]);
   const relatedRelations = relations.filter((relation) =>
     relationIds.includes(relation.id),
+  );
+  const relationTypes = unique(
+    relatedRelations.map((relation) => relation.relationType),
   );
   const hiddenTenGods = (Array.isArray(pillar.hiddenStems)
     ? pillar.hiddenStems
@@ -115,8 +126,10 @@ function buildPillarPalace({
       .filter(Boolean),
 
     relationIds,
+    relationTypes,
     stemRelationIds,
     branchRelationIds,
+    pillarRelationIds,
 
     relationSummary: summarizeRelations(relatedRelations),
 
@@ -135,7 +148,14 @@ function buildSpousePalace({
   tenGodStates,
 }) {
   const dayBranchRelations = uniqueById(
-    relations.filter((relation) => hasParticipant(relation, "day", "branch")),
+    relations.filter((relation) =>
+      relation?.affects?.spousePalace ||
+      hasParticipant(relation, "day", "branch") ||
+      (
+        relation?.relationType === "repetition" &&
+        hasParticipant(relation, "day", "pillar")
+      ),
+    ),
   );
   const relationIds = dayBranchRelations.map((relation) => relation.id);
   const relationTypes = unique(dayBranchRelations.map((relation) => relation.relationType));
@@ -199,7 +219,7 @@ function summarizeRelations(relations) {
 
   for (const relation of uniqueById(relations)) {
     const type = relation.relationType;
-    if (isCombineType(type)) summary.combineCount += 1;
+    if (isDirectCombineType(type)) summary.combineCount += 1;
     if (isHarmonyType(type)) summary.harmonyCount += 1;
     if (type === "stem_clash" || type === "branch_clash") summary.clashCount += 1;
     if (type === "branch_punish" || type === "branch_self_punish") summary.punishCount += 1;
@@ -212,14 +232,10 @@ function summarizeRelations(relations) {
   return summary;
 }
 
-function isCombineType(type) {
+function isDirectCombineType(type) {
   return [
     "stem_combine",
     "branch_combine",
-    "three_harmony",
-    "three_meeting",
-    "half_harmony",
-    "arch_harmony",
   ].includes(type);
 }
 
@@ -240,7 +256,9 @@ function hasParticipant(relation, pillar, position) {
 }
 
 function stateFor(tenGodStates, name) {
-  return name && tenGodStates?.[name] ? tenGodStates[name] : null;
+  return createTenGodStateSnapshot(
+    name && tenGodStates?.[name] ? tenGodStates[name] : null,
+  );
 }
 
 function buildPillarEvidence(key, pillar) {

@@ -234,3 +234,46 @@ test("stem control with unresolved direction is forced to low confidence", () =>
   assert.equal(relation.confidence, "low");
   assert.ok(relation.warnings.includes("stem control direction could not be determined"));
 });
+
+test("day pillar repetition affects both day stem day branch and spouse palace", () => {
+  const matrix = buildRelationMatrix({
+    pillars,
+    relations: [
+      {
+        type: "伏吟",
+        pillars: ["年柱", "日柱"],
+        ganzhi: ["甲子", "庚子"],
+      },
+    ],
+  });
+
+  const relation = matrix.items[0];
+  assert.equal(relation.relationType, "repetition");
+  assert.equal(relation.layer, "pillar");
+  assert.equal(relation.left.position, "pillar");
+  assert.equal(relation.affects.dayStem, true);
+  assert.equal(relation.affects.dayBranch, true);
+  assert.equal(relation.affects.spousePalace, true);
+  assert.equal(matrix.dayStemRelations.length, 1);
+  assert.equal(matrix.dayBranchRelations.length, 1);
+});
+
+test("month pillar repetition affects both month stem and month branch", () => {
+  const matrix = buildRelationMatrix({
+    pillars,
+    relations: [
+      {
+        type: "伏吟",
+        pillars: ["月柱", "时柱"],
+        ganzhi: ["乙午", "辛酉"],
+      },
+    ],
+  });
+
+  const relation = matrix.items[0];
+  assert.equal(relation.relationType, "repetition");
+  assert.equal(relation.affects.monthStem, true);
+  assert.equal(relation.affects.monthBranch, true);
+  assert.equal(matrix.monthStemRelations.length, 1);
+  assert.equal(matrix.monthBranchRelations.length, 1);
+});

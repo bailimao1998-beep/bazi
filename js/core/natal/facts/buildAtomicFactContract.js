@@ -395,16 +395,6 @@ function extractVoidFacts(fv) {
     sourceRefs: [sourceRef("voidFeatures", "references", "")],
     tags: ["void"],
   }));
-  facts.push(baseFact({
-    category: "void",
-    subject: subject("spouse_palace", "spousePalace", ["day"], "夫妻宫"),
-    predicate: "spouse_palace_void_state",
-    value: voidFeatures.spousePalace ?? {},
-    status: "observed",
-    confidence: "medium",
-    sourceRefs: [sourceRef("voidFeatures", "spousePalace", "spousePalace")],
-    tags: ["void", "spousePalace"],
-  }));
   return facts;
 }
 
@@ -550,11 +540,18 @@ function extractClimateFacts(fv) {
 function extractWorkChainFacts(fv) {
   const workChains = fv.workChains ?? {};
   const facts = [];
+  const nodeKeyById =
+    buildStableWorkNodeKeyMap(workChains.nodes ?? []);
+  const edgeKeyById =
+    buildStableWorkEdgeKeyMap(workChains.edges ?? [], nodeKeyById);
+
   for (const node of workChains.nodes ?? []) {
+    const nodeKey =
+      stableWorkNodeKey(node);
     const nodeValue = {
-      nodeId: node.id,
+      nodeId: nodeKey,
       pillar: node.pillar ?? "",
-      position: node.position ?? "",
+      position: stableWorkNodePosition(node),
       visibility: node.visibility ?? "",
       stem: node.stem ?? "",
       branch: node.branch ?? "",
@@ -568,45 +565,63 @@ function extractWorkChainFacts(fv) {
     assignFinite(nodeValue, "weight", node.weight);
     facts.push(baseFact({
       category: "work_node",
-      subject: subject("work_node", node.id, [node.pillar], node.id),
+      subject: subject("work_node", nodeKey, [node.pillar], nodeKey),
       predicate: "work_node_role",
       value: nodeValue,
       status: "derived",
       confidence: "medium",
-      sourceRefs: [sourceRef("workChains", "nodes", node.id ?? "")],
+      sourceRefs: [sourceRef("workChains", "nodes", nodeKey)],
+      evidence: evidenceList(node.id ? { type: "upstream_node_id", id: node.id } : null),
       tags: ["work_node", node.resolvedRole ?? ""],
     }));
   }
   for (const edge of workChains.edges ?? []) {
+    const edgeKey =
+      stableWorkEdgeKey(edge, nodeKeyById);
+    const stableSource =
+      stableMappedId(nodeKeyById, edge.source);
+    const stableTarget =
+      stableMappedId(nodeKeyById, edge.target);
     facts.push(baseFact({
       category: "work_edge",
-      subject: subject("work_edge", edge.id, [edge.source, edge.target], edge.id),
+      subject: subject("work_edge", edgeKey, [stableSource, stableTarget], edgeKey),
       predicate: "work_edge",
       value: {
-        edgeId: edge.id,
-        source: edge.source ?? "",
-        target: edge.target ?? "",
+        edgeId: edgeKey,
+        source: stableSource,
+        target: stableTarget,
         semanticType: edge.semanticType ?? "",
         activation: edge.activation ?? "potential",
         potentialConfidence: edge.potentialConfidence ?? "unknown",
         activatedConfidence: edge.activatedConfidence ?? "unknown",
         confidence: edge.confidence ?? "unknown",
-        relationIds: edge.relationIds ?? [],
-        scopes: edge.scopes ?? [],
+        relationIds: sortedStrings(edge.relationIds),
+        scopes: sortedStrings(edge.scopes),
         chainEligible: Boolean(edge.chainEligible),
       },
       status: edge.activation === "activated" ? "derived" : "candidate",
       confidence: edge.confidence ?? "unknown",
-      sourceRefs: [sourceRef("workChains", "edges", edge.id ?? "")],
+      sourceRefs: [sourceRef("workChains", "edges", edgeKey)],
+      evidence: evidenceList(edge.id ? { type: "upstream_edge_id", id: edge.id } : null),
       tags: ["work_edge", edge.semanticType ?? "", edge.activation ?? ""],
     }));
   }
   for (const chain of workChains.chains ?? []) {
+    const stableNodeIds =
+      (chain.nodeIds ?? []).map((id) => stableMappedId(nodeKeyById, id));
+    const stableEdgeIds =
+      (chain.edgeIds ?? []).map((id) => stableMappedId(edgeKeyById, id));
+    const chainKey =
+      stableWorkChainKey({
+        ...chain,
+        nodeIds: stableNodeIds,
+        edgeIds: stableEdgeIds,
+      });
     const chainValue = {
-      chainId: chain.id,
+      chainId: chainKey,
       chainType: chain.chainType ?? "",
-      nodeIds: chain.nodeIds ?? [],
-      edgeIds: chain.edgeIds ?? [],
+      nodeIds: stableNodeIds,
+      edgeIds: stableEdgeIds,
       roleFlow: chain.roleFlow ?? "unknown",
       selfInvolved: Boolean(chain.selfInvolved),
       activationLevel: chain.activationLevel ?? "unknown",
@@ -616,28 +631,40 @@ function extractWorkChainFacts(fv) {
     assignFinite(chainValue, "priorityScore", chain.priorityScore);
     facts.push(baseFact({
       category: "work_chain",
-      subject: subject("work_chain", chain.id, chain.nodeIds ?? [], chain.id),
+      subject: subject("work_chain", chainKey, stableNodeIds, chainKey),
       predicate: "work_chain_candidate",
       value: chainValue,
       status: "candidate",
       confidence: chain.confidence ?? "unknown",
-      sourceRefs: [sourceRef("workChains", "chains", chain.id ?? "")],
+      sourceRefs: [sourceRef("workChains", "chains", chainKey)],
+      evidence: evidenceList(chain.id ? { type: "upstream_chain_id", id: chain.id } : null),
       tags: ["work_chain", chain.roleFlow ?? ""],
       warnings: chain.warnings ?? [],
     }));
   }
   for (const candidate of workChains.actualConflictCandidates ?? []) {
+    const stableSource =
+      stableMappedId(nodeKeyById, candidate.sourceNodeId);
+    const stableTarget =
+      stableMappedId(nodeKeyById, candidate.targetNodeId);
+    const stableEdge =
+      stableMappedId(edgeKeyById, candidate.edgeId);
     const candidateKey =
-      stableConflictKey(candidate);
+      stableConflictKey({
+        ...candidate,
+        edgeId: stableEdge,
+        sourceNodeId: stableSource,
+        targetNodeId: stableTarget,
+      });
     facts.push(baseFact({
       category: "conflict",
-      subject: subject("work_edge", candidateKey, [candidate.sourceNodeId, candidate.targetNodeId], candidate.edgeId ?? ""),
+      subject: subject("work_edge", candidateKey, [stableSource, stableTarget], candidateKey),
       predicate: "actual_conflict_candidate",
       value: {
-        edgeId: candidate.edgeId ?? "",
-        relationIds: candidate.relationIds ?? [],
-        sourceNodeId: candidate.sourceNodeId ?? "",
-        targetNodeId: candidate.targetNodeId ?? "",
+        edgeId: stableEdge,
+        relationIds: sortedStrings(candidate.relationIds),
+        sourceNodeId: stableSource,
+        targetNodeId: stableTarget,
         conflictElements: candidate.conflictElements ?? [],
         mediatorElement: candidate.mediatorElement ?? "",
         mediatorPresent: Boolean(candidate.mediatorPresent),
@@ -646,7 +673,11 @@ function extractWorkChainFacts(fv) {
       },
       status: "candidate",
       confidence: candidate.confidence ?? "unknown",
-      sourceRefs: [sourceRef("workChains", "actualConflictCandidates", candidate.id ?? candidateKey)],
+      sourceRefs: [sourceRef("workChains", "actualConflictCandidates", candidateKey)],
+      evidence: evidenceList([
+        candidate.id ? { type: "upstream_conflict_id", id: candidate.id } : null,
+        candidate.edgeId ? { type: "upstream_edge_id", id: candidate.edgeId } : null,
+      ]),
       tags: ["conflict", candidate.mediatorElement ?? ""],
     }));
   }
@@ -804,8 +835,8 @@ function stableEntityKey(prefix, value) {
       .replace(/\s+/g, "_")
       .replace(/[^\p{L}\p{N}_:-]+/gu, "_")
       .replace(/^_+|_+$/g, "")
-      .slice(0, 80);
-  return `${prefix}:${clean || shortHash(base)}`;
+      .slice(0, 56);
+  return `${prefix}:${clean || "value"}:${shortHash(base)}`;
 }
 
 function stableElementPairKey(item = {}) {
@@ -817,6 +848,96 @@ function stableElementPairKey(item = {}) {
     availabilityStatus:
       item.availabilityStatus ?? item.status ?? "unknown",
   });
+}
+
+function buildStableWorkNodeKeyMap(nodes = []) {
+  const map = new Map();
+  for (const node of nodes) {
+    if (node?.id) {
+      map.set(node.id, stableWorkNodeKey(node));
+    }
+  }
+  return map;
+}
+
+function buildStableWorkEdgeKeyMap(edges = [], nodeKeyById = new Map()) {
+  const map = new Map();
+  for (const edge of edges) {
+    if (edge?.id) {
+      map.set(edge.id, stableWorkEdgeKey(edge, nodeKeyById));
+    }
+  }
+  return map;
+}
+
+function stableWorkNodeKey(node = {}) {
+  return stableEntityKey("work_node", {
+    pillar:
+      node.pillar ?? "",
+    visibility:
+      node.visibility ?? "",
+    stem:
+      node.stem ?? "",
+    branch:
+      node.branch ?? "",
+    tenGod:
+      node.tenGod ?? "",
+    defaultRole:
+      node.defaultRole ?? "unknown",
+    resolvedRole:
+      node.resolvedRole ?? "unknown",
+    weight:
+      parseFiniteNumber(node.weight),
+  });
+}
+
+function stableWorkEdgeKey(edge = {}, nodeKeyById = new Map()) {
+  return stableEntityKey("work_edge", {
+    source:
+      stableMappedId(nodeKeyById, edge.source),
+    target:
+      stableMappedId(nodeKeyById, edge.target),
+    semanticType:
+      edge.semanticType ?? "",
+    activation:
+      edge.activation ?? "potential",
+    relationIds:
+      sortedStrings(edge.relationIds),
+    scopes:
+      sortedStrings(edge.scopes),
+  });
+}
+
+function stableWorkChainKey(chain = {}) {
+  return stableEntityKey("work_chain", {
+    chainType:
+      chain.chainType ?? "",
+    nodeIds:
+      sortedStrings(chain.nodeIds),
+    edgeIds:
+      sortedStrings(chain.edgeIds),
+    roleFlow:
+      chain.roleFlow ?? "unknown",
+    activationLevel:
+      chain.activationLevel ?? "unknown",
+  });
+}
+
+function stableMappedId(map, id) {
+  if (id === undefined || id === null || id === "") return "";
+  return map.get(id) ?? stableEntityKey("unmapped", id);
+}
+
+function stableWorkNodePosition(node = {}) {
+  if (node.visibility === "hidden") return "branch.hidden";
+  return node.position ?? "";
+}
+
+function sortedStrings(values = []) {
+  return (Array.isArray(values) ? values : [])
+    .map(String)
+    .filter(Boolean)
+    .sort();
 }
 
 function stableConflictKey(item = {}) {

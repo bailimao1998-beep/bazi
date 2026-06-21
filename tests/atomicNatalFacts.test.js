@@ -7,6 +7,7 @@ import { buildBaseBaziViewModel } from "../js/core/bazi/buildBaseBaziViewModel.j
 import { buildNatalFeatureVector } from "../js/core/natal/natalFeatureVector.js";
 import { buildAtomicNatalFacts } from "../js/core/natal/atomicNatalFactEngine.js";
 import { buildAtomicFactContract } from "../js/core/natal/facts/buildAtomicFactContract.js";
+import { buildWorkChains } from "../js/core/natal/featureBuilders/buildWorkChains.js";
 import { validateAtomicNatalFacts } from "../js/core/natal/facts/atomicFactContract.js";
 
 function loadLocations() {
@@ -181,11 +182,13 @@ test("missing numeric values do not become zero but real zero is retained", () =
       chains: [
         {
           id: "chain_missing",
+          chainType: "missing_numeric_probe",
           hiddenNodeCount: "",
           priorityScore: "   ",
         },
         {
           id: "chain_zero",
+          chainType: "zero_numeric_probe",
           hiddenNodeCount: 0,
           priorityScore: 0,
         },
@@ -209,13 +212,33 @@ test("missing numeric values do not become zero but real zero is retained", () =
   assert.equal(Object.hasOwn(kinshipPresence.value, "weightedCount"), false);
   assert.deepEqual(kinshipPresence.value.weightedByTenGod, { 正财: 0 });
 
-  const missingNode = findFact(contract, "work_node", "node_missing", "work_node_role");
-  const zeroNode = findFact(contract, "work_node", "node_zero", "work_node_role");
+  const missingNode = contract.facts.find((fact) =>
+    fact.category === "work_node" &&
+    fact.predicate === "work_node_role" &&
+    fact.evidence.some((item) => item.id === "node_missing"),
+  );
+  const zeroNode = contract.facts.find((fact) =>
+    fact.category === "work_node" &&
+    fact.predicate === "work_node_role" &&
+    fact.evidence.some((item) => item.id === "node_zero"),
+  );
+  assert.ok(missingNode);
+  assert.ok(zeroNode);
   assert.equal(Object.hasOwn(missingNode.value, "weight"), false);
   assert.equal(zeroNode.value.weight, 0);
 
-  const missingChain = findFact(contract, "work_chain", "chain_missing", "work_chain_candidate");
-  const zeroChain = findFact(contract, "work_chain", "chain_zero", "work_chain_candidate");
+  const missingChain = contract.facts.find((fact) =>
+    fact.category === "work_chain" &&
+    fact.predicate === "work_chain_candidate" &&
+    fact.evidence.some((item) => item.id === "chain_missing"),
+  );
+  const zeroChain = contract.facts.find((fact) =>
+    fact.category === "work_chain" &&
+    fact.predicate === "work_chain_candidate" &&
+    fact.evidence.some((item) => item.id === "chain_zero"),
+  );
+  assert.ok(missingChain);
+  assert.ok(zeroChain);
   assert.equal(Object.hasOwn(missingChain.value, "hiddenNodeCount"), false);
   assert.equal(Object.hasOwn(missingChain.value, "priorityScore"), false);
   assert.equal(zeroChain.value.hiddenNodeCount, 0);
@@ -273,6 +296,32 @@ test("void references are atomic by reference pillar", () => {
   );
   assert.equal(dayState.value.referencePillar, "day");
   assert.equal(yearState.value.referencePillar, "year");
+});
+
+test("spouse palace void facts do not mix day and year references", () => {
+  const result = buildAtomicNatalFacts(buildFeatureVector());
+  const mixedFacts = result.contractFacts.filter((fact) =>
+    JSON.stringify(fact.value).includes("byDayReference") ||
+    JSON.stringify(fact.value).includes("byYearReference"),
+  );
+  const dayState = result.contractFacts.find((fact) =>
+    fact.category === "void" &&
+    fact.subject.key === "day:day" &&
+    fact.predicate === "pillar_void_state",
+  );
+  const yearState = result.contractFacts.find((fact) =>
+    fact.category === "void" &&
+    fact.subject.key === "year:day" &&
+    fact.predicate === "pillar_void_state",
+  );
+
+  assert.deepEqual(mixedFacts, []);
+  assert.ok(dayState);
+  assert.ok(yearState);
+  assert.notEqual(dayState.id, yearState.id);
+  assert.equal(dayState.value.referencePillar, "day");
+  assert.equal(yearState.value.referencePillar, "year");
+  assert.doesNotMatch(JSON.stringify(result.contractFacts), /婚姻|吉|凶|离婚|发财|灾/);
 });
 
 test("storage opening signal only appears for real storage opening candidates", () => {
@@ -340,6 +389,12 @@ test("semantic fact ids are stable when unordered feature arrays are reversed", 
   for (const pillar of Object.values(reordered.pillars)) {
     pillar.hiddenStems?.reverse();
   }
+  reordered.workChains = buildWorkChains({
+    dayMaster: reordered.dayMaster,
+    pillars: reordered.pillars,
+    relationMatrix: reordered.relationMatrix,
+    climateProfile: reordered.climateProfile,
+  });
   reordered.climateProfile.priorityNeeds.reverse();
   reordered.climateProfile.candidateElements.reverse();
   reordered.climateProfile.existingSupport.reverse();
@@ -347,8 +402,18 @@ test("semantic fact ids are stable when unordered feature arrays are reversed", 
   reordered.climateProfile.passThroughCandidates.reverse();
   reordered.workChains.actualConflictCandidates.reverse();
 
-  const originalIds = new Set(buildAtomicFactContract(featureVector).facts.map((fact) => fact.id));
-  const reorderedIds = new Set(buildAtomicFactContract(reordered).facts.map((fact) => fact.id));
+  const originalFacts = buildAtomicFactContract(featureVector).facts;
+  const reorderedFacts = buildAtomicFactContract(reordered).facts;
+  const originalIds = new Set(originalFacts.map((fact) => fact.id));
+  const reorderedIds = new Set(reorderedFacts.map((fact) => fact.id));
+
+  for (const category of ["work_node", "work_edge", "work_chain", "conflict"]) {
+    assert.deepEqual(
+      idsByCategory(reorderedFacts, category),
+      idsByCategory(originalFacts, category),
+      `${category} ids should stay stable after hidden stems are reordered and workChains are rebuilt`,
+    );
+  }
 
   assert.deepEqual(reorderedIds, originalIds);
 });
@@ -447,4 +512,10 @@ function hasScalarFact(contract, category, subjectKey, predicate, value) {
     fact.predicate === predicate &&
     (arguments.length < 5 || fact.value === value),
   );
+}
+
+function idsByCategory(facts, category) {
+  return new Set(facts
+    .filter((fact) => fact.category === category)
+    .map((fact) => fact.id));
 }

@@ -90,27 +90,27 @@ export function buildAtomicNatalFacts(
       resolved.suppressedFacts,
 
     debug: {
-    ...resolved.debug,
+      ...resolved.debug,
 
-    baseFactCount:
-      baseFacts.length,
+      baseFactCount:
+        baseFacts.length,
 
-    ruleFactCount:
-      ruleEvaluation.facts.length,
+      ruleFactCount:
+        ruleEvaluation.facts.length,
 
-    ruleEvaluation:
-      ruleEvaluation.debug,
+      ruleEvaluation:
+        ruleEvaluation.debug,
 
-    contractValidation,
+      contractValidation,
 
-    contractFactCount:
-      contract.facts.length,
+      contractFactCount:
+        contract.facts.length,
 
-    contractCategoryCounts:
-      contract.summary.byCategory,
+      contractCategoryCounts:
+        contract.summary.byCategory,
 
-    shadowComparison,
-  },
+      shadowComparison,
+    },
   };
 }
 

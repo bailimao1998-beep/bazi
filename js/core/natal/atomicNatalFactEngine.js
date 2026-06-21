@@ -1,6 +1,9 @@
 import { atomicNatalRules } from "./atomicNatalRuleDatabase.js";
 import { evaluateNatalRules } from "./natalRuleEvaluator.js";
 import { resolveNatalFacts } from "./natalFactResolver.js";
+import {
+  buildAtomicFactContract,
+} from "./facts/buildAtomicFactContract.js";
 
 export function buildAtomicNatalFacts(
   featureVector = {},
@@ -33,9 +36,37 @@ export function buildAtomicNatalFacts(
       ...baseFacts,
       ...ruleEvaluation.facts,
     ]);
+  const contract =
+    buildAtomicFactContract(
+      featureVector,
+    );
 
   return {
+    version:
+      contract.version,
+    factContractVersion:
+      contract.version,
+
+    /*
+     * Compatibility facts retained for current image composer,
+     * domain report and master summary consumers.
+     */
     facts: resolved.facts,
+    legacyFacts:
+      resolved.facts,
+
+    /*
+     * Stable machine-readable atomic fact contract.
+     */
+    contractFacts:
+      contract.facts,
+    indexes:
+      contract.indexes,
+    summary:
+      contract.summary,
+    warnings:
+      contract.warnings,
+
     byDomain: resolved.byDomain,
     byCategory: resolved.byCategory,
     hitListGroups:

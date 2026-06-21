@@ -6,7 +6,9 @@ const allowedGenders = new Set(["male", "female", "unknown"]);
 export function createEmptyNatalFeatureVector() {
   return {
     featureVersion: NATAL_FEATURE_VERSION,
-
+    voidFeatures: emptyVoidFeatures(),
+    storageFeatures: emptyStorageFeatures(),
+    growthStageFeatures: emptyGrowthStageFeatures(),
     meta: {
       gender: "unknown",
       source: "chart",
@@ -115,6 +117,15 @@ export function normalizeNatalFeatureVector(input) {
 }
 
 export function validateNatalFeatureVector(input) {
+  for (const key of [
+  "voidFeatures",
+  "storageFeatures",
+  "growthStageFeatures",
+]) {
+  if (!isPlainObject(vector[key])) {
+    errors.push(`missing feature group ${key}`);
+  }
+}
   const errors = [];
   const warnings = [];
 
@@ -179,6 +190,9 @@ function emptyPillar(key) {
     branchMainTenGod: "",
     hiddenStems: [],
     shensha: [],
+    nayin: "",
+    twelveGrowth: "",
+    voidBranches: [],
   };
 }
 
@@ -341,4 +355,64 @@ function findNonFiniteNumberPaths(value, path = "input", seen = new WeakSet()) {
 
 function isPlainObject(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function emptyVoidFeatures() {
+  return {
+    convention: "xunkong-reference-v1",
+    primaryReference: "day",
+    references: {
+      day: {},
+      year: {},
+    },
+    voidBranches: [],
+    byPillar: {},
+    voidPillars: [],
+    nonVoidPillars: [],
+    voidTenGods: {
+      mainQi: [],
+      hidden: [],
+      all: [],
+    },
+    spousePalace: {
+      pillar: "day",
+      branch: "",
+      byDayReference: false,
+      byYearReference: false,
+      primaryIsVoid: false,
+      evidence: [],
+      warnings: [],
+    },
+    warnings: [],
+  };
+}
+
+function emptyStorageFeatures() {
+  return {
+    convention: "four-storage-branches-v1",
+    byPillar: {},
+    storagePillars: [],
+    count: 0,
+    branchesPresent: [],
+    elementsPresent: [],
+    byElement: {},
+    openingSignalPillars: [],
+    warnings: [],
+  };
+}
+
+function emptyGrowthStageFeatures() {
+  return {
+    convention: "day-master-twelve-growth-v1",
+    referenceStem: "",
+    stages: [],
+    byPillar: {},
+    byStage: {},
+    stageCounts: {},
+    knownPillars: [],
+    unknownPillars: [],
+    monthCommandStage: {},
+    spousePalaceStage: {},
+    warnings: [],
+  };
 }

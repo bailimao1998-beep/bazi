@@ -52,6 +52,13 @@ test("natal feature V2 integrates with the real bazi calculation entry", () => {
   assert.ok(featureVector.kinshipFeatures.spouse.starProfile.secondary);
   assert.equal(typeof featureVector.kinshipFeatures.spouse.starProfile.weightedByTenGod, "object");
   assert.ok(Array.isArray(featureVector.kinshipFeatures.spouse.candidateStarProfiles));
+  assert.ok(featureVector.voidFeatures);
+  assert.ok(featureVector.storageFeatures);
+  assert.ok(featureVector.growthStageFeatures);
+  assert.equal(typeof featureVector.voidFeatures.byPillar, "object");
+  assert.equal(typeof featureVector.storageFeatures.byPillar, "object");
+  assert.equal(typeof featureVector.growthStageFeatures.byPillar, "object");
+  assert.equal(featureVector.growthStageFeatures.referenceStem, featureVector.dayMaster.stem);
 
   for (const state of Object.values(featureVector.tenGodStates)) {
     assert.equal(Number.isFinite(state.weightedCount), true);

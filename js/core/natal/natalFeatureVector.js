@@ -6,6 +6,9 @@ import { buildRelationMatrix } from "./featureBuilders/buildRelationMatrix.js";
 import { buildTenGodStates } from "./featureBuilders/buildTenGodStates.js";
 import { buildPalaceFeatures } from "./featureBuilders/buildPalaceFeatures.js";
 import { buildKinshipFeatures } from "./featureBuilders/buildKinshipFeatures.js";
+import { buildVoidFeatures } from "./featureBuilders/buildVoidFeatures.js";
+import { buildStorageFeatures } from "./featureBuilders/buildStorageFeatures.js";
+import { buildGrowthStageFeatures } from "./featureBuilders/buildGrowthStageFeatures.js";
 
 const pillarKeys = ["year", "month", "day", "hour"];
 const pillarLabels = { year: "年柱", month: "月柱", day: "日柱", hour: "时柱" };
@@ -27,6 +30,15 @@ export function buildNatalFeatureVector({ chart, baseBaziViewModel } = {}) {
   const elements = buildElementVector(safeChart, viewModel);
   const rawRelations = safeChart.relations ?? viewModel.relations ?? [];
   const relations = buildRelations(rawRelations);
+  const dayMaster = {
+    stem: safeChart.dayMaster?.stem ?? safeChart.pillars?.day?.stem ?? "",
+    label: safeChart.dayMaster?.label ?? safeChart.pillars?.day?.stem ?? "",
+    element: elementLabels[safeChart.dayMaster?.element] ?? safeChart.dayMaster?.element ?? "",
+    strengthLevel: structure.strength?.level ?? "",
+    strengthScore: Number(structure.strength?.score ?? 0),
+    inSeason: Boolean(structure.monthCommand?.isDayMasterInSeason),
+    rootLevel: structure.roots?.dayMasterRootLevel ?? "",
+  };
   const relationMatrix = buildRelationMatrix({
     relations: rawRelations,
     pillars,
@@ -50,16 +62,23 @@ export function buildNatalFeatureVector({ chart, baseBaziViewModel } = {}) {
     relationMatrix,
   });
 
+  const voidFeatures = buildVoidFeatures({
+    pillars,
+  });
+
+  const storageFeatures = buildStorageFeatures({
+    pillars,
+    relationMatrix,
+    dayMaster,
+  });
+
+  const growthStageFeatures = buildGrowthStageFeatures({
+    dayMaster,
+    pillars,
+  });
+
   const legacyFields = {
-    dayMaster: {
-      stem: safeChart.dayMaster?.stem ?? safeChart.pillars?.day?.stem ?? "",
-      label: safeChart.dayMaster?.label ?? safeChart.pillars?.day?.stem ?? "",
-      element: elementLabels[safeChart.dayMaster?.element] ?? safeChart.dayMaster?.element ?? "",
-      strengthLevel: structure.strength?.level ?? "",
-      strengthScore: Number(structure.strength?.score ?? 0),
-      inSeason: Boolean(structure.monthCommand?.isDayMasterInSeason),
-      rootLevel: structure.roots?.dayMasterRootLevel ?? "",
-    },
+    dayMaster,
     elements,
     tenGods,
     pillars,
@@ -85,6 +104,9 @@ export function buildNatalFeatureVector({ chart, baseBaziViewModel } = {}) {
     tenGodStates,
     palaceFeatures,
     kinshipFeatures,
+    voidFeatures,
+    storageFeatures,
+    growthStageFeatures,
   });
 }
 
@@ -104,6 +126,11 @@ function buildPillars(chart = {}) {
       branchMainTenGod: detail.branchMainTenGod ?? "",
       hiddenStems: detail.hiddenStems ?? [],
       shensha: detail.shensha ?? [],
+      nayin: detail.nayin ?? "",
+      twelveGrowth: detail.twelveGrowth ?? "",
+      voidBranches: Array.isArray(detail.voidBranches)
+        ? [...detail.voidBranches]
+      : [],
     }];
   }));
 }

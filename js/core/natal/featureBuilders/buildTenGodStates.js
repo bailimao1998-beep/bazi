@@ -28,7 +28,7 @@ export function buildTenGodStates({
     collectHiddenState(state, safePillars);
     collectMainQiState(state, safePillars);
 
-    state.weightedCount = round(resolveWeightedCount(name, tenGods, safePillars));
+    state.weightedCount = round(resolveWeightedCount(name, tenGods, safePillars, state));
     state.relatedRelations = collectRelatedRelations(state, relations);
     fillRelationBuckets(state);
 
@@ -128,7 +128,7 @@ function collectMainQiState(state, pillars) {
   }
 }
 
-function resolveWeightedCount(name, tenGods = {}, pillars = {}) {
+function resolveWeightedCount(name, tenGods = {}, pillars = {}, state) {
   const explicit = tenGods?.weightedCounts?.[name];
   if (Number.isFinite(Number(explicit))) return Number(explicit);
 
@@ -136,23 +136,39 @@ function resolveWeightedCount(name, tenGods = {}, pillars = {}) {
   for (const key of pillarKeys) {
     if (pillars[key]?.stemTenGod === name) count += 1;
     for (const hidden of pillars[key]?.hiddenStems ?? []) {
-      if (hidden?.tenGod === name) count += hiddenWeight(hidden);
+      if (hidden?.tenGod === name) count += hiddenWeight(hidden, state);
     }
   }
   return count;
 }
 
-function hiddenWeight(hidden = {}) {
-  if (Number.isFinite(Number(hidden.weight))) return Number(hidden.weight);
-  if (Number.isFinite(Number(hidden.percentage))) return normalizePercentage(Number(hidden.percentage));
+function hiddenWeight(hidden = {}, state) {
+  const normalizedWeight = normalizeFraction(hidden.weight);
+  if (normalizedWeight !== null) return normalizedWeight;
+
+  const normalizedPercentage = normalizeFraction(hidden.percentage);
+  if (normalizedPercentage !== null) return normalizedPercentage;
+
   if (/主气|本气/.test(hidden.role || hidden.qiLevel || "")) return 0.7;
   if (/中气/.test(hidden.role || hidden.qiLevel || "")) return 0.4;
   if (/余气|杂气/.test(hidden.role || hidden.qiLevel || "")) return 0.25;
+  if (hasInvalidFraction(hidden.weight) || hasInvalidFraction(hidden.percentage)) {
+    addWarning(state, "hidden weight or percentage ignored because it is outside 0-100");
+  }
   return 0.25;
 }
 
-function normalizePercentage(value) {
-  return value > 1 ? value / 100 : value;
+function normalizeFraction(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return null;
+  if (number < 0 || number > 100) return null;
+  return number > 1 ? number / 100 : number;
+}
+
+function hasInvalidFraction(value) {
+  if (value === undefined || value === null || value === "") return false;
+  const number = Number(value);
+  return !Number.isFinite(number) || number < 0 || number > 100;
 }
 
 function collectRelatedRelations(state, relations) {
@@ -186,7 +202,21 @@ function fillRelationBuckets(state) {
     if (/punish/.test(relation.relationType)) state.punishedBy.push(id);
     if (/harm/.test(relation.relationType)) state.harmedBy.push(id);
     if (/break/.test(relation.relationType)) state.brokenBy.push(id);
+    if (
+      relation.relationType === "stem_control" &&
+      relation.direction?.controlled &&
+      stateHasSide(state, relation.direction.controlled)
+    ) {
+      state.controlledBy.push(id);
+    }
   }
+}
+
+function stateHasSide(state, side = {}) {
+  const key = relationPositionKey(side);
+  return state.visiblePositions.includes(key) ||
+    state.mainQiPositions.includes(key) ||
+    state.hiddenPositions.some((position) => position.startsWith(key));
 }
 
 function resolveStrengthLevel(state) {
@@ -198,8 +228,7 @@ function resolveStrengthLevel(state) {
 }
 
 function resolveUsableLevel(state) {
-  if (state.strengthLevel === "strong") return state.isBlocked ? "medium" : "high";
-  if (state.strengthLevel === "medium") return state.isBlocked ? "low" : "medium";
+  addWarning(state, "usableLevel requires structure, climate and work-chain analysis");
   return "unknown";
 }
 
@@ -216,4 +245,9 @@ function round(value) {
   const number = Number(value);
   if (!Number.isFinite(number)) return 0;
   return Math.round(number * 100) / 100;
+}
+
+function addWarning(state, warning) {
+  if (!state || state.warnings.includes(warning)) return;
+  state.warnings.push(warning);
 }

@@ -210,16 +210,21 @@ function countHiddenWeightedTenGods(pillars = {}) {
 }
 
 function hiddenWeight(hidden = {}) {
-  if (Number.isFinite(Number(hidden.weight))) return Number(hidden.weight);
-  if (Number.isFinite(Number(hidden.percentage))) return normalizePercentage(Number(hidden.percentage));
+  const normalizedWeight = normalizeFraction(hidden.weight);
+  if (normalizedWeight !== null) return normalizedWeight;
+  const normalizedPercentage = normalizeFraction(hidden.percentage);
+  if (normalizedPercentage !== null) return normalizedPercentage;
   if (/主气|本气/.test(hidden.role || hidden.qiLevel || "")) return 0.7;
   if (/中气/.test(hidden.role || hidden.qiLevel || "")) return 0.4;
   if (/余气|杂气/.test(hidden.role || hidden.qiLevel || "")) return 0.25;
   return 0.25;
 }
 
-function normalizePercentage(value) {
-  return value > 1 ? value / 100 : value;
+function normalizeFraction(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return null;
+  if (number < 0 || number > 100) return null;
+  return number > 1 ? number / 100 : number;
 }
 
 function sumCountMaps(...maps) {

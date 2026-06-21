@@ -18,8 +18,8 @@ export const atomicNatalRules = [
     name: (fv) =>
       weighted(fv, "七杀") >
       weighted(fv, "正官")
-        ? "杀印相生线索"
-        : "官印相生线索",
+        ? "杀印承接"
+        : "官印承接",
 
     category: "组合结构",
     subcategory: "官杀印",
@@ -678,22 +678,22 @@ export const atomicNatalRules = [
     customMatch: (fv) => {
       const relations = dayRelations(
         fv,
-        /冲/,
+        ["branch_clash"],
       );
 
       return {
         matched: relations.length > 0,
         label: "日支受到冲动",
         actual: relations.map(
-          (item) => item.text,
+          relationEvidenceText,
         ),
         expected: "至少一条冲",
       };
     },
 
     evidence: (fv) =>
-      dayRelations(fv, /冲/)
-        .map((item) => item.text),
+      dayRelations(fv, ["branch_clash"])
+        .map(relationEvidenceText),
 
     brief:
       "关系宫、生活落点和自身节奏容易受到另一柱直接推动，变化感和边界问题较明显。",
@@ -735,22 +735,34 @@ export const atomicNatalRules = [
     customMatch: (fv) => {
       const relations = dayRelations(
         fv,
-        /合/,
+        [
+          "branch_combine",
+          "three_harmony",
+          "three_meeting",
+          "half_harmony",
+          "arch_harmony",
+        ],
       );
 
       return {
         matched: relations.length > 0,
         label: "日支形成合局关系",
         actual: relations.map(
-          (item) => item.text,
+          relationEvidenceText,
         ),
         expected: "至少一条合",
       };
     },
 
     evidence: (fv) =>
-      dayRelations(fv, /合/)
-        .map((item) => item.text),
+      dayRelations(fv, [
+        "branch_combine",
+        "three_harmony",
+        "three_meeting",
+        "half_harmony",
+        "arch_harmony",
+      ])
+        .map(relationEvidenceText),
 
     brief:
       "关系宫容易与另一柱形成连接、牵绊或合作，亲密关系和现实责任之间的绑定感较明显。",
@@ -791,14 +803,19 @@ export const atomicNatalRules = [
     customMatch: (fv) => {
       const relations = dayRelations(
         fv,
-        /刑|害|穿|破/,
+        [
+          "branch_punish",
+          "branch_self_punish",
+          "branch_harm",
+          "branch_break",
+        ],
       );
 
       return {
         matched: relations.length > 0,
         label: "日支见刑害穿破",
         actual: relations.map(
-          (item) => item.text,
+          relationEvidenceText,
         ),
         expected: "至少一条刑害穿破",
       };
@@ -807,8 +824,13 @@ export const atomicNatalRules = [
     evidence: (fv) =>
       dayRelations(
         fv,
-        /刑|害|穿|破/,
-      ).map((item) => item.text),
+        [
+          "branch_punish",
+          "branch_self_punish",
+          "branch_harm",
+          "branch_break",
+        ],
+      ).map(relationEvidenceText),
 
     brief:
       "亲密关系、生活节奏和安全感容易出现隐性摩擦、反复调整或边界消耗。",
@@ -1076,23 +1098,67 @@ function weighted(
 
 function dayRelations(
   featureVector,
-  pattern,
+  relationTypes,
 ) {
-  return (
-    featureVector.relations ?? []
-  ).filter((relation) => {
-    if (!relation.affectsDayBranch) {
-      return false;
-    }
+  const allowedTypes = new Set(
+    Array.isArray(relationTypes)
+      ? relationTypes
+      : [relationTypes],
+  );
 
-    return pattern.test(
-      [
-        relation.type,
-        relation.name,
-        relation.text,
-      ].join(" "),
-    );
-  });
+  return (
+    featureVector.relationMatrix?.dayBranchRelations ?? []
+  ).filter((relation) =>
+    relation.affects?.dayBranch === true &&
+    allowedTypes.has(relation.relationType),
+  );
+}
+
+function relationEvidenceText(relation = {}) {
+  const evidence = Array.isArray(relation.evidence)
+    ? relation.evidence.filter(Boolean)
+    : [];
+  if (evidence.length) return evidence.map(cleanRelationEvidence).join("；");
+
+  const participants = relation.participants ?? relation.members ?? [
+    relation.left,
+    relation.right,
+  ];
+  const participantText = participants
+    .filter(Boolean)
+    .map((item) => `${positionLabel(item)}${item.value ?? ""}`)
+    .filter(Boolean)
+    .join("与");
+
+  return `${participantText}${relation.relationType || "关系"}`;
+}
+
+function cleanRelationEvidence(text = "") {
+  return String(text)
+    .replace(/；轻重需要结合[^。；]*[。；]?/g, "")
+    .replace(/；具体表现需要结合[^。；]*[。；]?/g, "")
+    .replace(/；是否成化需要结合[^。；]*[。；]?/g, "")
+    .replace(/；是否成局或转化需结合[^。；]*[。；]?/g, "")
+    .replace(/；需结合[^。；]*[。；]?/g, "")
+    .replace(/需要结合/g, "需由")
+    .replace(/岁运/g, "现实阶段")
+    .trim();
+}
+
+function positionLabel(participant = {}) {
+  const pillar = {
+    year: "年",
+    month: "月",
+    day: "日",
+    hour: "时",
+  }[participant.pillar] ?? "";
+  const position =
+    participant.position === "stem"
+      ? "干"
+      : participant.position === "branch"
+        ? "支"
+        : "";
+  return `${pillar}${position}`;
 }
 
 function round(value) {

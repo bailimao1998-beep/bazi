@@ -1,3 +1,5 @@
+import { stemElements } from "../../bazi/fiveElements.js";
+
 const pillarOrder = ["year", "month", "day", "hour"];
 const pillarLabelToKey = {
   年: "year",
@@ -15,6 +17,7 @@ const pillarLabelToKey = {
   時柱: "hour",
   hour: "hour",
 };
+const controls = { wood: "earth", earth: "water", water: "fire", fire: "metal", metal: "wood" };
 
 export function buildRelationMatrix({
   relations,
@@ -39,19 +42,24 @@ function normalizeRelation(raw = {}, pillars = {}) {
   const layer = normalizeLayer(relationType, raw.type ?? raw.name ?? text);
   const rawPillars = normalizePillarRefs(raw.pillars, raw, pillars, text);
   const values = normalizeRelationValues(raw, rawPillars, layer, pillars);
-  const left = normalizeSide(rawPillars[0], layer, values[0]);
-  const right = normalizeSide(rawPillars[1], layer, values[1]);
+  const participants = normalizeParticipants(raw, rawPillars, values, layer);
+  const left = participants[0] ?? normalizeSide("unknown", layer, "");
+  const right = participants[1] ?? normalizeSide("unknown", layer, "");
   const warnings = [];
 
   if (relationType === "unknown") warnings.push("relation type could not be identified");
   if (left.pillar === "unknown" || right.pillar === "unknown") warnings.push("relation pillars could not be identified");
 
+  const direction = relationType === "stem_control"
+    ? resolveStemControlDirection(participants, warnings)
+    : null;
+
   const affects = {
-    dayStem: affectsPosition([left, right], "day", "stem"),
-    dayBranch: affectsPosition([left, right], "day", "branch"),
-    monthStem: affectsPosition([left, right], "month", "stem"),
-    monthBranch: affectsPosition([left, right], "month", "branch"),
-    spousePalace: affectsPosition([left, right], "day", "branch"),
+    dayStem: affectsPosition(participants, "day", "stem"),
+    dayBranch: affectsPosition(participants, "day", "branch"),
+    monthStem: affectsPosition(participants, "month", "stem"),
+    monthBranch: affectsPosition(participants, "month", "branch"),
+    spousePalace: affectsPosition(participants, "day", "branch"),
   };
 
   const confidence = normalizeConfidence(raw.confidence, warnings);
@@ -62,8 +70,10 @@ function normalizeRelation(raw = {}, pillars = {}) {
     layer,
     left,
     right,
-    members: normalizeMembers(raw, rawPillars, values, layer),
+    participants,
+    members: participants.map((item) => ({ ...item })),
     affects,
+    direction,
     formation: normalizeFormation(raw.formation, relationType),
     canTransform: Boolean(raw.canTransform),
     transformed: raw.transformed === true || raw.isTransformed === true,
@@ -77,7 +87,8 @@ function normalizeRelation(raw = {}, pillars = {}) {
 function normalizeRelationType(value = "") {
   const text = String(value);
   if (/天干.*合|天干五合|五合/.test(text)) return "stem_combine";
-  if (/天干.*冲|天干.*克|天克/.test(text)) return "stem_clash";
+  if (/天干.*冲|天干相冲/.test(text)) return "stem_clash";
+  if (/天干.*克|天克|相克/.test(text)) return "stem_control";
   if (/地支.*六合|六合/.test(text)) return "branch_combine";
   if (/地支.*六冲|六冲|相冲|冲/.test(text)) return "branch_clash";
   if (/自刑/.test(text)) return "branch_self_punish";
@@ -119,14 +130,14 @@ function normalizePillarRefs(input, raw, pillars, text) {
 function normalizeRelationValues(raw, rawPillars, layer, pillars) {
   const ganzhi = toArray(raw.ganzhi);
   if (ganzhi.length >= 2) {
-    return ganzhi.slice(0, 2).map((item) => valueFromGanzhi(item, layer));
+    return ganzhi.map((item) => valueFromGanzhi(item, layer));
   }
 
-  const byPillar = rawPillars.slice(0, 2).map((key) => valueFromPillar(pillars[key], layer));
+  const byPillar = rawPillars.map((key) => valueFromPillar(pillars[key], layer));
   if (byPillar.every(Boolean)) return byPillar;
 
   const members = toArray(raw.branches).length ? toArray(raw.branches) : toArray(raw.members);
-  return [members[0] ?? "", members[1] ?? ""];
+  return members.length ? members : ["", ""];
 }
 
 function normalizeSide(pillar, layer, value) {
@@ -137,14 +148,12 @@ function normalizeSide(pillar, layer, value) {
   };
 }
 
-function normalizeMembers(raw, rawPillars, values, layer) {
+function normalizeParticipants(raw, rawPillars, values, layer) {
   const source = toArray(raw.members).length ? toArray(raw.members) : toArray(raw.branches);
-  const alignedValues = rawPillars.length === 2 ? values : source.length ? source : values;
-  return alignedValues.map((value, index) => ({
-    pillar: normalizePillarKey(rawPillars[index]),
-    position: layer === "stem" ? "stem" : layer === "branch" ? "branch" : "unknown",
-    value: String(value ?? ""),
-  }));
+  const size = Math.max(rawPillars.length, values.length, source.length, 2);
+  return Array.from({ length: size }, (_, index) =>
+    normalizeSide(rawPillars[index], layer, values[index] ?? source[index] ?? ""),
+  );
 }
 
 function affectsPosition(sides, pillar, position) {
@@ -154,6 +163,33 @@ function affectsPosition(sides, pillar, position) {
 function normalizeConfidence(confidence, warnings) {
   if (["high", "medium", "low"].includes(confidence)) return confidence;
   return warnings.length ? "low" : "medium";
+}
+
+function resolveStemControlDirection(participants, warnings) {
+  const stems = participants.filter((item) => item.position === "stem" && item.value);
+  if (stems.length < 2) {
+    warnings.push("stem control direction could not be determined");
+    return null;
+  }
+
+  const [left, right] = stems;
+  const leftElement = stemElements[left.value];
+  const rightElement = stemElements[right.value];
+  if (leftElement && rightElement && controls[leftElement] === rightElement) {
+    return {
+      controller: { ...left },
+      controlled: { ...right },
+    };
+  }
+  if (leftElement && rightElement && controls[rightElement] === leftElement) {
+    return {
+      controller: { ...right },
+      controlled: { ...left },
+    };
+  }
+
+  warnings.push("stem control direction could not be determined");
+  return null;
 }
 
 function normalizeFormation(value, relationType) {
@@ -177,8 +213,9 @@ function buildIndexes(items) {
   for (const item of items) {
     addUnique(matrix.byRelationType, item.relationType, item);
 
-    const pairKey = pillarPairKey(item.left.pillar, item.right.pillar);
-    if (pairKey) addUnique(matrix.byPillarPair, pairKey, item);
+    for (const pairKey of pillarPairKeys(item.participants)) {
+      addUnique(matrix.byPillarPair, pairKey, item);
+    }
 
     if (item.affects.dayStem) addUniqueArray(matrix.dayStemRelations, item);
     if (item.affects.dayBranch) addUniqueArray(matrix.dayBranchRelations, item);
@@ -192,9 +229,21 @@ function buildIndexes(items) {
 function buildRelationId(left, right, relationType, raw) {
   const leftKey = `${left.pillar}-${left.position}`;
   const rightKey = `${right.pillar}-${right.position}`;
-  const values = compact([left.value, right.value]).join("-");
+  const values = compact(toArray(raw.ganzhi).length ? raw.ganzhi : raw.members ?? [left.value, right.value]).join("-");
   const fallback = compact([raw.type, raw.name, raw.evidence]).join("-") || "relation";
   return `${leftKey}_${rightKey}_${relationType}_${values || slug(fallback)}`;
+}
+
+function pillarPairKeys(participants = []) {
+  const keys = unique(participants.map((item) => item.pillar).filter((key) => pillarOrder.includes(key)));
+  const result = [];
+  for (let leftIndex = 0; leftIndex < keys.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < keys.length; rightIndex += 1) {
+      const key = pillarPairKey(keys[leftIndex], keys[rightIndex]);
+      if (key && !result.includes(key)) result.push(key);
+    }
+  }
+  return result;
 }
 
 function pillarPairKey(left, right) {
@@ -247,6 +296,10 @@ function toArray(value) {
 function compact(items = []) {
   return (Array.isArray(items) ? items.flat(Infinity) : [items])
     .filter((item) => item !== undefined && item !== null && String(item).trim() !== "");
+}
+
+function unique(items = []) {
+  return [...new Set(items)];
 }
 
 function slug(value) {

@@ -293,6 +293,10 @@ function normalizeFact(
       fact.specificity ??
       "medium",
 
+    factLevel:
+      fact.factLevel ??
+      "base",
+
     score,
 
     priority: Number(
@@ -301,30 +305,34 @@ function normalizeFact(
     ),
 
     brief:
-      fact.brief ??
-      fact.meaning ??
-      "",
+      cleanNatalText(
+        fact.brief ??
+          fact.meaning ??
+          "",
+      ),
 
     meaning:
-      fact.meaning ??
-      fact.brief ??
-      "",
+      cleanNatalText(
+        fact.meaning ??
+          fact.brief ??
+          "",
+      ),
 
-    evidence: normalizeArray(
+    evidence: normalizeEvidence(
       fact.evidence,
     ),
 
     conditions: normalizeArray(
       fact.conditions,
-    ),
+    ).map(cleanNatalText),
 
     counterEvidence: normalizeArray(
       fact.counterEvidence,
-    ),
+    ).map(cleanNatalText),
 
     tags: normalizeArray(
       fact.tags,
-    ),
+    ).map(cleanNatalText),
 
     domains: normalizeArray(
       fact.domains,
@@ -357,6 +365,27 @@ function normalizeFact(
     suppressedBy:
       fact.suppressedBy ??
       "",
+
+    relationType:
+      fact.relationType,
+
+    layer:
+      fact.layer,
+
+    participants:
+      fact.participants,
+
+    affects:
+      fact.affects,
+
+    formation:
+      fact.formation,
+
+    canTransform:
+      fact.canTransform,
+
+    transformed:
+      fact.transformed,
 
     debug:
       fact.debug ??
@@ -524,6 +553,37 @@ function normalizeArray(value) {
       ? value
       : [value],
   );
+}
+
+function normalizeEvidence(value) {
+  return normalizeArray(value).map((item) => {
+    if (item && typeof item === "object") {
+      return {
+        ...item,
+        text: cleanNatalText(item.text ? String(item.text) : String(item.value ?? item.position ?? "")),
+      };
+    }
+    return {
+      type: "structure",
+      position: "",
+      value: "",
+      text: cleanNatalText(String(item ?? "")),
+    };
+  });
+}
+
+function cleanNatalText(text = "") {
+  return String(text)
+    .replace(/与岁运验证/g, "与现实阶段复核")
+    .replace(/岁运/g, "现实阶段")
+    .replace(/大运流年/g, "现实阶段")
+    .replace(/大运|流年|流月|当前步运|流日/g, "现实阶段")
+    .replace(/需要结合/g, "需由")
+    .replace(/需要观察/g, "可观察")
+    .replace(/需观察/g, "观察")
+    .replace(/需要复核/g, "可复核")
+    .replace(/需复核/g, "可复核")
+    .replace(/不宜直接/g, "不单独");
 }
 
 function safeStringify(value) {

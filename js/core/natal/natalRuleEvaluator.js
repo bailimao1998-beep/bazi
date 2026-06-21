@@ -449,6 +449,11 @@ function buildRuleFact(
       rule.specificity ??
       "high",
 
+    factLevel:
+      customFact?.factLevel ??
+      rule.factLevel ??
+      "pattern",
+
     score,
     priority,
 

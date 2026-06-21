@@ -814,14 +814,19 @@ function normalizeEvidence(value) {
       if (
         typeof item === "string"
       ) {
-        return item.trim();
+        return {
+          type: "structure",
+          position: "",
+          value: "",
+          text: item.trim(),
+        };
       }
 
       if (
         item &&
         typeof item === "object"
       ) {
-        return (
+        const text =
           item.text ||
           item.description ||
           item.evidence ||
@@ -830,13 +835,22 @@ function normalizeEvidence(value) {
             item.value,
           ]
             .filter(Boolean)
-            .join("：")
-        );
+            .join("：");
+
+        return {
+          ...item,
+          text,
+        };
       }
 
-      return String(item ?? "");
+      return {
+        type: "structure",
+        position: "",
+        value: "",
+        text: String(item ?? ""),
+      };
     })
-    .filter(Boolean);
+    .filter((item) => item.text);
 }
 
 function normalizeTextList(value) {

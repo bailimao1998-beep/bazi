@@ -240,22 +240,35 @@ function buildTenGodPositionFacts(fv = {}) {
 }
 
 function buildRelationFacts(fv = {}) {
-  return (fv.relations ?? []).map((relation, index) => ({
-    id: `relation-${index}-${relation.type || relation.name}`,
-    name: relationName(relation),
+  return (fv.relationMatrix?.items ?? []).map((relation, index) => ({
+    id: `relation-${index}-${relation.id || relation.relationType}`,
+    name: matrixRelationName(relation),
     category: "干支关系",
-    subcategory: relation.type || relation.name || "关系",
+    subcategory: relation.relationType || "unknown",
+    factLevel: "structural",
     status: relation.confidence === "high" ? "confirmed" : "conditional",
-    importance: relation.affectsDayBranch || relation.affectsMonthBranch ? "high" : "medium",
+    importance: relation.affects?.dayBranch || relation.affects?.monthBranch ? "high" : "medium",
     confidence: relation.confidence || "medium",
-    score: relation.affectsDayBranch ? 80 : 68,
+    score: relation.affects?.dayBranch ? 80 : 68,
     specificity: "high",
-    brief: relation.effect || relation.name || relation.type || "原局干支形成关系牵动。",
-    evidence: evidence("relation", (relation.pillars ?? []).join("与"), relation.type || relation.name, relation.text || relation.evidence || relationName(relation)),
+    brief: `${matrixRelationName(relation)}，作为原局结构关系观察点。`,
+    evidence: evidence(
+      "relation",
+      relationParticipantsLabel(relation),
+      relation.relationType || "unknown",
+      matrixRelationName(relation),
+    ),
     conditions: ["干支关系由原局四柱直接命中"],
-    counterEvidence: relation.needVerify ?? ["关系成化或作用强弱仍需结合月令、透干和根气复核"],
-    tags: [relation.type, relation.name, relation.effect],
-    domains: relation.affectsDayBranch ? ["spouse", "self", "movement"] : ["parents", "friends", "movement"],
+    counterEvidence: ["关系成化或作用强弱仍需结合月令、透干和根气复核"],
+    tags: [relation.relationType, relation.layer],
+    domains: routeRelationDomains(relation),
+    relationType: relation.relationType,
+    layer: relation.layer,
+    participants: relation.participants ?? relation.members ?? [],
+    affects: relation.affects ?? {},
+    formation: relation.formation ?? "unknown",
+    canTransform: Boolean(relation.canTransform),
+    transformed: Boolean(relation.transformed),
   }));
 }
 
@@ -448,6 +461,7 @@ function normalizeFact(fact = {}) {
     label: fact.label || fact.name,
     category: categoryLabel(fact.category),
     subcategory: fact.subcategory || "",
+    factLevel: fact.factLevel || inferFactLevel(fact),
     status: fact.status || statusFromRole(fact.role),
     importance: fact.importance || importanceFromScore(fact.score),
     confidence: fact.confidence || confidenceFromScore(fact.score),
@@ -466,6 +480,13 @@ function normalizeFact(fact = {}) {
     role: fact.role || "support",
     polarity: fact.polarity || "mixed",
     suppressedReason: fact.suppressedReason || "",
+    relationType: fact.relationType,
+    layer: fact.layer,
+    participants: fact.participants,
+    affects: fact.affects,
+    formation: fact.formation,
+    canTransform: fact.canTransform,
+    transformed: fact.transformed,
   };
 }
 
@@ -512,6 +533,13 @@ function categoryLabel(category = "") {
     shensha: "神煞辅助",
     structure: "日主根气",
   }[category] ?? (category || "组合结构");
+}
+
+function inferFactLevel(fact = {}) {
+  const category = categoryLabel(fact.category);
+  if (category === "干支关系" || category === "柱位重复" || category === "五行调候") return "structural";
+  if (category === "日主根气" || category === "十神透藏" || category === "神煞辅助") return "base";
+  return "base";
 }
 
 function statusFromRole(role = "") {
@@ -564,6 +592,81 @@ function relationSuffix(type = "") {
   if (/三会/.test(type)) return "三会";
   if (/五合/.test(type)) return "五合";
   return type.replace(/^天干|^地支/, "") || "关系";
+}
+
+function matrixRelationName(relation = {}) {
+  const participants = relation.participants ?? relation.members ?? [];
+  const [left, right] = participants;
+  if (!left || !right) return relation.relationType || "干支关系";
+  return `${positionLabel(left)}${left.value || ""}与${positionLabel(right)}${right.value || ""}${matrixRelationSuffix(relation.relationType)}`;
+}
+
+function matrixRelationSuffix(type = "") {
+  return {
+    stem_combine: "五合",
+    stem_clash: "相冲",
+    stem_control: "相克",
+    branch_combine: "六合",
+    branch_clash: "相冲",
+    branch_punish: "相刑",
+    branch_self_punish: "自刑",
+    branch_harm: "相害",
+    branch_break: "相破",
+    three_harmony: "三合",
+    three_meeting: "三会",
+    half_harmony: "半合",
+    arch_harmony: "拱合",
+    repetition: "重复",
+  }[type] ?? "关系";
+}
+
+function positionLabel(participant = {}) {
+  const pillar = { year: "年", month: "月", day: "日", hour: "时" }[participant.pillar] ?? "";
+  const position = participant.position === "stem" ? "干" : participant.position === "branch" ? "支" : "";
+  return `${pillar}${position}`;
+}
+
+function relationParticipantsLabel(relation = {}) {
+  return (relation.participants ?? relation.members ?? [])
+    .map((item) => `${positionLabel(item)}${item.value || ""}`)
+    .filter(Boolean)
+    .join("与");
+}
+
+function routeRelationDomains(relation = {}) {
+  const domains = new Set();
+  const pairs = relationPillarPairs(relation.participants ?? relation.members ?? []);
+  for (const pair of pairs) {
+    for (const domain of domainsByPair(pair, relation.affects ?? {})) {
+      domains.add(domain);
+    }
+  }
+  if (relation.affects?.spousePalace) domains.add("spouse");
+  if (domains.size === 0) {
+    domains.add(relation.participants?.length ? "movement" : "self");
+  }
+  return [...domains];
+}
+
+function relationPillarPairs(participants = []) {
+  const order = ["year", "month", "day", "hour"];
+  const keys = [...new Set(participants.map((item) => item.pillar).filter((key) => order.includes(key)))]
+    .sort((left, right) => order.indexOf(left) - order.indexOf(right));
+  const pairs = [];
+  for (let left = 0; left < keys.length; left += 1) {
+    for (let right = left + 1; right < keys.length; right += 1) {
+      pairs.push(`${keys[left]}-${keys[right]}`);
+    }
+  }
+  return pairs;
+}
+
+function domainsByPair(pair, affects = {}) {
+  if (pair === "year-month") return ["parents", "self", "career"];
+  if (pair === "month-day") return affects.spousePalace ? ["self", "career", "spouse"] : ["self", "career"];
+  if (pair === "day-hour") return affects.spousePalace ? ["self", "children", "spouse"] : ["self", "children"];
+  if (pair === "year-hour") return ["parents", "children", "movement"];
+  return ["self", "movement"];
 }
 
 function tenGodDomains(tenGod = "") {

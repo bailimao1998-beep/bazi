@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
+import { buildRelationMatrix } from "../js/core/natal/featureBuilders/buildRelationMatrix.js";
 import { buildTenGodStates } from "../js/core/natal/featureBuilders/buildTenGodStates.js";
 
 function buildMockPillars() {
@@ -93,4 +94,60 @@ test("absent ten god stays absent and percentage 70 is normalized to 0.7", () =>
   assert.equal(states.食神.strengthLevel, "absent");
   assert.equal(states.食神.weightedCount, 0);
   assert.equal(states.正印.weightedCount, 1.4);
+});
+
+test("hidden weight 70 is normalized to 0.7 and usable level stays unknown", () => {
+  const pillars = buildMockPillars();
+  pillars.day.hiddenStems = [
+    { stem: "乙", tenGod: "劫财", role: "主气", weight: 70 },
+  ];
+
+  const states = buildTenGodStates({
+    pillars,
+    tenGods: {},
+    relationMatrix: { items: [] },
+  });
+
+  assert.equal(states.劫财.weightedCount, 0.7);
+  assert.equal(states.劫财.usableLevel, "unknown");
+  assert.ok(states.劫财.warnings.includes("usableLevel requires structure, climate and work-chain analysis"));
+});
+
+test("controlled ten god receives stem_control id while controller does not", () => {
+  const pillars = buildMockPillars();
+  pillars.year = {
+    ...pillars.year,
+    stem: "甲",
+    branch: "子",
+    label: "甲子",
+    stemTenGod: "偏财",
+  };
+  pillars.month = {
+    ...pillars.month,
+    stem: "己",
+    branch: "丑",
+    label: "己丑",
+    stemTenGod: "正官",
+  };
+  const relationMatrix = buildRelationMatrix({
+    pillars,
+    relations: [
+      {
+        type: "天干克",
+        members: ["甲", "己"],
+        pillars: ["年柱", "月柱"],
+        ganzhi: ["甲子", "己丑"],
+      },
+    ],
+  });
+  const relationId = relationMatrix.items[0].id;
+
+  const states = buildTenGodStates({
+    pillars,
+    tenGods: {},
+    relationMatrix,
+  });
+
+  assert.ok(states.正官.controlledBy.includes(relationId));
+  assert.equal(states.偏财.controlledBy.includes(relationId), false);
 });

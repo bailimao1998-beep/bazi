@@ -102,3 +102,76 @@ test("relation indexes do not duplicate repeated raw relations", () => {
   assert.equal(matrix.byRelationType.branch_clash.length, 1);
   assert.equal(new Set(matrix.dayBranchRelations.map((item) => item.id)).size, 1);
 });
+
+test("three harmony includes every participant and marks day branch as spouse palace even when third", () => {
+  const triplePillars = {
+    year: { key: "year", stem: "甲", branch: "申", label: "甲申" },
+    month: { key: "month", stem: "丙", branch: "子", label: "丙子" },
+    day: { key: "day", stem: "戊", branch: "辰", label: "戊辰" },
+    hour: { key: "hour", stem: "庚", branch: "午", label: "庚午" },
+  };
+  const matrix = buildRelationMatrix({
+    pillars: triplePillars,
+    relations: [
+      {
+        type: "地支三合",
+        members: ["申", "子", "辰"],
+        pillars: ["年柱", "月柱", "日柱"],
+        ganzhi: ["甲申", "丙子", "戊辰"],
+      },
+    ],
+  });
+
+  assert.equal(matrix.items[0].relationType, "three_harmony");
+  assert.equal(matrix.items[0].participants.length, 3);
+  assert.equal(matrix.items[0].left.pillar, "year");
+  assert.equal(matrix.items[0].right.pillar, "month");
+  assert.equal(matrix.items[0].affects.dayBranch, true);
+  assert.equal(matrix.items[0].affects.spousePalace, true);
+  assert.deepEqual(Object.keys(matrix.byPillarPair).sort(), ["month-day", "year-day", "year-month"]);
+  assert.equal(matrix.byPillarPair["year-month"].length, 1);
+  assert.equal(matrix.byPillarPair["year-day"].length, 1);
+  assert.equal(matrix.byPillarPair["month-day"].length, 1);
+});
+
+test("stem control records direction and never marks spouse palace", () => {
+  const matrix = buildRelationMatrix({
+    pillars: {
+      year: { key: "year", stem: "甲", branch: "子", label: "甲子" },
+      month: { key: "month", stem: "己", branch: "丑", label: "己丑" },
+      day: { key: "day", stem: "庚", branch: "寅", label: "庚寅" },
+      hour: { key: "hour", stem: "辛", branch: "卯", label: "辛卯" },
+    },
+    relations: [
+      {
+        type: "天干克",
+        members: ["甲", "己"],
+        pillars: ["年柱", "月柱"],
+        ganzhi: ["甲子", "己丑"],
+      },
+    ],
+  });
+
+  const relation = matrix.items[0];
+  assert.equal(relation.relationType, "stem_control");
+  assert.deepEqual(relation.direction.controller, { pillar: "year", position: "stem", value: "甲" });
+  assert.deepEqual(relation.direction.controlled, { pillar: "month", position: "stem", value: "己" });
+  assert.equal(relation.affects.spousePalace, false);
+});
+
+test("stem clash stays separate from stem control", () => {
+  const matrix = buildRelationMatrix({
+    pillars,
+    relations: [
+      {
+        type: "天干相冲",
+        members: ["甲", "庚"],
+        pillars: ["年柱", "日柱"],
+        ganzhi: ["甲子", "庚子"],
+      },
+    ],
+  });
+
+  assert.equal(matrix.items[0].relationType, "stem_clash");
+  assert.equal(matrix.items[0].direction, null);
+});

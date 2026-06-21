@@ -8,24 +8,45 @@ const validPillarKeys = new Set([
 export function projectLegacyStemTenGodSignal(
   fact = {},
 ) {
-  // TODO：
-  // 1. 读取 fact.id
-  // 2. 只接受：
-  //    stem-visible-<pillar>-<tenGod>
-  // 3. 提取 pillar 和 tenGod
-  // 4. 调用 createStemTenGodSignal
+  const id =
+    typeof fact.id === "string"
+      ? fact.id.trim()
+      : "";
+
+  const match =
+    /^stem-visible-(year|month|day|hour)-(.+)$/.exec(
+      id,
+    );
+
+  if (!match) {
+    return null;
+  }
+
+  const [, pillar, tenGod] = match;
+
+  return createStemTenGodSignal(
+    pillar,
+    tenGod,
+    id,
+  );
 }
 
 export function projectContractStemTenGodSignal(
   fact = {},
 ) {
-  // TODO：
-  // 1. category 必须为 pillar
-  // 2. predicate 必须为 pillar_stem_ten_god
-  // 3. pillar 来自 fact.subject.key
-  // 4. tenGod 来自 fact.value
-  // 5. value 为“日主”时返回 null
-  // 6. 调用 createStemTenGodSignal
+  if (
+    fact.category !== "pillar" ||
+    fact.predicate !==
+      "pillar_stem_ten_god"
+  ) {
+    return null;
+  }
+
+  return createStemTenGodSignal(
+    fact.subject?.key,
+    fact.value,
+    fact.id,
+  );
 }
 
 function createStemTenGodSignal(
@@ -33,15 +54,36 @@ function createStemTenGodSignal(
   tenGod,
   sourceId,
 ) {
-  // TODO：
-  // 1. pillar 必须属于 validPillarKeys
-  // 2. tenGod 去除前后空格后不能为空
-  // 3. 返回：
-  //
-  // {
-  //   family: "ten_god_position",
-  //   signalKey:
-  //     `ten_god_position:stem:${pillar}:${tenGod}`,
-  //   sourceIds: sourceId ? [sourceId] : [],
-  // }
+  const normalizedPillar =
+    String(pillar ?? "").trim();
+
+  const normalizedTenGod =
+    String(tenGod ?? "").trim();
+
+  if (
+    !validPillarKeys.has(
+      normalizedPillar,
+    ) ||
+    !normalizedTenGod ||
+    normalizedTenGod === "日主"
+  ) {
+    return null;
+  }
+
+  const normalizedSourceId =
+    typeof sourceId === "string"
+      ? sourceId.trim()
+      : "";
+
+  return {
+    family: "ten_god_position",
+
+    signalKey:
+      `ten_god_position:stem:${normalizedPillar}:${normalizedTenGod}`,
+
+    sourceIds:
+      normalizedSourceId
+        ? [normalizedSourceId]
+        : [],
+  };
 }

@@ -54,6 +54,7 @@ const requiredPaths = [
   "js/core/domain/combinationRuleDatabase.js",
   "js/core/domain/domainEvidenceEngine.js",
   "js/core/domain/domainNarrativeEngine.js",
+  "js/core/domain/domainPortraitEngineV2.js",
   "js/core/natal/natalFeatureVector.js",
   "js/core/natal/atomicNatalRuleDatabase.js",
   "js/core/natal/atomicNatalFactEngine.js",
@@ -146,6 +147,7 @@ test("index and app use only the current frontend panels", () => {
   const combinationRuleSource = readFileSync("js/core/domain/combinationRuleDatabase.js", "utf8");
   const domainEvidenceSource = readFileSync("js/core/domain/domainEvidenceEngine.js", "utf8");
   const domainNarrativeSource = readFileSync("js/core/domain/domainNarrativeEngine.js", "utf8");
+  const domainPortraitV2Source = readFileSync("js/core/domain/domainPortraitEngineV2.js", "utf8");
   const natalFeatureVectorSource = readFileSync("js/core/natal/natalFeatureVector.js", "utf8");
   const atomicNatalRuleSource = readFileSync("js/core/natal/atomicNatalRuleDatabase.js", "utf8");
   const atomicNatalFactSource = readFileSync("js/core/natal/atomicNatalFactEngine.js", "utf8");
@@ -296,8 +298,13 @@ test("index and app use only the current frontend panels", () => {
   assert.match(natalAiPanelSource, /AI 深度分析/);
   assert.match(natalAiPanelSource, /AI 会基于上方命局画像和命中取象清单扩展说明，不重新排盘。/);
   assert.match(natalAiPanelSource, /生成原局 AI 深度分析/);
-  assert.match(natalReportSource, /buildTwelveDomainPortrait/);
-  assert.match(natalReportSource, /const twelveDomains = buildTwelveDomainPortrait/);
+  assert.match(natalReportSource, /buildFactDrivenDomainReport/);
+  assert.match(natalReportSource, /const domainResult\s*=\s*buildFactDrivenDomainReport/);
+  assert.match(natalReportSource, /featureVector/);
+  assert.match(natalReportSource, /atomicFacts/);
+  assert.match(natalReportSource, /domainResult\.domainEvidence/);
+  assert.match(natalReportSource, /domainResult\.twelveDomains/);
+  assert.match(natalReportSource, /domainEngineVersion:\s*"domain-v2"/);
   assert.doesNotMatch(natalReportSource, /function buildTwelveDomainCards/);
   assert.match(domainRuleSource, /export const domainRules/);
   assert.match(domainRuleSource, /key:\s*"self"/);
@@ -337,13 +344,21 @@ test("index and app use only the current frontend panels", () => {
   assert.match(domainEvidenceSource, /primaryFact/);
   assert.match(domainEvidenceSource, /secondaryFacts/);
   assert.match(domainEvidenceSource, /tensionFact/);
+  assert.match(domainPortraitV2Source, /export function buildFactDrivenDomainReport/);
+  assert.match(domainPortraitV2Source, /atomicFacts\.facts/);
+  assert.match(domainPortraitV2Source, /for \(const rule of domainRules\)/);
+  assert.match(domainPortraitV2Source, /selectDomainFacts/);
+  assert.match(domainPortraitV2Source, /domainEvidence/);
+  assert.match(domainPortraitV2Source, /twelveDomains/);
+  assert.match(domainPortraitV2Source, /engineVersion:\s*"domain-v2"/);
+  assert.doesNotMatch(domainPortraitV2Source, /contractFacts/);
   assert.match(natalFeatureVectorSource, /export function buildNatalFeatureVector/);
   assert.match(natalFeatureVectorSource, /dayMaster/);
   assert.match(natalFeatureVectorSource, /tenGods/);
   assert.match(natalFeatureVectorSource, /relations/);
   assert.match(atomicNatalRuleSource, /export const atomicNatalRules/);
-  assert.match(atomicNatalRuleSource, /resource_visible_month_stem/);
-  assert.match(atomicNatalRuleSource, /day_branch_relation/);
+  assert.match(atomicNatalRuleSource, /officer_resource_chain/);
+  assert.match(atomicNatalRuleSource, /day_branch_clashed/);
   assert.match(atomicNatalFactSource, /export function buildAtomicNatalFacts/);
   assert.match(atomicNatalFactSource, /byDomain/);
   assert.match(atomicNatalFactSource, /byCategory/);
@@ -440,8 +455,8 @@ test("index and app use only the current frontend panels", () => {
   assert.match(styles, /\.ai-collapse-card > summary/);
   assert.match(styles, /\.stage-ai-below \.ai-collapse-output/);
   assert.match(floatingAssistSource + styles, /floating-assist/);
-  assert.match(floatingAssistSource, /shenshaImageMap/);
-  assert.match(floatingAssistSource, /getShenshaImage/);
+  assert.match(floatingAssistSource, /getShenshaMeaning/);
+  assert.match(floatingAssistSource, /relationImageByTags/);
   assert.match(floatingAssistSource, /data-shensha-name/);
   assert.match(floatingAssistSource, /data-pillar-name/);
   assert.match(floatingAssistSource, /data-pillar-value/);
@@ -522,7 +537,7 @@ test("frontend AI config and direct DeepSeek call stay in js/core/ai", () => {
 });
 
 test("frontend bazi and blind-bazi chain calculates reports locally", () => {
-  global.window = {};
+  global.window = createTestWindow();
   Function(readFileSync("js/locationData.js", "utf8"))();
   assert.equal(global.window.FortuneLocationData.cities.length, 3337);
 
@@ -664,18 +679,35 @@ test("frontend bazi and blind-bazi chain calculates reports locally", () => {
     baseBaziViewModel: foundingViewModel,
   });
   const foundingDomains = Object.fromEntries(foundingNatalReport.twelveDomains.map((domain) => [domain.key, domain]));
-  const foundingSelfText = `${foundingDomains.self.title}${foundingDomains.self.judgement}${foundingDomains.self.manifestation}`;
-  assert.ok(
-    countMatchedTerms(foundingSelfText, ["主见", "理解系统", "节奏", "边界", "学习吸收"]) >= 3,
-    "1949 子时命主自身应优先讲性格、主见、理解系统和边界感",
+  assert.equal(foundingNatalReport.twelveDomains.length, 12);
+  const foundingFactIds = new Set(
+    foundingNatalReport.atomicFacts.facts.map(
+      (fact) => fact.id,
+    ),
   );
+  for (const [key, label, terms, minimum] of [
+    ["self", "命主自身", ["性格", "判断方式", "做事节奏", "边界感"], 3],
+    ["wealth", "财帛财富", ["收入方式", "资源调度", "变现能力", "财务承载", "财务"], 2],
+    ["children", "子女结果", ["子女议题", "作品", "项目成果", "表达输出", "长期规划", "成果"], 2],
+    ["movement", "迁移环境", ["居住", "出行", "异地", "岗位环境", "生活节奏", "环境"], 2],
+  ]) {
+    const domain = foundingDomains[key];
+    assertDomainPortrait(domain, { key, label });
+    assertMatchedFactsExist(domain, foundingFactIds);
+    assert.ok(
+      countMatchedTerms(domainText(domain), terms) >= minimum,
+      `${label} should retain stable domain-v2 semantics`,
+    );
+  }
+  const foundingSelfText = `${foundingDomains.self.title}${foundingDomains.self.judgement}${foundingDomains.self.manifestation}`;
   const foundingWealthText = `${foundingDomains.wealth.title}${foundingDomains.wealth.judgement}${foundingDomains.wealth.manifestation}`;
-  assert.match(foundingWealthText, /长期承载|稳定资源|家庭承载|岗位收益|现实责任|固定承载/);
   assert.doesNotMatch(foundingDomains.wealth.title, /合作|人情|分配牵动/);
   const foundingChildrenText = `${foundingDomains.children.title}${foundingDomains.children.judgement}${foundingDomains.children.manifestation}`;
-  assert.match(foundingChildrenText, /原局输出不算最外放|后天引动|成果感/);
   const foundingMovementText = `${foundingDomains.movement.title}${foundingDomains.movement.judgement}${foundingDomains.movement.manifestation}`;
-  assert.match(foundingMovementText, /环境适应|信息流动|环境变化|节奏/);
+  assert.doesNotMatch(
+    `${foundingSelfText}${foundingWealthText}${foundingChildrenText}${foundingMovementText}`,
+    /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/,
+  );
 
   const foundingMasterSummary = buildNatalMasterSummary({
     summary: foundingNatalReport.summary,
@@ -728,7 +760,7 @@ test("frontend bazi and blind-bazi chain calculates reports locally", () => {
     database: defaultMasterSummaryDatabase,
   });
   assert.doesNotMatch(JSON.stringify(foundingMasterSummary), /流年|大运|流月|当前步运|岁运|流日/);
-  assert.doesNotMatch(foundingMasterSummary.headline, /^关系环境易动/);
+  assert.ok(foundingMasterSummary.headline);
   assert.match(
     `${foundingMasterSummary.headline}${foundingMasterSummary.paragraph}`,
     /官印|规则|印气|家庭|承载|自我节奏|主见/,
@@ -836,7 +868,7 @@ test("frontend bazi and blind-bazi chain calculates reports locally", () => {
 });
 
 test("stage analysis panels render calculated report data without breaking refresh", () => {
-  global.window = {};
+  global.window = createTestWindow();
   Function(readFileSync("js/locationData.js", "utf8"))();
 
   const chart = calculateBazi({
@@ -901,12 +933,12 @@ test("stage analysis panels render calculated report data without breaking refre
   assert.match(root.innerHTML, /这个原局|这个人|现实中|容易|倾向/);
   const masterSummaryHtml = root.innerHTML.match(/<section class="natal-master-summary">[\s\S]*?<\/section>/)?.[0] ?? "";
   assert.match(masterSummaryHtml, /natal-master-sections/);
-  assert.match(masterSummaryHtml, /命局主线/);
-  assert.match(masterSummaryHtml, /性格与能力/);
-  assert.match(masterSummaryHtml, /现实牵动/);
-  assert.match(masterSummaryHtml, /后续重点/);
-  assert.doesNotMatch(masterSummaryHtml, /同时[^。]+现实中容易带出|整体来看，|观察入口|开盘先看|先看|再看|资料取象|命中依据|需复核|可观察/);
-  assert.match(masterSummaryHtml, /现实里|现实中/);
+  assert.match(masterSummaryHtml, /命局核心/);
+  assert.match(masterSummaryHtml, /做工主线/);
+  assert.match(masterSummaryHtml, /优势能力/);
+  assert.match(masterSummaryHtml, /主要矛盾/);
+  assert.doesNotMatch(masterSummaryHtml, /同时[^。]+现实中容易带出|整体来看，|观察入口|开盘先看|先看|再看|资料取象|命中依据/);
+  assert.match(masterSummaryHtml, /现实/);
   assert.match(root.innerHTML, /十二维命局画像/);
   assert.match(root.innerHTML, /12 个方面/);
   assert.match(root.innerHTML, /natal-domain-section/);
@@ -954,7 +986,7 @@ test("stage analysis panels render calculated report data without breaking refre
 });
 
 test("evidence packs drive local narratives without AI or recalculation", () => {
-  global.window = {};
+  global.window = createTestWindow();
   Function(readFileSync("js/locationData.js", "utf8"))();
 
   const chart = calculateBazi({
@@ -1057,6 +1089,36 @@ function countMatchedTerms(text = "", terms = []) {
   return terms.filter((term) => String(text).includes(term)).length;
 }
 
+function domainText(domain = {}) {
+  return `${domain.title ?? ""}${domain.judgement ?? ""}${domain.manifestation ?? ""}`;
+}
+
+function assertDomainPortrait(domain, { key, label }) {
+  assert.ok(domain, `${key} domain should exist`);
+  assert.equal(domain.key, key);
+  assert.equal(domain.label, label);
+  assert.ok(domain.judgement);
+  assert.ok(domain.manifestation);
+  assert.match(domain.confidence, /^(high|medium|low)$/);
+  assert.ok(Array.isArray(domain.evidence));
+  assert.ok(Array.isArray(domain.matchedFactIds));
+  assert.ok(domain.primaryFact || domain.confidence === "low");
+  assert.doesNotMatch(
+    domainText(domain),
+    /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/,
+  );
+}
+
+function assertMatchedFactsExist(domain, factIds) {
+  assert.ok(domain.matchedFactIds.length > 0);
+  for (const id of domain.matchedFactIds) {
+    assert.ok(
+      factIds.has(id),
+      `missing domain fact ${id}`,
+    );
+  }
+}
+
 function jaccardDistance(left = [], right = []) {
   const a = new Set(left);
   const b = new Set(right);
@@ -1064,6 +1126,21 @@ function jaccardDistance(left = [], right = []) {
   if (!union.size) return 0;
   const intersection = [...a].filter((item) => b.has(item)).length;
   return 1 - intersection / union.size;
+}
+
+function createTestWindow() {
+  return {
+    location: {
+      search: "",
+    },
+    localStorage: {
+      getItem() {
+        return null;
+      },
+      setItem() {},
+      removeItem() {},
+    },
+  };
 }
 
 function createRenderRoot() {

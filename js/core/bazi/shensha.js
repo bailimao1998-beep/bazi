@@ -1,4 +1,5 @@
 import { baziShenshaRuleSet } from "./shenshaRules.js";
+import { getShenshaMeaning } from "../../data/shenshaMeaningDatabase.js";
 
 const pillarKeys = ["year", "month", "day", "hour"];
 const ruleSet = baziShenshaRuleSet;
@@ -19,37 +20,66 @@ export function buildShensha(pillars, input = {}) {
   for (const rule of ruleSet.rules) {
     const matches = matchRule(rule, pillars, input);
     if (!matches.length) continue;
+    const meaning = getShenshaMeaning(rule.name);
+
     items.push({
       name: rule.name,
+      aliases: meaning.aliases,
       category: rule.category,
       theme: `${rule.category}：${rule.name}`,
+
       sourceBasis: rule.sourceBasis,
       matchedPillars: matches,
+
       evidence: matches.map((match) =>
         formatMatchEvidence(rule, match),
       ),
-      learningNote: rule.learningNote,
-      typicalMeaning: rule.learningNote,
+
+      // 新解释数据库内容。
+      definition: meaning.definition,
+      manifestations: meaning.manifestations,
+      caution: meaning.caution,
+
+      // 保留旧字段，兼容其他页面。
+      learningNote:
+        meaning.definition || rule.learningNote,
+
+      typicalMeaning:
+        meaning.definition || rule.learningNote,
+
       confidence: "medium",
-      needVerify: ["神煞只作为辅助候选信号，需要结合柱位、旺衰、十神、岁运继续验证，不能单独作为结论。"],
+
+      needVerify: [
+        "神煞只作为辅助候选信号，需要结合柱位、旺衰、十神、原局结构和岁运验证。",
+      ],
     });
+
   }
 
   const byPillar = Object.fromEntries(pillarKeys.map((key) => [key, []]));
   for (const item of items) {
     for (const match of item.matchedPillars) {
+      const meaning = getShenshaMeaning(
+        item.name,
+        match.pillarKey,
+      );
+
       byPillar[match.pillarKey]?.push({
         name: item.name,
+        aliases: meaning.aliases,
         category: item.category,
         theme: item.theme,
         sourceBasis: item.sourceBasis,
         target: match.target,
 
-        // 保留真实含义，供弹窗解释使用。
-        learningNote: item.learningNote,
-        typicalMeaning: item.typicalMeaning,
+        definition: meaning.definition,
+        manifestations: meaning.manifestations,
+        pillarMeaning: meaning.pillarMeaning,
+        caution: meaning.caution,
 
-        // 空亡等需要知道由哪一柱查出。
+        learningNote: meaning.definition,
+        typicalMeaning: meaning.definition,
+
         sourcePillars: Array.isArray(match.sourcePillars)
           ? match.sourcePillars
           : [],

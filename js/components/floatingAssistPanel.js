@@ -1,4 +1,8 @@
 import { escapeHtml, hasValue, joinParts } from "../utils/html.js";
+import {
+  getShenshaMeaning,
+  inferPillarKey,
+} from "../data/shenshaMeaningDatabase.js";
 
 const assistTabs = [
   ["shensha", "神煞"],
@@ -9,53 +13,7 @@ const assistTabs = [
   ["relations", "关系"],
 ];
 
-const shenshaImageMap = {
-  天乙贵人: {
-    image: "贵人、帮助、逢凶化解、资源支持。",
-    usage: "看是否有人提携、资源进入、关键节点得助。",
-    caution: "需结合十神、柱位、旺衰与岁运触发，不可单独定论。",
-  },
-  太极贵人: {
-    image: "悟性、玄学、学习力、思辨力、精神追求。",
-    usage: "常用于看学习理解、宗教玄学兴趣、抽象思维。",
-    caution: "见多不等于清高，仍要看命局结构。",
-  },
-  华盖: {
-    image: "孤高、艺术、玄学、审美、独处、精神性。",
-    usage: "可看才艺、宗教玄学、孤独感、专业沉浸。",
-    caution: "喜忌与格局不同，可能表现为才华，也可能表现为孤僻。",
-  },
-  桃花: {
-    image: "吸引力、人缘、异性缘、审美、社交。",
-    usage: "看感情缘分、外貌气质、人际吸引。",
-    caution: "桃花不等于出轨，需看夫妻宫、财官、合冲刑害。",
-  },
-  将星: {
-    image: "掌控力、组织力、领导倾向、执行力。",
-    usage: "看管理、带队、做事主见、资源调度。",
-    caution: "是否成权，要结合官杀、印星、格局和运势。",
-  },
-  流霞: {
-    image: "情绪波动、血光、口舌、感情牵动。",
-    usage: "辅助看情绪、关系波动、意外小伤。",
-    caution: "只作风险提示，不作灾断。",
-  },
-  驿马: {
-    image: "变动、出行、迁移、奔波、远方机会。",
-    usage: "看搬迁、出差、换环境、异地发展。",
-    caution: "动是象，吉凶看所动之神与岁运配合。",
-  },
-  羊刃: {
-    image: "刚烈、冲劲、竞争、锋芒、风险。",
-    usage: "看行动力、竞争性、冲突与身体风险。",
-    caution: "有制则成力，无制则易过刚。",
-  },
-  咸池: {
-    image: "桃花、欲望、情绪、人际吸引。",
-    usage: "看社交、感情牵动、审美与吸引力。",
-    caution: "不可直接定淫乱，需结合结构。",
-  },
-};
+
 
 export function renderFloatingAssistPanel(root, { state } = {}) {
   if (!root) return;
@@ -146,6 +104,7 @@ function bindFloatingAssist(root, state) {
       name: chip.dataset.shenshaName,
       pillarName: chip.dataset.pillarName,
       pillarValue: chip.dataset.pillarValue,
+      sourceBasis: chip.dataset.shenshaSource,
     });
   });
 
@@ -222,6 +181,7 @@ function renderShenshaChips(entry = {}) {
         type="button"
         class="assist-chip is-clickable"
         data-shensha-name="${escapeHtml(item.name)}"
+        data-shensha-source="${escapeHtml(item.sourceBasis || "")}"
         data-pillar-name="${escapeHtml(entry.label)}"
         data-pillar-value="${escapeHtml(entry.pillar || "")}"
       >
@@ -231,18 +191,113 @@ function renderShenshaChips(entry = {}) {
     : `<span class="assist-chip">未列</span>`;
 }
 
-function renderShenshaDetail({ name = "", pillarName = "", pillarValue = "" } = {}) {
-  const image = getShenshaImage(name);
+function renderShenshaDetail({
+  name = "",
+  pillarName = "",
+  pillarValue = "",
+  sourceBasis = "",
+} = {}) {
+  const pillarKey = inferPillarKey(pillarName);
+
+  const meaning = getShenshaMeaning(
+    name,
+    pillarKey,
+  );
+
+  const aliases = meaning.aliases?.length
+    ? meaning.aliases.join("、")
+    : "";
+
+  const manifestationList =
+    meaning.manifestations?.length
+      ? `
+        <ul class="shensha-meaning-list">
+          ${meaning.manifestations
+            .map(
+              (text) =>
+                `<li>${escapeHtml(text)}</li>`,
+            )
+            .join("")}
+        </ul>
+      `
+      : `<p>具体表现需要结合原局结构判断。</p>`;
+
   return `
     <section class="assist-detail-card">
       <div class="assist-detail-head">
-        <strong>${escapeHtml(name || "神煞取象")}</strong>
-        <button type="button" data-assist-detail-close>收起</button>
+        <div>
+          <strong>${escapeHtml(
+            name || "神煞说明",
+          )}</strong>
+
+          ${
+            aliases
+              ? `<small>又称：${escapeHtml(
+                  aliases,
+                )}</small>`
+              : ""
+          }
+        </div>
+
+        <button
+          type="button"
+          data-assist-detail-close
+        >
+          收起
+        </button>
       </div>
-      <p>所在：${escapeHtml(joinParts([pillarName, pillarValue]) || "待查")}</p>
-      <p>基础取象：${escapeHtml(image.image)}</p>
-      <p>使用提示：${escapeHtml(image.usage)}</p>
-      <p>复核提示：${escapeHtml(image.caution)}</p>
+
+      <p>
+        <b>所在位置：</b>
+        ${escapeHtml(
+          joinParts([
+            pillarName,
+            pillarValue,
+          ]) || "待查",
+        )}
+      </p>
+
+      <section>
+        <h4>核心含义</h4>
+        <p>${escapeHtml(
+          meaning.definition,
+        )}</p>
+      </section>
+
+      <section>
+        <h4>常见表现</h4>
+        ${manifestationList}
+      </section>
+
+      ${
+        meaning.pillarMeaning
+          ? `
+            <section>
+              <h4>落柱含义</h4>
+              <p>${escapeHtml(
+                meaning.pillarMeaning,
+              )}</p>
+            </section>
+          `
+          : ""
+      }
+
+      <section>
+        <h4>本盘依据</h4>
+        <p>
+          ${escapeHtml(
+            sourceBasis ||
+              "按对应神煞规则命中。",
+          )}
+        </p>
+      </section>
+
+      <section>
+        <h4>注意事项</h4>
+        <p>${escapeHtml(
+          meaning.caution,
+        )}</p>
+      </section>
     </section>
   `;
 }
@@ -261,13 +316,6 @@ function buildTransitShenshaEntries(state = {}) {
   ];
 }
 
-function getShenshaImage(name) {
-  return shenshaImageMap[name] ?? {
-    image: "该神煞用于辅助取象，需结合柱位、十神、原局结构与岁运触发复核。",
-    usage: "先看落在哪一柱，再看对应十神和是否被岁运引动。",
-    caution: "神煞不能单独定论。",
-  };
-}
 
 function normalizeShensha(items) {
   return (Array.isArray(items) ? items : [])

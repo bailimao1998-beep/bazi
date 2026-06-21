@@ -1,3 +1,10 @@
+import {
+  NATAL_FEATURE_VERSION,
+  normalizeNatalFeatureVector,
+} from "./natalFeatureContract.js";
+import { buildRelationMatrix } from "./featureBuilders/buildRelationMatrix.js";
+import { buildTenGodStates } from "./featureBuilders/buildTenGodStates.js";
+
 const pillarKeys = ["year", "month", "day", "hour"];
 const pillarLabels = { year: "年柱", month: "月柱", day: "日柱", hour: "时柱" };
 const elementLabels = { wood: "木", fire: "火", earth: "土", metal: "金", water: "水" };
@@ -16,8 +23,20 @@ export function buildNatalFeatureVector({ chart, baseBaziViewModel } = {}) {
   const pillars = buildPillars(safeChart);
   const tenGods = buildTenGodVector(safeChart, viewModel, pillars);
   const elements = buildElementVector(safeChart, viewModel);
+  const rawRelations = safeChart.relations ?? viewModel.relations ?? [];
+  const relations = buildRelations(rawRelations);
+  const relationMatrix = buildRelationMatrix({
+    relations: rawRelations,
+    pillars,
+  });
+  const tenGodStates = buildTenGodStates({
+    pillars,
+    tenGods,
+    relationMatrix,
+    structure,
+  });
 
-  return {
+  const legacyFields = {
     dayMaster: {
       stem: safeChart.dayMaster?.stem ?? safeChart.pillars?.day?.stem ?? "",
       label: safeChart.dayMaster?.label ?? safeChart.pillars?.day?.stem ?? "",
@@ -30,7 +49,7 @@ export function buildNatalFeatureVector({ chart, baseBaziViewModel } = {}) {
     elements,
     tenGods,
     pillars,
-    relations: buildRelations(safeChart.relations ?? viewModel.relations ?? []),
+    relations,
     structure: {
       monthCommand: structure.monthCommand ?? {},
       visibleStems: structure.stems?.revealedTenGods ?? [],
@@ -39,6 +58,18 @@ export function buildNatalFeatureVector({ chart, baseBaziViewModel } = {}) {
       climate: structure.climate ?? {},
     },
   };
+
+  return normalizeNatalFeatureVector({
+    featureVersion: NATAL_FEATURE_VERSION,
+    meta: {
+      gender: resolveGender(safeChart, viewModel),
+      source: "chart",
+      warnings: [],
+    },
+    ...legacyFields,
+    relationMatrix,
+    tenGodStates,
+  });
 }
 
 function buildPillars(chart = {}) {
@@ -179,12 +210,16 @@ function countHiddenWeightedTenGods(pillars = {}) {
 }
 
 function hiddenWeight(hidden = {}) {
-  if (Number.isFinite(hidden.weight)) return Number(hidden.weight);
-  if (Number.isFinite(hidden.percentage)) return Number(hidden.percentage);
+  if (Number.isFinite(Number(hidden.weight))) return Number(hidden.weight);
+  if (Number.isFinite(Number(hidden.percentage))) return normalizePercentage(Number(hidden.percentage));
   if (/主气|本气/.test(hidden.role || hidden.qiLevel || "")) return 0.7;
   if (/中气/.test(hidden.role || hidden.qiLevel || "")) return 0.4;
   if (/余气|杂气/.test(hidden.role || hidden.qiLevel || "")) return 0.25;
   return 0.25;
+}
+
+function normalizePercentage(value) {
+  return value > 1 ? value / 100 : value;
 }
 
 function sumCountMaps(...maps) {
@@ -229,6 +264,16 @@ function buildFlowChains(counts = {}) {
   if ((counts.metal ?? 0) && (counts.water ?? 0)) chains.push("金水相生");
   if ((counts.water ?? 0) && (counts.wood ?? 0)) chains.push("水木相生");
   return chains;
+}
+
+function resolveGender(chart = {}, viewModel = {}) {
+  const value =
+    chart.input?.gender ??
+    chart.gender ??
+    viewModel.gender ??
+    viewModel.birthInfo?.gender ??
+    "unknown";
+  return ["male", "female"].includes(value) ? value : "unknown";
 }
 
 function compact(items = []) {

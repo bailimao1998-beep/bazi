@@ -1,0 +1,96 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+
+import { buildTenGodStates } from "../js/core/natal/featureBuilders/buildTenGodStates.js";
+
+function buildMockPillars() {
+  return {
+    year: {
+      key: "year",
+      stemTenGod: "偏财",
+      branchMainTenGod: "正印",
+      hiddenStems: [
+        { stem: "癸", tenGod: "正印", role: "主气", percentage: 70 },
+      ],
+    },
+    month: {
+      key: "month",
+      stemTenGod: "正官",
+      branchMainTenGod: "正印",
+      hiddenStems: [
+        { stem: "癸", tenGod: "正印", role: "主气", percentage: 70 },
+        { stem: "辛", tenGod: "正官", role: "中气", percentage: 30 },
+      ],
+    },
+    day: {
+      key: "day",
+      stemTenGod: "日主",
+      branchMainTenGod: "劫财",
+      hiddenStems: [
+        { stem: "乙", tenGod: "劫财", role: "主气", weight: 0.7 },
+      ],
+    },
+    hour: {
+      key: "hour",
+      stemTenGod: "伤官",
+      branchMainTenGod: "偏印",
+      hiddenStems: [
+        { stem: "壬", tenGod: "偏印", role: "主气", percentage: 0.7 },
+      ],
+    },
+  };
+}
+
+test("ten god states track visible stems and exact positions", () => {
+  const states = buildTenGodStates({
+    pillars: buildMockPillars(),
+    tenGods: { weightedCounts: { 正官: 1.3 } },
+    relationMatrix: { items: [] },
+  });
+
+  assert.equal(states.正官.visibleCount, 1);
+  assert.deepEqual(states.正官.visiblePositions, ["month.stem"]);
+  assert.equal(states.正官.inMonthStem, true);
+  assert.equal(states.正官.hiddenCount, 1);
+  assert.deepEqual(states.正官.hiddenPositions, ["month.branch.hidden.1"]);
+});
+
+test("ten god states recognize hidden roots and month command main qi", () => {
+  const states = buildTenGodStates({
+    pillars: buildMockPillars(),
+    tenGods: { weightedCounts: { 正印: 1.4 } },
+    relationMatrix: { items: [] },
+  });
+
+  assert.equal(states.正印.hiddenCount, 2);
+  assert.equal(states.正印.mainQiCount, 2);
+  assert.deepEqual(states.正印.mainQiPositions, ["year.branch.mainQi", "month.branch.mainQi"]);
+  assert.equal(states.正印.hasRoot, true);
+  assert.equal(states.正印.inMonthBranchMainQi, true);
+  assert.equal(states.正印.inMonthCommand, true);
+  assert.equal(states.正印.strengthLevel, "medium");
+});
+
+test("visible ten god without branch root is floating", () => {
+  const states = buildTenGodStates({
+    pillars: buildMockPillars(),
+    tenGods: { weightedCounts: { 伤官: 1 } },
+    relationMatrix: { items: [] },
+  });
+
+  assert.equal(states.伤官.visibleCount, 1);
+  assert.equal(states.伤官.hasRoot, false);
+  assert.equal(states.伤官.isFloating, true);
+});
+
+test("absent ten god stays absent and percentage 70 is normalized to 0.7", () => {
+  const states = buildTenGodStates({
+    pillars: buildMockPillars(),
+    tenGods: {},
+    relationMatrix: { items: [] },
+  });
+
+  assert.equal(states.食神.strengthLevel, "absent");
+  assert.equal(states.食神.weightedCount, 0);
+  assert.equal(states.正印.weightedCount, 1.4);
+});

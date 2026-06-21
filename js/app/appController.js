@@ -58,7 +58,10 @@ export function createAppController({ roots, initialInput }) {
         chart,
         baseBaziViewModel,
         natalImageReport,
-        targetYear: store.currentInput.targetYear,
+        targetYear:
+          store.currentInput.targetYear,
+        selectedMonth:
+          store.currentInput.selectedMonth,
       });
       const yearImageReport = buildYearImageReport({
         chart,

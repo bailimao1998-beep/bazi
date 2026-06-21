@@ -105,12 +105,15 @@ export function buildLuckCycles({
         preciseEndAge.months,
       )}`,
 
-      // 新增精确年月字段。
       startYearMonth:
         formatYearMonth(preciseStartDate),
 
       endYearMonth:
         formatYearMonth(preciseEndDate),
+
+      // 用于内部精确判断当前大运，不需要展示给用户。
+      startMonthIndex: toMonthIndex(preciseStartDate),
+      endMonthIndexExclusive: toMonthIndex(preciseEndDate),
     };
   });
 
@@ -212,9 +215,24 @@ function formatYearMonth(value = {}) {
   return `${value.year}年${String(value.month).padStart(2, "0")}月`;
 }
 
+function toMonthIndex(value = {}) {
+  const year = Number(value.year);
+  const month = Number(value.month);
+
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(month)
+  ) {
+    return null;
+  }
+
+  return year * 12 + month - 1;
+}
+
 function roundTo(value, digits) {
   const factor = 10 ** digits;
   return Math.round((Number(value) + Number.EPSILON) * factor) / factor;
 }
+
 
 export { createPillarByIndex, getGanzhiIndex as ganzhiIndex };

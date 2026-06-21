@@ -25,7 +25,9 @@ export function buildShensha(pillars, input = {}) {
       theme: `${rule.category}：${rule.name}`,
       sourceBasis: rule.sourceBasis,
       matchedPillars: matches,
-      evidence: matches.map((match) => `${match.pillarLabel}${match.target}命中${rule.name}，${rule.sourceBasis}。`),
+      evidence: matches.map((match) =>
+        formatMatchEvidence(rule, match),
+      ),
       learningNote: rule.learningNote,
       typicalMeaning: rule.learningNote,
       confidence: "medium",
@@ -42,6 +44,15 @@ export function buildShensha(pillars, input = {}) {
         theme: item.theme,
         sourceBasis: item.sourceBasis,
         target: match.target,
+
+        // 保留真实含义，供弹窗解释使用。
+        learningNote: item.learningNote,
+        typicalMeaning: item.typicalMeaning,
+
+        // 空亡等需要知道由哪一柱查出。
+        sourcePillars: Array.isArray(match.sourcePillars)
+          ? match.sourcePillars
+          : [],
       });
     }
   }
@@ -92,13 +103,26 @@ function matchSeasonDayPillarRule(rule, pillars) {
 
 function collectTargets(rule, pillars, input) {
   if (rule.basis?.includes("yearBranchGender")) {
-    const yearYang = stemYinYang[pillars.year.stem] === "yang";
-    const gender = input.gender === "female" ? "female" : "male";
-    const group = (gender === "male" && yearYang) || (gender === "female" && !yearYang)
+  const gender = input.gender;
+
+  // 性别未填写时，不能擅自按男命计算。
+  if (!["male", "female"].includes(gender)) {
+    return [];
+  }
+
+  const yearYang =
+    stemYinYang[pillars.year.stem] === "yang";
+
+  const group =
+    (gender === "male" && yearYang) ||
+    (gender === "female" && !yearYang)
       ? "yangMaleYinFemale"
       : "yinMaleYangFemale";
-    return rule.targets?.[group]?.[pillars.year.branch] ?? [];
-  }
+
+  return (
+    rule.targets?.[group]?.[pillars.year.branch] ?? []
+  );
+}
   return [...new Set((rule.basis ?? []).flatMap((basis) => rule.targets?.[basisValue(basis, pillars)] ?? []))];
 }
 
@@ -118,16 +142,46 @@ function valuesForTargetType(targetType, pillar) {
 }
 
 function matchVoidRule(pillars) {
-  return pillarKeys.flatMap((sourceKey) => {
-    const voidBranches = getVoidBranches(pillars[sourceKey]);
-    return pillarKeys
-      .filter((targetKey) => voidBranches.includes(pillars[targetKey].branch))
-      .map((targetKey) => ({
-        pillarKey: targetKey,
-        pillarLabel: pillars[targetKey].role,
-        target: pillars[targetKey].branch,
-      }));
-  });
+  const matchMap = new Map();
+
+  for (const sourceKey of pillarKeys) {
+    const sourcePillar = pillars[sourceKey];
+    const voidBranches =
+      getVoidBranches(sourcePillar);
+
+    for (const targetKey of pillarKeys) {
+      const targetPillar = pillars[targetKey];
+
+      if (
+        !voidBranches.includes(targetPillar.branch)
+      ) {
+        continue;
+      }
+
+      /*
+       * 同一个目标柱即使被多个来源柱查到空亡，
+       * 页面也只显示一个“空亡”，但内部保存全部来源。
+       */
+      const existing =
+        matchMap.get(targetKey) ?? {
+          pillarKey: targetKey,
+          pillarLabel: targetPillar.role,
+          target: targetPillar.branch,
+          sourcePillars: [],
+        };
+
+      existing.sourcePillars.push({
+        pillarKey: sourceKey,
+        pillarLabel: sourcePillar.role,
+        pillar: sourcePillar.label,
+        voidBranches: [...voidBranches],
+      });
+
+      matchMap.set(targetKey, existing);
+    }
+  }
+
+  return [...matchMap.values()];
 }
 
 function seasonKey(branch) {
@@ -141,6 +195,28 @@ function summarizeShensha(items) {
   const counts = {};
   for (const item of items) counts[item.category] = (counts[item.category] ?? 0) + 1;
   return Object.entries(counts).map(([category, count]) => ({ category, count }));
+}
+
+function formatMatchEvidence(rule, match = {}) {
+  if (
+    rule.name === "空亡" &&
+    Array.isArray(match.sourcePillars) &&
+    match.sourcePillars.length
+  ) {
+    const sourceText = match.sourcePillars
+      .map((source) => {
+        const voidText = Array.isArray(source.voidBranches)
+          ? source.voidBranches.join("、")
+          : "待查";
+
+        return `${source.pillarLabel}${source.pillar}旬空为${voidText}`;
+      })
+      .join("；");
+
+    return `${sourceText}，${match.pillarLabel}${match.target}命中空亡。`;
+  }
+
+  return `${match.pillarLabel}${match.target}命中${rule.name}，${rule.sourceBasis}。`;
 }
 
 function getVoidBranches(pillar) {

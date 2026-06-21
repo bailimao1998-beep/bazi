@@ -70,7 +70,13 @@ const relationTypeMeanings = {
   破: "反复、松动、破局",
 };
 
-export function buildLuckImageReport({ chart, baseBaziViewModel, natalImageReport, targetYear } = {}) {
+export function buildLuckImageReport({
+  chart,
+  baseBaziViewModel,
+  natalImageReport,
+  targetYear,
+  selectedMonth,
+} = {}) {
   const luckPillars = normalizeLuckPillars(chart, baseBaziViewModel);
   if (!luckPillars.length) {
     return {
@@ -85,13 +91,35 @@ export function buildLuckImageReport({ chart, baseBaziViewModel, natalImageRepor
       needVerify: ["暂无大运数据，请先确认出生信息、性别和起运计算是否完整。"],
     };
   }
+  const resolvedTargetYear = Number(
+    targetYear ??
+    chart?.input?.targetYear ??
+    baseBaziViewModel?.birthInfo?.targetYear,
+  );
+
+  const resolvedSelectedMonth = normalizeFlowMonth(
+    selectedMonth ??
+    chart?.input?.selectedMonth ??
+    1,
+  );
 
   const context = {
     chart: chart ?? {},
     dayStem: chart?.dayMaster?.stem,
     natalBranches: collectNatalBranches(chart),
-    targetYear: Number(targetYear ?? chart?.input?.targetYear ?? baseBaziViewModel?.birthInfo?.targetYear),
-    usefulHint: pickUsefulHint(chart, natalImageReport),
+
+    targetYear: resolvedTargetYear,
+    selectedMonth: resolvedSelectedMonth,
+
+    targetMonthIndex: flowMonthToMonthIndex(
+      resolvedTargetYear,
+      resolvedSelectedMonth,
+    ),
+
+    usefulHint: pickUsefulHint(
+      chart,
+      natalImageReport,
+    ),
   };
   const luckItems = luckPillars.map((pillar, index) => buildLuckItem(pillar, index, context));
 
@@ -111,7 +139,10 @@ function buildLuckItem(pillar, index, context) {
   const relationToNatal = findRelationToNatal(branch, context.natalBranches);
   const theme = tenGodThemes[tenGod] ?? "阶段主题待复核";
   const branchTheme = tenGodThemes[branchTenGod] ?? "地支环境待复核";
-  const isCurrent = isCurrentLuck(pillar, context.targetYear);
+  const isCurrent = isCurrentLuck(
+    pillar,
+    context.targetMonthIndex,
+  );
   const label = pillar.label ?? `${stem}${branch}`;
   const shortImage = `${label}大运偏向${tenGod}${theme.split("、")[0]}，重点看${theme}。`;
   const relationText = relationToNatal.length
@@ -211,9 +242,41 @@ function describeRelation(type, pillar) {
   return `${type}${pillar.name}${pillar.branch}：${roleMeaning}，${typeMeaning}`;
 }
 
-function isCurrentLuck(pillar, targetYear) {
-  if (!Number.isFinite(targetYear)) return false;
-  return Number(pillar.startYear) <= targetYear && targetYear <= Number(pillar.endYear);
+function isCurrentLuck(
+  pillar,
+  targetMonthIndex,
+) {
+  if (!Number.isFinite(targetMonthIndex)) {
+    return false;
+  }
+
+  const startMonthIndex = Number(
+    pillar.startMonthIndex,
+  );
+
+  const endMonthIndexExclusive = Number(
+    pillar.endMonthIndexExclusive,
+  );
+
+  if (
+    Number.isFinite(startMonthIndex) &&
+    Number.isFinite(endMonthIndexExclusive)
+  ) {
+    return (
+      startMonthIndex <= targetMonthIndex &&
+      targetMonthIndex < endMonthIndexExclusive
+    );
+  }
+
+  // 兼容旧数据；正常情况下不会再走到这里。
+  const targetYear = Math.floor(
+    targetMonthIndex / 12,
+  );
+
+  return (
+    Number(pillar.startYear) <= targetYear &&
+    targetYear <= Number(pillar.endYear)
+  );
 }
 
 function pickUsefulHint(chart, natalImageReport) {
@@ -248,4 +311,47 @@ function compact(items = []) {
     .flat()
     .filter((item) => item !== undefined && item !== null && String(item).trim())
     .map((item) => String(item));
+}
+
+function normalizeFlowMonth(value) {
+  const month = Math.trunc(Number(value));
+
+  if (!Number.isFinite(month)) {
+    return 1;
+  }
+
+  return Math.min(12, Math.max(1, month));
+}
+
+function flowMonthToMonthIndex(
+  targetYear,
+  flowMonth,
+) {
+  const year = Number(targetYear);
+
+  if (!Number.isFinite(year)) {
+    return null;
+  }
+
+  const month = normalizeFlowMonth(flowMonth);
+
+  /*
+   * 项目内部流月顺序：
+   * 1 = 寅月，约公历2月
+   * 2 = 卯月，约公历3月
+   * ...
+   * 11 = 子月，约公历12月
+   * 12 = 丑月，约下一年1月
+   */
+  const gregorianYear =
+    month === 12 ? year + 1 : year;
+
+  const gregorianMonth =
+    month === 12 ? 1 : month + 1;
+
+  return (
+    gregorianYear * 12 +
+    gregorianMonth -
+    1
+  );
 }

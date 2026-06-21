@@ -1,5 +1,8 @@
 import { buildNatalEvidencePack } from "../core/evidence/evidencePackBuilder.js";
-import { buildNatalMasterSummary } from "../core/master-summary/masterSummaryEngine.js";
+import {
+  buildNatalMasterSummary as buildLegacyNatalMasterSummary,
+} from "../core/master-summary/masterSummaryEngine.js";
+
 
 const topicLabels = {
   personality: "性格底色",
@@ -116,79 +119,383 @@ const hitTopicDomains = {
 };
 
 
-export function renderNatalImagePanel(root, report, context = {}) {
+export function renderNatalImagePanel(
+  root,
+  report,
+  context = {},
+) {
   if (!root) return;
+
   if (!report) {
     root.innerHTML = `
       <div class="plugin-header">
         <p class="eyebrow">原局取象</p>
         <h2>原局整体取象</h2>
       </div>
-      <p class="muted">等待基础排盘完成后生成原局取象。</p>
+      <p class="muted">
+        等待基础排盘完成后生成原局取象。
+      </p>
     `;
     return;
   }
+
+  const showDebug =
+    isNatalDebugEnabled();
+
+  if (showDebug) {
+    ensureNatalDebugStyles();
+  }
+
+  /*
+   * 页面原有顺序保持不变：
+   * 命理总批 → 十二维画像 → 取象索引。
+   *
+   * 页面上方“原局取象”是整个模块标题，
+   * 三个部分现在都读取新版事实数据。
+   */
   root.innerHTML = `
     <div class="plugin-header">
       <p class="eyebrow">原局取象</p>
       <h2>原局整体取象</h2>
+      ${
+        report.engineVersion
+          ? `
+            <span class="natal-engine-badge">
+              ${display(report.engineVersion)}
+              ·
+              ${display(
+                report.domainEngineVersion ||
+                "domain-v1",
+              )}
+            </span>
+          `
+          : ""
+      }
     </div>
-    ${renderNatalMasterSummary(report, context)}
+
+    ${renderNatalMasterSummary(
+      report,
+      context,
+    )}
+
     ${renderNatalDomainReport(report)}
+
     ${renderNatalHitListSection(report)}
+
+    ${
+      showDebug
+        ? renderNatalRuleDebugSection(
+            report,
+          )
+        : ""
+    }
   `;
 
   if (typeof window !== "undefined") {
     window.__NATAL_DEBUG__ = {
-      featureVector: report.featureVector,
-      atomicFacts: report.atomicFacts,
-      domainEvidence: report.domainEvidence,
-      masterSummarySelection: report.masterSummarySelection,
-      hitList: report.hitList,
-      hitListGroups: report.hitList,
-      suppressedFacts: report.atomicFacts?.suppressedFacts ?? [],
+      engineVersion:
+        report.engineVersion,
+
+      domainEngineVersion:
+        report.domainEngineVersion,
+
+      featureVector:
+        report.featureVector,
+
+      atomicFacts:
+        report.atomicFacts,
+
+      resolvedFacts:
+        report.resolvedFacts ??
+        report.atomicFacts?.facts ??
+        [],
+
+      suppressedFacts:
+        report.suppressedFacts ??
+        report.atomicFacts
+          ?.suppressedFacts ??
+        [],
+
+      coreImages:
+        report.coreImages,
+
+      masterSummary:
+        report.masterSummary,
+
+      domainEvidence:
+        report.domainEvidence,
+
+      twelveDomains:
+        report.twelveDomains,
+
+      hitList:
+        report.hitList,
+
+      ruleEvaluation:
+        report.atomicFacts
+          ?.debug
+          ?.ruleEvaluation ??
+        [],
+
+      factEngineDebug:
+        report.atomicFacts?.debug ??
+        {},
     };
   }
+
   bindNatalEvidencePopup(root);
 }
 
-function renderNatalMasterSummary(report = {}, context = {}) {
-  const domains = buildNatalDomainCards(report);
-  const hitList = buildNatalHitList(report);
-  const summary = buildNatalMasterSummary({
-    summary: report.summary,
-    twelveDomains: domains,
-    hitList: hitList.all ?? [],
-    featureVector: report.featureVector,
-    atomicFacts: report.atomicFacts,
-    domainEvidence: report.domainEvidence,
-    database: context.masterSummaryDatabase,
-  });
-  const sectionTexts = Array.isArray(summary.sections) && summary.sections.length
-    ? summary.sections
-    : [
-      { key: "main", title: "命局主线", text: summary.paragraph },
-      { key: "reality", title: "现实牵动", text: summary.realityLine },
-    ].filter((section) => section.text);
+
+function renderNatalMasterSummary(
+  report = {},
+  context = {},
+) {
+  /*
+   * 优先使用新版事实驱动总批。
+   * 只有新版数据不存在时，才调用旧引擎兜底。
+   */
+  const hasV2Summary =
+    report.masterSummary &&
+    (
+      report.masterSummary.conclusion ||
+      Array.isArray(
+        report.masterSummary.sections,
+      )
+    );
+
+  const domains =
+    buildNatalDomainCards(report);
+
+  const hitList =
+    buildNatalHitList(report);
+
+  const summary = hasV2Summary
+    ? report.masterSummary
+    : buildLegacyNatalMasterSummary({
+        summary: report.summary,
+        twelveDomains: domains,
+        hitList:
+          hitList.all ?? [],
+        featureVector:
+          report.featureVector,
+        atomicFacts:
+          report.atomicFacts,
+        domainEvidence:
+          report.domainEvidence,
+        database:
+          context.masterSummaryDatabase,
+      });
+
+  const sectionTexts =
+    normalizeMasterSummarySections(
+      summary,
+    );
+
+  const headline =
+    summary.title ||
+    summary.headline ||
+    "命理总批（原局）";
+
+  const evidenceCount =
+    compact(
+      summary.evidenceFactIds,
+    ).length;
+
+  const conditionalCount =
+    compact(
+      summary.conditionalFactIds,
+    ).length;
+
   return `
     <section class="natal-master-summary">
-      <p class="eyebrow">命理师总批</p>
-      <h3>${display(summary.headline)}</h3>
-      <div class="natal-master-sections">
-        ${sectionTexts.map((section) => `
-          <p><b>${display(section.title)}</b>${display(section.text)}</p>
-        `).join("")}
-      </div>
-      ${summary.mainLines?.length ? `
-        <div class="natal-master-lines">
-          ${summary.mainLines.map((line) => `
-            <span>${display(line.label)}</span>
-          `).join("")}
+      <div class="natal-master-head">
+        <div>
+          <p class="eyebrow">
+            命理师总批
+          </p>
+          <h3>
+            ${display(headline)}
+          </h3>
         </div>
-      ` : ""}
+
+        ${
+          hasV2Summary
+            ? `
+              <span class="natal-v2-source">
+                事实驱动
+                ${
+                  evidenceCount
+                    ? ` · ${safe(
+                        evidenceCount,
+                      )} 条主证`
+                    : ""
+                }
+              </span>
+            `
+            : `
+              <span class="natal-v2-source is-legacy">
+                旧版兜底
+              </span>
+            `
+        }
+      </div>
+
+      ${
+        summary.structure
+          ? `
+            <p class="natal-master-structure">
+              <b>命局结构</b>
+              ${display(
+                summary.structure,
+              )}
+            </p>
+          `
+          : ""
+      }
+
+      <div class="natal-master-sections">
+        ${
+          sectionTexts.length
+            ? sectionTexts
+                .map(
+                  (section) => `
+                    <article
+                      class="natal-master-section"
+                      data-section-key="${safe(
+                        section.key ||
+                        "",
+                      )}"
+                    >
+                      <b>
+                        ${display(
+                          section.title,
+                        )}
+                      </b>
+
+                      <p>
+                        ${display(
+                          section.text,
+                        )}
+                      </p>
+                    </article>
+                  `,
+                )
+                .join("")
+            : `
+              <p class="muted">
+                当前原局事实不足，
+                暂未形成完整总批。
+              </p>
+            `
+        }
+      </div>
+
+      ${
+        summary.conclusion
+          ? `
+            <article class="natal-master-conclusion">
+              <b>综合总论</b>
+              <p>
+                ${display(
+                  summary.conclusion,
+                )}
+              </p>
+            </article>
+          `
+          : ""
+      }
+
+      ${
+        conditionalCount
+          ? `
+            <p class="natal-master-condition-note">
+              另有 ${safe(
+                conditionalCount,
+              )} 条条件象未直接写入主结论，
+              可在取象依据中查看。
+            </p>
+          `
+          : ""
+      }
+
+      ${
+        summary.boundary
+          ? `
+            <p class="natal-master-boundary">
+              ${display(
+                summary.boundary,
+              )}
+            </p>
+          `
+          : ""
+      }
     </section>
   `;
 }
+
+function normalizeMasterSummarySections(
+  summary = {},
+) {
+  if (
+    Array.isArray(summary.sections) &&
+    summary.sections.length
+  ) {
+    return summary.sections
+      .map((section) => {
+        const items =
+          compact(section.items);
+
+        const text =
+          section.text ||
+          (
+            items.length
+              ? items.join("；")
+              : ""
+          );
+
+        return {
+          key:
+            section.key ||
+            "",
+
+          title:
+            section.label ||
+            section.title ||
+            "命局判断",
+
+          text,
+        };
+      })
+      .filter(
+        (section) =>
+          section.text,
+      );
+  }
+
+  return [
+    {
+      key: "main",
+      title: "命局主线",
+      text:
+        summary.paragraph ||
+        summary.core ||
+        "",
+    },
+    {
+      key: "reality",
+      title: "现实牵动",
+      text:
+        summary.realityLine ||
+        summary.workLine ||
+        "",
+    },
+  ].filter(
+    (section) =>
+      section.text,
+  );
+}
+
 
 function renderNatalDomainReport(report = {}) {
   const domains = buildNatalDomainCards(report);
@@ -767,6 +1074,603 @@ function renderEvidenceCardBlock(title, items = [], prefix = "") {
         : `<p class="muted">暂无明确内容。</p>`}
     </section>
   `;
+}
+
+function renderNatalRuleDebugSection(
+  report = {},
+) {
+  const ruleEvaluation =
+    report.atomicFacts
+      ?.debug
+      ?.ruleEvaluation ??
+    [];
+
+  const resolvedFacts =
+    report.resolvedFacts ??
+    report.atomicFacts?.facts ??
+    [];
+
+  const suppressedFacts =
+    report.suppressedFacts ??
+    report.atomicFacts
+      ?.suppressedFacts ??
+    [];
+
+  const matchedRules =
+    ruleEvaluation.filter(
+      (rule) => rule.matched,
+    );
+
+  const unmatchedRules =
+    ruleEvaluation.filter(
+      (rule) => !rule.matched,
+    );
+
+  const ruleFactMap = new Map();
+
+  for (const fact of resolvedFacts) {
+    if (fact.sourceRuleId) {
+      ruleFactMap.set(
+        fact.sourceRuleId,
+        fact,
+      );
+    }
+  }
+
+  return `
+    <section class="natal-rule-debug">
+      <details>
+        <summary>
+          <span>内部规则调试</span>
+          <small>
+            ${safe(
+              matchedRules.length,
+            )} 条命中 /
+            ${safe(
+              ruleEvaluation.length,
+            )} 条规则 /
+            ${safe(
+              suppressedFacts.length,
+            )} 条被抑制
+          </small>
+        </summary>
+
+        <div class="natal-rule-debug-body">
+          <div class="natal-rule-debug-stats">
+            ${renderDebugStat(
+              "最终事实",
+              resolvedFacts.length,
+            )}
+
+            ${renderDebugStat(
+              "命中规则",
+              matchedRules.length,
+            )}
+
+            ${renderDebugStat(
+              "未命中规则",
+              unmatchedRules.length,
+            )}
+
+            ${renderDebugStat(
+              "被抑制",
+              suppressedFacts.length,
+            )}
+          </div>
+
+          <h4>已命中的高阶规则</h4>
+
+          ${
+            matchedRules.length
+              ? `
+                <div class="natal-debug-table-wrap">
+                  <table class="natal-debug-table">
+                    <thead>
+                      <tr>
+                        <th>规则ID</th>
+                        <th>规则名称</th>
+                        <th>得分</th>
+                        <th>作用维度</th>
+                        <th>命中依据</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      ${matchedRules
+                        .map((rule) =>
+                          renderMatchedRuleRow(
+                            rule,
+                            ruleFactMap.get(
+                              rule.ruleId,
+                            ),
+                          ),
+                        )
+                        .join("")}
+                    </tbody>
+                  </table>
+                </div>
+              `
+              : `
+                <p class="muted">
+                  当前命盘没有命中高阶组合规则。
+                </p>
+              `
+          }
+
+          ${
+            suppressedFacts.length
+              ? `
+                <details class="natal-debug-subdetails">
+                  <summary>
+                    查看被合并或抑制的事实
+                  </summary>
+
+                  <div class="natal-debug-suppressed-list">
+                    ${suppressedFacts
+                      .map(
+                        (fact) => `
+                          <article>
+                            <strong>
+                              ${display(
+                                fact.name ||
+                                fact.label ||
+                                fact.id,
+                              )}
+                            </strong>
+
+                            <span>
+                              ${display(
+                                fact.suppressedReason ||
+                                "与更强事实重复或冲突",
+                              )}
+                            </span>
+
+                            ${
+                              fact.suppressedBy
+                                ? `
+                                  <small>
+                                    保留：
+                                    ${display(
+                                      fact.suppressedBy,
+                                    )}
+                                  </small>
+                                `
+                                : ""
+                            }
+                          </article>
+                        `,
+                      )
+                      .join("")}
+                  </div>
+                </details>
+              `
+              : ""
+          }
+
+          ${
+            unmatchedRules.length
+              ? `
+                <details class="natal-debug-subdetails">
+                  <summary>
+                    查看未命中规则
+                  </summary>
+
+                  <div class="natal-debug-unmatched-list">
+                    ${unmatchedRules
+                      .map(
+                        renderUnmatchedRule,
+                      )
+                      .join("")}
+                  </div>
+                </details>
+              `
+              : ""
+          }
+        </div>
+      </details>
+    </section>
+  `;
+}
+
+function renderMatchedRuleRow(
+  rule,
+  fact = {},
+) {
+  const matchedConditions =
+    collectRuleConditions(
+      rule,
+      true,
+    );
+
+  return `
+    <tr>
+      <td>
+        <code>
+          ${display(
+            rule.ruleId,
+          )}
+        </code>
+      </td>
+
+      <td>
+        <strong>
+          ${display(
+            fact.name ||
+            rule.ruleName ||
+            rule.ruleId,
+          )}
+        </strong>
+
+        ${
+          fact.brief
+            ? `
+              <small>
+                ${display(
+                  fact.brief,
+                )}
+              </small>
+            `
+            : ""
+        }
+      </td>
+
+      <td>
+        ${safe(
+          fact.score ?? "-",
+        )}
+      </td>
+
+      <td>
+        ${display(
+          compact(
+            fact.domains,
+          ).join("、") ||
+          "-",
+        )}
+      </td>
+
+      <td>
+        ${display(
+          matchedConditions.join("；") ||
+          compact(
+            fact.evidence,
+          )
+            .map(evidenceText)
+            .join("；") ||
+          "规则条件成立",
+        )}
+      </td>
+    </tr>
+  `;
+}
+
+function renderUnmatchedRule(
+  rule = {},
+) {
+  const failedConditions =
+    collectRuleConditions(
+      rule,
+      false,
+    );
+
+  return `
+    <article>
+      <strong>
+        ${display(
+          rule.ruleName ||
+          rule.ruleId,
+        )}
+      </strong>
+
+      <code>
+        ${display(
+          rule.ruleId,
+        )}
+      </code>
+
+      <p>
+        ${display(
+          failedConditions.join("；") ||
+          "未通过自定义条件或组合条件",
+        )}
+      </p>
+    </article>
+  `;
+}
+
+function collectRuleConditions(
+  rule = {},
+  matched,
+) {
+  const conditions = [
+    ...compact(rule.all),
+    ...compact(rule.any),
+    ...compact(rule.none),
+    rule.custom,
+  ].filter(Boolean);
+
+  return conditions
+    .filter(
+      (condition) =>
+        Boolean(
+          condition.matched,
+        ) === matched,
+    )
+    .map(
+      (condition) => {
+        const label =
+          condition.label ||
+          condition.path ||
+          "条件";
+
+        const actual =
+          debugValue(
+            condition.actual,
+          );
+
+        const expected =
+          debugValue(
+            condition.expected,
+          );
+
+        if (
+          actual &&
+          expected &&
+          actual !== expected
+        ) {
+          return `${label}：实际 ${actual}，要求 ${expected}`;
+        }
+
+        if (actual) {
+          return `${label}：${actual}`;
+        }
+
+        return matched
+          ? `${label}成立`
+          : `${label}未成立`;
+      },
+    );
+}
+
+function renderDebugStat(
+  label,
+  value,
+) {
+  return `
+    <article>
+      <strong>
+        ${safe(value)}
+      </strong>
+      <span>
+        ${display(label)}
+      </span>
+    </article>
+  `;
+}
+
+function debugValue(value) {
+  if (
+    value === undefined ||
+    value === null ||
+    value === ""
+  ) {
+    return "";
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map(debugValue)
+      .filter(Boolean)
+      .join("、");
+  }
+
+  if (
+    typeof value === "object"
+  ) {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+
+  return String(value);
+}
+
+function isNatalDebugEnabled() {
+  if (
+    typeof window === "undefined"
+  ) {
+    return false;
+  }
+
+  const params =
+    new URLSearchParams(
+      window.location.search,
+    );
+
+  return (
+    params.get("natalDebug") === "1" ||
+    window.localStorage
+      ?.getItem("natalDebug") === "1" ||
+    window.__SHOW_NATAL_DEBUG__ === true
+  );
+}
+
+function ensureNatalDebugStyles() {
+  if (
+    typeof document === "undefined" ||
+    document.getElementById(
+      "natal-debug-v2-styles",
+    )
+  ) {
+    return;
+  }
+
+  const style =
+    document.createElement("style");
+
+  style.id =
+    "natal-debug-v2-styles";
+
+  style.textContent = `
+    .natal-engine-badge,
+    .natal-v2-source {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 4px 9px;
+      border: 1px solid rgba(120, 95, 60, .24);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #766247;
+      background: rgba(250, 246, 237, .75);
+    }
+
+    .natal-v2-source.is-legacy {
+      opacity: .65;
+    }
+
+    .natal-master-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .natal-master-section {
+      padding: 12px 0;
+      border-bottom: 1px dashed rgba(120, 95, 60, .2);
+    }
+
+    .natal-master-section:last-child {
+      border-bottom: 0;
+    }
+
+    .natal-master-section p,
+    .natal-master-conclusion p {
+      margin: 6px 0 0;
+      line-height: 1.8;
+    }
+
+    .natal-master-structure,
+    .natal-master-boundary,
+    .natal-master-condition-note {
+      line-height: 1.75;
+    }
+
+    .natal-rule-debug {
+      margin-top: 24px;
+      border: 1px solid rgba(120, 95, 60, .25);
+      border-radius: 14px;
+      background: rgba(248, 245, 238, .72);
+      overflow: hidden;
+    }
+
+    .natal-rule-debug > details > summary {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .natal-rule-debug-body {
+      padding: 0 18px 18px;
+    }
+
+    .natal-rule-debug-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 4px 0 18px;
+    }
+
+    .natal-rule-debug-stats article {
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .72);
+      text-align: center;
+    }
+
+    .natal-rule-debug-stats strong,
+    .natal-rule-debug-stats span {
+      display: block;
+    }
+
+    .natal-rule-debug-stats strong {
+      font-size: 20px;
+    }
+
+    .natal-debug-table-wrap {
+      overflow-x: auto;
+    }
+
+    .natal-debug-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .natal-debug-table th,
+    .natal-debug-table td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(120, 95, 60, .16);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .natal-debug-table td small {
+      display: block;
+      margin-top: 5px;
+      opacity: .72;
+      line-height: 1.5;
+    }
+
+    .natal-debug-subdetails {
+      margin-top: 16px;
+    }
+
+    .natal-debug-subdetails > summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .natal-debug-suppressed-list,
+    .natal-debug-unmatched-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .natal-debug-suppressed-list article,
+    .natal-debug-unmatched-list article {
+      padding: 10px 12px;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, .64);
+    }
+
+    .natal-debug-suppressed-list span,
+    .natal-debug-suppressed-list small,
+    .natal-debug-unmatched-list p {
+      display: block;
+      margin-top: 4px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 720px) {
+      .natal-rule-debug-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .natal-master-head {
+        flex-direction: column;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
 }
 
 function bindNatalEvidencePopup(root) {

@@ -1,39 +1,57 @@
 import { atomicNatalRules } from "./atomicNatalRuleDatabase.js";
+import { evaluateNatalRules } from "./natalRuleEvaluator.js";
+import { resolveNatalFacts } from "./natalFactResolver.js";
 
-export function buildAtomicNatalFacts(featureVector = {}) {
-  const ruleFacts = atomicNatalRules
-    .filter((rule) => safeCall(() => rule.match(featureVector), false))
-    .map((rule) => {
-      const built = safeCall(() => rule.buildFact(featureVector), null) ?? {};
-      const score = Number.isFinite(rule.score?.(featureVector))
-        ? Number(rule.score(featureVector))
-        : Number(built.score ?? 50);
-      return normalizeFact({
-        polarity: "mixed",
-        specificity: "medium",
-        evidence: [],
-        domains: [],
-        tags: [],
-        ...built,
-        id: built.id || rule.id,
-        category: built.category || rule.category || "structure",
-        role: built.role || rule.role || "support",
-        score,
-        domains: [...new Set([...(built.domains ?? []), ...(rule.domains ?? [])])],
-        sourceRuleId: rule.id,
-      });
-    })
-    .filter((fact) => fact.id && fact.name);
+export function buildAtomicNatalFacts(
+  featureVector = {},
+) {
+  /*
+   * 基础事实：
+   * 日主、透藏、关系、重复、五行、神煞。
+   *
+   * 不再从这里生成官印相生、食伤生财等高阶组合。
+   */
+  const baseFacts = buildDerivedFacts(
+    featureVector,
+  );
 
-  const facts = dedupeFacts([...ruleFacts, ...buildDerivedFacts(featureVector)])
-    .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+  /*
+   * 高阶规则：
+   * 统一交给数据化规则库评估。
+   */
+  const ruleEvaluation =
+    evaluateNatalRules(
+      featureVector,
+      atomicNatalRules,
+    );
+
+  /*
+   * 合并、去重、冲突与主次处理。
+   */
+  const resolved =
+    resolveNatalFacts([
+      ...baseFacts,
+      ...ruleEvaluation.facts,
+    ]);
 
   return {
-    facts,
-    byDomain: groupByDomain(facts),
-    byCategory: groupByCategory(facts),
-    hitListGroups: groupHitList(facts),
-    suppressedFacts: facts.filter((fact) => fact.suppressedReason),
+    facts: resolved.facts,
+    byDomain: resolved.byDomain,
+    byCategory: resolved.byCategory,
+    hitListGroups:
+      resolved.hitListGroups,
+    suppressedFacts:
+      resolved.suppressedFacts,
+
+    debug: {
+      ...resolved.debug,
+      baseFactCount:
+        baseFacts.length,
+      ruleFactCount:
+        ruleEvaluation.facts.length,
+      ruleEvaluation:
+        ruleEvaluation.debug,
+    },
   };
 }
 
@@ -41,7 +59,9 @@ function buildDerivedFacts(fv = {}) {
   return [
     ...buildDayMasterFacts(fv),
     ...buildTenGodPositionFacts(fv),
-    ...buildCombinationFacts(fv),
+
+    // 高阶组合已迁移到 atomicNatalRuleDatabase.js，
+    // 这里不再调用 buildCombinationFacts。
     ...buildRelationFacts(fv),
     ...buildRepetitionFacts(fv),
     ...buildElementFacts(fv),

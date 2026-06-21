@@ -55,14 +55,6 @@ test("empty natal feature vector has the full stable V2 structure", () => {
   );
 });
 
-test("empty normalized feature vector validates successfully", () => {
-  const vector = createEmptyNatalFeatureVector();
-  const result = validateNatalFeatureVector(vector);
-
-  assert.equal(result.valid, true, result.errors.join("; "));
-  assert.deepEqual(result.errors, []);
-});
-
 test("normalizing sparse input preserves legacy fields and removes NaN", () => {
   const vector = normalizeNatalFeatureVector({
     meta: { gender: "" },

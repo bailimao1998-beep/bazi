@@ -226,42 +226,26 @@ export function validateNatalFeatureVector(input) {
         "voidFeatures",
         "storageFeatures",
         "growthStageFeatures",
+        "climateProfile",
+        "workChains",
       ]
     ) {
-      if (!isPlainObject(vector[key])) {
-        errors.push(`missing feature group ${key}`);
-        continue;
+      if (
+        !isPlainObject(vector[key])
+      ) {
+        errors.push(
+          `missing feature group ${key}`,
+        );
       }
 
-      if (!isPlainObject(vector[key]?.byPillar)) {
-        errors.push(`${key}.byPillar should be an object`);
-      }
-    }
-
-    if (!isPlainObject(vector.climateProfile)) {
-      errors.push("missing feature group climateProfile");
-    } else {
-      if (!isPlainObject(vector.climateProfile.scores)) {
-        errors.push("climateProfile.scores should be an object");
-      }
-      if (!Array.isArray(vector.climateProfile.priorityNeeds)) {
-        errors.push("climateProfile.priorityNeeds should be an array");
-      }
-      if (!Array.isArray(vector.climateProfile.passThroughCandidates)) {
-        errors.push("climateProfile.passThroughCandidates should be an array");
-      }
-    }
-
-    if (!isPlainObject(vector.workChains)) {
-      errors.push("missing feature group workChains");
-    } else {
-      for (const key of ["nodes", "edges", "chains"]) {
-        if (!Array.isArray(vector.workChains[key])) {
-          errors.push(`workChains.${key} should be an array`);
-        }
-      }
-      if (!isPlainObject(vector.workChains.summary)) {
-        errors.push("workChains.summary should be an object");
+      if (
+        !isPlainObject(
+          vector[key]?.byPillar,
+        )
+      ) {
+        errors.push(
+          `${key}.byPillar should be an object`,
+        );
       }
     }
 

@@ -122,8 +122,6 @@ export function buildNatalFeatureVector({ chart, baseBaziViewModel } = {}) {
     voidFeatures,
     storageFeatures,
     growthStageFeatures,
-    climateProfile,
-    workChains,
   });
 }
 

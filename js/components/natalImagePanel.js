@@ -138,6 +138,15 @@ export function renderNatalImagePanel(root, report, context = {}) {
     ${renderNatalHitListSection(report)}
   `;
 
+  if (typeof window !== "undefined") {
+    window.__NATAL_DEBUG__ = {
+      featureVector: report.featureVector,
+      atomicFacts: report.atomicFacts,
+      domainEvidence: report.domainEvidence,
+      masterSummarySelection: report.masterSummarySelection,
+      hitList: report.hitList,
+    };
+  }
   bindNatalEvidencePopup(root);
 }
 
@@ -148,6 +157,9 @@ function renderNatalMasterSummary(report = {}, context = {}) {
     summary: report.summary,
     twelveDomains: domains,
     hitList,
+    featureVector: report.featureVector,
+    atomicFacts: report.atomicFacts,
+    domainEvidence: report.domainEvidence,
     database: context.masterSummaryDatabase,
   });
   const sectionTexts = Array.isArray(summary.sections) && summary.sections.length
@@ -319,7 +331,20 @@ function buildNatalDomainCards(report = {}) {
     }));
 }
 
-function buildNatalHitList(report = {}) {
+export function buildNatalHitList(report = {}) {
+  if (Array.isArray(report.hitList) && report.hitList.length) {
+    return report.hitList.slice(0, 18).map((item) => ({
+      ...item,
+      type: item.type || item.category,
+      category: item.category || item.type || "结构象",
+      importance: normalizeImportance(item.importance || item.confidence),
+      evidence: compact(item.evidence),
+      image: compact(item.image),
+      domains: domainLabelsFromKeys(item.domains || item.supports, buildNatalDomainCards(report)),
+      supports: compact(item.supports || item.domains),
+      confidence: item.confidence || item.importance || "medium",
+    }));
+  }
   const domains = buildNatalDomainCards(report);
   const byKey = new Map(domains.map((domain) => [domain.key, domain]));
   const rows = [];
@@ -406,6 +431,11 @@ function buildNatalHitList(report = {}) {
   return dedupeHitRows(rows)
     .sort((a, b) => confidenceScore(b.confidence) - confidenceScore(a.confidence))
     .slice(0, 18);
+}
+
+function domainLabelsFromKeys(keys = [], domains = []) {
+  const byKey = new Map(domains.map((domain) => [domain.key, domain.label]));
+  return compact(keys).map((key) => byKey.get(key) || key);
 }
 
 function dedupeHitRows(rows = []) {

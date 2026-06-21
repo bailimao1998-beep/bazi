@@ -1,5 +1,7 @@
 import { domainRules } from "./domainRuleDatabase.js";
 import { combinationRules } from "./combinationRuleDatabase.js";
+import { buildAtomicNatalFacts } from "../natal/atomicNatalFactEngine.js";
+import { buildNatalFeatureVector } from "../natal/natalFeatureVector.js";
 
 const tenGodGroups = {
   peer: ["比肩", "劫财", "日主"],
@@ -19,14 +21,115 @@ const elementLabels = {
 
 const pillarKeys = ["year", "month", "day", "hour"];
 
-export function buildDomainEvidence({ chart, baseBaziViewModel, natalImageReport } = {}) {
+const primaryFactPreferences = {
+  self: [
+    "resource_visible_month_stem",
+    "officer_resource_chain",
+    "day_master_profile",
+    "peer_visible_hour_stem",
+    "peer_dominant",
+    "element_bias",
+    "day_branch_relation",
+  ],
+  parents: [
+    "wealth_visible_year_month",
+    "earth_storage_bearing",
+    "resource_visible_month_stem",
+    "officer_resource_chain",
+    "month_pillar_environment",
+  ],
+  siblings: [
+    "peer_visible_hour_stem",
+    "peer_dominant",
+    "peer_wealth_tension",
+  ],
+  spouse: [
+    "day_branch_relation",
+    "officer_dominant",
+    "officer_resource_chain",
+  ],
+  children: [
+    "output_weak",
+    "hour_pillar_result",
+    "output_wealth_chain",
+    "output_dominant",
+  ],
+  wealth: [
+    "wealth_visible_year_month",
+    "earth_storage_bearing",
+    "output_wealth_chain",
+    "peer_wealth_tension",
+    "wealth_dominant",
+    "peer_dominant",
+  ],
+  health: [
+    "element_bias",
+    "day_branch_relation",
+    "water_wood_flow",
+  ],
+  movement: [
+    "water_wood_flow",
+    "day_branch_relation",
+    "element_bias",
+  ],
+  friends: [
+    "peer_visible_hour_stem",
+    "peer_wealth_tension",
+    "peer_dominant",
+    "day_branch_relation",
+  ],
+  career: [
+    "officer_resource_chain",
+    "resource_visible_month_stem",
+    "output_wealth_chain",
+    "officer_dominant",
+    "month_pillar_environment",
+    "output_weak",
+  ],
+  property: [
+    "earth_storage_bearing",
+    "wealth_visible_year_month",
+    "month_pillar_environment",
+  ],
+  fortune: [
+    "resource_visible_month_stem",
+    "officer_resource_chain",
+    "water_wood_flow",
+    "element_bias",
+    "day_master_profile",
+  ],
+};
+
+export function buildDomainEvidence({ chart, baseBaziViewModel, natalImageReport, featureVector, atomicFacts } = {}) {
+  const vector = featureVector ?? buildNatalFeatureVector({ chart, baseBaziViewModel });
+  const factResult = atomicFacts ?? buildAtomicNatalFacts(vector);
   const signals = extractSignals({ chart: chart ?? {}, baseBaziViewModel: baseBaziViewModel ?? {}, natalImageReport: natalImageReport ?? {} });
+  const primaryUse = new Map();
   const domainEvidence = Object.fromEntries(domainRules.map((rule) => {
+    const facts = selectFactsForDomain(rule.key, factResult.facts ?? [], primaryUse);
     const matchedSignals = matchDomainSignals(signals, rule);
     const matchedCombinations = matchCombinations(signals, rule.key);
-    const score = calculateScore({ matchedSignals, matchedCombinations });
+    const score = calculateScore({ matchedSignals, matchedCombinations, facts });
+    const primaryFact = facts.primaryFact ?? null;
+    if (primaryFact?.id) primaryUse.set(primaryFact.id, (primaryUse.get(primaryFact.id) || 0) + 1);
     return [rule.key, {
+      domain: rule.key,
       score,
+      primaryFact,
+      secondaryFacts: facts.secondaryFacts,
+      tensionFact: facts.tensionFact,
+      counterFact: facts.counterFact,
+      matchedFactIds: compact([
+        primaryFact?.id,
+        facts.secondaryFacts.map((fact) => fact.id),
+        facts.tensionFact?.id,
+        facts.counterFact?.id,
+      ]),
+      evidence: compact([
+        primaryFact?.evidence,
+        facts.secondaryFacts.flatMap((fact) => fact.evidence ?? []),
+        facts.tensionFact?.evidence,
+      ]).slice(0, 10),
       matchedSignals,
       matchedRules: buildMatchedRules(rule, matchedSignals),
       matchedCombinations,
@@ -34,7 +137,41 @@ export function buildDomainEvidence({ chart, baseBaziViewModel, natalImageReport
     }];
   }));
 
-  return { signals, domainEvidence };
+  return { signals, atomicFacts: factResult, featureVector: vector, domainEvidence };
+}
+
+function selectFactsForDomain(domainKey, facts = [], primaryUse = new Map()) {
+  const matched = facts
+    .filter((fact) => (fact.domains ?? []).includes(domainKey))
+    .sort((a, b) => rankFactForDomain(domainKey, b) - rankFactForDomain(domainKey, a) || b.score - a.score || a.id.localeCompare(b.id));
+  const primaryFact = matched.find((fact) => (primaryUse.get(fact.id) || 0) < 2 && fact.specificity !== "generic") || matched[0] || null;
+  const secondaryFacts = matched
+    .filter((fact) => fact.id !== primaryFact?.id && fact.role !== "tension" && fact.role !== "counter")
+    .slice(0, 2);
+  const tensionFact = matched.find((fact) => fact.role === "tension" && fact.id !== primaryFact?.id) || null;
+  const counterFact = matched.find((fact) => fact.role === "counter" && fact.id !== primaryFact?.id) || null;
+  return { primaryFact, secondaryFacts, tensionFact, counterFact };
+}
+
+function rankFactForDomain(domainKey, fact = {}) {
+  const preferences = primaryFactPreferences[domainKey] ?? [];
+  const preferenceIndex = preferences.indexOf(fact.id);
+  const preferenceScore = preferenceIndex >= 0 ? 140 - preferenceIndex * 12 : 0;
+  const specificityScore = {
+    high: 32,
+    medium: 12,
+    low: 0,
+    generic: -20,
+  }[fact.specificity] ?? 8;
+  const roleScore = {
+    main: 16,
+    resource: 14,
+    support: 10,
+    base: 8,
+    tension: domainKey === "spouse" || domainKey === "health" || domainKey === "movement" ? 12 : 4,
+    counter: domainKey === "children" ? 18 : 2,
+  }[fact.role] ?? 6;
+  return preferenceScore + specificityScore + roleScore + Number(fact.score ?? 0) / 10;
 }
 
 function extractSignals({ chart, baseBaziViewModel, natalImageReport }) {
@@ -336,13 +473,20 @@ function isCombinationMatched(signals, rule) {
   return hasIncluded && !blocked;
 }
 
-function calculateScore({ matchedSignals, matchedCombinations }) {
+function calculateScore({ matchedSignals, matchedCombinations, facts = {} }) {
   const signalScore = matchedSignals.reduce((sum, signal) => {
     const weight = signal.strength === "strong" ? 3 : signal.strength === "medium" ? 2 : 1;
     return sum + weight;
   }, 0);
   const comboScore = matchedCombinations.reduce((sum, rule) => sum + Math.min(6, Number(rule.weight ?? 0)), 0);
-  return signalScore + comboScore;
+  const factItems = [
+    facts.primaryFact,
+    ...(facts.secondaryFacts ?? []),
+    facts.tensionFact,
+    facts.counterFact,
+  ].filter(Boolean);
+  const factScore = factItems.reduce((sum, fact) => sum + Math.min(12, Number(fact.score ?? 0) / 8), 0);
+  return signalScore + comboScore + factScore;
 }
 
 function buildMatchedRules(rule, matchedSignals) {

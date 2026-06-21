@@ -345,8 +345,8 @@ const domainFrontOverrides = {
   },
 };
 
-export function buildTwelveDomainPortrait({ chart, baseBaziViewModel, natalImageReport } = {}) {
-  const evidenceResult = buildDomainEvidence({ chart, baseBaziViewModel, natalImageReport });
+export function buildTwelveDomainPortrait({ chart, baseBaziViewModel, natalImageReport, featureVector, atomicFacts, domainEvidence } = {}) {
+  const evidenceResult = domainEvidence ?? buildDomainEvidence({ chart, baseBaziViewModel, natalImageReport, featureVector, atomicFacts });
   const primaryCombinationUse = new Map();
   return domainRules.map((rule) => {
     const evidence = evidenceResult.domainEvidence[rule.key] ?? {
@@ -369,29 +369,51 @@ function buildDomainPortrait(rule, evidence, primaryCombination = null) {
   const combinations = evidence.matchedCombinations ?? [];
   const confidence = evidence.confidence ?? "low";
   const keywords = buildDomainKeywords(rule, combinations);
-  const evidenceTexts = evidence.matchedSignals.map((signal) => signal.text || `${signal.source}：${signal.label}`).slice(0, 8);
+  const evidenceTexts = [
+    evidence.primaryFact?.evidence,
+    evidence.secondaryFacts?.flatMap((fact) => fact.evidence ?? []),
+    evidence.tensionFact?.evidence,
+    evidence.matchedSignals.map((signal) => signal.text || `${signal.source}：${signal.label}`),
+  ].flat(Infinity).filter(Boolean).slice(0, 8);
   const condition = unique([
+    evidence.primaryFact ? `主证：${evidence.primaryFact.label}` : "",
+    ...(evidence.secondaryFacts ?? []).map((fact) => `辅证：${fact.label}`),
+    evidence.tensionFact ? `压力：${evidence.tensionFact.label}` : "",
     ...evidence.matchedRules,
     ...combinations.map((item) => item.evidenceText),
     confidence === "low" ? rule.weakEvidenceText : "",
   ]).slice(0, 8);
   const counterEvidence = unique([
+    evidence.counterFact ? evidence.counterFact.meaning : "",
     ...combinations.map((item) => item.pressure),
     confidence === "low" ? "这一项在原局不是主线，现实阶段不带动时表现会收敛。" : "",
     "若现实经历与命盘取象不贴合，优先回到柱位、十神强弱和现实阶段复核。",
   ]).slice(0, 6);
-  const frontText = buildDomainFrontText(rule.key, evidence, rule, primaryCombination);
+  const frontText = composeDomainNarrative({
+    domain: rule,
+    primaryFact: evidence.primaryFact,
+    secondaryFacts: evidence.secondaryFacts,
+    tensionFact: evidence.tensionFact,
+    counterFact: evidence.counterFact,
+    featureVector: evidence.featureVector,
+    fallback: buildDomainFrontText(rule.key, evidence, rule, primaryCombination),
+  });
 
   return {
     key: rule.key,
     label: rule.label,
-    title: buildDomainHumanTitle(rule.key, evidence, primaryCombination),
+    title: frontText.title || buildDomainHumanTitle(rule.key, evidence, primaryCombination),
     judgement: frontText.judgement,
     manifestation: frontText.manifestation,
     pressure: frontText.pressure,
-    keywords,
+    keywords: unique([...(frontText.keywords ?? []), ...keywords]).slice(0, 5),
     tags: keywords,
     evidence: evidenceTexts.length ? evidenceTexts : [rule.defaultJudgement],
+    primaryFact: evidence.primaryFact ?? null,
+    secondaryFacts: evidence.secondaryFacts ?? [],
+    tensionFact: evidence.tensionFact ?? null,
+    counterFact: evidence.counterFact ?? null,
+    matchedFactIds: evidence.matchedFactIds ?? [],
     matchedCombinations: combinations.map((item) => ({
       id: item.id,
       label: item.label,
@@ -407,6 +429,129 @@ function buildDomainPortrait(rule, evidence, primaryCombination = null) {
     confidence,
     score: evidence.score,
   };
+}
+
+function composeDomainNarrative({
+  domain = {},
+  primaryFact = null,
+  secondaryFacts = [],
+  tensionFact = null,
+  fallback = {},
+} = {}) {
+  if (!primaryFact) return fallback;
+  const key = domain.key;
+  const fragments = narrativeFragments[key] ?? narrativeFragments.default;
+  const primaryText = factPhrase(primaryFact, key);
+  const secondaryText = secondaryFacts.map((fact) => factPhrase(fact, key)).filter(Boolean).slice(0, 2);
+  const tensionText = tensionFact ? tensionPhrase(tensionFact, key) : fallback.pressure;
+  const title = buildFactTitle(key, primaryFact, secondaryFacts, tensionFact, fallback.title);
+  const judgement = limitSentences(`${primaryText}${secondaryText[0] ? `，同时${secondaryText[0]}` : ""}。`, 2);
+  const manifestation = limitSentences((fragments.manifestation || "现实里会落到对应领域的选择、节奏和承接方式上。")
+    .replace("{primary}", primaryFact.meaning)
+    .replace("{secondary}", secondaryText[0] || primaryFact.label), 2);
+  const pressure = limitSentences(tensionText || fallback.pressure || "压力点要回到主证和反证之间复核。", 1);
+  return {
+    title: cleanFrontText(title),
+    judgement: cleanFrontText(judgement),
+    manifestation: cleanFrontText(manifestation),
+    pressure: cleanFrontText(pressure),
+    keywords: unique([primaryFact.tags, secondaryFacts.flatMap((fact) => fact.tags ?? []), tensionFact?.tags]).slice(0, 5),
+  };
+}
+
+const narrativeFragments = {
+  self: {
+    manifestation: "现实里更容易表现为{primary}，并通过主见、边界、反应速度和自我判断显出来。",
+  },
+  wealth: {
+    manifestation: "现实里更容易落在{primary}，收入方式、资源承接和钱财进出会受这条线影响。",
+  },
+  children: {
+    manifestation: "现实里更容易落在{primary}，作品、项目、表达成果和后续规划要看这条线能否承接。",
+  },
+  movement: {
+    manifestation: "现实里更容易落在{primary}，环境、节奏和空间变化会影响状态。",
+  },
+  career: {
+    manifestation: "现实里更容易落在{primary}，岗位、职责、专业承接和成果交付会被带出来。",
+  },
+  spouse: {
+    manifestation: "现实里更容易落在{primary}，亲密关系中的沟通、边界和责任分配会更有存在感。",
+  },
+  default: {
+    manifestation: "现实里更容易落在{primary}，并通过这个领域的选择和承接方式显出来。",
+  },
+};
+
+function buildFactTitle(domainKey, primaryFact, secondaryFacts = [], tensionFact = null, fallback = "") {
+  const main = titlePhrase(primaryFact, domainKey);
+  const secondary = secondaryFacts[0] ? titlePhrase(secondaryFacts[0], domainKey) : "";
+  const dayMasterFact = [primaryFact, ...secondaryFacts].find((fact) => fact?.id === "day_master_profile");
+  if (domainKey === "self" && /resource|officer|day_master/.test(primaryFact.id)) {
+    const prefix = dayMasterFact?.label ? `${dayMasterFact.label}，` : "";
+    return `${prefix}理解系统和自我节奏较有存在感`;
+  }
+  if (domainKey === "wealth" && /wealth_visible_year_month|earth_storage_bearing/.test(primaryFact.id)) return "财星有迹，偏长期承载和现实责任";
+  if (domainKey === "children" && primaryFact.id === "output_weak") return "原局输出不算最外放，成果感靠后续承接";
+  if (domainKey === "movement" && primaryFact.id === "water_wood_flow") return "环境适应和信息流动感较明显";
+  if (tensionFact?.id === "day_branch_relation" && domainKey === "spouse") return "感情里安全感和边界感较重要";
+  if (primaryFact.id === "day_branch_relation" && domainKey === "health") return "压力和关系牵动容易转成体感反应";
+  if (primaryFact.id === "day_branch_relation" && domainKey === "movement") return "环境变化会牵动节奏和状态";
+  if (primaryFact.id === "day_branch_relation" && domainKey === "spouse") return "感情里安全感和边界感较重要";
+  return cleanFrontText(main && secondary && main !== secondary ? `${main}，${secondary}` : main || fallback);
+}
+
+function titlePhrase(fact = {}, domainKey = "") {
+  if (!fact) return "";
+  if (fact.id === "resource_visible_month_stem") {
+    if (domainKey === "parents") return "家庭规则和学习承接较明显";
+    if (domainKey === "career") return "专业承接和资质系统有存在感";
+    if (domainKey === "fortune") return "精神安全感来自学习和稳定系统";
+    return "理解吸收和系统意识较明显";
+  }
+  if (fact.id === "wealth_visible_year_month") {
+    if (domainKey === "parents") return "早年资源和现实责任有存在感";
+    if (domainKey === "property") return "家庭资产和固定承载有观察点";
+    return "财星有迹，偏长期承载";
+  }
+  if (fact.id === "earth_storage_bearing") {
+    if (domainKey === "wealth") return "钱财更看稳定资源和固定承载";
+    if (domainKey === "parents") return "家庭承载和居住底色较明显";
+    return "固定承载和居住资源有观察点";
+  }
+  if (fact.id === "peer_visible_hour_stem") {
+    if (domainKey === "siblings") return "同辈分工和后续合作较明显";
+    if (domainKey === "friends") return "朋友合作和圈层边界较明显";
+    return "自我节奏和同辈关系较明显";
+  }
+  if (fact.id === "output_weak") return "原局输出不算最外放";
+  if (fact.id === "officer_resource_chain") return "规则责任与资质承接较明显";
+  if (fact.id === "output_wealth_chain") return "技能项目与财务转化相连";
+  if (fact.id === "peer_wealth_tension") return domainKey === "wealth" ? "钱财受合作分配牵动" : "同辈合作与资源边界较明显";
+  if (fact.id === "day_branch_relation") return "关系与现实节奏容易互相牵动";
+  if (fact.id === "element_bias") return "长期状态带有固定偏性";
+  return fact.label;
+}
+
+function factPhrase(fact = {}, domainKey = "") {
+  if (!fact) return "";
+  if (domainKey === "self" && fact.id === "day_master_profile") return `这个人以${fact.meaning}为底色`;
+  if (domainKey === "self" && /resource|officer/.test(fact.id)) return "这个人有自己的理解系统，遇事会先形成判断，再看规则和责任怎么承接";
+  if (domainKey === "wealth" && /wealth_visible_year_month|earth_storage_bearing/.test(fact.id)) return "钱财不只看流动收入，更偏长期资源、家庭承载和现实责任";
+  if (domainKey === "wealth" && fact.id === "output_wealth_chain") return "钱财更容易从技能、项目、表达和交付成果里转出来";
+  if (domainKey === "children" && fact.id === "output_weak") return "子女结果层不是原局最外放的主线";
+  if (domainKey === "movement" && fact.id === "water_wood_flow") return "环境适应、信息流动和节奏变化较有存在感";
+  return `这个领域以${fact.meaning}为主`;
+}
+
+function tensionPhrase(fact = {}, domainKey = "") {
+  if (fact.id === "day_branch_relation") {
+    if (domainKey === "spouse") return "压力点在于关系宫被牵动时，沟通、边界和责任分配会被放大。";
+    if (domainKey === "self") return "压力点在于关系或环境变化容易打乱原有节奏。";
+    return "压力点在于关系、人事或环境变化会带动这个领域的轻重。";
+  }
+  if (fact.id === "peer_wealth_tension") return "压力点在于人情、合作和资源分配容易互相牵扯。";
+  return fact.meaning ? `压力点在于${fact.meaning}。` : "";
 }
 
 function buildDomainHumanTitle(domainKey, evidence = {}, primaryCombination = null) {

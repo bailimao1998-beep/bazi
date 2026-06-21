@@ -20,6 +20,8 @@ import {
   buildNatalMasterSummary,
   defaultMasterSummaryDatabase,
 } from "../js/core/master-summary/masterSummaryEngine.js";
+import { buildNatalFeatureVector } from "../js/core/natal/natalFeatureVector.js";
+import { buildAtomicNatalFacts } from "../js/core/natal/atomicNatalFactEngine.js";
 import { renderNatalImagePanel } from "../js/components/natalImagePanel.js";
 import { renderStageAnalysisPanel } from "../js/components/stageAnalysisPanel.js";
 
@@ -52,6 +54,9 @@ const requiredPaths = [
   "js/core/domain/combinationRuleDatabase.js",
   "js/core/domain/domainEvidenceEngine.js",
   "js/core/domain/domainNarrativeEngine.js",
+  "js/core/natal/natalFeatureVector.js",
+  "js/core/natal/atomicNatalRuleDatabase.js",
+  "js/core/natal/atomicNatalFactEngine.js",
   "js/core/master-summary/masterSummaryEngine.js",
   "js/core/advice/stageAdviceData.js",
   "js/core/advice/stageAdviceEngine.js",
@@ -141,6 +146,9 @@ test("index and app use only the current frontend panels", () => {
   const combinationRuleSource = readFileSync("js/core/domain/combinationRuleDatabase.js", "utf8");
   const domainEvidenceSource = readFileSync("js/core/domain/domainEvidenceEngine.js", "utf8");
   const domainNarrativeSource = readFileSync("js/core/domain/domainNarrativeEngine.js", "utf8");
+  const natalFeatureVectorSource = readFileSync("js/core/natal/natalFeatureVector.js", "utf8");
+  const atomicNatalRuleSource = readFileSync("js/core/natal/atomicNatalRuleDatabase.js", "utf8");
+  const atomicNatalFactSource = readFileSync("js/core/natal/atomicNatalFactEngine.js", "utf8");
   const masterSummaryEngineSource = readFileSync("js/core/master-summary/masterSummaryEngine.js", "utf8");
   const masterSummaryJson = JSON.parse(readFileSync("data/rules/bazi/master-summary.json", "utf8"));
   const natalImagePanelSource = readFileSync("js/components/natalImagePanel.js", "utf8");
@@ -289,7 +297,7 @@ test("index and app use only the current frontend panels", () => {
   assert.match(natalAiPanelSource, /AI 会基于上方命局画像和命中取象清单扩展说明，不重新排盘。/);
   assert.match(natalAiPanelSource, /生成原局 AI 深度分析/);
   assert.match(natalReportSource, /buildTwelveDomainPortrait/);
-  assert.match(natalReportSource, /twelveDomains:\s*buildTwelveDomainPortrait/);
+  assert.match(natalReportSource, /const twelveDomains = buildTwelveDomainPortrait/);
   assert.doesNotMatch(natalReportSource, /function buildTwelveDomainCards/);
   assert.match(domainRuleSource, /export const domainRules/);
   assert.match(domainRuleSource, /key:\s*"self"/);
@@ -325,15 +333,32 @@ test("index and app use only the current frontend panels", () => {
   assert.match(domainEvidenceSource, /export function buildDomainEvidence/);
   assert.match(domainEvidenceSource, /domainRules/);
   assert.match(domainEvidenceSource, /combinationRules/);
+  assert.match(domainEvidenceSource, /atomicFacts/);
+  assert.match(domainEvidenceSource, /primaryFact/);
+  assert.match(domainEvidenceSource, /secondaryFacts/);
+  assert.match(domainEvidenceSource, /tensionFact/);
+  assert.match(natalFeatureVectorSource, /export function buildNatalFeatureVector/);
+  assert.match(natalFeatureVectorSource, /dayMaster/);
+  assert.match(natalFeatureVectorSource, /tenGods/);
+  assert.match(natalFeatureVectorSource, /relations/);
+  assert.match(atomicNatalRuleSource, /export const atomicNatalRules/);
+  assert.match(atomicNatalRuleSource, /resource_visible_month_stem/);
+  assert.match(atomicNatalRuleSource, /day_branch_relation/);
+  assert.match(atomicNatalFactSource, /export function buildAtomicNatalFacts/);
+  assert.match(atomicNatalFactSource, /byDomain/);
+  assert.match(atomicNatalFactSource, /byCategory/);
   assert.match(domainNarrativeSource, /export function buildTwelveDomainPortrait/);
   assert.match(domainNarrativeSource, /function buildDomainHumanTitle/);
   assert.match(domainNarrativeSource, /function buildDomainFrontText/);
+  assert.match(domainNarrativeSource, /function composeDomainNarrative/);
   assert.match(domainNarrativeSource, /function pickPrimaryCombinationForDomain/);
   assert.match(domainNarrativeSource, /pressure/);
   assert.match(domainNarrativeSource, /buildDomainEvidence/);
   assert.match(domainNarrativeSource, /domainRules/);
   assert.match(masterSummaryEngineSource, /export function buildNatalMasterSummary/);
   assert.match(masterSummaryEngineSource, /export async function loadMasterSummaryDatabase/);
+  assert.match(masterSummaryEngineSource, /atomicFacts/);
+  assert.match(masterSummaryEngineSource, /domainEvidence/);
   assert.match(masterSummaryEngineSource, /function filterNatalOnlyHits/);
   assert.match(masterSummaryEngineSource, /function filterNatalOnlyEvidence/);
   assert.match(masterSummaryEngineSource, /function isStrongRelationshipMovement/);
@@ -728,20 +753,31 @@ test("frontend bazi and blind-bazi chain calculates reports locally", () => {
     });
     const itemViewModel = buildBaseBaziViewModel(itemChart);
     const itemReport = buildNatalImageReport({ chart: itemChart, baseBaziViewModel: itemViewModel });
+    const featureVector = buildNatalFeatureVector({ chart: itemChart, baseBaziViewModel: itemViewModel });
+    const atomicFacts = buildAtomicNatalFacts(featureVector);
     const itemSummary = buildNatalMasterSummary({
       summary: itemReport.summary,
       twelveDomains: itemReport.twelveDomains,
       hitList: [],
+      featureVector: itemReport.featureVector,
+      atomicFacts: itemReport.atomicFacts,
+      domainEvidence: itemReport.domainEvidence,
       database: defaultMasterSummaryDatabase,
     });
     return {
       headline: itemSummary.headline,
+      selectedFactIds: itemSummary.selectedFactIds ?? [],
+      factIds: atomicFacts.facts.map((fact) => fact.id),
+      reportFactIds: itemReport.atomicFacts?.facts?.map((fact) => fact.id) ?? [],
+      hitIds: itemReport.hitList?.map((hit) => hit.id) ?? [],
       domainSignature: itemReport.twelveDomains
         .filter((domain) => ["self", "wealth", "children", "movement", "career", "spouse"].includes(domain.key))
         .map((domain) => domain.title)
         .join("|"),
     };
   });
+  assert.ok(variedReports.every((item) => item.reportFactIds.length >= 6));
+  assert.ok(variedReports.every((item) => item.hitIds.length > 0));
   assert.ok(
     new Set(variedReports.map((item) => item.headline)).size >= 2,
     "不同八字的命理师总批标题不应固定成同一句",
@@ -750,6 +786,34 @@ test("frontend bazi and blind-bazi chain calculates reports locally", () => {
     new Set(variedReports.map((item) => item.domainSignature)).size >= 3,
     "不同八字的十二维卡片正面标题组合不应像固定模板",
   );
+  assert.ok(
+    jaccardDistance(variedReports[0].factIds, variedReports[2].factIds) >= 0.3,
+    "不同 fixture 的原子事实集合应有明显差异",
+  );
+  assert.ok(
+    jaccardDistance(variedReports[0].hitIds, variedReports[2].hitIds) >= 0.25,
+    "不同 fixture 的重点取象不应完全相同",
+  );
+  assert.notDeepEqual(variedReports[0].selectedFactIds, variedReports[2].selectedFactIds);
+
+  const repeatChart = calculateBazi({
+    birthDate: "1988-03-12",
+    birthTime: "09:20",
+    birthProvince: "北京市",
+    birthplace: "北京",
+    gender: "male",
+    targetYear: 2026,
+    selectedMonth: 6,
+    trueSolarTime: false,
+  }, {
+    locations: global.window.FortuneLocationData,
+  });
+  const repeatViewModel = buildBaseBaziViewModel(repeatChart);
+  const repeatA = buildNatalImageReport({ chart: repeatChart, baseBaziViewModel: repeatViewModel });
+  const repeatB = buildNatalImageReport({ chart: repeatChart, baseBaziViewModel: repeatViewModel });
+  assert.deepEqual(repeatA.atomicFacts.facts.map((fact) => fact.id), repeatB.atomicFacts.facts.map((fact) => fact.id));
+  assert.deepEqual(repeatA.twelveDomains.map((domain) => domain.title), repeatB.twelveDomains.map((domain) => domain.title));
+  assert.doesNotMatch(JSON.stringify(repeatA.atomicFacts), /大运|流年|流月|当前步运|岁运|流日/);
 
   const luckImageReport = buildLuckImageReport({ chart, baseBaziViewModel, natalImageReport, targetYear: 2026 });
   const yearImageReport = buildYearImageReport({ chart, baseBaziViewModel, natalImageReport, luckImageReport, targetYear: 2026 });
@@ -991,6 +1055,15 @@ function sentenceCount(text = "") {
 
 function countMatchedTerms(text = "", terms = []) {
   return terms.filter((term) => String(text).includes(term)).length;
+}
+
+function jaccardDistance(left = [], right = []) {
+  const a = new Set(left);
+  const b = new Set(right);
+  const union = new Set([...a, ...b]);
+  if (!union.size) return 0;
+  const intersection = [...a].filter((item) => b.has(item)).length;
+  return 1 - intersection / union.size;
 }
 
 function createRenderRoot() {

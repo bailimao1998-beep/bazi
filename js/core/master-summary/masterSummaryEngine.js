@@ -97,12 +97,22 @@ export function buildNatalMasterSummary({
   summary = {},
   twelveDomains = [],
   hitList = [],
+  featureVector = null,
+  atomicFacts = null,
+  domainEvidence = null,
   database = defaultMasterSummaryDatabase,
 } = {}) {
   const natalSummary = filterNatalOnlyEvidence(summary);
   const natalHitList = filterNatalOnlyHits(hitList);
   const rules = normalizeDatabase(database).rules;
-  const context = { summary: natalSummary, twelveDomains, hitList: natalHitList };
+  const context = {
+    summary: natalSummary,
+    twelveDomains,
+    hitList: natalHitList,
+    featureVector,
+    atomicFacts: Array.isArray(atomicFacts) ? { facts: atomicFacts } : atomicFacts,
+    domainEvidence,
+  };
   const scored = rules
     .map((rule) => scoreMasterRule(rule, context))
     .sort((a, b) => b.score - a.score || b.rule.priority - a.rule.priority);
@@ -110,20 +120,25 @@ export function buildNatalMasterSummary({
 
   if (!selected.length) return buildFallbackSummary({ summary: natalSummary, twelveDomains });
 
-  const mainLines = selected.map(({ rule, evidence }) => ({
+  const mainLines = selected.map(({ rule, evidence, selectedFacts }) => ({
     id: rule.id,
     label: rule.label,
     headline: stripTransitSignal(rule.headline),
     reality: stripTransitSignal(rule.reality),
     boundary: stripTransitSignal(rule.boundary),
     evidence,
+    selectedFactIds: selectedFacts.map((fact) => fact.id),
   }));
   const selectedRules = selected.map((item) => item.rule);
   const headline = composeMasterHeadline(selectedRules, context);
   const sections = buildMasterSections(selectedRules, context);
   const paragraph = sections.map((section) => section.text).join("");
   const realityLine = sections.find((section) => section.key === "reality")?.text || buildRealityLine(selectedRules);
-  const evidence = uniqueText(selected.flatMap((item) => item.evidence)).slice(0, 8);
+  const selectedFactIds = uniqueText(selected.flatMap((item) => item.selectedFacts.map((fact) => fact.id))).slice(0, 8);
+  const evidence = uniqueText([
+    selected.flatMap((item) => item.evidence),
+    selected.flatMap((item) => item.selectedFacts.flatMap((fact) => fact.evidence ?? [])),
+  ]).slice(0, 8);
 
   return {
     headline,
@@ -131,6 +146,7 @@ export function buildNatalMasterSummary({
     paragraph,
     realityLine,
     mainLines,
+    selectedFactIds,
     tags: selectedRules.map((rule) => rule.label).slice(0, 3),
     evidence,
   };
@@ -151,10 +167,10 @@ function normalizeDatabase(database = {}) {
   };
 }
 
-function scoreMasterRule(rule, { summary = {}, twelveDomains = [], hitList = [] } = {}) {
+function scoreMasterRule(rule, { summary = {}, twelveDomains = [], hitList = [], atomicFacts = null, domainEvidence = null, featureVector = null } = {}) {
   const keywords = compact(rule.hitKeywords);
   const domains = compact(rule.domains);
-  const context = { summary, twelveDomains, hitList };
+  const context = { summary, twelveDomains, hitList, atomicFacts, domainEvidence, featureVector };
   const domainMatches = twelveDomains
     .filter((domain) => domains.includes(domain.key))
     .map((domain) => ({
@@ -176,8 +192,12 @@ function scoreMasterRule(rule, { summary = {}, twelveDomains = [], hitList = [] 
     summary.dayMaster,
   ]).join(" ");
   const summaryMatches = keywords.filter((keyword) => summaryText.includes(keyword));
+  const factMatches = (context.atomicFacts?.facts ?? [])
+    .filter((fact) => factMatchesRule(fact, rule, keywords, domains))
+    .slice(0, 5);
   const score = rule.priority
     + weightMasterRulePriority(rule, context)
+    + factMatches.reduce((total, fact) => total + Math.min(24, Number(fact.score ?? 0) / 4), 0)
     + domainMatches.reduce((total, item) => total + item.weight * 9 + keywordScore(item.text, keywords), 0)
     + hitMatches.reduce((total, item) => total + item.weight * 12 + keywordScore(item.text, keywords), 0)
     + summaryMatches.length * 6;
@@ -185,7 +205,9 @@ function scoreMasterRule(rule, { summary = {}, twelveDomains = [], hitList = [] 
   return {
     rule,
     score,
+    selectedFacts: factMatches,
     evidence: uniqueText([
+      ...factMatches.map((fact) => `事实：${fact.label}`),
       ...domainMatches.map((item) => `领域：${item.label}`),
       ...hitMatches.map((item) => `取象：${item.label}`),
       ...summaryMatches.map((item) => `摘要关键词：${item}`),
@@ -421,6 +443,12 @@ function hitText(hit = {}) {
   ]).join(" ");
 }
 
+function factMatchesRule(fact = {}, rule = {}, keywords = [], domains = []) {
+  const text = compact([fact.id, fact.label, fact.meaning, fact.category, fact.tags, fact.evidence]).join(" ");
+  return (fact.domains ?? []).some((domain) => domains.includes(domain))
+    || keywords.some((keyword) => text.includes(keyword));
+}
+
 function contextText(context = {}) {
   return compact([
     context.summary?.mainImage,
@@ -439,6 +467,7 @@ function contextText(context = {}) {
       domain.matchedCombinations?.map((item) => compact([item.id, item.label, item.judgement, item.evidenceText]).join(" ")),
     ]).join(" ")),
     context.hitList?.map((hit) => hitText(hit)),
+    context.atomicFacts?.facts?.map((fact) => compact([fact.id, fact.label, fact.meaning, fact.tags, fact.evidence]).join(" ")),
   ]).join(" ");
 }
 

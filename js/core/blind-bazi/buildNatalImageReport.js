@@ -1,4 +1,7 @@
 import { buildTwelveDomainPortrait } from "../domain/domainNarrativeEngine.js";
+import { buildDomainEvidence } from "../domain/domainEvidenceEngine.js";
+import { buildAtomicNatalFacts } from "../natal/atomicNatalFactEngine.js";
+import { buildNatalFeatureVector } from "../natal/natalFeatureVector.js";
 
 const elementLabels = { wood: "木", fire: "火", earth: "土", metal: "金", water: "水" };
 const elementImages = {
@@ -40,14 +43,70 @@ export function buildNatalImageReport({ chart, baseBaziViewModel } = {}) {
     weakSignals: buildWeakSignals(context),
     needVerify: buildNeedVerify(context, imageCards),
   };
+  const featureVector = buildNatalFeatureVector({ chart: safeChart, baseBaziViewModel: viewModel });
+  const atomicFacts = buildAtomicNatalFacts(featureVector);
+  const domainEvidence = buildDomainEvidence({
+    chart: safeChart,
+    baseBaziViewModel: viewModel,
+    natalImageReport: report,
+    featureVector,
+    atomicFacts,
+  });
+  const twelveDomains = buildTwelveDomainPortrait({
+    chart: safeChart,
+    baseBaziViewModel: viewModel,
+    natalImageReport: report,
+    featureVector,
+    atomicFacts,
+    domainEvidence,
+  });
+  const hitList = buildNatalHitListFromFacts(atomicFacts.facts);
   return {
     ...report,
-    twelveDomains: buildTwelveDomainPortrait({
-      chart: safeChart,
-      baseBaziViewModel: viewModel,
-      natalImageReport: report,
-    }),
+    featureVector,
+    atomicFacts,
+    domainEvidence,
+    twelveDomains,
+    hitList,
+    natalDebug: {
+      featureVector,
+      atomicFacts,
+      domainEvidence,
+      hitList,
+    },
   };
+}
+
+function buildNatalHitListFromFacts(facts = []) {
+  return facts
+    .filter((fact) => fact.score >= 58 && fact.specificity !== "generic")
+    .slice(0, 18)
+    .map((fact) => ({
+      id: fact.id,
+      name: fact.label,
+      category: categoryLabel(fact.category),
+      score: fact.score,
+      importance: fact.score >= 78 ? "high" : fact.score >= 66 ? "medium" : "low",
+      domains: fact.domains,
+      supports: fact.domains,
+      evidence: fact.evidence ?? [],
+      specificity: fact.specificity ?? "medium",
+      source: "原子命理事实",
+      brief: fact.meaning,
+      image: fact.tags ?? [],
+      confidence: fact.score >= 78 ? "high" : fact.score >= 66 ? "medium" : "low",
+    }));
+}
+
+function categoryLabel(category = "") {
+  return {
+    day_master: "日主象",
+    ten_god: "十神象",
+    combination: "组合象",
+    relation: "关系象",
+    pillar: "柱位象",
+    element: "五行象",
+  }[category] ?? "结构象";
 }
 
 function createContext(chart, viewModel, structure) {

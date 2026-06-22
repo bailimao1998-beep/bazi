@@ -4,6 +4,22 @@ import {
 } from "../core/master-summary/masterSummaryEngine.js";
 
 
+const natalDomainLabels = {
+  self: "命主自身",
+  parents: "父母家庭",
+  siblings: "兄弟同辈",
+  spouse: "夫妻感情",
+  children: "子女结果",
+  wealth: "财帛财富",
+  health: "疾厄健康",
+  movement: "迁移环境",
+  friends: "交友人脉",
+  career: "官禄事业",
+  property: "田宅资产",
+  fortune: "福德精神",
+};
+
+
 const topicLabels = {
   personality: "性格底色",
   family: "家庭背景",
@@ -861,33 +877,296 @@ function renderNatalHitCard(
   item = {},
   showEvidence = true,
 ) {
-  const detailItems = compact(item.evidence).slice(0, 8);
+  const detailItems =
+    compact(item.evidence)
+      .slice(0, 8);
+
+  const meaning =
+    item.meaning ||
+    item.brief ||
+    compact(item.image).join("、") ||
+    "该象用于说明出生原局中的结构倾向。";
+
+  const manifestations =
+    compact(item.manifestations)
+      .slice(0, 2);
+
+  const strengths =
+    compact(item.strengths)
+      .slice(0, 2);
+
+  const risks =
+    compact(item.risks)
+      .slice(0, 2);
+
+  const domains =
+    compact(item.domains)
+      .map((domain) =>
+        natalDomainLabels[domain] ||
+        domain,
+      )
+      .slice(0, 6);
+
+  const hasSemantic =
+    Boolean(
+      item.hasSemantic &&
+      (
+        item.formation ||
+        item.meaning ||
+        manifestations.length ||
+        strengths.length ||
+        risks.length
+      ),
+    );
+
   return `
-    <article class="natal-hit-row is-${safe(item.importance || "medium")}">
+    <article
+      class="natal-hit-row is-${safe(
+        item.importance ||
+        "medium",
+      )}"
+    >
       <div class="natal-hit-main">
-        <span>${display(item.category || item.type || "取象")} · ${display(statusLabel(item.status))} · ${display(confidenceLabel(item.importance || item.confidence || "medium"))}</span>
-        <strong>${display(item.name)}</strong>
-        <p class="natal-hit-domains">${display(item.brief || compact(item.image).join("、") || "该象用于支撑原局取象清单。")}</p>
+        <span>
+          ${display(
+            item.category ||
+            item.type ||
+            "取象",
+          )}
+          ·
+          ${display(
+            statusLabel(
+              item.status,
+            ),
+          )}
+          ·
+          ${display(
+            confidenceLabel(
+              item.importance ||
+              item.confidence ||
+              "medium",
+            ),
+          )}
+        </span>
+
+        <strong>
+          ${display(item.name)}
+        </strong>
+
+        <p class="natal-hit-domains">
+          <b>基本象义：</b>
+          ${display(meaning)}
+        </p>
+
+        ${
+          hasSemantic
+            ? `
+              <details class="natal-hit-detail">
+                <summary
+                  class="natal-hit-evidence-button"
+                >
+                  查看完整象义
+                </summary>
+
+                <div class="natal-hit-detail-body">
+                  ${
+                    item.formation
+                      ? `
+                        <p>
+                          <b>成象依据</b>
+                          <span>
+                            ${display(
+                              item.formation,
+                            )}
+                          </span>
+                        </p>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    manifestations.length
+                      ? `
+                        <p>
+                          <b>现实表现</b>
+                        </p>
+
+                        <ul>
+                          ${manifestations
+                            .map(
+                              (text) => `
+                                <li>
+                                  ${display(text)}
+                                </li>
+                              `,
+                            )
+                            .join("")}
+                        </ul>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    strengths.length
+                      ? `
+                        <p>
+                          <b>有利一面</b>
+                        </p>
+
+                        <ul>
+                          ${strengths
+                            .map(
+                              (text) => `
+                                <li>
+                                  ${display(text)}
+                                </li>
+                              `,
+                            )
+                            .join("")}
+                        </ul>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    risks.length
+                      ? `
+                        <p>
+                          <b>需要注意</b>
+                        </p>
+
+                        <ul>
+                          ${risks
+                            .map(
+                              (text) => `
+                                <li>
+                                  ${display(text)}
+                                </li>
+                              `,
+                            )
+                            .join("")}
+                        </ul>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    domains.length
+                      ? `
+                        <p>
+                          <b>主要影响</b>
+                          <span>
+                            ${display(
+                              domains.join("、"),
+                            )}
+                          </span>
+                        </p>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    item.boundary
+                      ? `
+                        <p class="muted">
+                          ${display(
+                            item.boundary,
+                          )}
+                        </p>
+                      `
+                      : ""
+                  }
+                </div>
+              </details>
+            `
+            : ""
+        }
       </div>
+
       ${
         showEvidence
           ? `
             <details class="natal-hit-detail">
-              <summary class="natal-hit-evidence-button">依据</summary>
+              <summary
+                class="natal-hit-evidence-button"
+              >
+                查看专业依据
+              </summary>
+
               <div class="natal-hit-detail-body">
-                <p><b>来源</b><span>${display(item.source || "原局结构")}</span></p>
-                <p><b>含义</b><span>${display(item.brief || compact(item.image).join("、") || "该象用于支撑原局取象清单。")}</span></p>
-                ${detailItems.length ? `
-                  <ul>
-                    ${detailItems.map((detail) => `<li>${display(evidenceText(detail))}</li>`).join("")}
-                  </ul>
-                ` : `<p class="muted">详细证据可在查看依据弹窗和内部证据包中追溯。</p>`}
-                ${compact(item.conditions).length ? `
-                  <p><b>成立条件</b><span>${display(compact(item.conditions).join("；"))}</span></p>
-                ` : ""}
-                ${compact(item.counterEvidence).length ? `
-                  <p><b>反证</b><span>${display(compact(item.counterEvidence).join("；"))}</span></p>
-                ` : ""}
+                <p>
+                  <b>来源</b>
+                  <span>
+                    ${display(
+                      item.source ||
+                      "原局结构",
+                    )}
+                  </span>
+                </p>
+
+                ${
+                  detailItems.length
+                    ? `
+                      <ul>
+                        ${detailItems
+                          .map(
+                            (detail) => `
+                              <li>
+                                ${display(
+                                  evidenceText(
+                                    detail,
+                                  ),
+                                )}
+                              </li>
+                            `,
+                          )
+                          .join("")}
+                      </ul>
+                    `
+                    : `
+                      <p class="muted">
+                        详细证据可在内部证据包中追溯。
+                      </p>
+                    `
+                }
+
+                ${
+                  compact(
+                    item.conditions,
+                  ).length
+                    ? `
+                      <p>
+                        <b>成立条件</b>
+                        <span>
+                          ${display(
+                            compact(
+                              item.conditions,
+                            ).join("；"),
+                          )}
+                        </span>
+                      </p>
+                    `
+                    : ""
+                }
+
+                ${
+                  compact(
+                    item.counterEvidence,
+                  ).length
+                    ? `
+                      <p>
+                        <b>反证</b>
+                        <span>
+                          ${display(
+                            compact(
+                              item.counterEvidence,
+                            ).join("；"),
+                          )}
+                        </span>
+                      </p>
+                    `
+                    : ""
+                }
               </div>
             </details>
           `
@@ -896,6 +1175,7 @@ function renderNatalHitCard(
     </article>
   `;
 }
+
 
 function resolveNatalHitListDisplay(
   report = {},

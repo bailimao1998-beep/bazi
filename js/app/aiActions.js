@@ -12,7 +12,6 @@ export function createAiActions({ store, renderBaseOnly }) {
     try {
       const settings = readAiSettings({ includeSecret: true });
       const prompt = buildNatalAiPrompt({
-        baseBaziViewModel: store.state.baseBaziViewModel,
         natalImageReport: store.state.natalImageReport,
       });
       const result = await generateWithDeepSeek({ settings, prompt });

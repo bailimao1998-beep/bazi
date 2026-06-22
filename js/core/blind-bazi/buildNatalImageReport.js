@@ -43,6 +43,14 @@ import {
   buildNatalProfessionalContext,
 } from "../natal/professional/buildNatalProfessionalContext.js";
 
+import {
+  buildNatalProfessionalPatterns,
+} from "../natal/professional/buildNatalProfessionalPatterns.js";
+
+import {
+  mergeNatalProfessionalImages,
+} from "../natal/professional/mergeNatalProfessionalImages.js";
+
 /**
  * 原局报告第二版总入口。
  *
@@ -98,7 +106,25 @@ export function buildNatalImageReport({
     composeContractNatalImages({
       facts: atomicFacts.contractFacts,
     });
+  const professionalPatterns =
+    buildNatalProfessionalPatterns({
+      structureSynopsis,
+      professionalContext,
+    });
 
+  const mergedComposition =
+    mergeNatalProfessionalImages({
+      contractImages:
+        contractComposition.images ??
+        [],
+
+      professionalImages:
+        professionalPatterns.images ??
+        [],
+    });
+
+  const productionCompositionImages =
+    mergedComposition.images;
   /*
    * 第三层：
    * 核心主象、支持象、矛盾象和条件象。
@@ -123,8 +149,7 @@ export function buildNatalImageReport({
   const contractHitList =
     buildContractNatalHitList({
       images:
-        contractComposition.images ??
-        [],
+        productionCompositionImages,
       facts:
         atomicFacts.contractFacts ??
         [],
@@ -178,7 +203,7 @@ const domainResult =
       atomicFacts.contractFacts ?? [],
 
     compositionImages:
-      contractComposition.images ?? [],
+      productionCompositionImages,
 
     hitList:
       productionHitList,
@@ -201,6 +226,8 @@ const domainResult =
       featureVector,
       structureSynopsis,
       professionalContext,
+      professionalPatterns,
+      mergedComposition,
       atomicFacts,
       coreImages:
         composed.coreImages,
@@ -217,7 +244,7 @@ const domainResult =
         atomicFacts.contractFacts ?? [],
 
       compositionImages:
-        contractComposition.images ?? [],
+      productionCompositionImages,
 
       hitList:
         productionHitList,
@@ -242,8 +269,7 @@ const domainResult =
         [],
 
       compositionImages:
-        contractComposition.images ??
-        [],
+        productionCompositionImages,
 
       hitList:
         productionHitList,
@@ -278,6 +304,8 @@ const domainResult =
     featureVector,
     structureSynopsis,
     professionalContext,
+    professionalPatterns,
+    mergedComposition,
     atomicFacts,
     domainEvidence,
     twelveDomains,
@@ -321,7 +349,11 @@ const domainResult =
       featureVector,
       structureSynopsis,
       atomicFacts,
+      professionalContext,
+      professionalPatterns,
+      mergedComposition,
 
+      productionCompositionImages,
       resolvedFacts:
         atomicFacts.facts,
 

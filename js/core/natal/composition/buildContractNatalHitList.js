@@ -109,6 +109,9 @@ function buildHitListRow(
     normalizeText(image.ruleId);
 
   const semantic =
+    normalizeInlineSemantic(
+      image.semantic,
+    ) ||
     getNatalCompositionSemantic(
       ruleId,
     );
@@ -162,20 +165,51 @@ function buildHitListRow(
     domains,
     supports: domains,
 
-    evidence: resolveFactSummaries(
-      relatedFactIds,
-      factById,
-    ),
-    conditions: normalizeStringArray(
-      image.reasoning,
-    ),
-    counterEvidence: resolveFactSummaries(
-      counterFactIds,
-      factById,
-    ),
+  evidence:
+    uniqueSortedStrings([
+      ...normalizeStringArray(
+        image.evidence,
+      ),
 
-    source:
-      "新版组合取象规则",
+      ...resolveFactSummaries(
+        relatedFactIds,
+        factById,
+      ),
+    ]),
+  conditions:
+    uniqueSortedStrings([
+      ...normalizeStringArray(
+        image.reasoning,
+      ),
+
+      ...normalizeStringArray(
+        image.supportingEvidence,
+      ),
+
+      ...normalizeStringArray(
+        image.weakeningEvidence,
+      ).map(
+        (item) =>
+          `减弱条件：${item}`,
+      ),
+    ]),
+  counterEvidence:
+    uniqueSortedStrings([
+      ...normalizeStringArray(
+        image.counterEvidence,
+      ),
+
+      ...resolveFactSummaries(
+        counterFactIds,
+        factById,
+      ),
+    ]),
+
+  source:
+    image.source ===
+    "professional_context"
+      ? "V2专业组合判断"
+      : "新版组合取象规则",
 
     brief:
       normalizeText(image.brief),
@@ -210,6 +244,51 @@ function buildHitListRow(
 
     image: tags,
     tags,
+  };
+}
+
+function normalizeInlineSemantic(
+  value,
+) {
+  if (
+    !value ||
+    typeof value !==
+      "object" ||
+    Array.isArray(value)
+  ) {
+    return null;
+  }
+
+  return {
+    formation:
+      normalizeText(
+        value.formation,
+      ),
+
+    meaning:
+      normalizeText(
+        value.meaning,
+      ),
+
+    manifestations:
+      normalizeNarrativeArray(
+        value.manifestations,
+      ),
+
+    strengths:
+      normalizeNarrativeArray(
+        value.strengths,
+      ),
+
+    risks:
+      normalizeNarrativeArray(
+        value.risks,
+      ),
+
+    boundary:
+      normalizeText(
+        value.boundary,
+      ),
   };
 }
 

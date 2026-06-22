@@ -659,23 +659,45 @@ export function composeDomainNarrative({
             image.ruleId,
           );
 
-        const semantic =
-          getNatalCompositionSemantic(
-            ruleId,
-          );
+        const inlineNarrative =
+            image.domainNarratives
+                ?.[normalizedDomainKey] ??
+            null;
 
-        const ruleOverview =
-          normalizeText(
-            domainRuleNarratives[
-              normalizedDomainKey
-            ]?.[ruleId],
-          );
+            const semantic =
+            image.semantic ||
+            getNatalCompositionSemantic(
+                ruleId,
+            );
 
-        const detail =
-          resolveDomainDetail(
-            normalizedDomainKey,
-            ruleId,
-          );
+            const ruleOverview =
+            normalizeText(
+                inlineNarrative
+                ?.overview ||
+                domainRuleNarratives[
+                normalizedDomainKey
+                ]?.[ruleId],
+            );
+
+            const detail =
+            inlineNarrative
+                ? createDomainDetail({
+                    manifestation:
+                    inlineNarrative
+                        .manifestation,
+
+                    strength:
+                    inlineNarrative
+                        .strength,
+
+                    caution:
+                    inlineNarrative
+                        .caution,
+                })
+                : resolveDomainDetail(
+                    normalizedDomainKey,
+                    ruleId,
+                );
 
         return {
           image,

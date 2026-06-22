@@ -1,3 +1,7 @@
+import {
+  getNatalCompositionSemantic,
+} from "../narrative/natalCompositionSemantics.js";
+
 export const CONTRACT_NATAL_HIT_LIST_VERSION =
   "contract-natal-hit-list-v1";
 
@@ -95,8 +99,19 @@ function buildHitListRow(
   factById,
   scope,
 ) {
-  const rawStatus = normalizeText(image.status);
-  const role = normalizeText(image.role);
+  const rawStatus =
+    normalizeText(image.status);
+
+  const role =
+    normalizeText(image.role);
+
+  const ruleId =
+    normalizeText(image.ruleId);
+
+  const semantic =
+    getNatalCompositionSemantic(
+      ruleId,
+    );
   const relatedFactIds = uniqueSortedStrings(
     image.matchedFactIds,
   );
@@ -159,11 +174,57 @@ function buildHitListRow(
       factById,
     ),
 
-    source: "新版组合取象规则",
-    brief: normalizeText(image.brief),
+    source:
+      "新版组合取象规则",
+
+    brief:
+      normalizeText(image.brief),
+
+    formation:
+      semantic?.formation ?? "",
+
+    meaning:
+      semantic?.meaning ??
+      normalizeText(image.brief),
+
+    manifestations:
+      normalizeNarrativeArray(
+        semantic?.manifestations,
+      ),
+
+    strengths:
+      normalizeNarrativeArray(
+        semantic?.strengths,
+      ),
+
+    risks:
+      normalizeNarrativeArray(
+        semantic?.risks,
+      ),
+
+    boundary:
+      semantic?.boundary ?? "",
+
+    hasSemantic:
+      Boolean(semantic),
+
     image: tags,
     tags,
   };
+}
+
+function normalizeNarrativeArray(
+  value,
+) {
+  return [
+    ...new Set(
+      (Array.isArray(value)
+        ? value
+        : [])
+        .map(normalizeText)
+        .filter(Boolean),
+    ),
+  ];
 }
 
 function buildFactIndex(facts) {

@@ -35,6 +35,7 @@ export function buildContractNatalHitList({
   images = [],
   facts = [],
   featuredLimit = defaultFeaturedLimit,
+  scope = "natal",
 } = {}) {
   const warnings = [];
   const safeImages = normalizeObjectArray(
@@ -52,17 +53,24 @@ export function buildContractNatalHitList({
       featuredLimit,
       warnings,
     );
+  const normalizedScope =
+    normalizeScope(scope);
   const factById = buildFactIndex(safeFacts);
 
   const all = safeImages
     .map((image) =>
-      buildHitListRow(image, factById),
+      buildHitListRow(
+        image,
+        factById,
+        normalizedScope,
+      ),
     )
     .sort(compareRows);
 
   return {
     version: CONTRACT_NATAL_HIT_LIST_VERSION,
     mode: "preview",
+    scope: normalizedScope,
     all,
     featured: all.slice(
       0,
@@ -82,7 +90,11 @@ export function buildContractNatalHitList({
   };
 }
 
-function buildHitListRow(image, factById) {
+function buildHitListRow(
+  image,
+  factById,
+  scope,
+) {
   const rawStatus = normalizeText(image.status);
   const role = normalizeText(image.role);
   const relatedFactIds = uniqueSortedStrings(
@@ -100,6 +112,7 @@ function buildHitListRow(image, factById) {
     id: normalizeText(image.id),
     name: normalizeText(image.title),
     type: "新版组合取象",
+    scope,
     category:
       roleCategoryMap[role] ?? "组合结构",
     subcategory: normalizeText(image.ruleId),
@@ -321,6 +334,12 @@ function normalizeFeaturedLimit(value, warnings) {
   }
 
   return Math.floor(parsed);
+}
+
+function normalizeScope(value) {
+  const normalized = normalizeText(value);
+
+  return normalized || "natal";
 }
 
 function normalizeStringArray(value) {

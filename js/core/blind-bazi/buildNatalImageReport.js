@@ -104,6 +104,7 @@ export function buildNatalImageReport({
       facts:
         atomicFacts.contractFacts ??
         [],
+      scope: "natal",
     });
 
   /*

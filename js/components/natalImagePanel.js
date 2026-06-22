@@ -585,6 +585,7 @@ function renderNatalHitListDisplay(
         report,
         {
           title: "旧版取象索引",
+          showEvidence: true,
         },
       )}
       ${renderNatalHitListSection(
@@ -593,6 +594,7 @@ function renderNatalHitListDisplay(
           title: "新版取象索引预览",
           hitList:
             display.contractHitList,
+          showEvidence: false,
         },
       )}
     `;
@@ -605,6 +607,7 @@ function renderNatalHitListDisplay(
         title: "取象索引",
         hitList:
           display.contractHitList,
+        showEvidence: false,
       },
     );
   }
@@ -623,6 +626,8 @@ function renderNatalHitListSection(
   const chips = hitList.featured;
   const title =
     options.title || "取象索引";
+  const showEvidence =
+    options.showEvidence !== false;
   return `
     <section class="natal-hit-index">
       <div class="board-title">
@@ -635,19 +640,40 @@ function renderNatalHitListSection(
           ${chips.map((item) => `<span>${display(item.name)}</span>`).join("")}
         </div>
       ` : `<p class="muted">当前原局未形成可列出的明显取象。</p>`}
-      ${rows.length ? `
-        <details class="natal-hit-details">
-          <summary>展开全部取象依据</summary>
-          <div class="natal-hit-compact-list">
-            ${rows.map(renderNatalHitCard).join("")}
-          </div>
-        </details>
-      ` : ""}
+      ${rows.length ? (
+        showEvidence
+          ? `
+            <details class="natal-hit-details">
+              <summary>展开全部取象依据</summary>
+              <div class="natal-hit-compact-list">
+                ${rows.map((row) =>
+                  renderNatalHitCard(
+                    row,
+                    showEvidence,
+                  ),
+                ).join("")}
+              </div>
+            </details>
+          `
+          : `
+            <div class="natal-hit-compact-list">
+              ${rows.map((row) =>
+                renderNatalHitCard(
+                  row,
+                  showEvidence,
+                ),
+              ).join("")}
+            </div>
+          `
+      ) : ""}
     </section>
   `;
 }
 
-function renderNatalHitCard(item = {}) {
+function renderNatalHitCard(
+  item = {},
+  showEvidence = true,
+) {
   const detailItems = compact(item.evidence).slice(0, 8);
   return `
     <article class="natal-hit-row is-${safe(item.importance || "medium")}">
@@ -656,24 +682,30 @@ function renderNatalHitCard(item = {}) {
         <strong>${display(item.name)}</strong>
         <p class="natal-hit-domains">${display(item.brief || compact(item.image).join("、") || "该象用于支撑原局取象清单。")}</p>
       </div>
-      <details class="natal-hit-detail">
-        <summary class="natal-hit-evidence-button">依据</summary>
-        <div class="natal-hit-detail-body">
-          <p><b>来源</b><span>${display(item.source || "原局结构")}</span></p>
-          <p><b>含义</b><span>${display(item.brief || compact(item.image).join("、") || "该象用于支撑原局取象清单。")}</span></p>
-          ${detailItems.length ? `
-            <ul>
-              ${detailItems.map((detail) => `<li>${display(evidenceText(detail))}</li>`).join("")}
-            </ul>
-          ` : `<p class="muted">详细证据可在查看依据弹窗和内部证据包中追溯。</p>`}
-          ${compact(item.conditions).length ? `
-            <p><b>成立条件</b><span>${display(compact(item.conditions).join("；"))}</span></p>
-          ` : ""}
-          ${compact(item.counterEvidence).length ? `
-            <p><b>反证</b><span>${display(compact(item.counterEvidence).join("；"))}</span></p>
-          ` : ""}
-        </div>
-      </details>
+      ${
+        showEvidence
+          ? `
+            <details class="natal-hit-detail">
+              <summary class="natal-hit-evidence-button">依据</summary>
+              <div class="natal-hit-detail-body">
+                <p><b>来源</b><span>${display(item.source || "原局结构")}</span></p>
+                <p><b>含义</b><span>${display(item.brief || compact(item.image).join("、") || "该象用于支撑原局取象清单。")}</span></p>
+                ${detailItems.length ? `
+                  <ul>
+                    ${detailItems.map((detail) => `<li>${display(evidenceText(detail))}</li>`).join("")}
+                  </ul>
+                ` : `<p class="muted">详细证据可在查看依据弹窗和内部证据包中追溯。</p>`}
+                ${compact(item.conditions).length ? `
+                  <p><b>成立条件</b><span>${display(compact(item.conditions).join("；"))}</span></p>
+                ` : ""}
+                ${compact(item.counterEvidence).length ? `
+                  <p><b>反证</b><span>${display(compact(item.counterEvidence).join("；"))}</span></p>
+                ` : ""}
+              </div>
+            </details>
+          `
+          : ""
+      }
     </article>
   `;
 }

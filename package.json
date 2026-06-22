@@ -8,6 +8,7 @@
     "start": "electron .",
     "test": "node --test tests/*.test.js",
     "regression:natal-v2": "node scripts/check-natal-v2-regression.mjs",
+    "regression:natal-v2-real": "node scripts/check-natal-v2-real-charts.mjs",
     "dist:win": "electron-builder --win nsis --publish never",
     "dist:win-portable": "electron-builder --win portable --publish never"
   },

@@ -664,37 +664,12 @@ export function composeDomainNarrative({
             ruleId,
           );
 
-        const structureBaseline =
-        normalizeText(
-            structureSynopsis
-            .domainBaselines
-            ?.[
-                normalizedDomainKey
-            ],
-        );
-
-        const compositionOverview =
-        primary
-            ? qualifyConditionalText(
-                primary.overview,
-                primary.image,
-            )
-            : "";
-
-        const overview =
-        joinNarrativeParts([
-            structureBaseline,
-
-            compositionOverview,
-
-            !structureBaseline &&
-            !compositionOverview
-            ? domainFallbacks[
-                normalizedDomainKey
-                ] ||
-                "该领域目前缺少足够的原局证据。"
-            : "",
-        ]);
+        const ruleOverview =
+          normalizeText(
+            domainRuleNarratives[
+              normalizedDomainKey
+            ]?.[ruleId],
+          );
 
         const detail =
           resolveDomainDetail(
@@ -706,7 +681,8 @@ export function composeDomainNarrative({
           image,
           ruleId,
           semantic,
-          overview,
+          overview:
+            ruleOverview,
           detail,
         };
       })
@@ -743,16 +719,39 @@ export function composeDomainNarrative({
     candidates[0] ||
     null;
 
-  const overview =
+  const structureBaseline =
+    normalizeText(
+      structureSynopsis
+        .domainBaselines
+        ?.[
+          normalizedDomainKey
+        ],
+    );
+
+  const compositionOverview =
     primary
       ? qualifyConditionalText(
           primary.overview,
           primary.image,
         )
-      : domainFallbacks[
-          normalizedDomainKey
-        ] ||
-        "该领域目前缺少足够的原局证据。";
+      : "";
+
+  const fallbackOverview =
+    domainFallbacks[
+      normalizedDomainKey
+    ] ||
+    "该领域目前缺少足够的原局证据。";
+
+  const overview =
+    joinNarrativeParts([
+      structureBaseline,
+      compositionOverview,
+
+      !structureBaseline &&
+      !compositionOverview
+        ? fallbackOverview
+        : "",
+    ]);
 
   const useGenericSemantic =
     normalizedDomainKey ===
@@ -858,6 +857,10 @@ export function composeDomainNarrative({
 
     caution,
 
+    structureBaseline,
+
+    compositionOverview,
+
     sourceRuleIds:
       uniqueStrings(
         candidates.map(
@@ -878,6 +881,11 @@ export function composeDomainNarrative({
       Array.isArray(facts)
         ? facts.length
         : 0,
+
+    hasStructureBaseline:
+      Boolean(
+        structureBaseline,
+      ),
 
     hasCompositionNarrative:
       Boolean(primary),

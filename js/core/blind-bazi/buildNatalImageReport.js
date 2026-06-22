@@ -139,34 +139,39 @@ export function buildNatalImageReport({
    * 第四层：
    * 由同一批合同事实路由到十二维度。
    */
-  const legacyDomainResult =
-    buildFactDrivenDomainReport({
-      featureVector,
-      structureSynopsis,
-      atomicFacts,
-      structureSynopsis,
-      contractFacts:
-        atomicFacts.facts ?? [],
-      compositionImages: [],
-      hitList:
-        composed.hitList,
-      scope: "natal",
-    });
+const legacyDomainResult =
+  buildFactDrivenDomainReport({
+    featureVector,
+    atomicFacts,
 
-  const domainResult =
-    buildFactDrivenDomainReport({
-      featureVector,
-      structureSynopsis,
-      atomicFacts,
-      structureSynopsis,
-      contractFacts:
-        atomicFacts.contractFacts ?? [],
-      compositionImages:
-        contractComposition.images ?? [],
-      hitList:
-        productionHitList,
-      scope: "natal",
-    });
+    contractFacts:
+      atomicFacts.facts ?? [],
+
+    compositionImages: [],
+
+    hitList:
+      composed.hitList,
+
+    scope: "natal",
+  });
+
+const domainResult =
+  buildFactDrivenDomainReport({
+    featureVector,
+    structureSynopsis,
+    atomicFacts,
+
+    contractFacts:
+      atomicFacts.contractFacts ?? [],
+
+    compositionImages:
+      contractComposition.images ?? [],
+
+    hitList:
+      productionHitList,
+
+    scope: "natal",
+  });
 
   const domainEvidence =
     domainResult.domainEvidence;

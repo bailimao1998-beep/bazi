@@ -16,9 +16,12 @@ const INTERNAL_FIELD_NAMES = [
 ];
 
 const BASE_CHAT_RULES = [
+  "你是命理报告语言组织器，不是排盘器，也不是规则引擎。",
   "你是命理系统的问答解释层，同时也是一般 AI 问答助手。",
   "优先基于当前命盘完整数据快照回答，不依赖页面是否展开或是否显示。",
-  "如果问题涉及命理判断，必须引用原局、大运、流年、流月中的证据。",
+  "如果问题涉及原局判断，必须优先使用 natalAiEvidencePack。",
+  "只能引用 evidence pack 和系统已生成时间层报告中的信息，不得新增包外格局、神煞、合冲或十神。",
+  "当前 natalAiEvidencePack 的 scope 是 natal；用户问大运、流年、流月而缺少对应时间层证据时，应说明需要加载对应时间层证据。",
   "如果问题超出命盘数据，可以用一般常识和推理回答，但必须说明哪些是命盘依据，哪些是推演判断，哪些是现实假设。",
   "不能假装命盘能确认现实事实。",
   "不能使用一定、必然、注定。",
@@ -86,13 +89,38 @@ export function buildChatPrompt({
       input: compactInput(input),
       chartSummary: compactChartSummary(chart, baseBaziViewModel),
       baseBaziViewModel: compactBaseBaziViewModel(baseBaziViewModel),
-      natalImageReport,
+      natalAiEvidencePack:
+        natalImageReport?.natalAiEvidencePack ??
+        natalImageReport?.natalDebug?.natalAiEvidencePack ??
+        null,
+      natalImageReport: compactNatalReport(natalImageReport),
       luckImageReport: compactReport(luckImageReport),
       yearImageReport: compactReport(yearImageReport),
       monthImageReport: compactReport(monthImageReport),
       monthImageReports: compactMonthReports(monthImageReports),
       requestedYearReports: compactRequestedYearReports(requestedYearReports),
     }, null, 2),
+  };
+}
+
+function compactNatalReport(report = {}) {
+  return {
+    engineVersion: report.engineVersion,
+    domainEngineVersion: report.domainEngineVersion,
+    masterSummary: report.masterSummary,
+    twelveDomains: report.twelveDomains,
+    hitList: report.hitList
+      ? {
+          scope: report.hitList.scope,
+          all: (report.hitList.all ?? []).map((item) => ({
+            id: item.id,
+            name: item.name,
+            sourceRuleId: item.sourceRuleId,
+            brief: item.brief,
+            scope: item.scope,
+          })),
+        }
+      : null,
   };
 }
 

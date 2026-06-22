@@ -52,7 +52,7 @@ test("natal feature vector separates ten-god layers and avoids element double co
   assert.equal(vector.elements.counts.fire, 0);
 });
 
-test("natal hit list keeps concrete original-chart facts grouped by status and category", () => {
+test("natal hit list uses contract composition rows and keeps legacy rows for debug", () => {
   const { chart, report } = buildReport({
     birthDate: "1949-10-01",
     birthTime: "00:30",
@@ -65,36 +65,40 @@ test("natal hit list keeps concrete original-chart facts grouped by status and c
   ], ["己丑", "癸酉", "甲子", "甲子"]);
 
   assert.ok(Array.isArray(report.hitList.all));
-  assert.ok(report.hitList.all.length > 18);
+  assert.equal(report.hitList.scope, "natal");
+  assert.equal(report.natalDebug.displayedHitListSource, "contract");
+  assert.equal(
+    report.hitList.all.length,
+    report.natalDebug.contractComposition.images.length,
+  );
+  assert.ok(report.hitList.all.length > 0);
+  assert.ok(report.natalDebug.legacyHitList.all.length > report.hitList.all.length);
   assert.ok(report.hitList.featured.length <= 8);
   assert.ok(report.hitList.confirmed.length > 0);
   assert.ok(report.hitList.conditional.length > 0);
-  assert.ok(report.hitList.weak.length > 0);
-  assert.ok(report.hitList.byCategory["日主根气"].length > 0);
-  assert.ok(report.hitList.byCategory["十神透藏"].length > 0);
-  assert.ok(report.hitList.byCategory["组合结构"].length > 0);
-  assert.ok(report.hitList.byCategory["干支关系"].length >= 7);
-  assert.ok(report.hitList.byCategory["柱位重复"].some((item) => /伏吟/.test(item.name)));
-  assert.ok(report.hitList.byCategory["五行调候"].some((item) => /火弱|火不显/.test(item.name)));
-  assert.ok(report.hitList.byCategory["神煞辅助"].length > 0);
-  assert.ok(!report.hitList.featured.slice(0, 3).some((item) => item.category === "神煞辅助"));
+  assert.ok(Array.isArray(report.hitList.weak));
+  assert.ok(report.natalDebug.legacyHitList.weak.length > 0);
+  assert.ok(report.hitList.byCategory["核心结构"].length > 0);
+  assert.ok(report.hitList.byCategory["支持结构"].length > 0);
+  assert.ok(report.hitList.byCategory["张力结构"].length > 0);
+  assert.ok(report.hitList.byCategory["条件结构"].length > 0);
+  assert.ok(report.natalDebug.legacyHitList.byCategory["日主根气"].length > 0);
+  assert.ok(report.natalDebug.legacyHitList.byCategory["十神透藏"].length > 0);
+  assert.ok(report.natalDebug.legacyHitList.byCategory["组合结构"].length > 0);
+  assert.ok(report.natalDebug.legacyHitList.byCategory["干支关系"].length >= 7);
+  assert.ok(report.natalDebug.legacyHitList.byCategory["柱位重复"].some((item) => /伏吟/.test(item.name)));
+  assert.ok(report.natalDebug.legacyHitList.byCategory["五行调候"].some((item) => /火弱|火不显/.test(item.name)));
+  assert.ok(report.natalDebug.legacyHitList.byCategory["神煞辅助"].length > 0);
+  assert.ok(!report.hitList.all.some((item) => item.category === "神煞辅助"));
 
   const names = report.hitList.all.map((item) => item.name);
   for (const expected of [
-    "甲木生于酉月失令",
-    "月干正印透出",
-    "月令正官",
     "官印承接",
-    "时干比肩透出",
-    "年干正财透出",
-    "日柱与时柱甲子伏吟",
-    "月支酉与日支子相破",
-    "月支酉与时支子相破",
-    "年支丑与日支子六合",
-    "年支丑与时支子六合",
-    "原局食伤不显",
-    "原局火弱或不显",
-    "金水较有存在感",
+    "月令正官",
+    "日柱参与伏吟",
+    "日支关系牵动",
+    "日支逢合",
+    "金水偏重、火气不足线索",
   ]) {
     assert.ok(names.includes(expected), `missing natal hit: ${expected}`);
   }
@@ -103,8 +107,23 @@ test("natal hit list keeps concrete original-chart facts grouped by status and c
     assert.match(item.status, /^(confirmed|conditional|weak)$/);
     assert.match(item.importance, /^(high|medium|low)$/);
     assert.ok(Array.isArray(item.evidence));
-    assert.ok(item.evidence.every((entry) => typeof entry === "object" && entry.text));
+    assert.ok(Array.isArray(item.relatedFactIds));
+    assert.equal(item.scope, "natal");
+    assert.equal(item.source, "新版组合取象规则");
+    assert.ok(item.evidence.every((entry) => typeof entry === "string" && entry));
     assert.doesNotMatch(JSON.stringify(item), forbiddenTransitPattern);
+  }
+
+  const legacyNames =
+    report.natalDebug.legacyHitList.all.map((item) => item.name);
+  for (const expected of [
+    "甲木生于酉月失令",
+    "月干正印透出",
+    "时干比肩透出",
+    "年干正财透出",
+    "原局食伤不显",
+  ]) {
+    assert.ok(legacyNames.includes(expected), `missing legacy natal hit: ${expected}`);
   }
 });
 

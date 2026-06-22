@@ -2,662 +2,790 @@ import {
   domainRules,
 } from "./domainRuleDatabase.js";
 
-/**
- * 十二维基础画像第二版。
- *
- * 不再通过固定规则ID挑选文案，
- * 而是从该领域已经命中的事实中选择：
- *
- * 主证、辅证、压力证据、弱证据。
- */
+export const CONTRACT_DOMAIN_ENGINE_VERSION =
+  "contract-domain-v1";
+
+const roleOrder = {
+  core: 5,
+  tension: 4,
+  support: 3,
+  conditional: 2,
+  candidate: 1,
+};
+
+const confidenceOrder = {
+  high: 3,
+  medium: 2,
+  low: 1,
+  unknown: 0,
+};
+
+const domainFactMap = {
+  self: [
+    "day_master",
+    "strength",
+    "root",
+    "self",
+    "比肩",
+    "劫财",
+  ],
+  parents: [
+    "year",
+    "month",
+    "resource",
+    "正印",
+    "偏印",
+    "父母",
+  ],
+  siblings: [
+    "比肩",
+    "劫财",
+    "peer",
+    "siblings",
+  ],
+  spouse: [
+    "day.branch",
+    "spouse",
+    "relation",
+    "正财",
+    "偏财",
+    "正官",
+    "七杀",
+  ],
+  children: [
+    "hour",
+    "食神",
+    "伤官",
+    "output",
+    "children",
+  ],
+  wealth: [
+    "正财",
+    "偏财",
+    "wealth",
+    "element_count",
+  ],
+  health: [
+    "element",
+    "climate",
+    "growth_stage",
+    "health",
+    "bias",
+  ],
+  movement: [
+    "relation",
+    "branch_clash",
+    "movement",
+    "冲",
+  ],
+  friends: [
+    "比肩",
+    "劫财",
+    "peer",
+    "friends",
+    "合",
+  ],
+  career: [
+    "正官",
+    "七杀",
+    "官杀",
+    "career",
+    "work",
+  ],
+  property: [
+    "earth",
+    "storage",
+    "wealth",
+    "property",
+    "辰",
+    "戌",
+    "丑",
+    "未",
+  ],
+  fortune: [
+    "resource",
+    "output",
+    "flow",
+    "fortune",
+    "climate",
+  ],
+};
+
+const domainFocusText = {
+  self: "性格主见、做事节奏和边界感",
+  parents: "家庭支持、长辈资源和早年承接方式",
+  siblings: "同辈互动、合作竞争和资源边界",
+  spouse: "关系互动、责任分配和亲密边界",
+  children: "子女议题、作品、项目成果和表达输出",
+  wealth: "收入方式、资源调度、变现能力和财务承载",
+  health: "体质状态、作息节奏和五行偏性",
+  movement: "居住、出行、异地、岗位环境和生活节奏",
+  friends: "社交圈层、人脉合作和外部边界",
+  career: "职业方向、岗位压力和专业承接",
+  property: "固定资产、居住承载和资源沉淀",
+  fortune: "精神安全感、长期心态和内在消化方式",
+};
+
 export function buildFactDrivenDomainReport({
   featureVector = {},
   atomicFacts = {},
+  contractFacts,
+  compositionImages = [],
+  hitList = {},
+  scope = "natal",
 } = {}) {
-  const facts = Array.isArray(
-    atomicFacts.facts,
-  )
-    ? atomicFacts.facts
+  const normalizedScope =
+    normalizeText(scope) || "natal";
+  const facts = Array.isArray(contractFacts)
+    ? contractFacts
+    : Array.isArray(atomicFacts.contractFacts)
+      ? atomicFacts.contractFacts
+      : Array.isArray(atomicFacts.facts)
+        ? atomicFacts.facts
+        : [];
+  const images = Array.isArray(compositionImages)
+    ? compositionImages
     : [];
-
+  const hitRows = Array.isArray(hitList?.all)
+    ? hitList.all
+    : [];
   const domainEvidenceMap = {};
   const twelveDomains = [];
 
   for (const rule of domainRules) {
     const selected =
-      selectDomainFacts(
-        rule.key,
+      selectDomainEvidence({
+        rule,
         facts,
-      );
+        images,
+        hitRows,
+      });
+    const portrait =
+      buildDomainPortrait({
+        rule,
+        selected,
+        scope: normalizedScope,
+      });
 
-    const score =
-      calculateDomainScore(selected);
-
-    const confidence =
-      calculateConfidence(
-        score,
-        selected.primaryFact,
-      );
-
-    const evidence =
-      buildEvidence(selected);
-
-    const matchedFactIds =
-      uniqueText([
-        selected.primaryFact?.id,
-        ...selected.secondaryFacts.map(
-          (fact) => fact.id,
-        ),
-        selected.tensionFact?.id,
-        selected.counterFact?.id,
-      ]);
-
-    const evidenceItem = {
+    domainEvidenceMap[rule.key] = {
       domain: rule.key,
-      score,
-      confidence,
-
-      primaryFact:
-        selected.primaryFact,
-
-      secondaryFacts:
-        selected.secondaryFacts,
-
-      tensionFact:
-        selected.tensionFact,
-
-      counterFact:
-        selected.counterFact,
-
-      matchedFactIds,
-
-      evidence,
-
-      matchedSignals: [],
-
-      matchedRules: uniqueText([
-        selected.primaryFact?.name,
-        ...selected.secondaryFacts.map(
-          (fact) => fact.name,
+      scope: normalizedScope,
+      confidence: portrait.confidence,
+      evidenceFactIds:
+        portrait.evidenceFactIds,
+      compositionImageIds:
+        portrait.compositionImageIds,
+      compositionRuleIds:
+        portrait.compositionRuleIds,
+      evidence: portrait.evidence,
+      facts: selected.facts.map(
+        compactFactReference,
+      ),
+      compositions:
+        selected.images.map(
+          compactImageReference,
         ),
-        selected.tensionFact?.name,
-      ]),
-
-      matchedCombinations: [],
+      warnings: portrait.warnings,
     };
 
-    domainEvidenceMap[rule.key] =
-      evidenceItem;
-
-    twelveDomains.push(
-      buildDomainPortrait(
-        rule,
-        evidenceItem,
-      ),
-    );
+    twelveDomains.push(portrait);
   }
 
   return {
     domainEvidence: {
       engineVersion:
-        "domain-v2",
-
+        CONTRACT_DOMAIN_ENGINE_VERSION,
+      scope: normalizedScope,
       signals: [],
-
       atomicFacts,
-
       featureVector,
-
       domainEvidence:
         domainEvidenceMap,
     },
-
     twelveDomains,
   };
 }
 
-function selectDomainFacts(
-  domainKey,
+function selectDomainEvidence({
+  rule,
   facts,
-) {
-  const matched = facts
-    .filter(
-      (fact) =>
-        (fact.domains ?? [])
-          .includes(domainKey),
-    )
-    .filter(
-      (fact) =>
-        fact.category !== "神煞辅助",
-    )
-    .sort(compareFacts);
-
-  const primaryFact =
-    matched.find(
-      (fact) =>
-        fact.status !== "weak" &&
-        fact.role !== "tension" &&
-        fact.specificity !== "generic",
-    ) ??
-    matched.find(
-      (fact) =>
-        fact.status !== "weak" &&
-        fact.role !== "tension",
-    ) ??
-    matched.find(
-      (fact) =>
-        fact.status !== "weak",
-    ) ??
-    matched[0] ??
-    null;
-
-  const secondaryFacts =
-    matched
-      .filter(
-        (fact) =>
-          fact.id !== primaryFact?.id &&
-          fact.status !== "weak" &&
-          fact.role !== "tension",
+  images,
+  hitRows,
+}) {
+  const imageIdsFromRows = new Set(
+    hitRows
+      .filter((row) =>
+        includesDomain(row, rule.key),
       )
-      .slice(0, 2);
-
-  const tensionFact =
-    matched.find(
-      (fact) =>
-        fact.id !== primaryFact?.id &&
-        (
-          fact.role === "tension" ||
-          fact.polarity === "negative"
-        ),
-    ) ?? null;
-
-  const counterFact =
-    matched.find(
-      (fact) =>
-        fact.id !== primaryFact?.id &&
-        (
-          fact.status === "weak" ||
-          fact.role === "weak" ||
-          fact.role === "condition"
-        ),
-    ) ?? null;
+      .map((row) =>
+        normalizeText(row.id),
+      )
+      .filter(Boolean),
+  );
+  const domainImages = images
+    .filter((image) =>
+      includesDomain(image, rule.key) ||
+      imageIdsFromRows.has(
+        normalizeText(image.id),
+      ),
+    )
+    .sort(compareImages);
+  const domainFacts = facts
+    .filter((fact) =>
+      factMatchesDomain(fact, rule),
+    )
+    .sort(compareFacts)
+    .slice(0, 8);
 
   return {
-    matched,
-    primaryFact,
-    secondaryFacts,
-    tensionFact,
-    counterFact,
+    images: dedupeById(domainImages),
+    facts: dedupeById(domainFacts),
   };
 }
 
-function buildDomainPortrait(
+function buildDomainPortrait({
   rule,
-  evidence,
-) {
-  const primary =
-    evidence.primaryFact;
-
-  const secondary =
-    evidence.secondaryFacts ?? [];
-
-  const tension =
-    evidence.tensionFact;
-
-  const counter =
-    evidence.counterFact;
-
-  const title = primary
-    ? `${rule.label}：${shortName(
-        primary.name,
-      )}`
-    : `${rule.label}：原局信号不重`;
-
-  const judgement = primary
-    ? joinClauses([
-        factText(primary),
-        secondary[0]
-          ? `同时，${factText(
-              secondary[0],
-            )}`
-          : "",
-      ])
-    : rule.weakEvidenceText;
-
-  const manifestation =
-    primary
-      ? buildManifestation(
-          rule.key,
-          primary,
+  selected,
+  scope,
+}) {
+  const images = selected.images;
+  const facts = selected.facts;
+  const primaryImage = images[0] ?? null;
+  const tensionImage =
+    images.find((image) =>
+      image.role === "tension",
+    ) ?? null;
+  const supportImage =
+    images.find((image) =>
+      image.role === "support" ||
+      image.role === "core",
+    ) ?? null;
+  const primaryFact = facts[0] ?? null;
+  const evidenceFactIds = uniqueSortedStrings([
+    ...facts.map((fact) => fact.id),
+    ...images.flatMap((image) =>
+      image.matchedFactIds ?? [],
+    ),
+  ]);
+  const compositionImageIds =
+    uniqueSortedStrings(
+      images.map((image) => image.id),
+    );
+  const compositionRuleIds =
+    uniqueSortedStrings(
+      images.map((image) => image.ruleId),
+    );
+  const warnings = [];
+  const primaryImageBrief =
+    primaryImage
+      ? cleanFrontText(
+          primaryImage.brief,
         )
-      : buildWeakManifestation(
+      : "";
+  const title = primaryImage
+    ? `${rule.label}：${primaryImage.title}`
+    : primaryFact
+      ? `${rule.label}：基础证据`
+      : `${rule.label}：原局证据不重`;
+  const summary = primaryImage
+    ? primaryImageBrief
+    : primaryFact
+      ? buildDomainJudgement(
           rule,
-        );
+          `${rule.label}已有基础事实落点，组合强度不突出`,
+        )
+      : rule.weakEvidenceText;
+  const judgement = primaryImage
+    ? buildDomainJudgement(
+        rule,
+        primaryImageBrief,
+      )
+    : primaryFact
+      ? buildDomainJudgement(
+          rule,
+          `${rule.label}目前以基础证据为主，轻重取决于组合象、柱位和现实反馈`,
+        )
+      : rule.defaultJudgement;
+  const manifestation = primaryImage
+    ? buildManifestation(
+        rule,
+        primaryImageBrief,
+      )
+    : primaryFact
+      ? buildManifestation(
+          rule,
+          `${rule.label}现实表现落在基础事实对应位置`,
+        )
+      : buildWeakManifestation(rule);
+  const pressure = tensionImage
+    ? cleanSentence(tensionImage.brief)
+    : supportImage &&
+        supportImage.status === "conditional"
+      ? `${cleanSentence(supportImage.brief)}，成立轻重仍需现实反馈。`
+      : facts[1]
+        ? "该维度还有辅助事实参与，轻重取决于其他结构。"
+        : rule.weakEvidenceText;
+  const keywords = uniqueSortedStrings([
+    ...images.flatMap((image) =>
+      image.tags ?? [],
+    ),
+    ...facts.flatMap((fact) =>
+      fact.tags ?? [],
+    ),
+    ...rule.primarySignals,
+  ]).slice(0, 6);
+  const confidence =
+    calculateDomainConfidence(images, facts);
+  const evidence = uniqueSortedStrings([
+    ...images.map((image) =>
+      image.brief,
+    ),
+    ...facts.map(factLabel),
+  ]).slice(0, 10);
 
-  const pressure =
-    factText(tension) ||
-    factText(counter) ||
-    rule.weakEvidenceText;
-
-  const keywords =
-    uniqueText([
-      ...(primary?.tags ?? []),
-      ...secondary.flatMap(
-        (fact) =>
-          fact.tags ?? [],
-      ),
-      ...(tension?.tags ?? []),
-    ]).slice(0, 5);
-
-  const condition =
-    uniqueText([
-      primary
-        ? `主证：${primary.name}`
-        : "",
-
-      ...secondary.map(
-        (fact) =>
-          `辅证：${fact.name}`,
-      ),
-
-      tension
-        ? `压力：${tension.name}`
-        : "",
-
-      counter
-        ? `边界：${counter.name}`
-        : "",
-    ]).slice(0, 8);
-
-  const counterEvidence =
-    uniqueText([
-      ...normalizeTextList(
-        primary?.counterEvidence,
-      ),
-
-      ...normalizeTextList(
-        tension?.counterEvidence,
-      ),
-
-      ...normalizeTextList(
-        counter?.counterEvidence,
-      ),
-
-      evidence.confidence === "low"
-        ? "该维度在原局不是强主线，现实中不一定明显外显。"
-        : "",
-
-      "本维度只作原局基础画像，具体事件仍需结合现实背景和岁运。",
-    ]).slice(0, 6);
+  if (
+    !evidenceFactIds.length &&
+    !compositionImageIds.length
+  ) {
+    warnings.push(
+      "domain has fallback text without direct evidence",
+    );
+  }
 
   return {
     key: rule.key,
     label: rule.label,
-
     title,
-
+    summary,
     judgement,
-
     manifestation,
-
     pressure,
-
-    strengths:
-      uniqueText(
-        [primary, ...secondary]
-          .filter(
-            (fact) =>
-              fact &&
-              fact.polarity !== "negative",
-          )
-          .map(factText),
-      ).slice(0, 3),
-
-    pressures:
-      uniqueText([
-        factText(tension),
-        factText(counter),
-      ]).slice(0, 3),
-
     keywords,
-
     tags: keywords,
-
-    evidence:
-      evidence.evidence.length
-        ? evidence.evidence
-        : [
-            rule.defaultJudgement,
-          ],
-
+    evidence,
+    evidenceFactIds,
+    compositionImageIds,
+    compositionRuleIds,
     primaryFact:
-      primary ?? null,
-
-    secondaryFacts:
-      secondary,
-
-    tensionFact:
-      tension ?? null,
-
-    counterFact:
-      counter ?? null,
-
-    matchedFactIds:
-      evidence.matchedFactIds,
-
-    matchedCombinations: [],
-
-    condition,
-
+      primaryImage
+        ? compactImageReference(
+            primaryImage,
+          )
+        : primaryFact
+          ? compactFactReference(
+              primaryFact,
+            )
+          : null,
+    secondaryFacts: [
+      ...images.slice(1, 3).map(
+        compactImageReference,
+      ),
+      ...facts.slice(1, 3).map(
+        compactFactReference,
+      ),
+    ],
+    tensionFact: tensionImage
+      ? compactImageReference(
+          tensionImage,
+        )
+      : null,
+    matchedFactIds: evidenceFactIds,
+    matchedCombinations:
+      images.map((image) => ({
+        id: image.id,
+        ruleId: image.ruleId,
+        label: image.title,
+        manifestation: image.brief,
+        keywords: image.tags ?? [],
+      })),
+    condition:
+      uniqueSortedStrings(
+        images.flatMap((image) =>
+          image.reasoning ?? [],
+        ),
+      ).slice(0, 8),
     bookExplanation:
       rule.defaultJudgement,
-
-    counterEvidence,
-
-    confidence:
-      evidence.confidence,
-
+    counterEvidence:
+      uniqueSortedStrings(
+        images.flatMap((image) =>
+          image.counterFactIds ?? [],
+        ),
+      ).length
+        ? [
+            "该领域存在反证事实，需回到证据链复核轻重。",
+          ]
+        : [
+            "本维度只作出生原局画像，具体事件仍需结合现实背景和时间层证据。",
+          ],
+    confidence,
     score:
-      evidence.score,
-
+      confidence === "high"
+        ? 82
+        : confidence === "medium"
+          ? 62
+          : 32,
     evidenceLevel:
-      evidence.score >= 78
+      confidence === "high"
         ? "strong"
-        : evidence.score >= 55
+        : confidence === "medium"
           ? "medium"
           : "weak",
+    scope,
+    warnings: uniqueSortedStrings(warnings),
   };
 }
 
-function buildManifestation(
-  domain,
-  fact,
-) {
-  const primaryText =
-    factText(fact);
-
-  const templates = {
-    self:
-      `现实中主要体现在性格、判断方式、做事节奏和边界感上。其基础表现为：${primaryText}`,
-
-    parents:
-      `现实中主要体现在早年环境、家中规则、父母分工和成长资源上。其基础表现为：${primaryText}`,
-
-    siblings:
-      `现实中主要体现在同辈竞争、合作分工和资源边界上。其基础表现为：${primaryText}`,
-
-    spouse:
-      `现实中主要体现在亲密关系中的安全感、沟通方式、边界和责任分配上。其基础表现为：${primaryText}`,
-
-    children:
-      `现实中主要体现在子女议题、作品、项目成果、表达输出和长期规划上。其基础表现为：${primaryText}`,
-
-    wealth:
-      `现实中主要体现在收入方式、资源调度、变现能力和财务承载上。其基础表现为：${primaryText}`,
-
-    health:
-      `现实中主要体现在长期体质、睡眠、消化、精力和压力反应上。其基础表现为：${primaryText}`,
-
-    movement:
-      `现实中主要体现在居住、出行、异地、岗位环境和生活节奏变化上。其基础表现为：${primaryText}`,
-
-    friends:
-      `现实中主要体现在朋友圈层、合作关系、人情往来和资源交换上。其基础表现为：${primaryText}`,
-
-    career:
-      `现实中主要体现在岗位职责、专业承接、规则压力和成果交付上。其基础表现为：${primaryText}`,
-
-    property:
-      `现实中主要体现在居住环境、固定资产、家庭资源和长期承载上。其基础表现为：${primaryText}`,
-
-    fortune:
-      `现实中主要体现在精神安全感、兴趣系统、长期心态和内在消耗上。其基础表现为：${primaryText}`,
-  };
-
-  return (
-    templates[domain] ||
-    `现实中会通过该领域的选择和承接方式表现出来：${primaryText}`
-  );
-}
-
-function buildWeakManifestation(
-  rule,
-) {
-  return (
-    rule.weakEvidenceText ||
-    `${rule.label}在原局中不是最明显的主线，需要后天环境和现实阶段带动。`
-  );
-}
-
-function calculateDomainScore(
-  selected,
-) {
-  const primaryScore =
-    Number(
-      selected.primaryFact
-        ?.score ?? 0,
-    );
-
-  const secondaryScores =
-    selected.secondaryFacts.map(
-      (fact) =>
-        Number(
-          fact.score ?? 0,
-        ),
-    );
-
-  const secondaryAverage =
-    secondaryScores.length
-      ? secondaryScores.reduce(
-          (sum, value) =>
-            sum + value,
-          0,
-        ) /
-        secondaryScores.length
-      : 0;
-
-  const tensionScore =
-    Number(
-      selected.tensionFact
-        ?.score ?? 0,
-    );
-
+function factMatchesDomain(fact, rule) {
   if (
-    !selected.primaryFact &&
-    !selected.tensionFact
+    !fact ||
+    typeof fact !== "object"
   ) {
-    return 20;
+    return false;
   }
 
-  const score =
-    primaryScore * 0.65 +
-    secondaryAverage * 0.2 +
-    tensionScore * 0.1 +
-    Math.min(
-      selected.matched.length * 2,
-      8,
-    );
+  if (includesDomain(fact, rule.key)) {
+    return true;
+  }
 
-  return Math.max(
-    20,
-    Math.min(
-      100,
-      Math.round(score),
+  const keywords =
+    domainFactMap[rule.key] ?? [];
+  const text = [
+    fact.category,
+    fact.predicate,
+    fact.subject?.type,
+    fact.subject?.key,
+    fact.subject?.label,
+    JSON.stringify(fact.value ?? ""),
+    ...(fact.tags ?? []),
+    ...(fact.sourceRefs ?? []).map(
+      (ref) => ref.featureGroup,
     ),
+  ].join(" ");
+
+  return keywords.some((keyword) =>
+    text.includes(keyword),
   );
 }
 
-function calculateConfidence(
-  score,
-  primaryFact,
-) {
+function includesDomain(item, domainKey) {
+  return [
+    ...(Array.isArray(item?.domains)
+      ? item.domains
+      : []),
+    ...(Array.isArray(item?.supports)
+      ? item.supports
+      : []),
+  ]
+    .map(normalizeText)
+    .includes(domainKey);
+}
+
+function compareImages(left, right) {
+  return (
+    roleRank(right.role) -
+      roleRank(left.role) ||
+    Number(right.priority ?? 0) -
+      Number(left.priority ?? 0) ||
+    normalizeText(left.ruleId)
+      .localeCompare(
+        normalizeText(right.ruleId),
+      )
+  );
+}
+
+function compareFacts(left, right) {
+  return (
+    confidenceRank(right.confidence) -
+      confidenceRank(left.confidence) ||
+    normalizeText(left.category)
+      .localeCompare(
+        normalizeText(right.category),
+      ) ||
+    normalizeText(left.id)
+      .localeCompare(
+        normalizeText(right.id),
+      )
+  );
+}
+
+function roleRank(role) {
+  return roleOrder[normalizeText(role)] ?? 0;
+}
+
+function confidenceRank(confidence) {
+  return (
+    confidenceOrder[
+      normalizeText(confidence)
+    ] ?? 0
+  );
+}
+
+function calculateDomainConfidence(images, facts) {
   if (
-    primaryFact?.confidence === "high" &&
-    score >= 70
+    images.some((image) =>
+      image.confidence === "high" ||
+      image.importance === "high",
+    )
   ) {
     return "high";
   }
 
-  if (
-    score >= 55 &&
-    primaryFact
-  ) {
+  if (images.length || facts.length >= 3) {
     return "medium";
   }
 
   return "low";
 }
 
-function buildEvidence(
-  selected,
-) {
-  return uniqueText([
-    ...normalizeEvidence(
-      selected.primaryFact
-        ?.evidence,
-    ),
+function buildManifestation(rule, image) {
+  const brief =
+    typeof image === "string"
+      ? image
+      : cleanFrontText(image.brief);
+  const focus =
+    domainFocusText[rule.key] ||
+    `${rule.label}的选择、关系和承接方式`;
 
-    ...selected.secondaryFacts.flatMap(
-      (fact) =>
-        normalizeEvidence(
-          fact.evidence,
-        ),
-    ),
-
-    ...normalizeEvidence(
-      selected.tensionFact
-        ?.evidence,
-    ),
-  ]).slice(0, 10);
-}
-
-function compareFacts(
-  left,
-  right,
-) {
-  return (
-    roleRank(right.role) -
-      roleRank(left.role) ||
-
-    Number(
-      right.priority ??
-        right.score ??
-        0,
-    ) -
-      Number(
-        left.priority ??
-          left.score ??
-          0,
-      ) ||
-
-    Number(
-      right.score ?? 0,
-    ) -
-      Number(
-        left.score ?? 0,
-      )
-  );
-}
-
-function roleRank(role) {
-  return {
-    core: 7,
-    main: 6,
-    tension: 5,
-    support: 4,
-    resource: 4,
-    base: 3,
-    condition: 2,
-    weak: 1,
-    auxiliary: 0,
-  }[role] ?? 0;
-}
-
-function factText(fact) {
-  if (!fact) return "";
-
-  return cleanSentence(
-    fact.brief ||
-    fact.meaning ||
-    "",
-  );
-}
-
-function shortName(name) {
-  return String(name ?? "")
-    .replace(/线索$/g, "")
-    .replace(/原局/g, "")
-    .trim();
-}
-
-function normalizeEvidence(value) {
-  return normalizeArray(value)
-    .map((item) => {
-      if (
-        typeof item === "string"
-      ) {
-        return item;
-      }
-
-      if (
-        item &&
-        typeof item === "object"
-      ) {
-        return (
-          item.text ||
-          item.description ||
-          item.evidence ||
-          [
-            item.position,
-            item.value,
-          ]
-            .filter(Boolean)
-            .join("：")
-        );
-      }
-
-      return "";
-    })
-    .filter(Boolean);
-}
-
-function normalizeTextList(value) {
-  return normalizeArray(value)
-    .map((item) =>
-      typeof item === "string"
-        ? item
-        : item?.text ||
-          item?.description ||
-          "",
-    )
-    .filter(Boolean);
-}
-
-function normalizeArray(value) {
-  if (
-    value === undefined ||
-    value === null ||
-    value === ""
-  ) {
-    return [];
+  if (rule.key === "self") {
+    return `现实中主要落在${focus}上：${brief}。`;
   }
 
-  return Array.isArray(value)
-    ? value.flat(Infinity)
-    : [value];
+  if (rule.key === "health") {
+    return `现实中只作体质和结构倾向观察：${brief}。`;
+  }
+
+  return `现实中主要落在${focus}上：${brief}。`;
 }
 
-function uniqueText(items) {
+function buildDomainJudgement(rule, brief) {
+  const focus =
+    domainFocusText[rule.key];
+
+  if (rule.key === "self") {
+    return `${brief}，会影响${focus}。`;
+  }
+
+  if (focus) {
+    return `${brief}，会影响${focus}。`;
+  }
+
+  return `${brief}。`;
+}
+
+function buildWeakManifestation(rule) {
+  return (
+    rule.weakEvidenceText ||
+    `${rule.label}在原局中不是最明显的主线，现实反馈和时间层证据决定显化程度。`
+  );
+}
+
+function factLabel(fact) {
+  const category =
+    normalizeText(fact?.category);
+  const predicate =
+    normalizeText(fact?.predicate);
+  const value =
+    fact?.value ?? {};
+
+  if (category === "ten_god") {
+    const tenGod =
+      normalizeText(value.tenGod) ||
+      normalizeText(value.name);
+
+    if (tenGod) {
+      return `${tenGod}在原局有落点`;
+    }
+  }
+
+  if (category === "day_master") {
+    return "日主承载与根气状态";
+  }
+
+  if (category === "pillar") {
+    const subject =
+      pillarLabel(
+        fact?.subject?.key,
+      ) ||
+      normalizeText(
+        fact?.subject?.label,
+      );
+    const stem =
+      normalizeText(value.stem) ||
+      normalizeText(value.branch) ||
+      normalizeText(value.tenGod) ||
+      normalizeText(value.value);
+
+    return [
+      subject,
+      stem,
+      "柱位信息",
+    ].filter(Boolean).join(" ");
+  }
+
+  if (category === "relation") {
+    const relationType =
+      normalizeText(
+        value.relationType,
+      ) ||
+      normalizeText(value.type);
+
+    return relationType
+      ? `干支${relationType}关系`
+      : "干支关系牵动";
+  }
+
+  if (category === "element") {
+    if (
+      predicate === "element_count"
+    ) {
+      const element =
+        normalizeText(
+          value.element,
+        );
+
+      return element
+        ? `${element}五行有落点`
+        : "五行数量分布";
+    }
+
+    return "五行分布与调候线索";
+  }
+
+  if (category === "climate") {
+    return "调候气候线索";
+  }
+
+  if (
+    category === "palace" ||
+    category === "kinship"
+  ) {
+    return "宫位与亲缘辅助事实";
+  }
+
+  if (
+    category === "work_node" ||
+    category === "work_edge" ||
+    category === "work_chain" ||
+    category === "conflict"
+  ) {
+    return "做工链候选事实";
+  }
+
+  const subject =
+    normalizeText(fact?.subject?.label) ||
+    normalizeText(fact?.subject?.key);
+  const summarizedValue =
+    summarizeValue(value);
+
   return [
-    ...new Set(
-      normalizeArray(items)
-        .filter(Boolean)
-        .map((item) =>
-          String(item).trim(),
-        )
-        .filter(Boolean),
-    ),
-  ];
+    subject,
+    friendlyPredicate(predicate),
+    summarizedValue,
+  ].filter(Boolean).join(" ");
+}
+
+function friendlyPredicate(predicate) {
+  return {
+    ten_god_presence:
+      "十神落点",
+    pillar_stem:
+      "天干",
+    pillar_branch:
+      "地支",
+    pillar_branch_main_ten_god:
+      "地支主气十神",
+    has_relation:
+      "干支关系",
+    growth_stage:
+      "十二长生状态",
+    void_state:
+      "空亡状态",
+  }[predicate] ?? "";
+}
+
+function pillarLabel(key) {
+  return {
+    year: "年柱",
+    month: "月柱",
+    day: "日柱",
+    hour: "时柱",
+  }[normalizeText(key)] ?? "";
+}
+
+function summarizeValue(value) {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (
+    typeof value === "number" ||
+    typeof value === "boolean"
+  ) {
+    return String(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map(summarizeValue)
+      .filter(Boolean)
+      .join("、");
+  }
+
+  if (
+    value &&
+    typeof value === "object"
+  ) {
+    return Object.entries(value)
+      .filter(([, item]) =>
+        item !== undefined &&
+        item !== null &&
+        item !== "",
+      )
+      .slice(0, 4)
+      .map(([key, item]) =>
+        `${key}:${summarizeValue(item)}`,
+      )
+      .join("，");
+  }
+
+  return "";
+}
+
+function compactFactReference(fact) {
+  return {
+    id: normalizeText(fact.id),
+    category: normalizeText(fact.category),
+    predicate: normalizeText(fact.predicate),
+    subject: fact.subject ?? null,
+    confidence:
+      normalizeText(fact.confidence) ||
+      "unknown",
+  };
+}
+
+function compactImageReference(image) {
+  return {
+    id: normalizeText(image.id),
+    ruleId: normalizeText(image.ruleId),
+    title: normalizeText(image.title),
+    role: normalizeText(image.role),
+    status: normalizeText(image.status),
+  };
+}
+
+function dedupeById(items) {
+  const seen = new Map();
+
+  for (const item of items) {
+    const id = normalizeText(item?.id);
+
+    if (id && !seen.has(id)) {
+      seen.set(id, item);
+    }
+  }
+
+  return [...seen.values()];
 }
 
 function cleanSentence(text) {
@@ -667,13 +795,44 @@ function cleanSentence(text) {
     .trim();
 }
 
-function joinClauses(items) {
-  const content =
-    uniqueText(items);
+function cleanFrontText(text) {
+  return cleanSentence(text)
+    .replace(
+      /，?需要结合全局复核/g,
+      "，轻重由全局结构决定",
+    )
+    .replace(
+      /，?需要结合通关和现实应象复核/g,
+      "，轻重取决于通关和现实应象",
+    )
+    .replace(
+      /，?需要结合调候和通关条件复核/g,
+      "，轻重取决于调候和通关条件",
+    )
+    .replace(
+      /需要结合/g,
+      "取决于",
+    )
+    .replace(
+      /需复核|需要复核/g,
+      "待验证",
+    )
+    .replace(/先看/g, "落在")
+    .replace(/再看/g, "并看");
+}
 
-  if (!content.length) {
-    return "";
-  }
+function uniqueSortedStrings(items) {
+  return [
+    ...new Set(
+      (Array.isArray(items) ? items : [])
+        .map(normalizeText)
+        .filter(Boolean),
+    ),
+  ].sort();
+}
 
-  return `${content.join("；")}。`;
+function normalizeText(value) {
+  return typeof value === "string"
+    ? value.trim()
+    : "";
 }

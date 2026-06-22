@@ -27,8 +27,13 @@ import {
 } from "../natal/natalMasterSummaryEngine.js";
 
 import {
+  CONTRACT_DOMAIN_ENGINE_VERSION,
   buildFactDrivenDomainReport,
 } from "../domain/domainPortraitEngineV2.js";
+
+import {
+  buildNatalAiEvidencePack,
+} from "../natal/ai/buildNatalAiEvidencePack.js";
 
 /**
  * 原局报告第二版总入口。
@@ -72,7 +77,7 @@ export function buildNatalImageReport({
       featureVector,
     );
 
-  const contractCompositionShadow =
+  const contractComposition =
     composeContractNatalImages({
       facts: atomicFacts.contractFacts,
     });
@@ -92,14 +97,14 @@ export function buildNatalImageReport({
       legacyItems:
         composed.hitList?.all ?? [],
       contractImages:
-        contractCompositionShadow.images ??
+        contractComposition.images ??
         [],
     });
 
-  const contractHitListPreview =
+  const contractHitList =
     buildContractNatalHitList({
       images:
-        contractCompositionShadow.images ??
+        contractComposition.images ??
         [],
       facts:
         atomicFacts.contractFacts ??
@@ -107,26 +112,48 @@ export function buildNatalImageReport({
       scope: "natal",
     });
 
-  /*
-   * 第四层：
-   * 由同一批事实生成命理总批。
-   */
-  const masterSummary =
-    buildNatalMasterSummary({
-      featureVector,
-      atomicFacts,
-      coreImages:
-        composed.coreImages,
-    });
+  const fallbackReasons = [];
+  const hasValidContractHitList =
+    Boolean(contractHitList) &&
+    Array.isArray(contractHitList.all);
+  const productionHitList =
+    hasValidContractHitList
+      ? contractHitList
+      : composed.hitList;
+
+  if (!hasValidContractHitList) {
+    fallbackReasons.push(
+      "contract_hit_list_invalid",
+    );
+  }
 
   /*
-   * 第五层：
-   * 由同一批事实路由到十二维度。
+   * 第四层：
+   * 由同一批合同事实路由到十二维度。
    */
+  const legacyDomainResult =
+    buildFactDrivenDomainReport({
+      featureVector,
+      atomicFacts,
+      contractFacts:
+        atomicFacts.facts ?? [],
+      compositionImages: [],
+      hitList:
+        composed.hitList,
+      scope: "natal",
+    });
+
   const domainResult =
     buildFactDrivenDomainReport({
       featureVector,
       atomicFacts,
+      contractFacts:
+        atomicFacts.contractFacts ?? [],
+      compositionImages:
+        contractComposition.images ?? [],
+      hitList:
+        productionHitList,
+      scope: "natal",
     });
 
   const domainEvidence =
@@ -134,6 +161,45 @@ export function buildNatalImageReport({
 
   const twelveDomains =
     domainResult.twelveDomains;
+
+  /*
+   * 第五层：
+   * 命理总批只归纳合同组合象与十二领域。
+   */
+  const legacyMasterSummary =
+    buildNatalMasterSummary({
+      featureVector,
+      atomicFacts,
+      coreImages:
+        composed.coreImages,
+    });
+
+  const masterSummary =
+    buildNatalMasterSummary({
+      facts:
+        atomicFacts.contractFacts ?? [],
+      compositionImages:
+        contractComposition.images ?? [],
+      hitList:
+        productionHitList,
+      twelveDomains,
+      scope: "natal",
+    });
+
+  const natalAiEvidencePack =
+    buildNatalAiEvidencePack({
+      chart: safeChart,
+      featureVector,
+      contractFacts:
+        atomicFacts.contractFacts ?? [],
+      compositionImages:
+        contractComposition.images ?? [],
+      hitList:
+        productionHitList,
+      twelveDomains,
+      masterSummary,
+      scope: "natal",
+    });
 
   return {
     /*
@@ -160,7 +226,7 @@ export function buildNatalImageReport({
     twelveDomains,
 
     hitList:
-      composed.hitList,
+      productionHitList,
 
     /*
      * 原局第二版正式字段。
@@ -169,7 +235,7 @@ export function buildNatalImageReport({
       "natal-v2",
 
     domainEngineVersion:
-      "domain-v2",
+      CONTRACT_DOMAIN_ENGINE_VERSION,
 
     resolvedFacts:
       atomicFacts.facts,
@@ -183,6 +249,8 @@ export function buildNatalImageReport({
 
     masterSummary,
 
+    natalAiEvidencePack,
+
     /*
      * 调试数据。
      */
@@ -191,7 +259,7 @@ export function buildNatalImageReport({
         "natal-v2",
 
       domainEngineVersion:
-        "domain-v2",
+        CONTRACT_DOMAIN_ENGINE_VERSION,
 
       featureVector,
       atomicFacts,
@@ -206,26 +274,71 @@ export function buildNatalImageReport({
       coreImages:
         composed.coreImages,
 
+      legacyMasterSummary,
+
+      contractMasterSummary:
+        masterSummary,
+
       masterSummary,
+
+      legacyTwelveDomains:
+        legacyDomainResult.twelveDomains,
+
+      legacyDomainReport: {
+        domainEngineVersion: "domain-v2",
+        domainEvidence:
+          legacyDomainResult.domainEvidence,
+        twelveDomains:
+          legacyDomainResult.twelveDomains,
+      },
+
+      contractTwelveDomains:
+        twelveDomains,
 
       domainEvidence,
       twelveDomains,
 
-      hitList:
+      legacyHitList:
         composed.hitList,
 
+      contractHitList,
+
+      hitList:
+        productionHitList,
+
       hitListGroups:
-        composed.hitList,
+        productionHitList,
 
       factEngineDebug:
         atomicFacts.debug ??
         {},
 
-      contractCompositionShadow,
+      contractComposition,
+
+      contractCompositionShadow:
+        contractComposition,
 
       contractCompositionComparison,
 
-      contractHitListPreview,
+      contractHitList,
+
+      contractHitListPreview:
+        contractHitList,
+
+      natalAiEvidencePack,
+
+      displayedHitListSource:
+        hasValidContractHitList
+          ? "contract"
+          : "legacy",
+
+      displayedDomainSource:
+        "contract",
+
+      displayedMasterSummarySource:
+        "contract",
+
+      fallbackReasons,
     },
   };
 }

@@ -76,7 +76,35 @@ export function buildNatalMasterSummary({
   featureVector = {},
   atomicFacts = {},
   coreImages = {},
+  facts,
+  compositionImages,
+  hitList,
+  twelveDomains,
+  scope = "natal",
 } = {}) {
+  if (
+    Array.isArray(compositionImages) ||
+    Array.isArray(twelveDomains) ||
+    hitList?.all
+  ) {
+    return buildContractNatalMasterSummary({
+      facts:
+        Array.isArray(facts)
+          ? facts
+          : atomicFacts.contractFacts ?? [],
+      compositionImages:
+        Array.isArray(compositionImages)
+          ? compositionImages
+          : [],
+      hitList,
+      twelveDomains:
+        Array.isArray(twelveDomains)
+          ? twelveDomains
+          : [],
+      scope,
+    });
+  }
+
   const allFacts = uniqueFacts(
     normalizeFacts([
       ...(Array.isArray(atomicFacts.facts)
@@ -1208,6 +1236,363 @@ function tokenize(text) {
     )
     .split("")
     .filter(Boolean);
+}
+
+function buildContractNatalMasterSummary({
+  facts = [],
+  compositionImages = [],
+  hitList = {},
+  twelveDomains = [],
+  scope = "natal",
+} = {}) {
+  const normalizedScope =
+    cleanSentence(scope) || "natal";
+  const images = uniqueFacts(
+    (Array.isArray(compositionImages)
+      ? compositionImages
+      : [])
+      .filter(Boolean)
+      .sort(compareContractImages),
+  );
+  const domains = Array.isArray(twelveDomains)
+    ? twelveDomains
+    : [];
+  const coreImages =
+    images.filter((image) =>
+      image.role === "core",
+    );
+  const supportImages =
+    images.filter((image) =>
+      image.role === "support",
+    );
+  const tensionImages =
+    images.filter((image) =>
+      image.role === "tension",
+    );
+  const conditionalImages =
+    images.filter((image) =>
+      image.role === "conditional" ||
+      image.status === "conditional",
+    );
+  const coreStructure =
+    summarizeImages(
+      coreImages,
+      "原局核心结构尚未形成特别突出的高阶组合，先以十二领域中的基础事实复核。",
+    );
+  const strengths =
+    uniqueText([
+      ...coreImages.map(imageBrief),
+      ...supportImages.map(imageBrief),
+    ]).slice(0, 4);
+  const tensions =
+    uniqueText(
+      tensionImages.map(imageBrief),
+    ).slice(0, 4);
+  const conditions =
+    uniqueText(
+      conditionalImages.map(imageBrief),
+    ).slice(0, 4);
+  const careerWealthLine =
+    summarizeDomainGroup(domains, [
+      "career",
+      "wealth",
+    ]);
+  const workLine =
+    summarizeImages(
+      [
+        ...coreImages,
+        ...supportImages,
+      ],
+      careerWealthLine ||
+        "当前原局以合同组合象作为做工线索，仍需结合现实职责、资源承接和时间层触发复核。",
+    );
+  const relationshipLine =
+    summarizeDomainGroup(domains, [
+      "spouse",
+      "friends",
+    ]);
+  const healthLine =
+    summarizeDomainGroup(domains, [
+      "health",
+    ]);
+  const familyLine =
+    summarizeDomainGroup(domains, [
+      "parents",
+      "siblings",
+      "children",
+    ]);
+  const lifePatternLine =
+    summarizeDomainGroup(domains, [
+      "self",
+      "fortune",
+      "movement",
+    ]);
+  const evidenceFactIds =
+    uniqueText([
+      ...images.flatMap((image) =>
+        image.matchedFactIds ?? [],
+      ),
+      ...domains.flatMap((domain) =>
+        domain.evidenceFactIds ?? [],
+      ),
+    ]);
+  const compositionImageIds =
+    uniqueText([
+      ...images.map((image) => image.id),
+      ...domains.flatMap((domain) =>
+        domain.compositionImageIds ?? [],
+      ),
+    ]);
+  const domainKeys = uniqueText(
+    domains.map((domain) => domain.key),
+  );
+  const sections = buildContractSections({
+    coreStructure,
+    workLine,
+    strengths,
+    tensions,
+    conditions,
+    careerWealthLine,
+    relationshipLine,
+    healthLine,
+    familyLine,
+    lifePatternLine,
+  });
+  const conclusion =
+    buildContractConclusion({
+      coreStructure,
+      strengths,
+      tensions,
+      conditions,
+    });
+
+  return {
+    version:
+      "contract-master-summary-v1",
+    scope: normalizedScope,
+    title: "命理总批（原局）",
+    conclusion,
+    coreStructure,
+    workLine,
+    strengths,
+    tensions,
+    conditions,
+    careerWealthLine,
+    relationshipLine,
+    healthLine,
+    familyLine,
+    lifePatternLine,
+    evidenceFactIds,
+    compositionImageIds,
+    domainKeys,
+    confidence:
+      calculateContractSummaryConfidence(
+        images,
+        domains,
+      ),
+    boundary:
+      "本报告只分析出生原局，不包含大运、流年、流月的具体事件触发。",
+    warnings: [],
+
+    structure: coreStructure,
+    core: coreStructure,
+    workLine,
+    lifeDirection: lifePatternLine,
+    sections,
+    conditionalFactIds:
+      uniqueText(
+        conditionalImages.flatMap((image) =>
+          image.matchedFactIds ?? [],
+        ),
+      ),
+    selectedFacts:
+      images.map((image) => ({
+        id: image.id,
+        name: image.title,
+        brief: image.brief,
+        role: image.role,
+        status: image.status,
+        domains: image.domains ?? [],
+      })),
+    selectionDebug: {
+      source:
+        "contract_composition_and_domains",
+      hitListCount:
+        Array.isArray(hitList?.all)
+          ? hitList.all.length
+          : 0,
+      imageCount: images.length,
+      domainCount: domains.length,
+    },
+  };
+}
+
+function buildContractSections({
+  coreStructure,
+  workLine,
+  strengths,
+  tensions,
+  conditions,
+  careerWealthLine,
+  relationshipLine,
+  healthLine,
+  familyLine,
+  lifePatternLine,
+}) {
+  const sections = [
+    {
+      key: "core",
+      label: "命局核心",
+      text: coreStructure,
+    },
+  ];
+
+  if (workLine) {
+    sections.push({
+      key: "work",
+      label: "做工主线",
+      text: workLine,
+    });
+  }
+
+  if (careerWealthLine) {
+    sections.push({
+      key: "careerWealth",
+      label: "事业财富",
+      text: careerWealthLine,
+    });
+  }
+
+  if (strengths.length) {
+    sections.push({
+      key: "strengths",
+      label: "优势能力",
+      items: strengths,
+    });
+  }
+
+  if (tensions.length) {
+    sections.push({
+      key: "tensions",
+      label: "主要矛盾",
+      items: tensions,
+    });
+  }
+
+  if (conditions.length) {
+    sections.push({
+      key: "conditions",
+      label: "成立条件",
+      items: conditions,
+    });
+  }
+
+  for (const [key, label, text] of [
+    ["relationship", "感情关系", relationshipLine],
+    ["health", "体质状态", healthLine],
+    ["family", "家庭子女", familyLine],
+    ["lifePattern", "人生模式", lifePatternLine],
+  ]) {
+    if (text) {
+      sections.push({
+        key,
+        label,
+        text,
+      });
+    }
+  }
+
+  return sections;
+}
+
+function summarizeImages(images, fallback) {
+  const lines =
+    uniqueText(images.map(imageBrief))
+      .slice(0, 3);
+
+  return lines.length
+    ? lines.join("；")
+    : fallback;
+}
+
+function summarizeDomainGroup(domains, keys) {
+  return uniqueText(
+    domains
+      .filter((domain) =>
+        keys.includes(domain.key),
+      )
+      .map((domain) =>
+        domain.summary ||
+        domain.judgement ||
+        domain.title,
+      ),
+  ).slice(0, 3).join("；");
+}
+
+function imageBrief(image = {}) {
+  return cleanSentence(
+    image.brief ||
+    image.title,
+  );
+}
+
+function compareContractImages(left, right) {
+  return (
+    roleRank(right.role) -
+      roleRank(left.role) ||
+    Number(right.priority ?? 0) -
+      Number(left.priority ?? 0) ||
+    cleanSentence(left.ruleId)
+      .localeCompare(
+        cleanSentence(right.ruleId),
+      )
+  );
+}
+
+function buildContractConclusion({
+  coreStructure,
+  strengths,
+  tensions,
+  conditions,
+}) {
+  return joinSentences([
+    coreStructure,
+    strengths.length
+      ? `可用的支持点在于${strengths.slice(0, 2).join("；")}`
+      : "",
+    tensions.length
+      ? `需要复核的张力在于${tensions.slice(0, 2).join("；")}`
+      : "",
+    conditions.length
+      ? `条件象只表示倾向，需结合现实反馈：${conditions.slice(0, 2).join("；")}`
+      : "",
+  ]);
+}
+
+function calculateContractSummaryConfidence(
+  images,
+  domains,
+) {
+  if (
+    images.some((image) =>
+      image.confidence === "high" ||
+      image.importance === "high",
+    )
+  ) {
+    return "high";
+  }
+
+  if (
+    images.length >= 2 ||
+    domains.some((domain) =>
+      domain.confidence === "medium" ||
+      domain.confidence === "high",
+    )
+  ) {
+    return "medium";
+  }
+
+  return "low";
 }
 
 function roleRank(role) {

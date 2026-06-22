@@ -255,6 +255,11 @@ export function renderNatalImagePanel(
           ?.contractCompositionShadow ??
         null,
 
+      contractComposition:
+        report.natalDebug
+          ?.contractComposition ??
+        null,
+
       contractCompositionComparison:
         report.natalDebug
           ?.contractCompositionComparison ??
@@ -263,6 +268,42 @@ export function renderNatalImagePanel(
       contractHitListPreview:
         report.natalDebug
           ?.contractHitListPreview ??
+        null,
+
+      legacyHitList:
+        report.natalDebug
+          ?.legacyHitList ??
+        null,
+
+      contractHitList:
+        report.natalDebug
+          ?.contractHitList ??
+        null,
+
+      contractTwelveDomains:
+        report.natalDebug
+          ?.contractTwelveDomains ??
+        null,
+
+      legacyTwelveDomains:
+        report.natalDebug
+          ?.legacyTwelveDomains ??
+        null,
+
+      contractMasterSummary:
+        report.natalDebug
+          ?.contractMasterSummary ??
+        null,
+
+      legacyMasterSummary:
+        report.natalDebug
+          ?.legacyMasterSummary ??
+        null,
+
+      natalAiEvidencePack:
+        report.natalDebug
+          ?.natalAiEvidencePack ??
+        report.natalAiEvidencePack ??
         null,
 
       natalHitListMode:
@@ -274,6 +315,21 @@ export function renderNatalImagePanel(
       displayedHitListFallbackReason:
         hitListDisplay.fallbackReason ??
         null,
+
+      displayedDomainSource:
+        report.natalDebug
+          ?.displayedDomainSource ??
+        "contract",
+
+      displayedMasterSummarySource:
+        report.natalDebug
+          ?.displayedMasterSummarySource ??
+        "contract",
+
+      fallbackReasons:
+        report.natalDebug
+          ?.fallbackReasons ??
+        [],
     };
   }
 
@@ -576,7 +632,14 @@ function renderNatalHitListDisplay(
   display = {},
 ) {
   if (display.source === "legacy") {
-    return renderNatalHitListSection(report);
+    return renderNatalHitListSection(
+      report,
+      {
+        hitList:
+          display.legacyHitList,
+        showEvidence: true,
+      },
+    );
   }
 
   if (display.mode === "compare") {
@@ -585,6 +648,8 @@ function renderNatalHitListDisplay(
         report,
         {
           title: "旧版取象索引",
+          hitList:
+            display.legacyHitList,
           showEvidence: true,
         },
       )}
@@ -716,41 +781,66 @@ function resolveNatalHitListDisplay(
 ) {
   const requestedMode = showDebug
     ? readNatalHitListMode()
-    : "legacy";
+    : "contract";
   const contractHitList =
     report.natalDebug
-      ?.contractHitListPreview;
+      ?.contractHitList ??
+    report.natalDebug
+      ?.contractHitListPreview ??
+    report.hitList;
+  const legacyHitList =
+    report.natalDebug
+      ?.legacyHitList ??
+    report.natalDebug
+      ?.hitList ??
+    null;
   const hasContractHitList =
     Boolean(contractHitList) &&
     Array.isArray(contractHitList.all);
+
+  if (!hasContractHitList) {
+    return {
+      mode: requestedMode,
+      source: "legacy",
+      fallbackReason:
+        "contract_hit_list_missing_or_invalid",
+      contractHitList: null,
+      legacyHitList,
+    };
+  }
 
   if (
     requestedMode === "contract" ||
     requestedMode === "compare"
   ) {
-    if (!hasContractHitList) {
-      return {
-        mode: requestedMode,
-        source: "legacy",
-        fallbackReason:
-          "contract_hit_list_preview_missing",
-        contractHitList: null,
-      };
-    }
-
     return {
       mode: requestedMode,
       source: requestedMode,
       fallbackReason: null,
       contractHitList,
+      legacyHitList,
+    };
+  }
+
+  if (
+    requestedMode === "legacy" &&
+    showDebug
+  ) {
+    return {
+      mode: "legacy",
+      source: "legacy",
+      fallbackReason: null,
+      contractHitList,
+      legacyHitList,
     };
   }
 
   return {
-    mode: "legacy",
-    source: "legacy",
+    mode: "contract",
+    source: "contract",
     fallbackReason: null,
-    contractHitList: null,
+    contractHitList,
+    legacyHitList,
   };
 }
 
@@ -775,7 +865,11 @@ function readNatalHitListMode() {
     return mode;
   }
 
-  return "legacy";
+  if (mode === "legacy") {
+    return "legacy";
+  }
+
+  return "contract";
 }
 
 function renderReasonChain(report = {}) {

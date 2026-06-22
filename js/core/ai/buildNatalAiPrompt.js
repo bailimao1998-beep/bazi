@@ -1,21 +1,42 @@
 export function buildNatalAiPrompt({ baseBaziViewModel, natalImageReport } = {}) {
+  const natalAiEvidencePack =
+    natalImageReport?.natalAiEvidencePack ??
+    natalImageReport?.natalDebug?.natalAiEvidencePack ??
+    null;
+
   return {
     system: [
-      "你是命理系统的解释层，不是排盘层。",
-      "基础排盘和原局取象已经由浏览器前端本地完成。",
-      "你只能根据 natalImageReport 解读，可以引用 baseBaziViewModel 中的基础排盘字段作解释背景。",
-      "不能重新排盘，不能推翻或替换前端已经生成的基础盘和原局取象。",
-      "不能新增 natalImageReport 之外的强判断；只能把已有 imageCards、keySignals、weakSignals、needVerify 解释得更白话。",
-      "每个主要判断都要引用 natalImageReport.imageCards 里的 evidence，说明该判断来自哪张取象卡及其证据。",
-      "如果某个判断在 imageCards.evidence 中没有对应证据，只能写成待复核线索，不能展开成结论。",
+      "你是命理报告语言组织器，不是排盘器，也不是规则引擎。",
+      "基础排盘、合同事实、组合取象、十二维度和命理总批已经由浏览器前端本地完成。",
+      "你只能根据 natalAiEvidencePack 解读；不得引用证据包以外的格局、神煞、合冲、十神或事件。",
+      "不能重新排盘，不能推翻或替换前端已经生成的确定性结构数据。",
+      "不能让 AI 文本覆盖 hitList、twelveDomains、masterSummary、contractFacts 或 compositionImages。",
+      "当前 scope 只允许 natal；需要大运、流年、流月判断时，应说明当前证据包不足，需要加载对应时间层证据。",
+      "conditional 只能写成可能、倾向、需复核等语言。",
+      "普通用户不需要看到内部 predicate、JSON 字段名或 fact ID；fact ID 只用于内部追踪。",
       "不能使用确定性断语。",
       "禁止：一定、必定、绝对、必然、必发财、必离婚、必有灾、必死亡。",
-      "输出要白话、结构清晰、像命理师解释给普通用户听。",
-      "建议结构：一句话总览、主要结构、现实表现、需要复核、边界提醒。",
+      "输出结构建议：核心结构、现实表现、边界条件、师傅复核点。",
     ].join("\n"),
     user: JSON.stringify({
+      scope: "natal",
+      natalAiEvidencePack,
       baseBaziViewModel: compactBaseBaziViewModel(baseBaziViewModel),
-      natalImageReport,
+      outputFormat: {
+        scope: "natal",
+        overview: "string",
+        sections: [{
+          key: "string",
+          title: "string",
+          content: "string",
+          evidenceRefs: [
+            "allowedFactIds | allowedCompositionIds | allowedDomainKeys",
+          ],
+        }],
+        followUps: ["string"],
+        boundary: "string",
+        warnings: ["string"],
+      },
     }, null, 2),
   };
 }

@@ -304,7 +304,8 @@ test("index and app use only the current frontend panels", () => {
   assert.match(natalReportSource, /atomicFacts/);
   assert.match(natalReportSource, /domainResult\.domainEvidence/);
   assert.match(natalReportSource, /domainResult\.twelveDomains/);
-  assert.match(natalReportSource, /domainEngineVersion:\s*"domain-v2"/);
+  assert.match(natalReportSource, /CONTRACT_DOMAIN_ENGINE_VERSION/);
+  assert.match(natalReportSource, /contractFacts:\s*atomicFacts\.contractFacts/);
   assert.doesNotMatch(natalReportSource, /function buildTwelveDomainCards/);
   assert.match(domainRuleSource, /export const domainRules/);
   assert.match(domainRuleSource, /key:\s*"self"/);
@@ -345,13 +346,13 @@ test("index and app use only the current frontend panels", () => {
   assert.match(domainEvidenceSource, /secondaryFacts/);
   assert.match(domainEvidenceSource, /tensionFact/);
   assert.match(domainPortraitV2Source, /export function buildFactDrivenDomainReport/);
-  assert.match(domainPortraitV2Source, /atomicFacts\.facts/);
+  assert.match(domainPortraitV2Source, /atomicFacts\.contractFacts/);
   assert.match(domainPortraitV2Source, /for \(const rule of domainRules\)/);
-  assert.match(domainPortraitV2Source, /selectDomainFacts/);
+  assert.match(domainPortraitV2Source, /selectDomainEvidence/);
   assert.match(domainPortraitV2Source, /domainEvidence/);
   assert.match(domainPortraitV2Source, /twelveDomains/);
-  assert.match(domainPortraitV2Source, /engineVersion:\s*"domain-v2"/);
-  assert.doesNotMatch(domainPortraitV2Source, /contractFacts/);
+  assert.match(domainPortraitV2Source, /CONTRACT_DOMAIN_ENGINE_VERSION/);
+  assert.match(domainPortraitV2Source, /contractFacts/);
   assert.match(natalFeatureVectorSource, /export function buildNatalFeatureVector/);
   assert.match(natalFeatureVectorSource, /dayMaster/);
   assert.match(natalFeatureVectorSource, /tenGods/);
@@ -681,7 +682,7 @@ test("frontend bazi and blind-bazi chain calculates reports locally", () => {
   const foundingDomains = Object.fromEntries(foundingNatalReport.twelveDomains.map((domain) => [domain.key, domain]));
   assert.equal(foundingNatalReport.twelveDomains.length, 12);
   const foundingFactIds = new Set(
-    foundingNatalReport.atomicFacts.facts.map(
+    foundingNatalReport.atomicFacts.contractFacts.map(
       (fact) => fact.id,
     ),
   );
@@ -957,17 +958,17 @@ test("stage analysis panels render calculated report data without breaking refre
   assert.match(root.innerHTML, /系统从四柱、十神、藏干、五行、关系和结构中提取到的主要取象/);
   assert.match(root.innerHTML, /natal-hit-index/);
   assert.match(root.innerHTML, /natal-hit-summary-chips/);
-  assert.match(root.innerHTML, /natal-hit-details/);
-  assert.match(root.innerHTML, /展开全部取象依据/);
+  assert.doesNotMatch(root.innerHTML, /natal-hit-details/);
+  assert.doesNotMatch(root.innerHTML, /展开全部取象依据/);
   assert.doesNotMatch(root.innerHTML, /<details class="natal-hit-details" open/);
   assert.match(root.innerHTML, /natal-hit-compact-list/);
   assert.doesNotMatch(root.innerHTML, /重点取象|查看更多取象|natal-hit-more/);
   assert.match(root.innerHTML, /natal-hit-row/);
   assert.match(root.innerHTML, /natal-hit-domains/);
   assert.match(root.innerHTML, /依据/);
-  assert.match(root.innerHTML, /natal-hit-evidence-button/);
+  assert.doesNotMatch(root.innerHTML, /natal-hit-evidence-button/);
   assert.doesNotMatch(root.innerHTML, /查看更多取象 <span>0 个<\/span>/);
-  assert.equal((root.innerHTML.match(/<details class="natal-hit-details">/g) || []).length, 1);
+  assert.equal((root.innerHTML.match(/<details class="natal-hit-details">/g) || []).length, 0);
   assert.doesNotMatch(root.innerHTML, /对应方面/);
   assert.match(root.innerHTML, /命盘依据/);
   assert.match(root.innerHTML, /命中组合/);
@@ -977,10 +978,14 @@ test("stage analysis panels render calculated report data without breaking refre
   assert.match(root.innerHTML, /反证方式/);
   assert.ok(root.innerHTML.indexOf("natal-master-summary") < root.innerHTML.indexOf("natal-domain-section"));
   assert.ok(root.innerHTML.indexOf("natal-domain-section") < root.innerHTML.indexOf("natal-hit-index"));
-  assert.ok(root.innerHTML.indexOf("命盘依据") < root.innerHTML.indexOf("资料解释"));
-  assert.ok(root.innerHTML.indexOf("资料解释") < root.innerHTML.indexOf("成立条件"));
-  assert.ok(root.innerHTML.indexOf("成立条件") < root.innerHTML.indexOf("现实对应"));
-  assert.ok(root.innerHTML.indexOf("现实对应") < root.innerHTML.indexOf("反证方式"));
+  const domainSectionHtml = root.innerHTML.slice(
+    root.innerHTML.indexOf("natal-domain-section"),
+    root.innerHTML.indexOf("natal-hit-index"),
+  );
+  assert.ok(domainSectionHtml.indexOf("命盘依据") < domainSectionHtml.indexOf("资料解释"));
+  assert.ok(domainSectionHtml.indexOf("资料解释") < domainSectionHtml.indexOf("成立条件"));
+  assert.ok(domainSectionHtml.indexOf("成立条件") < domainSectionHtml.indexOf("现实对应"));
+  assert.ok(domainSectionHtml.indexOf("现实对应") < domainSectionHtml.indexOf("反证方式"));
   assert.ok(root.innerHTML.indexOf("natal-domain-card") < root.innerHTML.indexOf("命盘依据"));
   assert.doesNotMatch(root.innerHTML, /专业复核资料|natal-professional-review|专业推理链|完整取象依据|原局九项取象明细|natal-evidence-sequence-card|natal-image-evidence-card|natal-image-card-evidence-grid|重点提醒|natal-focus-summary|<details class="natal-full-evidence"|原局总论|关键取象摘要|natal-overview-hero|natal-keyword-section/);
 });

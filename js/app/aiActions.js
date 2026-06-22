@@ -16,7 +16,20 @@ export function createAiActions({ store, renderBaseOnly }) {
         natalImageReport: store.state.natalImageReport,
       });
       const result = await generateWithDeepSeek({ settings, prompt });
-      store.natalAiState = { loading: false, text: result.text, error: "" };
+      const validated =
+        validateNatalAiResult({
+          text: result.text,
+          evidencePack:
+            store.state.natalImageReport
+              ?.natalAiEvidencePack,
+        });
+      store.natalAiState = {
+        loading: false,
+        text: result.text,
+        error: "",
+        structured: validated.structured,
+        warnings: validated.warnings,
+      };
     } catch (error) {
       store.natalAiState = { loading: false, text: "", error: error.message };
     }
@@ -100,4 +113,89 @@ export function createAiActions({ store, renderBaseOnly }) {
     maybeGeneratePreInterpretYearAi,
     generateMonthAiNarrative,
   };
+}
+
+function validateNatalAiResult({
+  text = "",
+  evidencePack = {},
+} = {}) {
+  const warnings = [];
+  const allowedRefs = new Set([
+    ...(evidencePack.allowedFactIds ?? []),
+    ...(evidencePack.allowedCompositionIds ?? []),
+    ...(evidencePack.allowedDomainKeys ?? []),
+  ]);
+  const parsed = parseJsonObject(text);
+
+  if (!parsed) {
+    return {
+      structured: null,
+      warnings,
+    };
+  }
+
+  if (parsed.scope !== "natal") {
+    warnings.push("ai_scope_not_natal");
+    parsed.scope = "natal";
+  }
+
+  parsed.sections = (Array.isArray(parsed.sections)
+    ? parsed.sections
+    : [])
+    .map((section) => {
+      const evidenceRefs = uniqueText(
+        section.evidenceRefs,
+      ).filter((ref) =>
+        allowedRefs.has(ref),
+      );
+
+      if (!evidenceRefs.length) {
+        warnings.push(
+          `section_without_valid_evidence:${section.key ?? ""}`,
+        );
+      }
+
+      return {
+        ...section,
+        evidenceRefs,
+        unsupported:
+          evidenceRefs.length === 0,
+      };
+    });
+
+  return {
+    structured: parsed,
+    warnings: uniqueText(warnings),
+  };
+}
+
+function parseJsonObject(text) {
+  const raw = String(text ?? "").trim();
+
+  if (!raw.startsWith("{")) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed &&
+      typeof parsed === "object" &&
+      !Array.isArray(parsed)
+      ? parsed
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function uniqueText(items) {
+  return [
+    ...new Set(
+      (Array.isArray(items) ? items : [])
+        .map((item) =>
+          String(item ?? "").trim(),
+        )
+        .filter(Boolean),
+    ),
+  ].sort();
 }

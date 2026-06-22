@@ -1,10 +1,5 @@
 import {
   compareNatalProfessionalImages,
-  evaluateProfessionalReplacement,
-  selectNatalPrimaryImage,
-} from "./professionalImageRanking.js";
-import {
-  compareNatalProfessionalImages,
   compareNatalSemanticImages,
   evaluateProfessionalReplacement,
   selectNatalPrimaryImage,

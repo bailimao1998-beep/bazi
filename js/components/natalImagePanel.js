@@ -623,22 +623,70 @@ function renderNatalDomainCard(
       2,
     );
 
-  const pressureText =
+  const manifestationText =
     cleanCardText(
-      domain.pressure || "",
+      domain.manifestation ||
+      "",
       1,
     );
 
+  const strengthText =
+    cleanCardText(
+      domain.strength ||
+      "",
+      1,
+    );
+
+  const pressureText =
+    cleanCardText(
+      domain.pressure ||
+      "",
+      1,
+    );
+
+  const showManifestation =
+    Boolean(
+      manifestationText &&
+      !textRoughlySame(
+        mainText,
+        manifestationText,
+      ),
+    );
+
+  const showStrength =
+    Boolean(
+      strengthText &&
+      !textRoughlySame(
+        mainText,
+        strengthText,
+      ) &&
+      !textRoughlySame(
+        manifestationText,
+        strengthText,
+      ),
+    );
+
   const showPressure =
-    pressureText &&
-    !textRoughlySame(
-      mainText,
-      pressureText,
+    Boolean(
+      pressureText &&
+      !textRoughlySame(
+        mainText,
+        pressureText,
+      ) &&
+      !textRoughlySame(
+        manifestationText,
+        pressureText,
+      ) &&
+      !textRoughlySame(
+        strengthText,
+        pressureText,
+      ),
     );
 
   const confidence =
     confidenceLabel(
-      domain.confidence || "low",
+      domain.confidence ||
+      "low",
     );
 
   return `
@@ -648,7 +696,7 @@ function renderNatalDomainCard(
       <div class="natal-domain-card-head">
         <div>
           <span>
-            ${display(domain.label)}
+            十二领域
           </span>
 
           <i class="natal-domain-index">
@@ -667,15 +715,44 @@ function renderNatalDomainCard(
       </span>
 
       <p class="natal-domain-judgement">
+        <b>整体判断：</b>
         ${display(mainText)}
       </p>
+
+      ${
+        showManifestation
+          ? `
+            <p class="natal-domain-manifestation">
+              <b>现实表现：</b>
+              ${display(
+                manifestationText,
+              )}
+            </p>
+          `
+          : ""
+      }
+
+      ${
+        showStrength
+          ? `
+            <p class="natal-domain-strength">
+              <b>有利一面：</b>
+              ${display(
+                strengthText,
+              )}
+            </p>
+          `
+          : ""
+      }
 
       ${
         showPressure
           ? `
             <p class="natal-domain-pressure">
               <b>需要留意：</b>
-              ${display(pressureText)}
+              ${display(
+                pressureText,
+              )}
             </p>
           `
           : ""
@@ -698,6 +775,7 @@ function renderNatalDomainCard(
     </article>
   `;
 }
+
 
 function textRoughlySame(
   left,

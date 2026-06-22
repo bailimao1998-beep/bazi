@@ -2250,45 +2250,27 @@ function evaluateOfficialResourceWorkChain(
   rule,
   context,
 ) {
-  const officer =
-    context.groups.officer;
-
-  const resource =
-    context.groups.resource;
-
-  const thresholds =
-    rule.thresholds ?? {};
   const properOfficer =
     getSpecificTenGodState(
       context,
       "正官",
     );
 
-  const sevenKill =
-    getSpecificTenGodState(
-      context,
-      "七杀",
+  const resource =
+    context.groups.resource;
+
+  const thresholds =
+    rule.thresholds ?? {};
+
+  const officerCount =
+    finite(
+      properOfficer.weightedCount,
     );
 
+  // 泛化官印规则只处理正官。
+  // 只有七杀时，交给杀印相生专项规则。
   if (
-    finite(
-      properOfficer
-        .weightedCount,
-    ) <
-      finite(
-        thresholds.officerMin,
-      ) &&
-    finite(
-      sevenKill.weightedCount,
-    ) >=
-      finite(
-        thresholds.officerMin,
-      )
-  ) {
-    return null;
-  }
-  if (
-    officer.total <
+    officerCount <
       finite(
         thresholds.officerMin,
       ) ||
@@ -2304,8 +2286,8 @@ function evaluateOfficialResourceWorkChain(
     findBestWorkPath(
       context.workChains,
       {
-        fromGroups: [
-          "officer",
+        fromTenGods: [
+          "正官",
         ],
 
         toGroups: [
@@ -2325,7 +2307,7 @@ function evaluateOfficialResourceWorkChain(
     );
 
   const thresholdSatisfied =
-    officer.total >=
+    officerCount >=
       finite(
         thresholds
           .confirmedOfficerMin,
@@ -2335,7 +2317,7 @@ function evaluateOfficialResourceWorkChain(
         thresholds
           .confirmedResourceMin,
       ) &&
-    officer.hasRoot &&
+    properOfficer.hasRoot &&
     resource.hasRoot;
 
   const workStatus =
@@ -2355,11 +2337,11 @@ function evaluateOfficialResourceWorkChain(
 
   const supportingEvidence =
     uniqueText([
-      `官杀加权约${officer.total}`,
+      `正官加权约${officerCount}`,
       `印星加权约${resource.total}`,
 
-      officer.hasRoot
-        ? "官杀有根"
+      properOfficer.hasRoot
+        ? "正官有根"
         : "",
 
       resource.hasRoot
@@ -2371,11 +2353,11 @@ function evaluateOfficialResourceWorkChain(
         : "",
 
       workPath
-        ? `做功链：${workPath.evidenceText}`
+        ? `官印路径：${workPath.evidenceText}`
         : "",
 
       structurallySupported
-        ? "官杀生印的方向、根气和路径完整度达到原局结构支持标准"
+        ? "正官生印的方向、根气和路径完整度达到原局结构支持标准"
         : "",
 
       confirmed
@@ -2386,10 +2368,11 @@ function evaluateOfficialResourceWorkChain(
   const weakeningEvidence =
     uniqueText([
       !workPath
-        ? "现有workChains未识别官杀到印星的方向连接，不能仅凭二者同时存在认定官印承接做功"
+        ? "正官与印星虽同时存在，但现有workChains未识别正官生印的方向连接"
         : "",
 
-      workStatus === "connected"
+      workStatus ===
+        "connected"
         ? "已有官印生成方向，但路径力量、藏干或中断条件尚不足以支持结构成立"
         : "",
 
@@ -2405,12 +2388,12 @@ function evaluateOfficialResourceWorkChain(
         ? "路径节点受到刑冲害破类中断信号牵动"
         : "",
 
-      officer.isHiddenOnly
-        ? "官杀藏而不透，社会位置需要后天推动"
+      properOfficer.isHiddenOnly
+        ? "正官藏而不透，社会位置需要后天推动"
         : "",
 
-      officer.isRelationAffected
-        ? "官杀受到关系牵动"
+      properOfficer.isRelationAffected
+        ? "正官受到关系牵动"
         : "",
 
       resource.isRelationAffected
@@ -2422,7 +2405,7 @@ function evaluateOfficialResourceWorkChain(
     title:
       workStatus ===
         "presence_only"
-        ? "官印并见，承接链待确认"
+        ? "正官印星并见，承接链待确认"
         : confirmed
           ? "官印承接做功链"
           : structurallySupported
@@ -2455,10 +2438,11 @@ function evaluateOfficialResourceWorkChain(
         workPath,
       ),
 
-    evidence: [
-      ...officer.evidence,
-      ...resource.evidence,
-    ],
+    evidence:
+      uniqueText([
+        properOfficer.statusText,
+        ...resource.evidence,
+      ]),
 
     supportingEvidence,
     weakeningEvidence,

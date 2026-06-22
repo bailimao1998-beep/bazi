@@ -146,6 +146,12 @@ export function renderNatalImagePanel(
     ensureNatalDebugStyles();
   }
 
+  const hitListDisplay =
+    resolveNatalHitListDisplay(
+      report,
+      showDebug,
+    );
+
   /*
    * 页面原有顺序保持不变：
    * 命理总批 → 十二维画像 → 取象索引。
@@ -180,7 +186,10 @@ export function renderNatalImagePanel(
 
     ${renderNatalDomainReport(report)}
 
-    ${renderNatalHitListSection(report)}
+    ${renderNatalHitListDisplay(
+      report,
+      hitListDisplay,
+    )}
 
     ${
       showDebug
@@ -254,6 +263,16 @@ export function renderNatalImagePanel(
       contractHitListPreview:
         report.natalDebug
           ?.contractHitListPreview ??
+        null,
+
+      natalHitListMode:
+        hitListDisplay.mode,
+
+      displayedHitListSource:
+        hitListDisplay.source,
+
+      displayedHitListFallbackReason:
+        hitListDisplay.fallbackReason ??
         null,
     };
   }
@@ -552,14 +571,62 @@ function renderNatalDomainCard(domain = {}, index = 0) {
   `;
 }
 
-function renderNatalHitListSection(report = {}) {
-  const hitList = buildNatalHitList(report);
+function renderNatalHitListDisplay(
+  report = {},
+  display = {},
+) {
+  if (display.source === "legacy") {
+    return renderNatalHitListSection(report);
+  }
+
+  if (display.mode === "compare") {
+    return `
+      ${renderNatalHitListSection(
+        report,
+        {
+          title: "旧版取象索引",
+        },
+      )}
+      ${renderNatalHitListSection(
+        report,
+        {
+          title: "新版取象索引预览",
+          hitList:
+            display.contractHitList,
+        },
+      )}
+    `;
+  }
+
+  if (display.source === "contract") {
+    return renderNatalHitListSection(
+      report,
+      {
+        title: "取象索引",
+        hitList:
+          display.contractHitList,
+      },
+    );
+  }
+
+  return renderNatalHitListSection(report);
+}
+
+function renderNatalHitListSection(
+  report = {},
+  options = {},
+) {
+  const hitList =
+    options.hitList ??
+    buildNatalHitList(report);
   const rows = hitList.all;
   const chips = hitList.featured;
+  const title =
+    options.title || "取象索引";
   return `
     <section class="natal-hit-index">
       <div class="board-title">
-        <h3>取象索引</h3>
+        <h3>${display(title)}</h3>
         <span>共 ${safe(rows.length)} 个象</span>
       </div>
       <p class="natal-hit-intro">系统从四柱、十神、藏干、五行、关系和结构中提取到的主要取象。</p>
@@ -609,6 +676,74 @@ function renderNatalHitCard(item = {}) {
       </details>
     </article>
   `;
+}
+
+function resolveNatalHitListDisplay(
+  report = {},
+  showDebug = false,
+) {
+  const requestedMode = showDebug
+    ? readNatalHitListMode()
+    : "legacy";
+  const contractHitList =
+    report.natalDebug
+      ?.contractHitListPreview;
+  const hasContractHitList =
+    Boolean(contractHitList) &&
+    Array.isArray(contractHitList.all);
+
+  if (
+    requestedMode === "contract" ||
+    requestedMode === "compare"
+  ) {
+    if (!hasContractHitList) {
+      return {
+        mode: requestedMode,
+        source: "legacy",
+        fallbackReason:
+          "contract_hit_list_preview_missing",
+        contractHitList: null,
+      };
+    }
+
+    return {
+      mode: requestedMode,
+      source: requestedMode,
+      fallbackReason: null,
+      contractHitList,
+    };
+  }
+
+  return {
+    mode: "legacy",
+    source: "legacy",
+    fallbackReason: null,
+    contractHitList: null,
+  };
+}
+
+function readNatalHitListMode() {
+  if (
+    typeof window === "undefined"
+  ) {
+    return "legacy";
+  }
+
+  const params =
+    new URLSearchParams(
+      window.location.search,
+    );
+  const mode =
+    params.get("natalHitListMode");
+
+  if (
+    mode === "contract" ||
+    mode === "compare"
+  ) {
+    return mode;
+  }
+
+  return "legacy";
 }
 
 function renderReasonChain(report = {}) {

@@ -11,6 +11,10 @@ import {
 } from "../natal/natalImageComposer.js";
 
 import {
+  composeContractNatalImages,
+} from "../natal/composition/composeContractNatalImages.js";
+
+import {
   buildNatalMasterSummary,
 } from "../natal/natalMasterSummaryEngine.js";
 
@@ -59,6 +63,11 @@ export function buildNatalImageReport({
     buildAtomicNatalFacts(
       featureVector,
     );
+
+  const contractCompositionShadow =
+    composeContractNatalImages({
+      facts: atomicFacts.contractFacts,
+    });
 
   /*
    * 第三层：
@@ -183,6 +192,8 @@ export function buildNatalImageReport({
       factEngineDebug:
         atomicFacts.debug ??
         {},
+
+      contractCompositionShadow,
     },
   };
 }

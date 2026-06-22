@@ -35,6 +35,10 @@ import {
   buildNatalAiEvidencePack,
 } from "../natal/ai/buildNatalAiEvidencePack.js";
 
+import {
+  buildNatalStructureSynopsis,
+} from "../natal/structure/buildNatalStructureSynopsis.js";
+
 /**
  * 原局报告第二版总入口。
  *
@@ -68,6 +72,10 @@ export function buildNatalImageReport({
         viewModel,
     });
 
+  const structureSynopsis =
+    buildNatalStructureSynopsis(
+      featureVector,
+    );
   /*
    * 第二层：
    * 基础事实、高阶规则、去重和冲突。
@@ -134,7 +142,9 @@ export function buildNatalImageReport({
   const legacyDomainResult =
     buildFactDrivenDomainReport({
       featureVector,
+      structureSynopsis,
       atomicFacts,
+      structureSynopsis,
       contractFacts:
         atomicFacts.facts ?? [],
       compositionImages: [],
@@ -146,7 +156,9 @@ export function buildNatalImageReport({
   const domainResult =
     buildFactDrivenDomainReport({
       featureVector,
+      structureSynopsis,
       atomicFacts,
+      structureSynopsis,
       contractFacts:
         atomicFacts.contractFacts ?? [],
       compositionImages:
@@ -176,12 +188,18 @@ export function buildNatalImageReport({
 
   const masterSummary =
     buildNatalMasterSummary({
+      featureVector,
+      structureSynopsis,
+
       facts:
         atomicFacts.contractFacts ?? [],
+
       compositionImages:
         contractComposition.images ?? [],
+
       hitList:
         productionHitList,
+
       twelveDomains,
       scope: "natal",
     });
@@ -190,12 +208,17 @@ export function buildNatalImageReport({
     buildNatalAiEvidencePack({
       chart: safeChart,
       featureVector,
+      structureSynopsis,
+
       contractFacts:
         atomicFacts.contractFacts ?? [],
+
       compositionImages:
         contractComposition.images ?? [],
+
       hitList:
         productionHitList,
+
       twelveDomains,
       masterSummary,
       scope: "natal",
@@ -221,6 +244,7 @@ export function buildNatalImageReport({
       composed.needVerify,
 
     featureVector,
+    structureSynopsis,
     atomicFacts,
     domainEvidence,
     twelveDomains,
@@ -262,6 +286,7 @@ export function buildNatalImageReport({
         CONTRACT_DOMAIN_ENGINE_VERSION,
 
       featureVector,
+      structureSynopsis,
       atomicFacts,
 
       resolvedFacts:

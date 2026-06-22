@@ -129,6 +129,7 @@ const domainFocusText = {
 
 export function buildFactDrivenDomainReport({
   featureVector = {},
+  structureSynopsis = {},
   atomicFacts = {},
   contractFacts,
   compositionImages = [],
@@ -165,7 +166,9 @@ export function buildFactDrivenDomainReport({
       buildDomainPortrait({
         rule,
         selected,
-        scope: normalizedScope,
+        structureSynopsis,
+        scope:
+          normalizedScope,
       });
 
     domainEvidenceMap[rule.key] = {
@@ -196,7 +199,12 @@ export function buildFactDrivenDomainReport({
     domainEvidence: {
       engineVersion:
         CONTRACT_DOMAIN_ENGINE_VERSION,
-      scope: normalizedScope,
+
+      scope:
+        normalizedScope,
+
+      structureSynopsis,
+
       signals: [],
       atomicFacts,
       featureVector,
@@ -247,6 +255,7 @@ function selectDomainEvidence({
 function buildDomainPortrait({
   rule,
   selected,
+  structureSynopsis = {},
   scope,
 }) {
   const images = selected.images;
@@ -276,7 +285,19 @@ function buildDomainPortrait({
     uniqueSortedStrings(
       images.map((image) => image.ruleId),
     );
-  const warnings = []; const narrative = composeDomainNarrative({ domainKey: rule.key, images, facts, }); warnings.push( ...( Array.isArray( narrative.warnings, ) ? narrative.warnings : [] ), ); const title = rule.label; const summary = narrative.overview || rule.weakEvidenceText; const judgement = narrative.overview || rule.defaultJudgement; const manifestation = narrative.manifestation || ""; const strength = narrative.strength || ""; const pressure = narrative.caution || ( tensionImage ? cleanSentence( tensionImage.brief, ) : supportImage && supportImage.status === "conditional" ? `${cleanSentence( supportImage.brief, )}，成立轻重仍需现实反馈。` : facts[1] ? "该维度还有辅助事实参与，轻重取决于其他结构。" : rule.weakEvidenceText );
+  const warnings = []; 
+  const narrative =
+  composeDomainNarrative({
+    domainKey:
+      rule.key,
+
+    images,
+
+    facts,
+
+    structureSynopsis,
+  });
+  warnings.push( ...( Array.isArray( narrative.warnings, ) ? narrative.warnings : [] ), ); const title = rule.label; const summary = narrative.overview || rule.weakEvidenceText; const judgement = narrative.overview || rule.defaultJudgement; const manifestation = narrative.manifestation || ""; const strength = narrative.strength || ""; const pressure = narrative.caution || ( tensionImage ? cleanSentence( tensionImage.brief, ) : supportImage && supportImage.status === "conditional" ? `${cleanSentence( supportImage.brief, )}，成立轻重仍需现实反馈。` : facts[1] ? "该维度还有辅助事实参与，轻重取决于其他结构。" : rule.weakEvidenceText );
   const keywords = uniqueSortedStrings([
     ...images.flatMap((image) =>
       image.tags ?? [],
@@ -304,7 +325,14 @@ function buildDomainPortrait({
     );
   }
 
-  return { key: rule.key, label: rule.label, title, narrativeVersion: DOMAIN_NARRATIVE_COMPOSER_VERSION, summary, judgement, manifestation, strength, pressure, hasCompositionNarrative: narrative .hasCompositionNarrative, narrativeSourceRuleIds: narrative.sourceRuleIds, narrativeSourceImageIds: narrative.sourceImageIds,
+  return { key: rule.key, label: rule.label, title, narrativeVersion: DOMAIN_NARRATIVE_COMPOSER_VERSION, 
+    structureBasis:
+      normalizeText(
+        structureSynopsis
+          .domainBaselines
+          ?.[rule.key],
+      ),
+    summary, judgement, manifestation, strength, pressure, hasCompositionNarrative: narrative .hasCompositionNarrative, narrativeSourceRuleIds: narrative.sourceRuleIds, narrativeSourceImageIds: narrative.sourceImageIds,
     keywords,
     tags: keywords,
     evidence,

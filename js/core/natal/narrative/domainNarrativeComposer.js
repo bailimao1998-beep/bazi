@@ -631,6 +631,7 @@ export function composeDomainNarrative({
   domainKey,
   images = [],
   facts = [],
+  structureSynopsis = {},
 } = {}) {
   const normalizedDomainKey =
     normalizeText(domainKey);
@@ -663,12 +664,37 @@ export function composeDomainNarrative({
             ruleId,
           );
 
+        const structureBaseline =
+        normalizeText(
+            structureSynopsis
+            .domainBaselines
+            ?.[
+                normalizedDomainKey
+            ],
+        );
+
+        const compositionOverview =
+        primary
+            ? qualifyConditionalText(
+                primary.overview,
+                primary.image,
+            )
+            : "";
+
         const overview =
-          normalizeText(
-            domainRuleNarratives[
-              normalizedDomainKey
-            ]?.[ruleId],
-          );
+        joinNarrativeParts([
+            structureBaseline,
+
+            compositionOverview,
+
+            !structureBaseline &&
+            !compositionOverview
+            ? domainFallbacks[
+                normalizedDomainKey
+                ] ||
+                "该领域目前缺少足够的原局证据。"
+            : "",
+        ]);
 
         const detail =
           resolveDomainDetail(
@@ -1066,6 +1092,52 @@ function normalizeComparableText(
       /[，。；：、！？\s]/g,
       "",
     );
+}
+
+function joinNarrativeParts(
+  values,
+) {
+  const result = [];
+
+  for (
+    const value of
+    Array.isArray(values)
+      ? values
+      : []
+  ) {
+    const text =
+      normalizeText(value);
+
+    if (!text) {
+      continue;
+    }
+
+    const comparable =
+      normalizeComparableText(
+        text,
+      );
+
+    const duplicated =
+      result.some(
+        (item) =>
+          normalizeComparableText(
+            item,
+          ) === comparable,
+      );
+
+    if (!duplicated) {
+      result.push(text);
+    }
+  }
+
+  return result
+    .map(
+      (text) =>
+        /[。！？]$/.test(text)
+          ? text
+          : `${text}。`,
+    )
+    .join("");
 }
 
 function normalizeText(value) {

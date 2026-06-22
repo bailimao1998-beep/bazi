@@ -194,6 +194,9 @@ export function renderNatalImagePanel(
           : ""
       }
     </div>
+    ${renderNatalStructureSynopsis(
+      report,
+    )}
 
     ${renderNatalMasterSummary(
       report,
@@ -352,6 +355,233 @@ export function renderNatalImagePanel(
   bindNatalEvidencePopup(root);
 }
 
+function renderNatalStructureSynopsis(
+  report = {},
+) {
+  const synopsis =
+    report.structureSynopsis ??
+    null;
+
+  if (
+    !synopsis ||
+    !(
+      synopsis.summary ||
+      synopsis.headline
+    )
+  ) {
+    return "";
+  }
+
+  const keyPoints =
+    compact(
+      synopsis.keyPoints,
+    )
+      .filter(
+        (item) =>
+          !textRoughlySame(
+            item,
+            synopsis.summary,
+          ),
+      )
+      .slice(0, 5);
+
+  const favorableElements =
+    compact(
+      synopsis.balance
+        ?.favorableElements,
+    )
+      .map(
+        (element) =>
+          ({
+            wood: "木",
+            fire: "火",
+            earth: "土",
+            metal: "金",
+            water: "水",
+          })[element] ||
+          element,
+      );
+
+  const cautionElements =
+    compact(
+      synopsis.balance
+        ?.cautionElements,
+    )
+      .map(
+        (element) =>
+          ({
+            wood: "木",
+            fire: "火",
+            earth: "土",
+            metal: "金",
+            water: "水",
+          })[element] ||
+          element,
+      );
+
+  return `
+    <section
+      class="natal-master-summary natal-structure-synopsis"
+    >
+      <div
+        class="natal-master-head"
+      >
+        <div>
+          <p class="eyebrow">
+            原局总纲
+          </p>
+
+          <h3>
+            ${display(
+              synopsis.title ||
+              "原局基础总纲",
+            )}
+          </h3>
+        </div>
+
+        <span
+          class="natal-domain-confidence"
+        >
+          ${display(
+            confidenceLabel(
+              synopsis.confidence ||
+              "low",
+            ),
+          )}
+        </span>
+      </div>
+
+      ${
+        synopsis.headline
+          ? `
+            <p
+              class="natal-master-structure"
+            >
+              <b>
+                结构定性
+              </b>
+
+              ${display(
+                synopsis.headline,
+              )}
+            </p>
+          `
+          : ""
+      }
+
+      ${
+        synopsis.summary
+          ? `
+            <article
+              class="natal-master-opening"
+            >
+              <p>
+                ${display(
+                  synopsis.summary,
+                )}
+              </p>
+            </article>
+          `
+          : ""
+      }
+
+      ${
+        keyPoints.length
+          ? `
+            <div
+              class="natal-master-sections"
+            >
+              ${keyPoints
+                .map(
+                  (
+                    item,
+                    index,
+                  ) => `
+                    <article
+                      class="natal-master-section"
+                    >
+                      <div
+                        class="natal-master-section-head"
+                      >
+                        <i>
+                          ${String(
+                            index + 1,
+                          ).padStart(
+                            2,
+                            "0",
+                          )}
+                        </i>
+
+                        <b>
+                          结构依据
+                        </b>
+                      </div>
+
+                      <p>
+                        ${display(item)}
+                      </p>
+                    </article>
+                  `,
+                )
+                .join("")}
+            </div>
+          `
+          : ""
+      }
+
+      ${
+        favorableElements.length ||
+        cautionElements.length
+          ? `
+            <article
+              class="natal-master-conclusion"
+            >
+              <b>
+                平衡方向
+              </b>
+
+              <p>
+                ${
+                  favorableElements.length
+                    ? `优先观察${display(
+                        favorableElements.join(
+                          "、",
+                        ),
+                      )}的调节作用。`
+                    : ""
+                }
+
+                ${
+                  cautionElements.length
+                    ? `${display(
+                        cautionElements.join(
+                          "、",
+                        ),
+                      )}不宜继续无条件堆叠。`
+                    : ""
+                }
+              </p>
+            </article>
+          `
+          : ""
+      }
+
+      ${
+        synopsis.boundary
+          ? `
+            <p
+              class="natal-master-boundary"
+            >
+              ${display(
+                synopsis.boundary,
+              )}
+            </p>
+          `
+          : ""
+      }
+    </section>
+  `;
+}
 
 function renderNatalMasterSummary(
   report = {},
@@ -396,6 +626,10 @@ function renderNatalMasterSummary(
 
           featureVector:
             report.featureVector,
+
+          structureSynopsis:
+            report.structureSynopsis ??
+            null,
 
           atomicFacts:
             report.atomicFacts,

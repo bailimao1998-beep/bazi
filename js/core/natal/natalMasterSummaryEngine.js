@@ -74,6 +74,7 @@ const DIRECTION_TAGS = [
 
 export function buildNatalMasterSummary({
   featureVector = {},
+  structureSynopsis = {},
   atomicFacts = {},
   coreImages = {},
   facts,
@@ -88,6 +89,7 @@ export function buildNatalMasterSummary({
     hitList?.all
   ) {
     return buildContractNatalMasterSummary({
+      structureSynopsis,
       facts:
         Array.isArray(facts)
           ? facts
@@ -1286,6 +1288,7 @@ const MASTER_LIFE_PATTERN_BY_RULE = {
 };
 
 function buildContractNatalMasterSummary({
+  structureSynopsis = {},
   facts = [],
   compositionImages = [],
   hitList = {},
@@ -1417,13 +1420,28 @@ function buildContractNatalMasterSummary({
       "",
     );
 
-  const opening =
+  const structureOpening =
+    cleanSentence(
+      structureSynopsis.summary ||
+      structureSynopsis.headline ||
+      "",
+    );
+
+  const compositionOpening =
     buildProfessionalOpening({
       primaryImage,
       primaryRow,
       secondaryImage,
       secondaryRow,
     });
+
+  const opening =
+    compositionOpening
+      ? joinDistinctSentences([
+          "在上述原局基础上",
+          compositionOpening,
+        ])
+      : structureOpening;
 
   const characterLine =
     buildDomainNarrativeLine({
@@ -1574,6 +1592,7 @@ function buildContractNatalMasterSummary({
     buildLifePatternLine({
       primaryRuleId,
       domains,
+      structureSynopsis,
     });
 
   const relationshipFamilyLine =
@@ -1676,8 +1695,11 @@ function buildContractNatalMasterSummary({
       opening,
 
     conclusion,
+    
+    structureSynopsis,
 
     coreStructure:
+      structureOpening ||
       opening,
 
     workLine:
@@ -1722,9 +1744,11 @@ function buildContractNatalMasterSummary({
     warnings: [],
 
     structure:
+      structureOpening ||
       opening,
 
     core:
+      structureOpening ||
       opening,
 
     lifeDirection:
@@ -1954,6 +1978,7 @@ function buildAbilityTensionLine({
 function buildLifePatternLine({
   primaryRuleId,
   domains,
+  structureSynopsis = {},
 }) {
   const ruleLine =
     MASTER_LIFE_PATTERN_BY_RULE[
@@ -1961,21 +1986,32 @@ function buildLifePatternLine({
     ] ||
     "整体发展更适合走能够持续积累、反复验证和逐步放大优势的现实路径。";
 
+  const balanceLine =
+    cleanSentence(
+      structureSynopsis
+        .balance
+        ?.text,
+    );
+
   const domainLine =
     buildDomainNarrativeLine({
       domains,
+
       keys: [
         "fortune",
         "movement",
       ],
+
       fields: [
         "judgement",
       ],
+
       limit: 1,
     });
 
   return joinDistinctSentences([
     ruleLine,
+    balanceLine,
     domainLine,
   ]);
 }

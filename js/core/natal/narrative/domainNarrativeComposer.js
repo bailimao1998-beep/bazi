@@ -859,7 +859,7 @@ const primary =
   const genericStrength =
     useGenericSemantic
       ? normalizeText(
-          strengthsource?.semantic
+          strengthSource?.semantic
             ?.strengths?.[0] ??
           primary?.semantic
             ?.strengths?.[0],
@@ -974,7 +974,7 @@ const primary =
     tensionRuleId:
       tension?.ruleId ??
       "",
-      
+
     isConditionalNarrative:
       Boolean(
         professionalAggregation

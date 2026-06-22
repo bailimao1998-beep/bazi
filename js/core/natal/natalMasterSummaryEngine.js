@@ -1380,13 +1380,15 @@ function buildContractNatalMasterSummary({
     compareProfessionalEvidenceImages,
   );
 
+  const supportedPrimaryCandidates = [
+    ...positiveImages,
+    ...tensionImages,
+  ].sort(
+    compareProfessionalEvidenceImages,
+  );
+
   const primaryImage =
-    positiveImages[0] ||
-    tensionImages
-      .slice()
-      .sort(
-        compareProfessionalEvidenceImages,
-      )[0] ||
+    supportedPrimaryCandidates[0] ||
     images[0] ||
     null;
 

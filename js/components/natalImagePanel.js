@@ -357,108 +357,126 @@ function renderNatalMasterSummary(
   report = {},
   context = {},
 ) {
-  /*
-   * 优先使用新版事实驱动总批。
-   * 只有新版数据不存在时，才调用旧引擎兜底。
-   */
   const hasV2Summary =
     report.masterSummary &&
     (
-      report.masterSummary.conclusion ||
+      report.masterSummary
+        .conclusion ||
+      report.masterSummary
+        .opening ||
       Array.isArray(
-        report.masterSummary.sections,
+        report.masterSummary
+          .sections,
       )
     );
 
   const domains =
-    buildNatalDomainCards(report);
+    buildNatalDomainCards(
+      report,
+    );
 
   const hitList =
-    buildNatalHitList(report);
-
-  const summary = hasV2Summary
-    ? report.masterSummary
-    : buildLegacyNatalMasterSummary({
-        summary: report.summary,
-        twelveDomains: domains,
-        hitList:
-          hitList.all ?? [],
-        featureVector:
-          report.featureVector,
-        atomicFacts:
-          report.atomicFacts,
-        domainEvidence:
-          report.domainEvidence,
-        database:
-          context.masterSummaryDatabase,
-      });
-
-  const sectionTexts =
-    normalizeMasterSummarySections(
-      summary,
+    buildNatalHitList(
+      report,
     );
+
+  const summary =
+    hasV2Summary
+      ? report.masterSummary
+      : buildLegacyNatalMasterSummary({
+          summary:
+            report.summary,
+
+          twelveDomains:
+            domains,
+
+          hitList:
+            hitList.all ??
+            [],
+
+          featureVector:
+            report.featureVector,
+
+          atomicFacts:
+            report.atomicFacts,
+
+          domainEvidence:
+            report.domainEvidence,
+
+          database:
+            context
+              .masterSummaryDatabase,
+        });
 
   const headline =
     summary.title ||
     summary.headline ||
     "命理总批（原局）";
 
-  const evidenceCount =
-    compact(
-      summary.evidenceFactIds,
-    ).length;
+  const openingText =
+    summary.opening ||
+    summary.paragraph ||
+    summary.structure ||
+    summary.core ||
+    "";
 
-  const conditionalCount =
-    compact(
-      summary.conditionalFactIds,
-    ).length;
+  const sectionTexts =
+    normalizeMasterSummarySections(
+      summary,
+    ).filter(
+      (section) =>
+        !openingText ||
+        !textRoughlySame(
+          openingText,
+          section.text,
+        ),
+    );
 
   return `
-    <section class="natal-master-summary">
-      <div class="natal-master-head">
+    <section
+      class="natal-master-summary"
+    >
+      <div
+        class="natal-master-head"
+      >
         <div>
           <p class="eyebrow">
             命理师总批
           </p>
+
           <h3>
             ${display(headline)}
           </h3>
         </div>
-
-        ${
-          hasV2Summary
-            ? `
-              <span class="natal-v2-source">
-                结构化分析
-              </span>
-            `
-            : `
-              <span class="natal-v2-source is-legacy">
-                旧版兜底
-              </span>
-            `
-        }
       </div>
 
       ${
-        summary.structure
+        openingText
           ? `
-            <p class="natal-master-structure">
-              <b>命局结构</b>
-              ${display(
-                summary.structure,
-              )}
-            </p>
+            <article
+              class="natal-master-opening"
+            >
+              <p>
+                ${display(
+                  openingText,
+                )}
+              </p>
+            </article>
           `
           : ""
       }
 
-      <div class="natal-master-sections">
+      <div
+        class="natal-master-sections"
+      >
         ${
           sectionTexts.length
             ? sectionTexts
                 .map(
-                  (section) => `
+                  (
+                    section,
+                    index,
+                  ) => `
                     <article
                       class="natal-master-section"
                       data-section-key="${safe(
@@ -466,11 +484,24 @@ function renderNatalMasterSummary(
                         "",
                       )}"
                     >
-                      <b>
-                        ${display(
-                          section.title,
-                        )}
-                      </b>
+                      <div
+                        class="natal-master-section-head"
+                      >
+                        <i>
+                          ${String(
+                            index + 1,
+                          ).padStart(
+                            2,
+                            "0",
+                          )}
+                        </i>
+
+                        <b>
+                          ${display(
+                            section.title,
+                          )}
+                        </b>
+                      </div>
 
                       <p>
                         ${display(
@@ -493,8 +524,13 @@ function renderNatalMasterSummary(
       ${
         summary.conclusion
           ? `
-            <article class="natal-master-conclusion">
-              <b>综合总论</b>
+            <article
+              class="natal-master-conclusion"
+            >
+              <b>
+                总评
+              </b>
+
               <p>
                 ${display(
                   summary.conclusion,
@@ -506,22 +542,11 @@ function renderNatalMasterSummary(
       }
 
       ${
-        conditionalCount
-          ? `
-            <p class="natal-master-condition-note">
-              另有 ${safe(
-                conditionalCount,
-              )} 条条件象作为内部复核项，
-              未直接写入主结论。
-            </p>
-          `
-          : ""
-      }
-
-      ${
         summary.boundary
           ? `
-            <p class="natal-master-boundary">
+            <p
+              class="natal-master-boundary"
+            >
               ${display(
                 summary.boundary,
               )}

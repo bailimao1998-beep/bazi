@@ -1238,6 +1238,53 @@ function tokenize(text) {
     .filter(Boolean);
 }
 
+const MASTER_LIFE_PATTERN_BY_RULE = {
+  official_resource_support:
+    "整体属于越积累越有价值的类型，专业经验、责任信用和判断能力，会随着时间逐渐转化为现实位置。",
+
+  wealth_official_resource_trace:
+    "人生发展重点在于把资源、岗位责任和专业能力连接起来，先稳定承接，再逐步扩大范围。",
+
+  day_pillar_repetition:
+    "人生中某些课题容易重复出现，真正的成长来自把重复经历沉淀成经验，而不是在同一问题上反复消耗。",
+
+  spouse_palace_relation_tension:
+    "关系与现实责任容易成为重要人生课题，边界越明确、沟通越清楚，个人状态越容易稳定。",
+
+  peer_wealth_competition:
+    "发展机会常与合作、同辈和人脉有关，但能否走得长久，取决于利益、责任和分工是否清楚。",
+
+  resource_heavy_output_weak:
+    "人生优势主要来自学习、理解和积累，后期能否真正打开局面，关键在于把内部能力持续变成外部成果。",
+
+  element_bias_visible:
+    "命局优势较集中，适合在匹配自身特点的环境中持续深入，同时要主动补足适应力和结构短板。",
+
+  month_command_official:
+    "人生容易围绕责任、岗位、规则和社会角色展开，越能处理好压力与承载的关系，越容易建立稳定位置。",
+
+  output_wealth_chain:
+    "人生更适合在持续输出中形成结果，能力只有真正落到作品、服务、产品或项目上，才会转化为现实价值。",
+
+  hurting_officer_resource_balance:
+    "人生价值更容易从独立思考、专业知识和解决复杂问题的能力中体现，适合形成自己的方法和判断体系。",
+
+  hurting_officer_meets_officer:
+    "人生的重要课题是处理个人判断与现实规则之间的关系，既不能完全压住自己，也不能只靠对抗推动事情。",
+
+  wealth_heavy_body_weak:
+    "机会和现实事务可能不少，但发展速度必须与自身能力和精力匹配，承接稳定比盲目扩张更重要。",
+
+  officer_killing_mixed:
+    "人生中容易同时面对稳定要求和高压挑战，明确主次、职责和边界，是减少内耗的重要条件。",
+
+  day_branch_combined:
+    "关系、合作和共同目标对人生选择影响较深，既要珍惜连接，也要保留独立判断和个人边界。",
+
+  metal_water_fire_weak:
+    "命局思考和判断能力较强，但真正改变现实仍需行动、表达与目标感配合，不能长期停留在内部推演阶段。",
+};
+
 function buildContractNatalMasterSummary({
   facts = [],
   compositionImages = [],
@@ -1246,407 +1293,1110 @@ function buildContractNatalMasterSummary({
   scope = "natal",
 } = {}) {
   const normalizedScope =
-    cleanSentence(scope) || "natal";
-  const images = uniqueFacts(
-    (Array.isArray(compositionImages)
-      ? compositionImages
-      : [])
+    cleanSentence(scope) ||
+    "natal";
+
+  const images =
+    uniqueFacts(
+      (
+        Array.isArray(
+          compositionImages,
+        )
+          ? compositionImages
+          : []
+      )
+        .filter(Boolean)
+        .sort(
+          compareContractImages,
+        ),
+    );
+
+  const domains =
+    Array.isArray(
+      twelveDomains,
+    )
+      ? twelveDomains
+      : [];
+
+  const hitRows =
+    (
+      Array.isArray(hitList?.all)
+        ? hitList.all
+        : []
+    )
       .filter(Boolean)
-      .sort(compareContractImages),
-  );
-  const domains = Array.isArray(twelveDomains)
-    ? twelveDomains
-    : [];
+      .slice()
+      .sort(compareMasterRows);
+
   const coreImages =
-    images.filter((image) =>
-      image.role === "core",
+    images.filter(
+      (image) =>
+        image.role === "core",
     );
+
   const supportImages =
-    images.filter((image) =>
-      image.role === "support",
+    images.filter(
+      (image) =>
+        image.role === "support",
     );
+
   const tensionImages =
-    images.filter((image) =>
-      image.role === "tension",
+    images.filter(
+      (image) =>
+        image.role === "tension",
     );
+
   const conditionalImages =
-    images.filter((image) =>
-      image.role === "conditional" ||
-      image.status === "conditional",
+    images.filter(
+      (image) =>
+        image.role ===
+          "conditional" ||
+        image.status ===
+          "conditional",
     );
-  const coreStructure =
-    summarizeImages(
-      coreImages,
-      "原局核心结构尚未形成特别突出的高阶组合，先以十二领域中的基础事实复核。",
+
+  const positiveImages = [
+    ...coreImages,
+    ...supportImages,
+  ];
+
+  const primaryImage =
+    positiveImages[0] ||
+    images[0] ||
+    null;
+
+  const secondaryImage =
+    positiveImages.find(
+      (image) =>
+        image !== primaryImage &&
+        cleanSentence(
+          image.ruleId,
+        ) !==
+          cleanSentence(
+            primaryImage?.ruleId,
+          ),
+    ) ||
+    null;
+
+  const primaryRow =
+    findHitRowForImage(
+      primaryImage,
+      hitRows,
+    ) ||
+    hitRows.find(
+      (row) =>
+        row.role === "core",
+    ) ||
+    hitRows.find(
+      (row) =>
+        row.role === "support",
+    ) ||
+    hitRows[0] ||
+    null;
+
+  const secondaryRow =
+    findHitRowForImage(
+      secondaryImage,
+      hitRows,
+    ) ||
+    hitRows.find(
+      (row) =>
+        row !== primaryRow &&
+        (
+          row.role === "core" ||
+          row.role ===
+            "support"
+        ),
+    ) ||
+    null;
+
+  const primaryRuleId =
+    cleanSentence(
+      primaryRow?.sourceRuleId ||
+      primaryImage?.ruleId ||
+      "",
     );
-  const strengths =
-    uniqueText([
-      ...coreImages.map(imageBrief),
-      ...supportImages.map(imageBrief),
-    ]).slice(0, 4);
-  const tensions =
-    uniqueText(
-      tensionImages.map(imageBrief),
-    ).slice(0, 4);
+
+  const opening =
+    buildProfessionalOpening({
+      primaryImage,
+      primaryRow,
+      secondaryImage,
+      secondaryRow,
+    });
+
+  const characterLine =
+    buildDomainNarrativeLine({
+      domains,
+      keys: [
+        "self",
+        "fortune",
+      ],
+      fields: [
+        "judgement",
+        "manifestation",
+      ],
+      limit: 2,
+      allowFallback: true,
+    });
+
+  const careerWealthLine =
+    buildDomainNarrativeLine({
+      domains,
+      keys: [
+        "career",
+        "wealth",
+      ],
+      fields: [
+        "judgement",
+        "manifestation",
+        "pressure",
+      ],
+      limit: 3,
+    });
+
+  const relationshipLine =
+    buildDomainNarrativeLine({
+      domains,
+      keys: [
+        "spouse",
+        "friends",
+      ],
+      fields: [
+        "judgement",
+        "pressure",
+      ],
+      limit: 2,
+    });
+
+  const familyLine =
+    buildDomainNarrativeLine({
+      domains,
+      keys: [
+        "parents",
+        "siblings",
+        "children",
+      ],
+      fields: [
+        "judgement",
+        "pressure",
+      ],
+      limit: 2,
+    });
+
+  const healthLine =
+    buildDomainNarrativeLine({
+      domains,
+      keys: [
+        "health",
+        "fortune",
+      ],
+      fields: [
+        "judgement",
+        "pressure",
+      ],
+      limit: 2,
+    });
+
+  const strengthRows =
+    hitRows.filter(
+      (row) =>
+        (
+          row.role === "core" ||
+          row.role ===
+            "support"
+        ) &&
+        row.status !== "weak",
+    );
+
+  const tensionRows =
+    hitRows.filter(
+      (row) =>
+        row.role === "tension" ||
+        row.role ===
+          "conditional" ||
+        row.status ===
+          "conditional",
+    );
+
+  let strengths =
+    collectNarrativeItems(
+      strengthRows,
+      "strengths",
+      2,
+    );
+
+  if (
+    !strengths.length &&
+    primaryRow
+  ) {
+    strengths =
+      collectNarrativeItems(
+        [primaryRow],
+        "strengths",
+        2,
+      );
+  }
+
+  let tensions =
+    collectNarrativeItems(
+      tensionRows,
+      "risks",
+      2,
+    );
+
+  if (
+    !tensions.length &&
+    primaryRow
+  ) {
+    tensions =
+      collectNarrativeItems(
+        [primaryRow],
+        "risks",
+        1,
+      );
+  }
+
   const conditions =
     uniqueText(
-      conditionalImages.map(imageBrief),
-    ).slice(0, 4);
-  const careerWealthLine =
-    summarizeDomainGroup(domains, [
-      "career",
-      "wealth",
-    ]);
-  const workLine =
-    summarizeImages(
-      [
-        ...coreImages,
-        ...supportImages,
-      ],
-      careerWealthLine ||
-        "当前原局以合同组合象作为做工线索，仍需结合现实职责、资源承接和时间层触发复核。",
-    );
-  const relationshipLine =
-    summarizeDomainGroup(domains, [
-      "spouse",
-      "friends",
-    ]);
-  const healthLine =
-    summarizeDomainGroup(domains, [
-      "health",
-    ]);
-  const familyLine =
-    summarizeDomainGroup(domains, [
-      "parents",
-      "siblings",
-      "children",
-    ]);
-  const lifePatternLine =
-    summarizeDomainGroup(domains, [
-      "self",
-      "fortune",
-      "movement",
-    ]);
-  const evidenceFactIds =
-    uniqueText([
-      ...images.flatMap((image) =>
-        image.matchedFactIds ?? [],
+      conditionalImages.map(
+        imageBrief,
       ),
-      ...domains.flatMap((domain) =>
-        domain.evidenceFactIds ?? [],
-      ),
-    ]);
-  const compositionImageIds =
-    uniqueText([
-      ...images.map((image) => image.id),
-      ...domains.flatMap((domain) =>
-        domain.compositionImageIds ?? [],
-      ),
-    ]);
-  const domainKeys = uniqueText(
-    domains.map((domain) => domain.key),
-  );
-  const sections = buildContractSections({
-    coreStructure,
-    workLine,
-    strengths,
-    tensions,
-    conditions,
-    careerWealthLine,
-    relationshipLine,
-    healthLine,
-    familyLine,
-    lifePatternLine,
-  });
-  const conclusion =
-    buildContractConclusion({
-      coreStructure,
+    ).slice(0, 3);
+
+  const abilityTensionLine =
+    buildAbilityTensionLine({
       strengths,
       tensions,
-      conditions,
     });
+
+  const lifePatternLine =
+    buildLifePatternLine({
+      primaryRuleId,
+      domains,
+    });
+
+  const relationshipFamilyLine =
+    joinDistinctSentences([
+      relationshipLine,
+      familyLine,
+    ]);
+
+  const sections =
+    buildProfessionalSections({
+      opening,
+      characterLine,
+      careerWealthLine,
+      relationshipFamilyLine,
+      abilityTensionLine,
+      healthLine,
+      lifePatternLine,
+    });
+
+  const conclusion =
+    buildProfessionalConclusion({
+      primaryTitle:
+        primaryRow?.name ||
+        primaryImage?.title ||
+        "",
+      primaryRuleId,
+      strengths,
+      tensions,
+      relationshipLine,
+    });
+
+  const evidenceFactIds =
+    uniqueText([
+      ...images.flatMap(
+        (image) =>
+          image.matchedFactIds ??
+          [],
+      ),
+
+      ...domains.flatMap(
+        (domain) =>
+          domain.evidenceFactIds ??
+          [],
+      ),
+    ]);
+
+  const compositionImageIds =
+    uniqueText([
+      ...images.map(
+        (image) =>
+          image.id,
+      ),
+
+      ...domains.flatMap(
+        (domain) =>
+          domain
+            .compositionImageIds ??
+          [],
+      ),
+    ]);
+
+  const domainKeys =
+    uniqueText(
+      domains.map(
+        (domain) =>
+          domain.key,
+      ),
+    );
 
   return {
     version:
       "contract-master-summary-v1",
-    scope: normalizedScope,
-    title: "命理总批（原局）",
+
+    narrativeVersion:
+      "professional-master-summary-v2",
+
+    narrativeStyle:
+      "professional_master",
+
+    scope:
+      normalizedScope,
+
+    title:
+      "命理总批（原局）",
+
+    opening,
+
+    paragraph:
+      opening,
+
     conclusion,
-    coreStructure,
-    workLine,
+
+    coreStructure:
+      opening,
+
+    workLine:
+      careerWealthLine ||
+      lifePatternLine,
+
     strengths,
+
     tensions,
+
     conditions,
+
+    characterLine,
+
     careerWealthLine,
+
     relationshipLine,
-    healthLine,
+
     familyLine,
+
+    relationshipFamilyLine,
+
+    healthLine,
+
     lifePatternLine,
+
     evidenceFactIds,
+
     compositionImageIds,
+
     domainKeys,
+
     confidence:
       calculateContractSummaryConfidence(
         images,
         domains,
       ),
+
     boundary:
-      "本报告只分析出生原局，不包含大运、流年、流月的具体事件触发。",
+      "本总批只论出生原局所呈现的性格、结构和人生倾向，不包含大运、流年、流月的具体事件触发。",
+
     warnings: [],
 
-    structure: coreStructure,
-    core: coreStructure,
-    workLine,
-    lifeDirection: lifePatternLine,
+    structure:
+      opening,
+
+    core:
+      opening,
+
+    lifeDirection:
+      lifePatternLine,
+
     sections,
+
     conditionalFactIds:
       uniqueText(
-        conditionalImages.flatMap((image) =>
-          image.matchedFactIds ?? [],
+        conditionalImages.flatMap(
+          (image) =>
+            image.matchedFactIds ??
+            [],
         ),
       ),
+
     selectedFacts:
-      images.map((image) => ({
-        id: image.id,
-        name: image.title,
-        brief: image.brief,
-        role: image.role,
-        status: image.status,
-        domains: image.domains ?? [],
-      })),
+      images.map(
+        (image) => ({
+          id:
+            image.id,
+
+          name:
+            image.title,
+
+          brief:
+            image.brief,
+
+          role:
+            image.role,
+
+          status:
+            image.status,
+
+          domains:
+            image.domains ??
+            [],
+        }),
+      ),
+
     selectionDebug: {
       source:
-        "contract_composition_and_domains",
+        "contract_composition_domains_and_semantics",
+
       hitListCount:
-        Array.isArray(hitList?.all)
-          ? hitList.all.length
-          : 0,
-      imageCount: images.length,
-      domainCount: domains.length,
+        hitRows.length,
+
+      imageCount:
+        images.length,
+
+      domainCount:
+        domains.length,
+
+      primaryRuleId,
     },
   };
 }
 
-function buildContractSections({
-  coreStructure,
-  workLine,
+function buildProfessionalOpening({
+  primaryImage,
+  primaryRow,
+  secondaryImage,
+  secondaryRow,
+}) {
+  const primaryTitle =
+    cleanSentence(
+      primaryRow?.name ||
+      primaryImage?.title ||
+      "",
+    );
+
+  const secondaryTitle =
+    cleanSentence(
+      secondaryRow?.name ||
+      secondaryImage?.title ||
+      "",
+    );
+
+  const primaryMeaning =
+    toMasterVoice(
+      primaryRow?.meaning ||
+      imageBrief(
+        primaryImage,
+      ),
+    );
+
+  if (!primaryTitle) {
+    return (
+      primaryMeaning ||
+      "原局目前以基础事实为主，高阶组合尚未形成特别集中的主线，整体判断需要保留余地。"
+    );
+  }
+
+  const isPressureStructure =
+    primaryImage?.role ===
+      "tension" ||
+    primaryImage?.role ===
+      "conditional" ||
+    primaryRow?.role ===
+      "tension" ||
+    primaryRow?.role ===
+      "conditional";
+
+  const lead =
+    isPressureStructure
+      ? `原局较明显的结构线索是${primaryTitle}`
+      : secondaryTitle &&
+          secondaryTitle !==
+            primaryTitle
+        ? `原局以${primaryTitle}为主，兼见${secondaryTitle}`
+        : `原局以${primaryTitle}为主要结构`;
+
+  return joinDistinctSentences([
+    lead,
+    primaryMeaning,
+  ]);
+}
+
+function buildDomainNarrativeLine({
+  domains,
+  keys,
+  fields,
+  limit = 2,
+  allowFallback = false,
+}) {
+  const texts = [];
+
+  for (const key of keys) {
+    const domain =
+      domains.find(
+        (item) =>
+          item.key === key,
+      );
+
+    if (!domain) {
+      continue;
+    }
+
+    const hasUsefulSignal =
+      Boolean(
+        domain
+          .hasCompositionNarrative,
+      ) ||
+      domain.confidence ===
+        "high" ||
+      domain.confidence ===
+        "medium";
+
+    if (
+      !allowFallback &&
+      !hasUsefulSignal
+    ) {
+      continue;
+    }
+
+    for (
+      const field of fields
+    ) {
+      const text =
+        toMasterVoice(
+          domain[field],
+        );
+
+      if (
+        !text ||
+        (
+          !allowFallback &&
+          isWeakDomainText(text)
+        )
+      ) {
+        continue;
+      }
+
+      pushDistinctText(
+        texts,
+        text,
+      );
+
+      if (
+        texts.length >= limit
+      ) {
+        return joinSentences(
+          texts,
+        );
+      }
+    }
+  }
+
+  return joinSentences(
+    texts.slice(0, limit),
+  );
+}
+
+function buildAbilityTensionLine({
   strengths,
   tensions,
-  conditions,
+}) {
+  const lines = [];
+
+  const strengthText =
+    buildNaturalList(
+      strengths,
+      "，同时",
+    );
+
+  const tensionText =
+    buildNaturalList(
+      tensions,
+      "，同时",
+    );
+
+  if (strengthText) {
+    lines.push(
+      `命主的优势主要在于${strengthText}`,
+    );
+  }
+
+  if (tensionText) {
+    lines.push(
+      `需要注意的是${tensionText}`,
+    );
+  }
+
+  return joinSentences(lines);
+}
+
+function buildLifePatternLine({
+  primaryRuleId,
+  domains,
+}) {
+  const ruleLine =
+    MASTER_LIFE_PATTERN_BY_RULE[
+      primaryRuleId
+    ] ||
+    "整体发展更适合走能够持续积累、反复验证和逐步放大优势的现实路径。";
+
+  const domainLine =
+    buildDomainNarrativeLine({
+      domains,
+      keys: [
+        "fortune",
+        "movement",
+      ],
+      fields: [
+        "judgement",
+      ],
+      limit: 1,
+    });
+
+  return joinDistinctSentences([
+    ruleLine,
+    domainLine,
+  ]);
+}
+
+function buildProfessionalSections({
+  opening,
+  characterLine,
   careerWealthLine,
-  relationshipLine,
+  relationshipFamilyLine,
+  abilityTensionLine,
   healthLine,
-  familyLine,
   lifePatternLine,
 }) {
+  const candidates = [
+    {
+      key:
+        "character",
+
+      label:
+        "性格与做事方式",
+
+      text:
+        characterLine,
+    },
+
+    {
+      key:
+        "careerWealth",
+
+      label:
+        "事业与财富",
+
+      text:
+        careerWealthLine,
+    },
+
+    {
+      key:
+        "relationshipFamily",
+
+      label:
+        "感情与家庭",
+
+      text:
+        relationshipFamilyLine,
+    },
+
+    {
+      key:
+        "abilityTension",
+
+      label:
+        "优势与短板",
+
+      text:
+        abilityTensionLine,
+    },
+
+    {
+      key:
+        "healthInner",
+
+      label:
+        "体质与内在状态",
+
+      text:
+        healthLine,
+    },
+
+    {
+      key:
+        "lifePattern",
+
+      label:
+        "人生发展模式",
+
+      text:
+        lifePatternLine,
+    },
+  ];
+
   const sections = [];
-  const usedTexts = [];
+  const usedTexts = [
+    cleanSentence(opening),
+  ].filter(Boolean);
 
-  const canUseText = (text) => {
-    const normalized =
-      cleanSentence(text);
+  for (
+    const candidate of
+    candidates
+  ) {
+    const text =
+      cleanSentence(
+        candidate.text,
+      );
 
-    if (!normalized) {
-      return false;
+    if (!text) {
+      continue;
     }
 
-    return !usedTexts.some(
-      (usedText) =>
-        textSimilar(
-          usedText,
-          normalized,
-        ),
-    );
-  };
+    const duplicated =
+      usedTexts.some(
+        (usedText) =>
+          textSimilar(
+            usedText,
+            text,
+          ),
+      );
 
-  const addTextSection = (
-    key,
-    label,
-    text,
-  ) => {
-    const normalized =
-      cleanSentence(text);
-
-    if (!canUseText(normalized)) {
-      return;
+    if (duplicated) {
+      continue;
     }
 
-    usedTexts.push(normalized);
+    usedTexts.push(text);
 
     sections.push({
-      key,
-      label,
-      text: normalized,
+      key:
+        candidate.key,
+
+      label:
+        candidate.label,
+
+      text,
     });
-  };
-
-  const addItemSection = (
-    key,
-    label,
-    items,
-  ) => {
-    const availableItems =
-      uniqueText(items)
-        .filter(canUseText)
-        .slice(0, 2);
-
-    if (!availableItems.length) {
-      return;
-    }
-
-    usedTexts.push(
-      ...availableItems,
-    );
-
-    sections.push({
-      key,
-      label,
-      items: availableItems,
-    });
-  };
-
-
-  addTextSection(
-    "work",
-    "做工主线",
-    workLine,
-  );
-
-  addTextSection(
-    "careerWealth",
-    "事业财富",
-    careerWealthLine,
-  );
-
-  addItemSection(
-    "strengths",
-    "优势能力",
-    strengths,
-  );
-
-  addItemSection(
-    "tensions",
-    "主要矛盾",
-    tensions,
-  );
-
-  addItemSection(
-    "conditions",
-    "成立条件",
-    conditions,
-  );
-
-  addTextSection(
-    "relationship",
-    "感情关系",
-    relationshipLine,
-  );
-
-  addTextSection(
-    "health",
-    "体质状态",
-    healthLine,
-  );
-
-  addTextSection(
-    "family",
-    "家庭子女",
-    familyLine,
-  );
-
-  addTextSection(
-    "lifePattern",
-    "人生模式",
-    lifePatternLine,
-  );
+  }
 
   return sections;
 }
 
-function summarizeImages(images, fallback) {
-  const lines =
-    uniqueText(images.map(imageBrief))
-      .slice(0, 3);
-
-  return lines.length
-    ? lines.join("；")
-    : fallback;
-}
-
-function summarizeDomainGroup(domains, keys) {
-  return uniqueText(
-    domains
-      .filter((domain) =>
-        keys.includes(domain.key),
-      )
-      .map((domain) =>
-        domain.judgement ||
-        domain.summary ||
-        domain.title,
-      )
-  ).slice(0, 3).join("；");
-}
-
-function imageBrief(image = {}) {
-  return cleanSentence(
-    image.brief ||
-    image.title,
-  );
-}
-
-function compareContractImages(left, right) {
-  return (
-    roleRank(right.role) -
-      roleRank(left.role) ||
-    Number(right.priority ?? 0) -
-      Number(left.priority ?? 0) ||
-    cleanSentence(left.ruleId)
-      .localeCompare(
-        cleanSentence(right.ruleId),
-      )
-  );
-}
-
-function buildContractConclusion({
-  coreStructure,
+function buildProfessionalConclusion({
+  primaryTitle,
+  primaryRuleId,
   strengths,
   tensions,
-  conditions,
+  relationshipLine,
 }) {
   const lines = [];
 
+  const path =
+    MASTER_LIFE_PATTERN_BY_RULE[
+      primaryRuleId
+    ];
+
+  if (primaryTitle) {
+    lines.push(
+      path
+        ? `总的看，${primaryTitle}是这个命局最值得把握的主线。${path}`
+        : `总的看，${primaryTitle}是这个命局目前最值得把握的主要结构，发展上宜稳步积累，不宜只追求短期起伏。`,
+    );
+  } else {
+    lines.push(
+      "总的看，这个命局更适合走能够持续积累、逐步验证和稳定放大优势的现实路线。",
+    );
+  }
+
   if (strengths[0]) {
     lines.push(
-      `原局可用的支持点是：${strengths[0]}`,
+      `真正能够形成长期价值的，是${stripTerminalPunctuation(
+        strengths[0],
+      )}`,
     );
   }
 
   if (tensions[0]) {
     lines.push(
-      `主要需要留意的张力是：${tensions[0]}`,
+      `需要防止${stripTerminalPunctuation(
+        tensions[0],
+      )}演变成反复消耗`,
     );
   }
 
   if (
-    conditions[0] &&
-    lines.length < 2
+    relationshipLine &&
+    !lines.some(
+      (line) =>
+        textSimilar(
+          line,
+          relationshipLine,
+        ),
+    )
   ) {
-    lines.push(
-      `另有条件性线索：${conditions[0]}，具体轻重需要结合现实反馈。`,
-    );
-  }
+    const relationRisk =
+      /边界|责任|沟通|关系/.test(
+        relationshipLine,
+      );
 
-  if (!lines.length) {
-    lines.push(
-      coreStructure ||
-      "当前原局以基础事实为主，高阶组合不算突出，宜结合现实反馈继续复核。",
-    );
+    if (relationRisk) {
+      lines.push(
+        "关系中把边界、责任和真实需求说清楚，会比一味忍让或反复争执更有利。",
+      );
+    }
   }
 
   return joinSentences(
     lines.slice(0, 3),
   );
 }
+
+function collectNarrativeItems(
+  rows,
+  field,
+  limit,
+) {
+  const result = [];
+
+  for (const row of rows) {
+    const values =
+      normalizeArray(
+        row?.[field],
+      );
+
+    for (
+      const value of values
+    ) {
+      const text =
+        toMasterVoice(value);
+
+      if (!text) {
+        continue;
+      }
+
+      pushDistinctText(
+        result,
+        text,
+      );
+
+      if (
+        result.length >= limit
+      ) {
+        return result;
+      }
+    }
+  }
+
+  return result;
+}
+
+function findHitRowForImage(
+  image,
+  rows,
+) {
+  if (!image) {
+    return null;
+  }
+
+  const imageId =
+    cleanSentence(
+      image.id,
+    );
+
+  const ruleId =
+    cleanSentence(
+      image.ruleId,
+    );
+
+  return (
+    rows.find((row) => {
+      const rowRuleIds = [
+        row.sourceRuleId,
+        row.subcategory,
+        row.semanticGroup,
+      ]
+        .map(cleanSentence)
+        .filter(Boolean);
+
+      return (
+        (
+          imageId &&
+          cleanSentence(
+            row.id,
+          ) === imageId
+        ) ||
+        (
+          ruleId &&
+          rowRuleIds.includes(
+            ruleId,
+          )
+        )
+      );
+    }) ||
+    null
+  );
+}
+
+function compareMasterRows(
+  left,
+  right,
+) {
+  return (
+    roleRank(right?.role) -
+      roleRank(left?.role) ||
+    Number(
+      right?.priority ??
+      right?.score ??
+      0,
+    ) -
+      Number(
+        left?.priority ??
+        left?.score ??
+        0,
+      )
+  );
+}
+
+function compareContractImages(
+  left,
+  right,
+) {
+  return (
+    roleRank(right.role) -
+      roleRank(left.role) ||
+    Number(
+      right.priority ??
+      0,
+    ) -
+      Number(
+        left.priority ??
+        0,
+      ) ||
+    cleanSentence(
+      left.ruleId,
+    ).localeCompare(
+      cleanSentence(
+        right.ruleId,
+      ),
+    )
+  );
+}
+
+function imageBrief(
+  image = {},
+) {
+  return cleanSentence(
+    image.brief ||
+    image.title ||
+    "",
+  );
+}
+
+function buildNaturalList(
+  items,
+  connector = "，同时",
+) {
+  return uniqueText(items)
+    .map(
+      stripTerminalPunctuation,
+    )
+    .filter(Boolean)
+    .join(connector);
+}
+
+function joinDistinctSentences(
+  items,
+) {
+  const result = [];
+
+  for (
+    const item of
+    normalizeArray(items)
+  ) {
+    const text =
+      cleanSentence(item);
+
+    if (!text) {
+      continue;
+    }
+
+    pushDistinctText(
+      result,
+      text,
+    );
+  }
+
+  return joinSentences(result);
+}
+
+function pushDistinctText(
+  target,
+  text,
+) {
+  const normalized =
+    cleanSentence(text);
+
+  if (!normalized) {
+    return;
+  }
+
+  const duplicated =
+    target.some(
+      (existing) =>
+        textSimilar(
+          existing,
+          normalized,
+        ),
+    );
+
+  if (!duplicated) {
+    target.push(normalized);
+  }
+}
+
+function toMasterVoice(
+  value,
+) {
+  return cleanSentence(value)
+    .replace(
+      /你的/g,
+      "命主的",
+    )
+    .replace(
+      /你/g,
+      "命主",
+    );
+}
+
+function stripTerminalPunctuation(
+  value,
+) {
+  return cleanSentence(value)
+    .replace(
+      /[。；，、！？：]+$/g,
+      "",
+    );
+}
+
+function isWeakDomainText(
+  value,
+) {
+  return /目前以|基础事实为主|高阶组合不算突出|尚未形成特别集中|不宜只凭原局单断|需要结合时间层判断|尚未形成特别突出的高阶组合/.test(
+    value,
+  );
+}
+
 
 function calculateContractSummaryConfidence(
   images,

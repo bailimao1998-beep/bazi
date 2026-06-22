@@ -1,6 +1,139 @@
 export const NATAL_COMPOSITION_SEMANTICS_VERSION =
   "natal-composition-semantics-v1";
 
+export const NATAL_DOMAIN_KEYS =
+  Object.freeze([
+    "self",
+    "parents",
+    "siblings",
+    "spouse",
+    "children",
+    "wealth",
+    "health",
+    "movement",
+    "friends",
+    "career",
+    "property",
+    "fortune",
+  ]);
+
+const validNatalDomainKeys =
+  new Set(
+    NATAL_DOMAIN_KEYS,
+  );
+
+const canonicalCompositionDomains =
+  Object.freeze({
+    official_resource_support:
+      Object.freeze([
+        "career",
+        "self",
+        "parents",
+      ]),
+
+    wealth_official_resource_trace:
+      Object.freeze([
+        "wealth",
+        "career",
+        "self",
+      ]),
+
+    day_pillar_repetition:
+      Object.freeze([
+        "self",
+        "spouse",
+      ]),
+
+    spouse_palace_relation_tension:
+      Object.freeze([
+        "spouse",
+        "self",
+      ]),
+
+    peer_wealth_competition:
+      Object.freeze([
+        "wealth",
+        "friends",
+        "siblings",
+        "self",
+      ]),
+
+    resource_heavy_output_weak:
+      Object.freeze([
+        "self",
+        "career",
+        "children",
+        "fortune",
+      ]),
+
+    element_bias_visible:
+      Object.freeze([
+        "self",
+        "health",
+        "fortune",
+      ]),
+
+    month_command_official:
+      Object.freeze([
+        "career",
+        "self",
+      ]),
+
+    output_wealth_chain:
+      Object.freeze([
+        "career",
+        "wealth",
+        "children",
+      ]),
+
+    hurting_officer_resource_balance:
+      Object.freeze([
+        "self",
+        "career",
+        "fortune",
+        "children",
+      ]),
+
+    hurting_officer_meets_officer:
+      Object.freeze([
+        "career",
+        "self",
+        "spouse",
+        "friends",
+      ]),
+
+    wealth_heavy_body_weak:
+      Object.freeze([
+        "wealth",
+        "spouse",
+        "self",
+        "health",
+      ]),
+
+    officer_killing_mixed:
+      Object.freeze([
+        "career",
+        "self",
+        "spouse",
+        "health",
+      ]),
+
+    day_branch_combined:
+      Object.freeze([
+        "spouse",
+        "self",
+        "friends",
+      ]),
+
+    metal_water_fire_weak:
+      Object.freeze([
+        "health",
+        "self",
+        "fortune",
+        "career",
+      ]),
+  });
+
 export const natalCompositionSemantics =
   Object.freeze({
     official_resource_support:
@@ -687,9 +820,18 @@ function createSemantic({
   risks = [],
   domains = [],
 }) {
+  const normalizedRuleId =
+    normalizeRuleId(ruleId);
+
+  const resolvedDomains =
+    canonicalCompositionDomains[
+      normalizedRuleId
+    ] ??
+    domains;
+
   return Object.freeze({
     ruleId:
-      normalizeRuleId(ruleId),
+      normalizedRuleId,
 
     title:
       normalizeText(title),
@@ -706,17 +848,45 @@ function createSemantic({
       ),
 
     strengths:
-      freezeTextArray(strengths),
+      freezeTextArray(
+        strengths,
+      ),
 
     risks:
-      freezeTextArray(risks),
+      freezeTextArray(
+        risks,
+      ),
 
     domains:
-      freezeTextArray(domains),
+      freezeDomainArray(
+        resolvedDomains,
+      ),
 
     boundary:
       "该象只说明出生原局中的结构倾向，不直接代表某件事情必然发生；具体轻重仍需结合全局、现实反馈及时间层复核。",
   });
+}
+
+function freezeDomainArray(
+  items,
+) {
+  return Object.freeze(
+    [
+      ...new Set(
+        (
+          Array.isArray(items)
+            ? items
+            : []
+        )
+          .map(normalizeText)
+          .filter(
+            (domainKey) =>
+              validNatalDomainKeys
+                .has(domainKey),
+          ),
+      ),
+    ],
+  );
 }
 
 function freezeTextArray(items) {

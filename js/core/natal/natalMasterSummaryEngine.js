@@ -1587,7 +1587,8 @@ function buildContractNatalMasterSummary({
       opening,
       characterLine,
       careerWealthLine,
-      relationshipFamilyLine,
+      relationshipLine,
+      familyLine,
       abilityTensionLine,
       healthLine,
       lifePatternLine,
@@ -1599,10 +1600,20 @@ function buildContractNatalMasterSummary({
         primaryRow?.name ||
         primaryImage?.title ||
         "",
-      primaryRuleId,
+
       strengths,
+
       tensions,
+
       relationshipLine,
+
+      usedTexts: [
+        opening,
+        ...sections.map(
+          (section) =>
+            section.text,
+        ),
+      ],
     });
 
   const evidenceFactIds =
@@ -1973,7 +1984,8 @@ function buildProfessionalSections({
   opening,
   characterLine,
   careerWealthLine,
-  relationshipFamilyLine,
+  relationshipLine,
+  familyLine,
   abilityTensionLine,
   healthLine,
   lifePatternLine,
@@ -2003,13 +2015,24 @@ function buildProfessionalSections({
 
     {
       key:
-        "relationshipFamily",
+        "relationship",
 
       label:
-        "感情与家庭",
+        "感情关系",
 
       text:
-        relationshipFamilyLine,
+        relationshipLine,
+    },
+
+    {
+      key:
+        "family",
+
+      label:
+        "家庭与子女",
+
+      text:
+        familyLine,
     },
 
     {
@@ -2047,37 +2070,31 @@ function buildProfessionalSections({
   ];
 
   const sections = [];
-  const usedTexts = [
-    cleanSentence(opening),
-  ].filter(Boolean);
+
+  const usedSentences =
+    splitNarrativeSentences(
+      opening,
+    );
 
   for (
     const candidate of
     candidates
   ) {
     const text =
-      cleanSentence(
+      filterNovelSentences(
         candidate.text,
+        usedSentences,
       );
 
     if (!text) {
       continue;
     }
 
-    const duplicated =
-      usedTexts.some(
-        (usedText) =>
-          textSimilar(
-            usedText,
-            text,
-          ),
-      );
-
-    if (duplicated) {
-      continue;
-    }
-
-    usedTexts.push(text);
+    usedSentences.push(
+      ...splitNarrativeSentences(
+        text,
+      ),
+    );
 
     sections.push({
       key:
@@ -2095,70 +2112,127 @@ function buildProfessionalSections({
 
 function buildProfessionalConclusion({
   primaryTitle,
-  primaryRuleId,
   strengths,
   tensions,
   relationshipLine,
+  usedTexts = [],
 }) {
-  const lines = [];
+  const usedSentences =
+    normalizeArray(
+      usedTexts,
+    ).flatMap(
+      splitNarrativeSentences,
+    );
 
-  const path =
-    MASTER_LIFE_PATTERN_BY_RULE[
-      primaryRuleId
-    ];
+  const candidates = [];
 
   if (primaryTitle) {
-    lines.push(
-      path
-        ? `总的看，${primaryTitle}是这个命局最值得把握的主线。${path}`
-        : `总的看，${primaryTitle}是这个命局目前最值得把握的主要结构，发展上宜稳步积累，不宜只追求短期起伏。`,
+    candidates.push(
+      `总的看，这个命局真正需要把握的，不是反复强调${primaryTitle}本身，而是把这种结构转化为稳定选择、现实成果和长期能力。`,
     );
   } else {
-    lines.push(
-      "总的看，这个命局更适合走能够持续积累、逐步验证和稳定放大优势的现实路线。",
+    candidates.push(
+      "总的看，这个命局更适合走稳定积累、持续验证和逐步形成现实成果的路线。",
     );
   }
 
-  if (strengths[0]) {
-    lines.push(
-      `真正能够形成长期价值的，是${stripTerminalPunctuation(
-        strengths[0],
-      )}`,
-    );
-  }
+  if (
+    strengths[0] ||
+    tensions[0]
+  ) {
+    const parts = [];
 
-  if (tensions[0]) {
-    lines.push(
-      `需要防止${stripTerminalPunctuation(
-        tensions[0],
-      )}演变成反复消耗`,
+    if (strengths[0]) {
+      parts.push(
+        `真正可长期依靠的部分是：${stripTerminalPunctuation(
+          strengths[0],
+        )}`,
+      );
+    }
+
+    if (tensions[0]) {
+      parts.push(
+        `需要控制的部分是：${stripTerminalPunctuation(
+          tensions[0],
+        )}`,
+      );
+    }
+
+    candidates.push(
+      joinSentences(parts),
     );
   }
 
   if (
     relationshipLine &&
-    !lines.some(
-      (line) =>
-        textSimilar(
-          line,
-          relationshipLine,
-        ),
+    /边界|责任|沟通|关系/.test(
+      relationshipLine,
     )
   ) {
-    const relationRisk =
-      /边界|责任|沟通|关系/.test(
-        relationshipLine,
+    candidates.push(
+      "关系中把边界、责任和真实需求说清楚，比一味忍让或反复争执更有利。",
+    );
+  }
+
+  const conclusion =
+    filterNovelSentences(
+      joinSentences(
+        candidates,
+      ),
+      usedSentences,
+    );
+
+  return (
+    conclusion ||
+    "总的看，命局中的优势需要落实为稳定能力，结构中的压力则需要通过清楚边界和现实节奏逐步化解。"
+  );
+}
+
+function splitNarrativeSentences(
+  value,
+) {
+  return (
+    String(value ?? "")
+      .match(
+        /[^。！？；]+[。！？；]?/g,
+      ) ||
+    []
+  )
+    .map(cleanSentence)
+    .filter(Boolean);
+}
+
+function filterNovelSentences(
+  value,
+  usedSentences = [],
+) {
+  const result = [];
+
+  for (
+    const sentence of
+    splitNarrativeSentences(
+      value,
+    )
+  ) {
+    const duplicated =
+      [
+        ...usedSentences,
+        ...result,
+      ].some(
+        (existing) =>
+          textSimilar(
+            existing,
+            sentence,
+          ),
       );
 
-    if (relationRisk) {
-      lines.push(
-        "关系中把边界、责任和真实需求说清楚，会比一味忍让或反复争执更有利。",
-      );
+    if (!duplicated) {
+      result.push(sentence);
     }
   }
 
   return joinSentences(
-    lines.slice(0, 3),
+    result,
   );
 }
 

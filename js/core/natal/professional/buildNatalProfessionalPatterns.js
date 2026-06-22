@@ -2,6 +2,7 @@ import {
   natalProfessionalPatternRules,
 } from "./professionalPatternRuleDatabase.js";
 
+
 import {
   compareNatalProfessionalImages,
   selectNatalPrimaryImage,
@@ -198,7 +199,10 @@ function buildPatternContext({
   return {
     structureSynopsis,
     professionalContext,
-
+    tenGods:
+      professionalContext
+        .tenGods ??
+      {},
     strengthState:
       normalizeText(
         structureSynopsis
@@ -428,6 +432,10 @@ function findBestWorkPath(
   {
     fromGroups = [],
     toGroups = [],
+
+    fromTenGods = [],
+    toTenGods = [],
+
     semanticTypes = [],
   } = {},
 ) {
@@ -462,15 +470,37 @@ function findBestWorkPath(
         const end =
           nodes.at(-1);
 
+        const matchesFromGroup =
+          !fromGroups.length ||
+          fromGroups.includes(
+            start?.tenGodGroup,
+          );
+
+        const matchesToGroup =
+          !toGroups.length ||
+          toGroups.includes(
+            end?.tenGodGroup,
+          );
+
+        const matchesFromTenGod =
+          !fromTenGods.length ||
+          fromTenGods.includes(
+            start?.tenGod,
+          );
+
+        const matchesToTenGod =
+          !toTenGods.length ||
+          toTenGods.includes(
+            end?.tenGod,
+          );
+
         if (
           !start ||
           !end ||
-          !fromGroups.includes(
-            start.tenGodGroup,
-          ) ||
-          !toGroups.includes(
-            end.tenGodGroup,
-          )
+          !matchesFromGroup ||
+          !matchesToGroup ||
+          !matchesFromTenGod ||
+          !matchesToTenGod
         ) {
           return null;
         }
@@ -721,6 +751,256 @@ function resolveWorkConfidence(
   return "low";
 }
 
+function getSpecificTenGodState(
+  context,
+  tenGod,
+) {
+  const state =
+    context.tenGods
+      ?.[tenGod];
+
+  if (
+    state &&
+    typeof state ===
+      "object" &&
+    !Array.isArray(state)
+  ) {
+    return state;
+  }
+
+  return {
+    name:
+      tenGod,
+
+    weightedCount:
+      0,
+
+    strengthLevel:
+      "unknown",
+
+    visibleCount:
+      0,
+
+    hiddenCount:
+      0,
+
+    mainQiCount:
+      0,
+
+    positions:
+      [],
+
+    hostPositions:
+      [],
+
+    guestPositions:
+      [],
+
+    hasRoot:
+      false,
+
+    isVisible:
+      false,
+
+    isHiddenOnly:
+      false,
+
+    isRelationAffected:
+      false,
+
+    combinedBy:
+      [],
+
+    statusText:
+      "",
+  };
+}
+
+function isSupportedWorkStatus(
+  value,
+) {
+  return (
+    value ===
+      "structurally_supported" ||
+    value ===
+      "activated"
+  );
+}
+
+function technicalWorkStatusRank(
+  value,
+) {
+  return {
+    presence_only:
+      1,
+
+    connected:
+      2,
+
+    structurally_supported:
+      3,
+
+    activated:
+      4,
+  }[value] ?? 0;
+}
+
+function workRouteScore(
+  path,
+  status,
+) {
+  if (!path) {
+    return 0;
+  }
+
+  return (
+    technicalWorkStatusRank(
+      status,
+    ) *
+      100 +
+    workConfidenceRank(
+      path.confidence,
+    ) *
+      20 -
+    finite(
+      path.hiddenNodeCount,
+    ) *
+      12 +
+    Math.min(
+      finite(
+        path.priorityScore,
+      ),
+      100,
+    ) /
+      10
+  );
+}
+
+function resolveSevenKillRouteDecision({
+  controlPath,
+  controlStatus,
+
+  transformPath,
+  transformStatus,
+} = {}) {
+  const controlSupported =
+    isSupportedWorkStatus(
+      controlStatus,
+    );
+
+  const transformSupported =
+    isSupportedWorkStatus(
+      transformStatus,
+    );
+
+  if (
+    !controlSupported &&
+    !transformSupported
+  ) {
+    return {
+      mode:
+        "none",
+
+      dominant:
+        "none",
+    };
+  }
+
+  if (
+    controlSupported &&
+    !transformSupported
+  ) {
+    return {
+      mode:
+        "single",
+
+      dominant:
+        "control",
+    };
+  }
+
+  if (
+    !controlSupported &&
+    transformSupported
+  ) {
+    return {
+      mode:
+        "single",
+
+      dominant:
+        "transform",
+    };
+  }
+
+  const controlScore =
+    workRouteScore(
+      controlPath,
+      controlStatus,
+    );
+
+  const transformScore =
+    workRouteScore(
+      transformPath,
+      transformStatus,
+    );
+
+  const difference =
+    controlScore -
+    transformScore;
+
+  if (difference >= 20) {
+    return {
+      mode:
+        "mixed",
+
+      dominant:
+        "control",
+
+      controlScore,
+      transformScore,
+    };
+  }
+
+  if (difference <= -20) {
+    return {
+      mode:
+        "mixed",
+
+      dominant:
+        "transform",
+
+      controlScore,
+      transformScore,
+    };
+  }
+
+  return {
+    mode:
+      "mixed",
+
+    dominant:
+      "balanced",
+
+    controlScore,
+    transformScore,
+  };
+}
+
+function downgradeMixedWorkStatus(
+  status,
+) {
+  if (
+    status ===
+      "activated" ||
+    status ===
+      "structurally_supported"
+  ) {
+    return "connected";
+  }
+
+  return status;
+}
+
 function evaluateProfessionalRule(
   rule,
   context,
@@ -749,7 +1029,17 @@ function evaluateProfessionalRule(
         rule,
         context,
       );
+    case "professional_food_controls_kill":
+      return evaluateFoodControlsKill(
+        rule,
+        context,
+      );
 
+    case "professional_kill_resource_transform":
+      return evaluateKillResourceTransform(
+        rule,
+        context,
+      );
     case "professional_official_resource_work_chain":
       return evaluateOfficialResourceWorkChain(
         rule,
@@ -1249,6 +1539,713 @@ function evaluateOutputWealthWorkChain(
   };
 }
 
+function evaluateFoodControlsKill(
+  rule,
+  context,
+) {
+  const food =
+    getSpecificTenGodState(
+      context,
+      "食神",
+    );
+
+  const kill =
+    getSpecificTenGodState(
+      context,
+      "七杀",
+    );
+
+  const properOfficer =
+    getSpecificTenGodState(
+      context,
+      "正官",
+    );
+
+  const resource =
+    context.groups.resource;
+
+  const peer =
+    context.groups.peer;
+
+  const wealth =
+    context.groups.wealth;
+
+  const thresholds =
+    rule.thresholds ?? {};
+
+  const foodCount =
+    finite(
+      food.weightedCount,
+    );
+
+  const killCount =
+    finite(
+      kill.weightedCount,
+    );
+
+  if (
+    foodCount <
+      finite(
+        thresholds.foodMin,
+      ) ||
+    killCount <
+      finite(
+        thresholds.killMin,
+      )
+  ) {
+    return null;
+  }
+
+  const controlPath =
+    findBestWorkPath(
+      context.workChains,
+      {
+        fromTenGods: [
+          "食神",
+        ],
+
+        toTenGods: [
+          "七杀",
+        ],
+
+        semanticTypes: [
+          "control",
+        ],
+      },
+    );
+
+  const controlInterruptions =
+    resolvePathInterruptions(
+      context.workChains,
+      controlPath,
+    );
+
+  const ratio =
+    foodCount > 0
+      ? killCount /
+        foodCount
+      : Number.POSITIVE_INFINITY;
+
+  const killHeavy =
+    ratio >=
+    finite(
+      thresholds
+        .killHeavyRatio,
+    );
+
+  const foodHeavy =
+    ratio <=
+    finite(
+      thresholds
+        .foodHeavyRatio,
+    );
+
+  const hasBalanceSupport =
+    (
+      !killHeavy &&
+      !foodHeavy
+    ) ||
+    (
+      killHeavy &&
+      peer.total >=
+        finite(
+          thresholds
+            .peerSupportMin,
+        )
+    ) ||
+    (
+      foodHeavy &&
+      wealth.total >=
+        finite(
+          thresholds
+            .wealthSupportMin,
+        )
+    );
+
+  const controlThresholdSatisfied =
+    foodCount >=
+      finite(
+        thresholds
+          .supportedFoodMin,
+      ) &&
+    killCount >=
+      finite(
+        thresholds
+          .supportedKillMin,
+      ) &&
+    hasBalanceSupport;
+
+  const originalControlStatus =
+    resolveWorkStatus({
+      workPath:
+        controlPath,
+
+      interruptions:
+        controlInterruptions,
+
+      thresholdSatisfied:
+        controlThresholdSatisfied,
+    });
+
+  const transformPath =
+    findBestWorkPath(
+      context.workChains,
+      {
+        fromTenGods: [
+          "七杀",
+        ],
+
+        toGroups: [
+          "resource",
+        ],
+
+        semanticTypes: [
+          "generate",
+        ],
+      },
+    );
+
+  const transformInterruptions =
+    resolvePathInterruptions(
+      context.workChains,
+      transformPath,
+    );
+
+  const transformStatus =
+    resolveWorkStatus({
+      workPath:
+        transformPath,
+
+      interruptions:
+        transformInterruptions,
+
+      thresholdSatisfied:
+        killCount >=
+          finite(
+            thresholds
+              .supportedKillMin,
+          ) &&
+        resource.total >=
+          finite(
+            thresholds
+              .transformResourceMin,
+          ) &&
+        kill.hasRoot &&
+        resource.hasRoot,
+    });
+
+  const routeDecision =
+    resolveSevenKillRouteDecision({
+      controlPath,
+      controlStatus:
+        originalControlStatus,
+
+      transformPath,
+      transformStatus,
+    });
+
+  const blockingEvidence = [];
+
+  let workStatus =
+    originalControlStatus;
+
+  if (
+    routeDecision.mode ===
+      "mixed" &&
+    routeDecision.dominant ===
+      "transform"
+  ) {
+    blockingEvidence.push(
+      "七杀主要通过印星承接转化，印化路线强于食神制杀，不宜再将食神制杀列为主要结构",
+    );
+  }
+
+  if (
+    routeDecision.mode ===
+      "mixed" &&
+    routeDecision.dominant ===
+      "balanced"
+  ) {
+    workStatus =
+      downgradeMixedWorkStatus(
+        workStatus,
+      );
+  }
+
+  const confirmed =
+    workStatus ===
+    "activated";
+
+  const structurallySupported =
+    workStatus ===
+    "structurally_supported";
+
+  const supportingEvidence =
+    uniqueText([
+      `食神加权约${foodCount}`,
+      `七杀加权约${killCount}`,
+
+      food.hasRoot
+        ? "食神有根"
+        : "",
+
+      kill.hasRoot
+        ? "七杀有根"
+        : "",
+
+      controlPath
+        ? `制杀路径：${controlPath.evidenceText}`
+        : "",
+
+      killHeavy &&
+      peer.total >=
+        finite(
+          thresholds
+            .peerSupportMin,
+        )
+        ? "杀重食轻，但比劫能够扶助食神"
+        : "",
+
+      foodHeavy &&
+      wealth.total >=
+        finite(
+          thresholds
+            .wealthSupportMin,
+        )
+        ? "食重杀轻，财星可对七杀形成一定补充"
+        : "",
+
+      structurallySupported
+        ? "食神、七杀的力量和平衡条件达到原局结构支持标准"
+        : "",
+
+      confirmed
+        ? "制杀路径具有显式激活证据"
+        : "",
+    ]);
+
+  const weakeningEvidence =
+    uniqueText([
+      !controlPath
+        ? "食神与七杀虽同时存在，但现有workChains未识别食神制七杀的方向路径"
+        : "",
+
+      workStatus ===
+        "connected"
+        ? "已有制杀方向，但路径完整度、力量平衡或辅助条件尚不足"
+        : "",
+
+      structurallySupported
+        ? "原局制杀结构较完整，但尚不能等同于现实中已经充分做功"
+        : "",
+
+      killHeavy &&
+      peer.total <
+        finite(
+          thresholds
+            .peerSupportMin,
+        )
+        ? "杀重食轻，且缺少足够比劫扶食，承压可能超过处理能力"
+        : "",
+
+      foodHeavy &&
+      wealth.total <
+        finite(
+          thresholds
+            .wealthSupportMin,
+        )
+        ? "食重杀轻，七杀被制过度而缺少财星补充，结构着力点不足"
+        : "",
+
+      finite(
+        properOfficer
+          .weightedCount,
+      ) >= 0.4
+        ? "正官同时出现，食神制杀的结构纯度下降，需另看官杀混杂"
+        : "",
+
+      Array.isArray(
+        food.combinedBy,
+      ) &&
+      food.combinedBy.length
+        ? "食神另受合绊，制杀效率需要降低"
+        : "",
+
+      food.isRelationAffected
+        ? "食神落点受到其他刑冲害破关系牵动"
+        : "",
+
+      routeDecision.mode ===
+        "mixed"
+        ? "七杀同时存在食神制与印星化两条路线，需要区分主要功用"
+        : "",
+    ]);
+
+  return {
+    title:
+      workStatus ===
+        "presence_only"
+        ? "食神七杀并见，制杀链待确认"
+        : confirmed
+          ? "食神制杀做功链"
+          : structurallySupported
+            ? "食神制杀结构较完整"
+            : routeDecision.mode ===
+                  "mixed"
+              ? "食神制杀与印化并见，路线待分主次"
+              : "食神制杀结构链候选",
+
+    role:
+      confirmed ||
+      structurallySupported
+        ? "core"
+        : "conditional",
+
+    status:
+      confirmed
+        ? "confirmed"
+        : structurallySupported
+          ? "structurally_supported"
+          : "conditional",
+
+    confidence:
+      resolveWorkConfidence(
+        workStatus,
+        controlPath,
+      ),
+
+    workStatus,
+
+    routeMode:
+      routeDecision.dominant,
+
+    workPath:
+      serializeWorkPath(
+        controlPath,
+      ),
+
+    evidence:
+      uniqueText([
+        food.statusText,
+        kill.statusText,
+      ]),
+
+    supportingEvidence,
+    weakeningEvidence,
+    blockingEvidence,
+  };
+}
+
+function evaluateKillResourceTransform(
+  rule,
+  context,
+) {
+  const kill =
+    getSpecificTenGodState(
+      context,
+      "七杀",
+    );
+
+  const food =
+    getSpecificTenGodState(
+      context,
+      "食神",
+    );
+
+  const properOfficer =
+    getSpecificTenGodState(
+      context,
+      "正官",
+    );
+
+  const resource =
+    context.groups.resource;
+
+  const thresholds =
+    rule.thresholds ?? {};
+
+  const killCount =
+    finite(
+      kill.weightedCount,
+    );
+
+  if (
+    killCount <
+      finite(
+        thresholds.killMin,
+      ) ||
+    resource.total <
+      finite(
+        thresholds.resourceMin,
+      )
+  ) {
+    return null;
+  }
+
+  const transformPath =
+    findBestWorkPath(
+      context.workChains,
+      {
+        fromTenGods: [
+          "七杀",
+        ],
+
+        toGroups: [
+          "resource",
+        ],
+
+        semanticTypes: [
+          "generate",
+        ],
+      },
+    );
+
+  const transformInterruptions =
+    resolvePathInterruptions(
+      context.workChains,
+      transformPath,
+    );
+
+  const transformThresholdSatisfied =
+    killCount >=
+      finite(
+        thresholds
+          .supportedKillMin,
+      ) &&
+    resource.total >=
+      finite(
+        thresholds
+          .supportedResourceMin,
+      ) &&
+    kill.hasRoot &&
+    resource.hasRoot;
+
+  const originalTransformStatus =
+    resolveWorkStatus({
+      workPath:
+        transformPath,
+
+      interruptions:
+        transformInterruptions,
+
+      thresholdSatisfied:
+        transformThresholdSatisfied,
+    });
+
+  const controlPath =
+    findBestWorkPath(
+      context.workChains,
+      {
+        fromTenGods: [
+          "食神",
+        ],
+
+        toTenGods: [
+          "七杀",
+        ],
+
+        semanticTypes: [
+          "control",
+        ],
+      },
+    );
+
+  const controlInterruptions =
+    resolvePathInterruptions(
+      context.workChains,
+      controlPath,
+    );
+
+  const controlStatus =
+    resolveWorkStatus({
+      workPath:
+        controlPath,
+
+      interruptions:
+        controlInterruptions,
+
+      thresholdSatisfied:
+        finite(
+          food.weightedCount,
+        ) >=
+          finite(
+            thresholds
+              .controlFoodMin,
+          ) &&
+        killCount >=
+          finite(
+            thresholds
+              .supportedKillMin,
+          ),
+    });
+
+  const routeDecision =
+    resolveSevenKillRouteDecision({
+      controlPath,
+      controlStatus,
+
+      transformPath,
+      transformStatus:
+        originalTransformStatus,
+    });
+
+  const blockingEvidence = [];
+
+  let workStatus =
+    originalTransformStatus;
+
+  if (
+    routeDecision.mode ===
+      "mixed" &&
+    routeDecision.dominant ===
+      "control"
+  ) {
+    blockingEvidence.push(
+      "七杀主要受到食神制约，制杀路线强于印化路线，不宜再将杀印相生列为主要结构",
+    );
+  }
+
+  if (
+    routeDecision.mode ===
+      "mixed" &&
+    routeDecision.dominant ===
+      "balanced"
+  ) {
+    workStatus =
+      downgradeMixedWorkStatus(
+        workStatus,
+      );
+  }
+
+  const confirmed =
+    workStatus ===
+    "activated";
+
+  const structurallySupported =
+    workStatus ===
+    "structurally_supported";
+
+  const supportingEvidence =
+    uniqueText([
+      `七杀加权约${killCount}`,
+      `印星加权约${resource.total}`,
+
+      kill.hasRoot
+        ? "七杀有根"
+        : "",
+
+      resource.hasRoot
+        ? "印星有根"
+        : "",
+
+      resource.hostPositions.length
+        ? "印星在主位有承接"
+        : "",
+
+      transformPath
+        ? `印化路径：${transformPath.evidenceText}`
+        : "",
+
+      structurallySupported
+        ? "七杀、印星的根气、力量和路径完整度达到原局结构支持标准"
+        : "",
+
+      confirmed
+        ? "印化路径具有显式激活证据"
+        : "",
+    ]);
+
+  const weakeningEvidence =
+    uniqueText([
+      !transformPath
+        ? "七杀与印星虽同时存在，但现有workChains未识别七杀生印的方向路径"
+        : "",
+
+      workStatus ===
+        "connected"
+        ? "已有杀印生成方向，但路径完整度、根气或力量条件尚不足"
+        : "",
+
+      structurallySupported
+        ? "原局杀印结构较完整，但尚不能等同于现实中已经充分做功"
+        : "",
+
+      kill.isHiddenOnly
+        ? "七杀藏而不透，外部责任和社会位置的显化程度有限"
+        : "",
+
+      resource.isRelationAffected
+        ? "印星承接位置受到其他关系牵动"
+        : "",
+
+      finite(
+        properOfficer
+          .weightedCount,
+      ) >= 0.4
+        ? "正官同时出现，官杀并见会降低杀印结构纯度"
+        : "",
+
+      routeDecision.mode ===
+        "mixed"
+        ? "七杀同时存在食神制与印星化两条路线，需要区分主要功用"
+        : "",
+    ]);
+
+  return {
+    title:
+      workStatus ===
+        "presence_only"
+        ? "七杀印星并见，印化链待确认"
+        : confirmed
+          ? "杀印相生做功链"
+          : structurallySupported
+            ? "杀印相生结构较完整"
+            : routeDecision.mode ===
+                  "mixed"
+              ? "杀印相生与食神制杀并见，路线待分主次"
+              : "杀印相生结构链候选",
+
+    role:
+      confirmed ||
+      structurallySupported
+        ? "core"
+        : "conditional",
+
+    status:
+      confirmed
+        ? "confirmed"
+        : structurallySupported
+          ? "structurally_supported"
+          : "conditional",
+
+    confidence:
+      resolveWorkConfidence(
+        workStatus,
+        transformPath,
+      ),
+
+    workStatus,
+
+    routeMode:
+      routeDecision.dominant,
+
+    workPath:
+      serializeWorkPath(
+        transformPath,
+      ),
+
+    evidence:
+      uniqueText([
+        kill.statusText,
+        ...resource.evidence,
+      ]),
+
+    supportingEvidence,
+    weakeningEvidence,
+    blockingEvidence,
+  };
+}
+
 function evaluateOfficialResourceWorkChain(
   rule,
   context,
@@ -1261,7 +2258,35 @@ function evaluateOfficialResourceWorkChain(
 
   const thresholds =
     rule.thresholds ?? {};
+  const properOfficer =
+    getSpecificTenGodState(
+      context,
+      "正官",
+    );
 
+  const sevenKill =
+    getSpecificTenGodState(
+      context,
+      "七杀",
+    );
+
+  if (
+    finite(
+      properOfficer
+        .weightedCount,
+    ) <
+      finite(
+        thresholds.officerMin,
+      ) &&
+    finite(
+      sevenKill.weightedCount,
+    ) >=
+      finite(
+        thresholds.officerMin,
+      )
+  ) {
+    return null;
+  }
   if (
     officer.total <
       finite(
@@ -1756,7 +2781,9 @@ function createPatternImage(
     workStatus:
       evaluation.workStatus ??
       "not_applicable",
-
+    routeMode:
+      evaluation.routeMode ??
+      "not_applicable",
     workPath:
       evaluation.workPath ??
       null,

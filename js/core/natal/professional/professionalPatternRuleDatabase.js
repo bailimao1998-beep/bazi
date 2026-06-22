@@ -1,3 +1,7 @@
+import {
+  natalProfessionalControlRules,
+} from "./professionalControlRuleDatabase.js";
+
 export const NATAL_PROFESSIONAL_PATTERN_RULE_VERSION =
   "natal-professional-pattern-rule-v1";
 
@@ -93,6 +97,7 @@ const professionalSourceRefs = {
 };
 
 export const natalProfessionalPatternRules = [
+  ...natalProfessionalControlRules,
   {
     id: "professional_resource_peer_dominance",
     semanticGroup: "resource_peer_dominance",

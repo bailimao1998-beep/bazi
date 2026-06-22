@@ -1109,6 +1109,18 @@ function renderNatalHitListSection(
     ? hitList.all
     : [];
 
+  const hitList =
+    options.hitList ??
+    buildNatalHitList(report);
+
+  const showEvidence =
+    options.showEvidence !== false;
+
+  const allRows =
+    Array.isArray(hitList.all)
+      ? hitList.all
+      : [];
+
   const rows =
     showEvidence
       ? allRows
@@ -1121,25 +1133,6 @@ function renderNatalHitListSection(
             : allRows
         );
 
-  const selectedIds =
-    new Set(
-      rows.map(
-        (row) =>
-          row.id,
-      ),
-    );
-
-  const remainingRows =
-    allRows.filter(
-      (row) =>
-        !selectedIds.has(
-          row.id,
-        ),
-    );
-  const title =
-    options.title || "取象索引";
-  const showEvidence =
-    options.showEvidence !== false;
   return `
     <section class="natal-hit-index">
       <div class="board-title">

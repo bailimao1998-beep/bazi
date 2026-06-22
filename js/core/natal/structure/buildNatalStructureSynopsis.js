@@ -1243,6 +1243,9 @@ function buildDomainBaselines({
 
           hidden:
             "比劫主要藏于地支，亲缘同辈之间表面未必激烈，但距离、责任和利益仍会影响长期相处",
+            
+          weak:
+            "比劫力量偏弱，兄弟同辈方面缺少足够强的原局主象",
         }
       ),
 
@@ -1328,6 +1331,9 @@ function buildDomainBaselines({
 
           hidden:
             "比劫主要藏于地支，外部社交表面平和，但合作利益和资源交换仍会影响关系远近",
+
+          weak:
+            "比劫力量偏弱，交友人脉方面缺少特别集中的原局主象",
         },
       ),
 
@@ -1418,7 +1424,41 @@ function buildDomainBaselines({
   };
 }
 
+function buildFamilyResourceWealthLine({
+  resource,
+  wealth,
+} = {}) {
+  if (
+    !isActiveGroupProfile(
+      resource,
+    ) ||
+    !isActiveGroupProfile(
+      wealth,
+    )
+  ) {
+    return "";
+  }
 
+  return "财星与印星同时有落点，现实收益、个人选择与家庭教育或长辈尺度之间可能存在取舍；这只表示价值排序容易不同，不直接等同于家庭关系不好。";
+}
+
+function isActiveGroupProfile(
+  profile,
+) {
+  return (
+    profile &&
+    [
+      "strong",
+      "visible",
+      "hidden",
+    ].includes(
+      profile.status,
+    ) &&
+    Number(
+      profile.totalCount ?? 0,
+    ) >= 0.5
+  );
+}
 
 function groupNarrative(
   profile,

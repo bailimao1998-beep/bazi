@@ -2,6 +2,9 @@ import {
   natalProfessionalPatternRules,
 } from "./professionalPatternRuleDatabase.js";
 
+import {
+  arbitrateProfessionalControlImages,
+} from "./professionalControlArbitration.js";
 
 import {
   compareNatalProfessionalImages,
@@ -109,17 +112,32 @@ export function buildNatalProfessionalPatterns({
     }
   }
 
+  const controlArbitration =
+    arbitrateProfessionalControlImages({
+      images,
+    });
+
   const sortedImages =
-    images
+    controlArbitration
+      .images
       .slice()
       .sort(
         compareNatalProfessionalImages,
       );
 
   const primaryImage =
+    controlArbitration
+      .primaryImage ??
     selectNatalPrimaryImage(
       sortedImages,
     );
+
+  const allSuppressedPatterns = [
+    ...suppressedPatterns,
+
+    ...controlArbitration
+      .suppressedImages,
+  ];
 
   return {
     version:
@@ -148,10 +166,14 @@ export function buildNatalProfessionalPatterns({
       ),
 
     suppressedPatterns:
-      suppressedPatterns
+      allSuppressedPatterns
         .sort(
           compareNatalProfessionalImages,
         ),
+
+    controlArbitration:
+      controlArbitration
+        .decisions,
 
     summary: {
       totalRules:
@@ -163,7 +185,8 @@ export function buildNatalProfessionalPatterns({
         sortedImages.length,
 
       suppressedRules:
-        suppressedPatterns.length,
+        allSuppressedPatterns
+          .length,
 
       primaryRuleId:
         primaryImage?.ruleId ||
@@ -751,6 +774,68 @@ function resolveWorkConfidence(
   return "low";
 }
 
+function resolveSpecificWorkRoute(
+  context,
+  {
+    fromGroups = [],
+    toGroups = [],
+
+    fromTenGods = [],
+    toTenGods = [],
+
+    semanticTypes = [],
+
+    thresholdSatisfied = false,
+  } = {},
+) {
+  const workPath =
+    findBestWorkPath(
+      context.workChains,
+      {
+        fromGroups,
+        toGroups,
+
+        fromTenGods,
+        toTenGods,
+
+        semanticTypes,
+      },
+    );
+
+  const interruptions =
+    resolvePathInterruptions(
+      context.workChains,
+      workPath,
+    );
+
+  const workStatus =
+    resolveWorkStatus({
+      workPath,
+      interruptions,
+      thresholdSatisfied,
+    });
+
+  return {
+    workPath,
+    interruptions,
+    workStatus,
+
+    confirmed:
+      workStatus ===
+      "activated",
+
+    structurallySupported:
+      workStatus ===
+      "structurally_supported",
+
+    supported:
+      workStatus ===
+        "activated" ||
+      workStatus ===
+        "structurally_supported",
+  };
+}
+
 function getSpecificTenGodState(
   context,
   tenGod,
@@ -1045,7 +1130,35 @@ function evaluateProfessionalRule(
         rule,
         context,
       );
+    case "professional_hurt_officer_with_resource":
+      return evaluateHurtOfficerWithResource(
+        rule,
+        context,
+      );
 
+    case "professional_hurt_officer_meets_official":
+      return evaluateHurtOfficerMeetsOfficial(
+        rule,
+        context,
+      );
+
+    case "professional_wealth_breaks_resource":
+      return evaluateWealthBreaksResource(
+        rule,
+        context,
+      );
+
+    case "professional_owl_seizes_food":
+      return evaluateOwlSeizesFood(
+        rule,
+        context,
+      );
+
+    case "professional_official_kill_mixture":
+      return evaluateOfficialKillMixture(
+        rule,
+        context,
+      );
     case "professional_spouse_palace_tension_stack":
       return evaluateSpousePalaceTensionStack(
         rule,
@@ -1539,6 +1652,965 @@ function evaluateOutputWealthWorkChain(
   };
 }
 
+function evaluateHurtOfficerWithResource(
+  rule,
+  context,
+) {
+  const hurt =
+    getSpecificTenGodState(
+      context,
+      "伤官",
+    );
+
+  const properResource =
+    getSpecificTenGodState(
+      context,
+      "正印",
+    );
+
+  const wealth =
+    context.groups.wealth;
+
+  const thresholds =
+    rule.thresholds ?? {};
+
+  const hurtCount =
+    finite(
+      hurt.weightedCount,
+    );
+
+  const resourceCount =
+    finite(
+      properResource
+        .weightedCount,
+    );
+
+  if (
+    hurtCount <
+      finite(
+        thresholds.hurtMin,
+      ) ||
+    resourceCount <
+      finite(
+        thresholds.resourceMin,
+      )
+  ) {
+    return null;
+  }
+
+  const route =
+    resolveSpecificWorkRoute(
+      context,
+      {
+        fromTenGods: [
+          "正印",
+        ],
+
+        toTenGods: [
+          "伤官",
+        ],
+
+        semanticTypes: [
+          "control",
+        ],
+
+        thresholdSatisfied:
+          hurtCount >=
+            finite(
+              thresholds
+                .supportedHurtMin,
+            ) &&
+          resourceCount >=
+            finite(
+              thresholds
+                .supportedResourceMin,
+            ) &&
+          hurt.hasRoot &&
+          properResource.hasRoot,
+      },
+    );
+
+  const wealthPressure =
+    resolveSpecificWorkRoute(
+      context,
+      {
+        fromGroups: [
+          "wealth",
+        ],
+
+        toTenGods: [
+          "正印",
+        ],
+
+        semanticTypes: [
+          "control",
+        ],
+
+        thresholdSatisfied:
+          wealth.total >=
+            finite(
+              thresholds
+                .wealthBreakMin,
+            ) &&
+          resourceCount >=
+            finite(
+              thresholds
+                .resourceMin,
+            ),
+      },
+    );
+
+  const supportingEvidence =
+    uniqueText([
+      `伤官加权约${hurtCount}`,
+      `正印加权约${resourceCount}`,
+
+      hurt.hasRoot
+        ? "伤官有根"
+        : "",
+
+      properResource.hasRoot
+        ? "正印有根"
+        : "",
+
+      route.workPath
+        ? `配印路径：${route.workPath.evidenceText}`
+        : "",
+
+      route.structurallySupported
+        ? "正印制伤官的力量和路径达到原局结构支持标准"
+        : "",
+
+      route.confirmed
+        ? "正印制伤官具有显式激活证据"
+        : "",
+    ]);
+
+  const weakeningEvidence =
+    uniqueText([
+      !route.workPath
+        ? "伤官与正印虽同时存在，但未识别正印制伤官的方向路径"
+        : "",
+
+      route.workStatus ===
+        "connected"
+        ? "已有配印方向，但力量、根气或路径完整度不足"
+        : "",
+
+      wealthPressure.supported
+        ? "财星对正印形成有效制约，伤官配印的承接能力受到破坏"
+        : "",
+
+      properResource.isRelationAffected
+        ? "正印承接位置受到其他关系牵动"
+        : "",
+    ]);
+
+  return {
+    title:
+      route.workStatus ===
+        "presence_only"
+        ? "伤官正印并见，配印链待确认"
+        : route.confirmed
+          ? "伤官配印做功链"
+          : route.structurallySupported
+            ? "伤官配印结构较完整"
+            : "伤官配印结构链候选",
+
+    role:
+      route.confirmed ||
+      route.structurallySupported
+        ? "core"
+        : "conditional",
+
+    status:
+      route.confirmed
+        ? "confirmed"
+        : route.structurallySupported
+          ? "structurally_supported"
+          : "conditional",
+
+    confidence:
+      resolveWorkConfidence(
+        route.workStatus,
+        route.workPath,
+      ),
+
+    workStatus:
+      route.workStatus,
+
+    routeMode:
+      "resource_controls_hurt_officer",
+
+    workPath:
+      serializeWorkPath(
+        route.workPath,
+      ),
+
+    evidence:
+      uniqueText([
+        hurt.statusText,
+        properResource.statusText,
+      ]),
+
+    supportingEvidence,
+    weakeningEvidence,
+    blockingEvidence: [],
+  };
+}
+
+function evaluateHurtOfficerMeetsOfficial(
+  rule,
+  context,
+) {
+  const hurt =
+    getSpecificTenGodState(
+      context,
+      "伤官",
+    );
+
+  const officer =
+    getSpecificTenGodState(
+      context,
+      "正官",
+    );
+
+  const properResource =
+    getSpecificTenGodState(
+      context,
+      "正印",
+    );
+
+  const wealth =
+    context.groups.wealth;
+
+  const thresholds =
+    rule.thresholds ?? {};
+
+  const hurtCount =
+    finite(
+      hurt.weightedCount,
+    );
+
+  const officerCount =
+    finite(
+      officer.weightedCount,
+    );
+
+  if (
+    hurtCount <
+      finite(
+        thresholds.hurtMin,
+      ) ||
+    officerCount <
+      finite(
+        thresholds.officerMin,
+      )
+  ) {
+    return null;
+  }
+
+  const conflict =
+    resolveSpecificWorkRoute(
+      context,
+      {
+        fromTenGods: [
+          "伤官",
+        ],
+
+        toTenGods: [
+          "正官",
+        ],
+
+        semanticTypes: [
+          "control",
+        ],
+
+        thresholdSatisfied:
+          hurtCount >=
+            finite(
+              thresholds
+                .supportedHurtMin,
+            ) &&
+          officerCount >=
+            finite(
+              thresholds
+                .supportedOfficerMin,
+            ),
+      },
+    );
+
+  const resourceResolution =
+    resolveSpecificWorkRoute(
+      context,
+      {
+        fromTenGods: [
+          "正印",
+        ],
+
+        toTenGods: [
+          "伤官",
+        ],
+
+        semanticTypes: [
+          "control",
+        ],
+
+        thresholdSatisfied:
+          finite(
+            properResource
+              .weightedCount,
+          ) >=
+            finite(
+              thresholds
+                .resourceResolveMin,
+            ) &&
+          hurtCount >=
+            finite(
+              thresholds.hurtMin,
+            ),
+      },
+    );
+
+  const wealthMediation =
+    resolveSpecificWorkRoute(
+      context,
+      {
+        fromTenGods: [
+          "伤官",
+        ],
+
+        toTenGods: [
+          "正官",
+        ],
+
+        semanticTypes: [
+          "generate",
+        ],
+
+        thresholdSatisfied:
+          hurtCount >=
+            finite(
+              thresholds.hurtMin,
+            ) &&
+          wealth.total >=
+            finite(
+              thresholds
+                .wealthMediateMin,
+            ) &&
+          officerCount >=
+            finite(
+              thresholds.officerMin,
+            ),
+      },
+    );
+
+  const blockingEvidence = [];
+
+  if (
+    resourceResolution.supported
+  ) {
+    blockingEvidence.push(
+      "正印能够有效制约伤官，伤官见官冲突已由伤官配印路线承接",
+    );
+  }
+
+  if (
+    wealthMediation.supported
+  ) {
+    blockingEvidence.push(
+      "伤官通过财星转生正官，直接冲突已形成生财转官缓解路线",
+    );
+  }
+
+  const supportingEvidence =
+    uniqueText([
+      `伤官加权约${hurtCount}`,
+      `正官加权约${officerCount}`,
+
+      conflict.workPath
+        ? `伤官见官路径：${conflict.workPath.evidenceText}`
+        : "",
+
+      conflict.structurallySupported
+        ? "伤官制正官的力量和路径达到原局结构支持标准"
+        : "",
+
+      conflict.confirmed
+        ? "伤官见官冲突具有显式激活证据"
+        : "",
+    ]);
+
+  const weakeningEvidence =
+    uniqueText([
+      !conflict.workPath
+        ? "伤官与正官虽同时存在，但未识别伤官制正官的真实路径"
+        : "",
+
+      conflict.workStatus ===
+        "connected"
+        ? "已有伤官见官方向，但路径或力量条件尚不足"
+        : "",
+
+      resourceResolution.workPath
+        ? "原局存在正印制伤官的缓解候选"
+        : "",
+
+      wealthMediation.workPath
+        ? "原局存在伤官生财转官的缓解候选"
+        : "",
+
+      officer.isRelationAffected
+        ? "正官另受其他关系牵动"
+        : "",
+    ]);
+
+  return {
+    title:
+      conflict.workStatus ===
+        "presence_only"
+        ? "伤官正官并见，冲突链待确认"
+        : conflict.confirmed
+          ? "伤官见官冲突链"
+          : conflict.structurallySupported
+            ? "伤官见官结构张力明显"
+            : "伤官见官结构候选",
+
+    role:
+      "tension",
+
+    status:
+      conflict.confirmed
+        ? "confirmed"
+        : conflict.structurallySupported
+          ? "structurally_supported"
+          : "conditional",
+
+    confidence:
+      resolveWorkConfidence(
+        conflict.workStatus,
+        conflict.workPath,
+      ),
+
+    workStatus:
+      conflict.workStatus,
+
+    resolutionMode:
+      resourceResolution.supported
+        ? "resource_controls_hurt_officer"
+        : wealthMediation.supported
+          ? "wealth_mediation"
+          : "unresolved",
+
+    workPath:
+      serializeWorkPath(
+        conflict.workPath,
+      ),
+
+    evidence:
+      uniqueText([
+        hurt.statusText,
+        officer.statusText,
+      ]),
+
+    supportingEvidence,
+    weakeningEvidence,
+    blockingEvidence,
+  };
+}
+
+function evaluateWealthBreaksResource(
+  rule,
+  context,
+) {
+  const wealth =
+    context.groups.wealth;
+
+  const resource =
+    context.groups.resource;
+
+  const thresholds =
+    rule.thresholds ?? {};
+
+  if (
+    wealth.total <
+      finite(
+        thresholds.wealthMin,
+      ) ||
+    resource.total <
+      finite(
+        thresholds.resourceMin,
+      )
+  ) {
+    return null;
+  }
+
+  const route =
+    resolveSpecificWorkRoute(
+      context,
+      {
+        fromGroups: [
+          "wealth",
+        ],
+
+        toGroups: [
+          "resource",
+        ],
+
+        semanticTypes: [
+          "control",
+        ],
+
+        thresholdSatisfied:
+          wealth.total >=
+            finite(
+              thresholds
+                .supportedWealthMin,
+            ) &&
+          resource.total >=
+            finite(
+              thresholds
+                .supportedResourceMin,
+            ),
+      },
+    );
+
+  return {
+    title:
+      route.workStatus ===
+        "presence_only"
+        ? "财印并见，坏印链待确认"
+        : route.confirmed
+          ? "财坏印冲突链"
+          : route.structurallySupported
+            ? "财坏印结构张力明显"
+            : "财坏印结构候选",
+
+    role:
+      "tension",
+
+    status:
+      route.confirmed
+        ? "confirmed"
+        : route.structurallySupported
+          ? "structurally_supported"
+          : "conditional",
+
+    confidence:
+      resolveWorkConfidence(
+        route.workStatus,
+        route.workPath,
+      ),
+
+    workStatus:
+      route.workStatus,
+
+    workPath:
+      serializeWorkPath(
+        route.workPath,
+      ),
+
+    evidence:
+      uniqueText([
+        ...wealth.evidence,
+        ...resource.evidence,
+      ]),
+
+    supportingEvidence:
+      uniqueText([
+        `财星加权约${wealth.total}`,
+        `印星加权约${resource.total}`,
+
+        route.workPath
+          ? `财坏印路径：${route.workPath.evidenceText}`
+          : "",
+
+        route.structurallySupported
+          ? "财星制印的力量和路径达到原局结构支持标准"
+          : "",
+
+        route.confirmed
+          ? "财坏印具有显式激活证据"
+          : "",
+      ]),
+
+    weakeningEvidence:
+      uniqueText([
+        !route.workPath
+          ? "财星与印星虽同时存在，但未识别财星克印的真实路径"
+          : "",
+
+        route.workStatus ===
+          "connected"
+          ? "已有财印制克方向，但力量或路径完整度不足"
+          : "",
+
+        resource.hasRoot
+          ? "印星自身有根，仍保留一定承接能力"
+          : "",
+      ]),
+
+    blockingEvidence: [],
+  };
+}
+
+function evaluateOwlSeizesFood(
+  rule,
+  context,
+) {
+  const owl =
+    getSpecificTenGodState(
+      context,
+      "偏印",
+    );
+
+  const food =
+    getSpecificTenGodState(
+      context,
+      "食神",
+    );
+
+  const thresholds =
+    rule.thresholds ?? {};
+
+  const owlCount =
+    finite(
+      owl.weightedCount,
+    );
+
+  const foodCount =
+    finite(
+      food.weightedCount,
+    );
+
+  if (
+    owlCount <
+      finite(
+        thresholds.owlMin,
+      ) ||
+    foodCount <
+      finite(
+        thresholds.foodMin,
+      )
+  ) {
+    return null;
+  }
+
+  const powerRatio =
+    owlCount /
+    Math.max(
+      foodCount,
+      0.1,
+    );
+
+  const route =
+    resolveSpecificWorkRoute(
+      context,
+      {
+        fromTenGods: [
+          "偏印",
+        ],
+
+        toTenGods: [
+          "食神",
+        ],
+
+        semanticTypes: [
+          "control",
+        ],
+
+        thresholdSatisfied:
+          owlCount >=
+            finite(
+              thresholds
+                .supportedOwlMin,
+            ) &&
+          foodCount >=
+            finite(
+              thresholds
+                .supportedFoodMin,
+            ) &&
+          powerRatio >=
+            finite(
+              thresholds
+                .minimumPowerRatio,
+            ),
+      },
+    );
+
+  return {
+    title:
+      route.workStatus ===
+        "presence_only"
+        ? "偏印食神并见，夺食链待确认"
+        : route.confirmed
+          ? "枭神夺食冲突链"
+          : route.structurallySupported
+            ? "枭神夺食结构张力明显"
+            : "枭神夺食结构候选",
+
+    role:
+      "tension",
+
+    status:
+      route.confirmed
+        ? "confirmed"
+        : route.structurallySupported
+          ? "structurally_supported"
+          : "conditional",
+
+    confidence:
+      resolveWorkConfidence(
+        route.workStatus,
+        route.workPath,
+      ),
+
+    workStatus:
+      route.workStatus,
+
+    workPath:
+      serializeWorkPath(
+        route.workPath,
+      ),
+
+    evidence:
+      uniqueText([
+        owl.statusText,
+        food.statusText,
+      ]),
+
+    supportingEvidence:
+      uniqueText([
+        `偏印加权约${owlCount}`,
+        `食神加权约${foodCount}`,
+
+        route.workPath
+          ? `枭夺食路径：${route.workPath.evidenceText}`
+          : "",
+
+        route.structurallySupported
+          ? "偏印制食神的力量和路径达到原局结构支持标准"
+          : "",
+
+        route.confirmed
+          ? "枭神夺食具有显式激活证据"
+          : "",
+      ]),
+
+    weakeningEvidence:
+      uniqueText([
+        !route.workPath
+          ? "偏印与食神虽同时存在，但未识别偏印制食神的真实路径"
+          : "",
+
+        route.workStatus ===
+          "connected"
+          ? "已有枭夺食方向，但力量比例或路径完整度不足"
+          : "",
+
+        powerRatio <
+          finite(
+            thresholds
+              .minimumPowerRatio,
+          )
+          ? "食神力量明显高于偏印，偏印不足以形成有效夺食"
+          : "",
+
+        food.hasRoot
+          ? "食神自身有根，仍保留一定输出能力"
+          : "",
+      ]),
+
+    blockingEvidence: [],
+  };
+}
+
+function evaluateOfficialKillMixture(
+  rule,
+  context,
+) {
+  const officer =
+    getSpecificTenGodState(
+      context,
+      "正官",
+    );
+
+  const kill =
+    getSpecificTenGodState(
+      context,
+      "七杀",
+    );
+
+  const thresholds =
+    rule.thresholds ?? {};
+
+  const officerCount =
+    finite(
+      officer.weightedCount,
+    );
+
+  const killCount =
+    finite(
+      kill.weightedCount,
+    );
+
+  if (
+    officerCount <
+      finite(
+        thresholds.officerMin,
+      ) ||
+    killCount <
+      finite(
+        thresholds.killMin,
+      )
+  ) {
+    return null;
+  }
+
+  const ratio =
+    officerCount /
+    Math.max(
+      killCount,
+      0.1,
+    );
+
+  const dominanceRatio =
+    finite(
+      thresholds
+        .dominanceRatio,
+    );
+
+  const purityLevel =
+    ratio >=
+      dominanceRatio
+      ? "officer_dominant"
+      : ratio <=
+          1 /
+          dominanceRatio
+        ? "kill_dominant"
+        : "mixed";
+
+  const confirmed =
+    officer.isVisible &&
+    kill.isVisible &&
+    officerCount >=
+      finite(
+        thresholds
+          .supportedOfficerMin,
+      ) &&
+    killCount >=
+      finite(
+        thresholds
+          .supportedKillMin,
+      );
+
+  const structurallySupported =
+    !confirmed &&
+    officerCount >=
+      finite(
+        thresholds
+          .supportedOfficerMin,
+      ) &&
+    killCount >=
+      finite(
+        thresholds
+          .supportedKillMin,
+      );
+
+  return {
+    title:
+      purityLevel ===
+        "officer_dominant"
+        ? "官杀并见，正官为主"
+        : purityLevel ===
+            "kill_dominant"
+          ? "官杀并见，七杀为主"
+          : confirmed
+            ? "官杀混杂明显"
+            : structurallySupported
+              ? "官杀并见，主次待分"
+              : "官杀同现，混杂程度待确认",
+
+    role:
+      "tension",
+
+    status:
+      confirmed
+        ? "confirmed"
+        : structurallySupported
+          ? "structurally_supported"
+          : "conditional",
+
+    confidence:
+      confirmed
+        ? "high"
+        : structurallySupported
+          ? "medium"
+          : "low",
+
+    workStatus:
+      "not_applicable",
+
+    purityLevel,
+
+    evidence:
+      uniqueText([
+        officer.statusText,
+        kill.statusText,
+      ]),
+
+    supportingEvidence:
+      uniqueText([
+        `正官加权约${officerCount}`,
+        `七杀加权约${killCount}`,
+
+        officer.isVisible
+          ? "正官有透出"
+          : "",
+
+        kill.isVisible
+          ? "七杀有透出"
+          : "",
+
+        purityLevel ===
+          "officer_dominant"
+          ? "正官力量明显高于七杀"
+          : "",
+
+        purityLevel ===
+          "kill_dominant"
+          ? "七杀力量明显高于正官"
+          : "",
+
+        purityLevel ===
+          "mixed"
+          ? "正官与七杀力量接近，主次不够清楚"
+          : "",
+      ]),
+
+    weakeningEvidence:
+      uniqueText([
+        officer.isHiddenOnly
+          ? "正官藏而不透，实际混杂程度需要降低"
+          : "",
+
+        kill.isHiddenOnly
+          ? "七杀藏而不透，实际混杂程度需要降低"
+          : "",
+
+        officer.isRelationAffected
+          ? "正官另受关系牵动"
+          : "",
+
+        kill.isRelationAffected
+          ? "七杀另受关系牵动"
+          : "",
+      ]),
+
+    blockingEvidence: [],
+  };
+}
+
 function evaluateFoodControlsKill(
   rule,
   context,
@@ -1733,7 +2805,32 @@ function evaluateFoodControlsKill(
         kill.hasRoot &&
         resource.hasRoot,
     });
+  const owlPressure =
+    resolveSpecificWorkRoute(
+      context,
+      {
+        fromTenGods: [
+          "偏印",
+        ],
 
+        toTenGods: [
+          "食神",
+        ],
+
+        semanticTypes: [
+          "control",
+        ],
+
+        thresholdSatisfied:
+          finite(
+            getSpecificTenGodState(
+              context,
+              "偏印",
+            ).weightedCount,
+          ) >= 0.8 &&
+          foodCount >= 0.5,
+      },
+    );
   const routeDecision =
     resolveSevenKillRouteDecision({
       controlPath,
@@ -1829,7 +2926,9 @@ function evaluateFoodControlsKill(
       !controlPath
         ? "食神与七杀虽同时存在，但现有workChains未识别食神制七杀的方向路径"
         : "",
-
+      owlPressure.supported
+        ? "偏印对食神形成有效制约，食神制杀能力需要降级"
+        : "",
       workStatus ===
         "connected"
         ? "已有制杀方向，但路径完整度、力量平衡或辅助条件尚不足"
@@ -2768,6 +3867,16 @@ function createPatternImage(
     routeMode:
       evaluation.routeMode ??
       "not_applicable",
+
+    resolutionMode:
+      evaluation.resolutionMode ??
+      "not_applicable",
+
+    purityLevel:
+      evaluation.purityLevel ??
+      "not_applicable",
+
+    arbitrationNotes: [],  
     workPath:
       evaluation.workPath ??
       null,

@@ -651,6 +651,76 @@ function serializeWorkPath(
   };
 }
 
+function resolveWorkStatus({
+  workPath,
+  interruptions = [],
+  thresholdSatisfied = false,
+} = {}) {
+  if (!workPath) {
+    return "presence_only";
+  }
+
+  const pathIsClean =
+    Number(
+      workPath.hiddenNodeCount ??
+      0,
+    ) === 0 &&
+    interruptions.length === 0;
+
+  if (
+    pathIsClean &&
+    thresholdSatisfied
+  ) {
+    return (
+      workPath.activationLevel ===
+        "activated"
+        ? "activated"
+        : "structurally_supported"
+    );
+  }
+
+  return "connected";
+}
+
+function resolveWorkConfidence(
+  workStatus,
+  workPath,
+) {
+  if (
+    workStatus ===
+    "presence_only"
+  ) {
+    return "low";
+  }
+
+  if (
+    workStatus === "activated"
+  ) {
+    return (
+      workPath?.confidence ??
+      "unknown"
+    );
+  }
+
+  if (
+    workPath?.confidence ===
+    "low"
+  ) {
+    return "low";
+  }
+
+  if (
+    workPath?.confidence ===
+      "medium" ||
+    workPath?.confidence ===
+      "high"
+  ) {
+    return "medium";
+  }
+
+  return "low";
+}
+
 function evaluateProfessionalRule(
   rule,
   context,
@@ -1042,18 +1112,38 @@ function evaluateOutputWealthWorkChain(
       workPath,
     );
 
+  const thresholdSatisfied =
+    output.total >=
+      finite(
+        thresholds
+          .confirmedOutputMin,
+      ) &&
+    wealth.total >=
+      finite(
+        thresholds
+          .confirmedWealthMin,
+      );
+
   const workStatus =
-    !workPath
-      ? "presence_only"
-      : workPath.activationLevel ===
-          "activated"
-        ? "activated"
-        : "connected";
+    resolveWorkStatus({
+      workPath,
+      interruptions,
+      thresholdSatisfied,
+    });
+
+  const confirmed =
+    workStatus ===
+    "activated";
+
+  const structurallySupported =
+    workStatus ===
+    "structurally_supported";
 
   const supportingEvidence =
     uniqueText([
       `食伤加权约${output.total}`,
       `财星加权约${wealth.total}`,
+
       output.hostPositions.length
         ? "食伤在主位有成果出口"
         : "",
@@ -1066,9 +1156,12 @@ function evaluateOutputWealthWorkChain(
         ? `做功链：${workPath.evidenceText}`
         : "",
 
-      workStatus ===
-        "activated"
-        ? "workChains识别为原局激活连接"
+      structurallySupported
+        ? "生成方向、力量和路径完整度达到原局结构支持标准"
+        : "",
+
+      confirmed
+        ? "workChains识别为原局显式激活连接"
         : "",
     ]);
 
@@ -1078,10 +1171,12 @@ function evaluateOutputWealthWorkChain(
         ? "现有workChains未识别食伤到财星的方向连接，不能仅凭二者同时存在认定食伤生财做功"
         : "",
 
-      workPath &&
-      workPath.activationLevel !==
-        "activated"
-        ? "结构边仍为潜在连接，不能视为原局已激活做功"
+      workStatus === "connected"
+        ? "已有生成方向，但路径力量、藏干或中断条件尚不足以支持结构成立"
+        : "",
+
+      structurallySupported
+        ? "结构链较完整，但尚无显式激活证据，因此不能等同于已经充分做功"
         : "",
 
       workPath?.hiddenNodeCount > 0
@@ -1092,13 +1187,11 @@ function evaluateOutputWealthWorkChain(
         ? "路径节点受到刑冲害破类中断信号牵动"
         : "",
 
-      output
-        .isRelationAffected
+      output.isRelationAffected
         ? "食伤受到刑冲害破类关系牵动"
         : "",
 
-      wealth
-        .isRelationAffected
+      wealth.isRelationAffected
         ? "财星受到刑冲害破类关系牵动"
         : "",
 
@@ -1107,48 +1200,36 @@ function evaluateOutputWealthWorkChain(
         : "",
     ]);
 
-  const confirmed =
-    workPath &&
-    workPath.activationLevel ===
-      "activated" &&
-    workPath.hiddenNodeCount === 0 &&
-    interruptions.length === 0 &&
-    output.total >=
-      finite(
-        thresholds.confirmedOutputMin,
-      ) &&
-    wealth.total >=
-      finite(
-        thresholds.confirmedWealthMin,
-      );
-
   return {
     title:
-      !workPath
+      workStatus ===
+        "presence_only"
         ? "食伤财星并见，做功链待确认"
         : confirmed
           ? "食伤生财做功链"
-          : "食伤生财结构链候选",
+          : structurallySupported
+            ? "食伤生财结构链较完整"
+            : "食伤生财结构链候选",
 
     role:
       confirmed
         ? "core"
-        : "conditional",
+        : structurallySupported
+          ? "support"
+          : "conditional",
 
     status:
       confirmed
         ? "confirmed"
-        : "conditional",
+        : structurallySupported
+          ? "structurally_supported"
+          : "conditional",
 
     confidence:
-      confirmed
-        ? workPath.confidence
-        : !workPath
-          ? "low"
-          : workPath.confidence ===
-              "high"
-            ? "medium"
-            : workPath.confidence,
+      resolveWorkConfidence(
+        workStatus,
+        workPath,
+      ),
 
     workStatus,
 
@@ -1157,11 +1238,10 @@ function evaluateOutputWealthWorkChain(
         workPath,
       ),
 
-    evidence:
-      [
-        ...output.evidence,
-        ...wealth.evidence,
-      ],
+    evidence: [
+      ...output.evidence,
+      ...wealth.evidence,
+    ],
 
     supportingEvidence,
     weakeningEvidence,
@@ -1219,18 +1299,40 @@ function evaluateOfficialResourceWorkChain(
       workPath,
     );
 
+  const thresholdSatisfied =
+    officer.total >=
+      finite(
+        thresholds
+          .confirmedOfficerMin,
+      ) &&
+    resource.total >=
+      finite(
+        thresholds
+          .confirmedResourceMin,
+      ) &&
+    officer.hasRoot &&
+    resource.hasRoot;
+
   const workStatus =
-    !workPath
-      ? "presence_only"
-      : workPath.activationLevel ===
-          "activated"
-        ? "activated"
-        : "connected";
+    resolveWorkStatus({
+      workPath,
+      interruptions,
+      thresholdSatisfied,
+    });
+
+  const confirmed =
+    workStatus ===
+    "activated";
+
+  const structurallySupported =
+    workStatus ===
+    "structurally_supported";
 
   const supportingEvidence =
     uniqueText([
       `官杀加权约${officer.total}`,
       `印星加权约${resource.total}`,
+
       officer.hasRoot
         ? "官杀有根"
         : "",
@@ -1247,9 +1349,12 @@ function evaluateOfficialResourceWorkChain(
         ? `做功链：${workPath.evidenceText}`
         : "",
 
-      workStatus ===
-        "activated"
-        ? "workChains识别为原局激活连接"
+      structurallySupported
+        ? "官杀生印的方向、根气和路径完整度达到原局结构支持标准"
+        : "",
+
+      confirmed
+        ? "workChains识别为原局显式激活连接"
         : "",
     ]);
 
@@ -1259,10 +1364,12 @@ function evaluateOfficialResourceWorkChain(
         ? "现有workChains未识别官杀到印星的方向连接，不能仅凭二者同时存在认定官印承接做功"
         : "",
 
-      workPath &&
-      workPath.activationLevel !==
-        "activated"
-        ? "结构边仍为潜在连接，不能视为原局已激活做功"
+      workStatus === "connected"
+        ? "已有官印生成方向，但路径力量、藏干或中断条件尚不足以支持结构成立"
+        : "",
+
+      structurallySupported
+        ? "官印结构链较完整，但尚无显式激活证据，因此不能等同于已经充分做功"
         : "",
 
       workPath?.hiddenNodeCount > 0
@@ -1277,59 +1384,44 @@ function evaluateOfficialResourceWorkChain(
         ? "官杀藏而不透，社会位置需要后天推动"
         : "",
 
-      officer
-        .isRelationAffected
+      officer.isRelationAffected
         ? "官杀受到关系牵动"
         : "",
 
-      resource
-        .isRelationAffected
+      resource.isRelationAffected
         ? "印星受到关系牵动"
         : "",
     ]);
 
-  const confirmed =
-    workPath &&
-    workPath.activationLevel ===
-      "activated" &&
-    workPath.hiddenNodeCount === 0 &&
-    interruptions.length === 0 &&
-    officer.total >=
-      finite(
-        thresholds.confirmedOfficerMin,
-      ) &&
-    resource.total >=
-      finite(
-        thresholds.confirmedResourceMin,
-      );
-
   return {
     title:
-      !workPath
+      workStatus ===
+        "presence_only"
         ? "官印并见，承接链待确认"
         : confirmed
           ? "官印承接做功链"
-          : "官印承接结构链候选",
+          : structurallySupported
+            ? "官印承接结构链较完整"
+            : "官印承接结构链候选",
 
     role:
-      confirmed
+      confirmed ||
+      structurallySupported
         ? "support"
         : "conditional",
 
     status:
       confirmed
         ? "confirmed"
-        : "conditional",
+        : structurallySupported
+          ? "structurally_supported"
+          : "conditional",
 
     confidence:
-      confirmed
-        ? workPath.confidence
-        : !workPath
-          ? "low"
-          : workPath.confidence ===
-              "high"
-            ? "medium"
-            : workPath.confidence,
+      resolveWorkConfidence(
+        workStatus,
+        workPath,
+      ),
 
     workStatus,
 
@@ -1338,11 +1430,10 @@ function evaluateOfficialResourceWorkChain(
         workPath,
       ),
 
-    evidence:
-      [
-        ...officer.evidence,
-        ...resource.evidence,
-      ],
+    evidence: [
+      ...officer.evidence,
+      ...resource.evidence,
+    ],
 
     supportingEvidence,
     weakeningEvidence,

@@ -1,10 +1,19 @@
 export const professionalStatusRank = {
+
   unknown: 0,
+
   weak: 1,
+
   candidate: 1,
+
   conditional: 2,
-  derived: 3,
-  confirmed: 3,
+
+  structurally_supported: 3,
+
+  derived: 4,
+
+  confirmed: 4,
+
 };
 
 export const professionalConfidenceRank = {
@@ -44,6 +53,47 @@ export function compareNatalProfessionalImages(
         left.confidence,
         professionalConfidenceRank,
       ) ||
+    String(
+      left.ruleId ?? "",
+    ).localeCompare(
+      String(
+        right.ruleId ?? "",
+      ),
+    )
+  );
+}
+
+export function compareNatalSemanticImages(
+  left,
+  right,
+) {
+  return (
+    rank(
+      right.status,
+      professionalStatusRank,
+    ) -
+      rank(
+        left.status,
+        professionalStatusRank,
+      ) ||
+    rank(
+      right.confidence,
+      professionalConfidenceRank,
+    ) -
+      rank(
+        left.confidence,
+        professionalConfidenceRank,
+      ) ||
+    rank(
+      right.role,
+      professionalRoleRank,
+    ) -
+      rank(
+        left.role,
+        professionalRoleRank,
+      ) ||
+    finite(right.priority) -
+      finite(left.priority) ||
     String(
       left.ruleId ?? "",
     ).localeCompare(
@@ -218,11 +268,27 @@ function primaryTier(image = {}) {
     isConfirmed(status) &&
     role === "core"
   ) {
-    return 60;
+    return 70;
   }
 
   if (
     isConfirmed(status) &&
+    role === "support"
+  ) {
+    return 60;
+  }
+
+  if (
+    status ===
+      "structurally_supported" &&
+    role === "core"
+  ) {
+    return 55;
+  }
+
+  if (
+    status ===
+      "structurally_supported" &&
     role === "support"
   ) {
     return 50;
@@ -232,11 +298,19 @@ function primaryTier(image = {}) {
     status === "conditional" &&
     role === "core"
   ) {
-    return 40;
+    return 45;
   }
 
   if (
     isConfirmed(status) &&
+    role === "tension"
+  ) {
+    return 40;
+  }
+
+  if (
+    status ===
+      "structurally_supported" &&
     role === "tension"
   ) {
     return 35;

@@ -3,6 +3,12 @@ import {
   evaluateProfessionalReplacement,
   selectNatalPrimaryImage,
 } from "./professionalImageRanking.js";
+import {
+  compareNatalProfessionalImages,
+  compareNatalSemanticImages,
+  evaluateProfessionalReplacement,
+  selectNatalPrimaryImage,
+} from "./professionalImageRanking.js";
 
 export const NATAL_PROFESSIONAL_IMAGE_MERGE_VERSION =
   "natal-professional-image-merge-v1";
@@ -155,7 +161,7 @@ export function mergeNatalProfessionalImages({
 
     if (
       !current ||
-      compareNatalProfessionalImages(
+      compareNatalSemanticImages(
         image,
         current,
       ) < 0

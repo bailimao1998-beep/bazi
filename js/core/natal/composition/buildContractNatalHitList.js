@@ -16,9 +16,14 @@ const roleCategoryMap = {
 
 const statusMap = {
   derived: "confirmed",
-  conditional: "conditional",
-  candidate: "weak",
   confirmed: "confirmed",
+
+  structurally_supported:
+    "conditional",
+
+  conditional: "conditional",
+
+  candidate: "weak",
   weak: "weak",
 };
 

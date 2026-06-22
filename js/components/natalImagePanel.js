@@ -502,8 +502,8 @@ function renderNatalMasterSummary(
             <p class="natal-master-condition-note">
               另有 ${safe(
                 conditionalCount,
-              )} 条条件象未直接写入主结论，
-              可在取象依据中查看。
+              )} 条条件象作为内部复核项，
+              未直接写入主结论。
             </p>
           `
           : ""

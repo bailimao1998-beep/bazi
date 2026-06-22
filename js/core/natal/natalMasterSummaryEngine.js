@@ -1439,68 +1439,131 @@ function buildContractSections({
   familyLine,
   lifePatternLine,
 }) {
-  const sections = [
-    {
-      key: "core",
-      label: "命局核心",
-      text: coreStructure,
-    },
-  ];
+  const sections = [];
+  const usedTexts = [];
 
-  if (workLine) {
-    sections.push({
-      key: "work",
-      label: "做工主线",
-      text: workLine,
-    });
-  }
+  const canUseText = (text) => {
+    const normalized =
+      cleanSentence(text);
 
-  if (careerWealthLine) {
-    sections.push({
-      key: "careerWealth",
-      label: "事业财富",
-      text: careerWealthLine,
-    });
-  }
-
-  if (strengths.length) {
-    sections.push({
-      key: "strengths",
-      label: "优势能力",
-      items: strengths,
-    });
-  }
-
-  if (tensions.length) {
-    sections.push({
-      key: "tensions",
-      label: "主要矛盾",
-      items: tensions,
-    });
-  }
-
-  if (conditions.length) {
-    sections.push({
-      key: "conditions",
-      label: "成立条件",
-      items: conditions,
-    });
-  }
-
-  for (const [key, label, text] of [
-    ["relationship", "感情关系", relationshipLine],
-    ["health", "体质状态", healthLine],
-    ["family", "家庭子女", familyLine],
-    ["lifePattern", "人生模式", lifePatternLine],
-  ]) {
-    if (text) {
-      sections.push({
-        key,
-        label,
-        text,
-      });
+    if (!normalized) {
+      return false;
     }
-  }
+
+    return !usedTexts.some(
+      (usedText) =>
+        textSimilar(
+          usedText,
+          normalized,
+        ),
+    );
+  };
+
+  const addTextSection = (
+    key,
+    label,
+    text,
+  ) => {
+    const normalized =
+      cleanSentence(text);
+
+    if (!canUseText(normalized)) {
+      return;
+    }
+
+    usedTexts.push(normalized);
+
+    sections.push({
+      key,
+      label,
+      text: normalized,
+    });
+  };
+
+  const addItemSection = (
+    key,
+    label,
+    items,
+  ) => {
+    const availableItems =
+      uniqueText(items)
+        .filter(canUseText)
+        .slice(0, 2);
+
+    if (!availableItems.length) {
+      return;
+    }
+
+    usedTexts.push(
+      ...availableItems,
+    );
+
+    sections.push({
+      key,
+      label,
+      items: availableItems,
+    });
+  };
+
+  addTextSection(
+    "core",
+    "命局核心",
+    coreStructure,
+  );
+
+  addTextSection(
+    "work",
+    "做工主线",
+    workLine,
+  );
+
+  addTextSection(
+    "careerWealth",
+    "事业财富",
+    careerWealthLine,
+  );
+
+  addItemSection(
+    "strengths",
+    "优势能力",
+    strengths,
+  );
+
+  addItemSection(
+    "tensions",
+    "主要矛盾",
+    tensions,
+  );
+
+  addItemSection(
+    "conditions",
+    "成立条件",
+    conditions,
+  );
+
+  addTextSection(
+    "relationship",
+    "感情关系",
+    relationshipLine,
+  );
+
+  addTextSection(
+    "health",
+    "体质状态",
+    healthLine,
+  );
+
+  addTextSection(
+    "family",
+    "家庭子女",
+    familyLine,
+  );
+
+  addTextSection(
+    "lifePattern",
+    "人生模式",
+    lifePatternLine,
+  );
 
   return sections;
 }
@@ -1555,18 +1618,46 @@ function buildContractConclusion({
   tensions,
   conditions,
 }) {
-  return joinSentences([
-    coreStructure,
-    strengths.length
-      ? `可用的支持点在于${strengths.slice(0, 2).join("；")}`
-      : "",
-    tensions.length
-      ? `需要复核的张力在于${tensions.slice(0, 2).join("；")}`
-      : "",
-    conditions.length
-      ? `条件象只表示倾向，需结合现实反馈：${conditions.slice(0, 2).join("；")}`
-      : "",
-  ]);
+  const lines = [];
+
+  if (
+    coreStructure &&
+    !coreStructure.includes(
+      "尚未形成特别突出",
+    )
+  ) {
+    lines.push(
+      coreStructure,
+    );
+  }
+
+  if (strengths[0]) {
+    lines.push(
+      `原局可用的支持点是：${strengths[0]}`,
+    );
+  }
+
+  if (tensions[0]) {
+    lines.push(
+      `主要需要留意的张力是：${tensions[0]}`,
+    );
+  }
+
+  if (conditions[0]) {
+    lines.push(
+      `另有条件性线索：${conditions[0]}，具体轻重需要结合现实反馈。`,
+    );
+  }
+
+  if (!lines.length) {
+    lines.push(
+      "当前原局以基础事实为主，高阶组合不算突出，宜结合现实反馈继续复核。",
+    );
+  }
+
+  return joinSentences(
+    lines.slice(0, 3),
+  );
 }
 
 function calculateContractSummaryConfidence(

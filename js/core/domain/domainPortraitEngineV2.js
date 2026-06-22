@@ -282,11 +282,7 @@ function buildDomainPortrait({
           primaryImage.brief,
         )
       : "";
-  const title = primaryImage
-    ? `${rule.label}：${primaryImage.title}`
-    : primaryFact
-      ? `${rule.label}：基础证据`
-      : `${rule.label}：原局证据不重`;
+  const title = rule.label;
   const summary = primaryImage
     ? primaryImageBrief
     : primaryFact
@@ -444,28 +440,90 @@ function factMatchesDomain(fact, rule) {
     return false;
   }
 
-  if (includesDomain(fact, rule.key)) {
-    return true;
+  /*
+   * 第一优先级：
+   * 事实自己已经声明 domains / supports，
+   * 就严格按照声明路由，不能再用关键词塞进其他领域。
+   */
+  if (hasExplicitDomainMetadata(fact)) {
+    return includesDomain(
+      fact,
+      rule.key,
+    );
   }
 
+  /*
+   * 第二优先级：
+   * 没有领域声明的旧合同事实，
+   * 只允许匹配少量直接字段。
+   *
+   * 禁止再扫描：
+   * - 整个 value JSON
+   * - tags
+   * - sourceRefs
+   *
+   * 否则 children、father、wealth 等单词
+   * 会把一个事实错误复制进多个领域。
+   */
   const keywords =
     domainFactMap[rule.key] ?? [];
-  const text = [
+
+  const tokens =
+    extractDirectFactTokens(fact);
+
+  return keywords.some((keyword) =>
+    tokens.some((token) =>
+      token === keyword,
+    ),
+  );
+}
+
+function hasExplicitDomainMetadata(
+  fact = {},
+) {
+  return (
+    (
+      Array.isArray(fact.domains) &&
+      fact.domains.length > 0
+    ) ||
+    (
+      Array.isArray(fact.supports) &&
+      fact.supports.length > 0
+    )
+  );
+}
+
+function extractDirectFactTokens(
+  fact = {},
+) {
+  const value =
+    fact.value &&
+    typeof fact.value === "object"
+      ? fact.value
+      : {};
+
+  return uniqueSortedStrings([
     fact.category,
     fact.predicate,
+
     fact.subject?.type,
     fact.subject?.key,
     fact.subject?.label,
-    JSON.stringify(fact.value ?? ""),
-    ...(fact.tags ?? []),
-    ...(fact.sourceRefs ?? []).map(
-      (ref) => ref.featureGroup,
-    ),
-  ].join(" ");
 
-  return keywords.some((keyword) =>
-    text.includes(keyword),
-  );
+    typeof fact.value === "string"
+      ? fact.value
+      : "",
+
+    value.tenGod,
+    value.name,
+    value.element,
+    value.branch,
+    value.stem,
+    value.relationType,
+    value.kinship,
+    value.palace,
+    value.position,
+  ]);
 }
 
 function includesDomain(item, domainKey) {

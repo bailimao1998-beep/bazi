@@ -417,8 +417,8 @@ function renderNatalMasterSummary(
                 ${
                   evidenceCount
                     ? ` · ${safe(
-                        evidenceCount,
-                      )} 条主证`
+                      evidenceCount,
+                    )} 条证据引用`
                     : ""
                 }
               </span>
@@ -602,29 +602,155 @@ function renderNatalDomainReport(report = {}) {
   `;
 }
 
-function renderNatalDomainCard(domain = {}, index = 0) {
-  const keywords = compact(domain.keywords || domain.tags).slice(0, 5);
+function renderNatalDomainCard(
+  domain = {},
+  index = 0,
+) {
+  const mainText =
+    cleanCardText(
+      domain.summary ||
+      domain.judgement ||
+      "当前领域以基础事实为主，尚未形成特别突出的高阶组合。",
+      2,
+    );
+
+  const pressureText =
+    cleanCardText(
+      domain.pressure || "",
+      1,
+    );
+
+  const showPressure =
+    pressureText &&
+    !textRoughlySame(
+      mainText,
+      pressureText,
+    );
+
+  const confidence =
+    confidenceLabel(
+      domain.confidence || "low",
+    );
+
   return `
-    <article class="natal-domain-card natal-summary-card">
+    <article
+      class="natal-domain-card natal-summary-card"
+    >
       <div class="natal-domain-card-head">
         <div>
-          <span>${display(domain.label)}</span>
-          <i class="natal-domain-index">${String(index + 1).padStart(2, "0")}</i>
+          <span>
+            ${display(domain.label)}
+          </span>
+
+          <i class="natal-domain-index">
+            ${String(index + 1)
+              .padStart(2, "0")}
+          </i>
         </div>
-        <strong>${display(domain.title)}</strong>
+
+        <strong>
+          ${display(domain.label)}
+        </strong>
       </div>
-      <p class="natal-domain-judgement">${display(cleanCardText(domain.judgement || domain.summary || "这一项不是原局最突出的主线，更多要等大运流年引动后才会明显。", 2))}</p>
-      <p class="natal-domain-manifestation">${display(cleanCardText(domain.manifestation || domain.reality || "这一项会通过阶段环境、现实选择和岁运触发慢慢显出来。", 2))}</p>
-      <p class="natal-domain-pressure">${display(cleanCardText(domain.pressure || "压力点要回到对应柱位、十神强弱和岁运触发里确认。", 1))}</p>
-      <div class="natal-domain-keywords">
-        ${keywords.map((keyword) => `<span>${display(keyword)}</span>`).join("")}
-      </div>
-      <button type="button" class="natal-evidence-open">查看依据</button>
-      <template class="natal-evidence-template">
-        ${renderDomainEvidenceDetail(domain)}
+
+      <span class="natal-domain-confidence">
+        ${display(confidence)}
+      </span>
+
+      <p class="natal-domain-judgement">
+        ${display(mainText)}
+      </p>
+
+      ${
+        showPressure
+          ? `
+            <p class="natal-domain-pressure">
+              <b>需要留意：</b>
+              ${display(pressureText)}
+            </p>
+          `
+          : ""
+      }
+
+      <button
+        type="button"
+        class="natal-evidence-open"
+      >
+        查看依据
+      </button>
+
+      <template
+        class="natal-evidence-template"
+      >
+        ${renderDomainEvidenceDetail(
+          domain,
+        )}
       </template>
     </article>
   `;
+}
+
+function textRoughlySame(
+  left,
+  right,
+) {
+  const normalize = (value) =>
+    String(value ?? "")
+      .replace(
+        /[，。；：、！？\s]/g,
+        "",
+      )
+      .trim();
+
+  const leftText =
+    normalize(left);
+
+  const rightText =
+    normalize(right);
+
+  if (
+    !leftText ||
+    !rightText
+  ) {
+    return false;
+  }
+
+  if (
+    leftText.includes(rightText) ||
+    rightText.includes(leftText)
+  ) {
+    return true;
+  }
+
+  const shorter =
+    leftText.length <=
+    rightText.length
+      ? leftText
+      : rightText;
+
+  const longer =
+    leftText.length >
+    rightText.length
+      ? leftText
+      : rightText;
+
+  let matched = 0;
+
+  for (
+    const character of
+    new Set(shorter)
+  ) {
+    if (
+      longer.includes(character)
+    ) {
+      matched += 1;
+    }
+  }
+
+  return (
+    matched /
+    new Set(shorter).size
+  ) >= 0.72;
 }
 
 function renderNatalHitListDisplay(
@@ -700,11 +826,34 @@ function renderNatalHitListSection(
         <span>共 ${safe(rows.length)} 个象</span>
       </div>
       <p class="natal-hit-intro">系统从四柱、十神、藏干、五行、关系和结构中提取到的主要取象。</p>
-      ${chips.length ? `
-        <div class="natal-hit-summary-chips">
-          ${chips.map((item) => `<span>${display(item.name)}</span>`).join("")}
-        </div>
-      ` : `<p class="muted">当前原局未形成可列出的明显取象。</p>`}
+      ${
+        !rows.length
+          ? `
+            <p class="muted">
+              当前原局未形成可列出的明显取象。
+            </p>
+          `
+          : (
+              chips.length <
+              rows.length
+                ? `
+                  <div class="natal-hit-summary-chips">
+                    ${chips
+                      .map(
+                        (item) => `
+                          <span>
+                            ${display(
+                              item.name,
+                            )}
+                          </span>
+                        `,
+                      )
+                      .join("")}
+                  </div>
+                `
+                : ""
+            )
+      }
       ${rows.length ? (
         showEvidence
           ? `

@@ -56,7 +56,7 @@ export const natalCompositionRules = [
     baseConfidence: "high",
     priority: 78,
     tags: ["日柱", "伏吟", "重复", "复核"],
-    domains: ["self", "relationship"],
+    domains: ["self", "spouse"],
     thresholds: {},
     brief:
       "日柱与其他柱位干支完全相同，提示自我位置与对应柱位之间存在重复回响，需要结合全局复核。",
@@ -75,7 +75,7 @@ export const natalCompositionRules = [
     baseConfidence: "medium",
     priority: 76,
     tags: ["日支", "关系", "张力", "复核"],
-    domains: ["relationship", "self"],
+    domains: ["spouse", "self"],
     thresholds: {
       tensionRelationTypes: [
         "branch_clash",
@@ -106,7 +106,7 @@ export const natalCompositionRules = [
     baseConfidence: "medium",
     priority: 70,
     tags: ["比劫", "财星", "资源", "边界"],
-    domains: ["wealth", "network", "self"],
+    domains: ["wealth", "friends", "siblings", "self"],
     thresholds: {
       peerMinWeightedCount: 0,
       wealthMinWeightedCount: 0,
@@ -128,7 +128,7 @@ export const natalCompositionRules = [
     baseConfidence: "medium",
     priority: 68,
     tags: ["印星", "食伤", "表达", "条件"],
-    domains: ["self", "career", "learning"],
+    domains: ["self", "career", "children", "fortune"],
     thresholds: {
       outputWeakMaxWeightedCount: 0.4,
       resourceToOutputRatioMin: 2,
@@ -151,7 +151,7 @@ export const natalCompositionRules = [
     baseConfidence: "medium",
     priority: 66,
     tags: ["五行", "偏性", "复核"],
-    domains: ["self", "health", "temperament"],
+    domains: ["self", "health", "fortune"],
     thresholds: {
       acceptedBiasLevels: ["偏颇", "明显偏颇", "偏枯"],
       requireDominantElements: true,

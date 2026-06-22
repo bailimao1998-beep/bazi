@@ -15,6 +15,10 @@ import {
 } from "../natal/composition/composeContractNatalImages.js";
 
 import {
+  compareNatalCompositionShadow,
+} from "../natal/composition/compareNatalCompositionShadow.js";
+
+import {
   buildNatalMasterSummary,
 } from "../natal/natalMasterSummaryEngine.js";
 
@@ -77,6 +81,15 @@ export function buildNatalImageReport({
     composeNatalImages({
       featureVector,
       atomicFacts,
+    });
+
+  const contractCompositionComparison =
+    compareNatalCompositionShadow({
+      legacyItems:
+        composed.hitList?.all ?? [],
+      contractImages:
+        contractCompositionShadow.images ??
+        [],
     });
 
   /*
@@ -194,6 +207,8 @@ export function buildNatalImageReport({
         {},
 
       contractCompositionShadow,
+
+      contractCompositionComparison,
     },
   };
 }

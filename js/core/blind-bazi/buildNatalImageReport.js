@@ -19,6 +19,10 @@ import {
 } from "../natal/composition/compareNatalCompositionShadow.js";
 
 import {
+  buildContractNatalHitList,
+} from "../natal/composition/buildContractNatalHitList.js";
+
+import {
   buildNatalMasterSummary,
 } from "../natal/natalMasterSummaryEngine.js";
 
@@ -89,6 +93,16 @@ export function buildNatalImageReport({
         composed.hitList?.all ?? [],
       contractImages:
         contractCompositionShadow.images ??
+        [],
+    });
+
+  const contractHitListPreview =
+    buildContractNatalHitList({
+      images:
+        contractCompositionShadow.images ??
+        [],
+      facts:
+        atomicFacts.contractFacts ??
         [],
     });
 
@@ -209,6 +223,8 @@ export function buildNatalImageReport({
       contractCompositionShadow,
 
       contractCompositionComparison,
+
+      contractHitListPreview,
     },
   };
 }

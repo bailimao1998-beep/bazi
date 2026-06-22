@@ -240,6 +240,21 @@ export function renderNatalImagePanel(
       factEngineDebug:
         report.atomicFacts?.debug ??
         {},
+
+      contractCompositionShadow:
+        report.natalDebug
+          ?.contractCompositionShadow ??
+        null,
+
+      contractCompositionComparison:
+        report.natalDebug
+          ?.contractCompositionComparison ??
+        null,
+
+      contractHitListPreview:
+        report.natalDebug
+          ?.contractHitListPreview ??
+        null,
     };
   }
 

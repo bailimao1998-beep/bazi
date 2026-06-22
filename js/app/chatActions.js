@@ -28,16 +28,26 @@ export function createChatActions({ store, renderBaseOnly }) {
 
       const prompt = buildChatPrompt({
         question: trimmedQuestion,
-        input: store.state.input,
-        chart: store.state.chart,
-        baseBaziViewModel: store.state.baseBaziViewModel,
-        natalImageReport: store.state.natalImageReport,
-        luckImageReport: store.state.luckImageReport,
-        yearImageReport: store.state.yearImageReport,
-        monthImageReport: store.state.monthImageReport,
-        monthImageReports: store.state.monthImageReports,
+
+        natalImageReport:
+          store.state.natalImageReport,
+
+        luckImageReport:
+          store.state.luckImageReport,
+
+        yearImageReport:
+          store.state.yearImageReport,
+
+        monthImageReport:
+          store.state.monthImageReport,
+
+        monthImageReports:
+          store.state.monthImageReports,
+
         chatIntent,
+
         requestedYears,
+
         requestedYearReports,
       });
       const result = await generateWithDeepSeek({ settings, prompt });

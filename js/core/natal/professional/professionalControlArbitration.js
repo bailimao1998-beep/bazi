@@ -75,60 +75,176 @@ export function arbitrateProfessionalControlImages({
   const decisions = [];
 
   const wealthBreaksResource =
+  imageMap.get(
+    "professional_wealth_breaks_resource",
+  );
+
+if (
+  isSupportedImage(
+    wealthBreaksResource,
+  )
+) {
+  const brokenResourceTenGod =
+    normalizeTenGod(
+      wealthBreaksResource
+        .workPath
+        ?.endTenGod,
+    );
+
+  const affectedRuleIds = [];
+
+  const hurtOfficerWithResource =
     imageMap.get(
-      "professional_wealth_breaks_resource",
+      "professional_hurt_officer_with_resource",
     );
 
   if (
-    isSupportedImage(
+    routeUsesTenGod(
+      hurtOfficerWithResource,
+      brokenResourceTenGod,
+    )
+  ) {
+    affectedRuleIds.push(
+      "professional_hurt_officer_with_resource",
+    );
+  }
+
+  const killResourceTransform =
+    imageMap.get(
+      "professional_kill_resource_transform",
+    );
+
+  if (
+    routeUsesTenGod(
+      killResourceTransform,
+      brokenResourceTenGod,
+    )
+  ) {
+    affectedRuleIds.push(
+      "professional_kill_resource_transform",
+    );
+  }
+
+  const officialResourceWorkChain =
+    imageMap.get(
+      "professional_official_resource_work_chain",
+    );
+
+  if (
+    routeUsesTenGod(
+      officialResourceWorkChain,
+      brokenResourceTenGod,
+    )
+  ) {
+    affectedRuleIds.push(
+      "professional_official_resource_work_chain",
+    );
+  }
+
+  downgradeTargets({
+    imageMap,
+
+    sourceImage:
       wealthBreaksResource,
-    )
-  ) {
-    downgradeTargets({
-      imageMap,
-      sourceImage:
-        wealthBreaksResource,
 
-      targetRuleIds: [
-        "professional_hurt_officer_with_resource",
-        "professional_kill_resource_transform",
-        "professional_official_resource_work_chain",
-      ],
+    targetRuleIds:
+      affectedRuleIds,
 
-      reason:
-        "财星对印星形成有效破坏，依赖印星承接的结构需要降级",
+    reason:
+      brokenResourceTenGod
+        ? `财星实际制约${brokenResourceTenGod}，依赖该印星承接的结构需要降级`
+        : "财星对印星形成有效制约，但受克印星类型不清，仅对明确同路线结构执行降级",
 
-      decisions,
-    });
-  }
+    decisions,
+  });
+}
 
-  const owlSeizesFood =
+const owlSeizesFood =
+  imageMap.get(
+    "professional_owl_seizes_food",
+  );
+
+if (
+  isSupportedImage(
+    owlSeizesFood,
+  )
+) {
+  const affectedRuleIds = [];
+
+  const foodControlsKill =
     imageMap.get(
-      "professional_owl_seizes_food",
+      "professional_food_controls_kill",
     );
 
   if (
-    isSupportedImage(
-      owlSeizesFood,
+    routeStartsWithTenGod(
+      foodControlsKill,
+      "食神",
     )
   ) {
-    downgradeTargets({
-      imageMap,
-      sourceImage:
-        owlSeizesFood,
-
-      targetRuleIds: [
-        "professional_food_controls_kill",
-        "professional_output_wealth_work_chain",
-        "professional_output_anchor_in_host",
-      ],
-
-      reason:
-        "偏印对食神形成有效制约，依赖食神出口的结构需要降级",
-
-      decisions,
-    });
+    affectedRuleIds.push(
+      "professional_food_controls_kill",
+    );
   }
+
+  const outputWealthWorkChain =
+    imageMap.get(
+      "professional_output_wealth_work_chain",
+    );
+
+  /*
+   * 只有食神生财受到枭神夺食影响。
+   * 伤官生财不能被误伤。
+   */
+  if (
+    routeStartsWithTenGod(
+      outputWealthWorkChain,
+      "食神",
+    )
+  ) {
+    affectedRuleIds.push(
+      "professional_output_wealth_work_chain",
+    );
+  }
+
+  downgradeTargets({
+    imageMap,
+
+    sourceImage:
+      owlSeizesFood,
+
+    targetRuleIds:
+      affectedRuleIds,
+
+    reason:
+      "偏印实际制约食神，依赖食神作为起点的结构需要降级",
+
+    decisions,
+  });
+
+  /*
+   * 食伤主位出口无法确定究竟来自食神还是伤官，
+   * 所以只增加减弱提示，不直接降级。
+   */
+  annotateTargets({
+    imageMap,
+
+    sourceImage:
+      owlSeizesFood,
+
+    targetRuleIds: [
+      "professional_output_anchor_in_host",
+    ],
+
+    reason:
+      "偏印制食神会削弱部分食伤出口，但无法据此认定全部主位食伤出口失效",
+
+    priorityPenalty:
+      2,
+
+    decisions,
+  });
+}
 
   const hurtOfficerWithResource =
     imageMap.get(
@@ -264,10 +380,11 @@ function downgradeTargets({
     }
 
     const downgraded =
-      downgradeImage(
+    downgradeImage(
         targetImage,
         reason,
-      );
+        sourceImage,
+    );
 
     imageMap.set(
       targetRuleId,
@@ -398,6 +515,7 @@ function annotateTargets({
 function downgradeImage(
   image,
   reason,
+  sourceImage,
 ) {
   const nextStatus =
     downgradeStatusMap[
@@ -423,7 +541,15 @@ function downgradeImage(
 
   return {
     ...image,
+    originalTitle:
+    image.originalTitle ??
+    image.title,
 
+    title:
+    buildDowngradedTitle({
+        image,
+        sourceImage,
+    }),
     status:
       nextStatus,
 
@@ -486,6 +612,159 @@ function downgradeImage(
         reason,
       ]),
   };
+}
+
+function routeStartsWithTenGod(
+  image,
+  tenGod,
+) {
+  const normalizedTenGod =
+    normalizeTenGod(
+      tenGod,
+    );
+
+  if (!normalizedTenGod) {
+    return false;
+  }
+
+  return (
+    normalizeTenGod(
+      image?.workPath
+        ?.startTenGod,
+    ) ===
+    normalizedTenGod
+  );
+}
+
+function routeUsesTenGod(
+  image,
+  tenGod,
+) {
+  const normalizedTenGod =
+    normalizeTenGod(
+      tenGod,
+    );
+
+  if (!normalizedTenGod) {
+    return false;
+  }
+
+  const nodeTenGods =
+    Array.isArray(
+      image?.workPath
+        ?.nodeTenGods,
+    )
+      ? image.workPath
+          .nodeTenGods
+          .map(
+            normalizeTenGod,
+          )
+      : [];
+
+  return (
+    normalizeTenGod(
+      image?.workPath
+        ?.startTenGod,
+    ) ===
+      normalizedTenGod ||
+    normalizeTenGod(
+      image?.workPath
+        ?.endTenGod,
+    ) ===
+      normalizedTenGod ||
+    nodeTenGods.includes(
+      normalizedTenGod,
+    )
+  );
+}
+
+function buildDowngradedTitle({
+  image,
+  sourceImage,
+}) {
+  const baseTitle =
+    String(
+      image?.originalTitle ??
+      image?.title ??
+      "专业结构",
+    )
+      .replace(
+        /（受.+?牵制，结构降级）$/,
+        "",
+      )
+      .trim();
+
+  const sourceLabel =
+    resolveSourceLabel(
+      sourceImage,
+    );
+
+  return (
+    `${baseTitle}（受${sourceLabel}牵制，结构降级）`
+  );
+}
+
+function resolveSourceLabel(
+  image,
+) {
+  const semanticGroup =
+    String(
+      image?.semanticGroup ??
+      "",
+    );
+
+  if (
+    semanticGroup ===
+    "wealth_breaks_resource"
+  ) {
+    return "财坏印";
+  }
+
+  if (
+    semanticGroup ===
+    "owl_seizes_food"
+  ) {
+    return "枭神夺食";
+  }
+
+  return (
+    String(
+      image?.title ??
+      "竞争结构",
+    )
+      .replace(
+        /(冲突链|结构张力明显|结构候选|做功链|结构较完整)$/,
+        "",
+      )
+      .trim() ||
+    "竞争结构"
+  );
+}
+
+function normalizeTenGod(
+  value,
+) {
+  const normalized =
+    String(
+      value ?? "",
+    ).trim();
+
+  return [
+    "正印",
+    "偏印",
+    "食神",
+    "伤官",
+    "正官",
+    "七杀",
+    "正财",
+    "偏财",
+    "比肩",
+    "劫财",
+  ].includes(
+    normalized,
+  )
+    ? normalized
+    : "";
 }
 
 function isSupportedImage(

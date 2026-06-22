@@ -677,6 +677,20 @@ function serializeWorkPath(
     return null;
   }
 
+  const nodeTenGods =
+    Array.isArray(
+      path.nodes,
+    )
+      ? path.nodes
+          .map(
+            (node) =>
+              normalizeText(
+                node.tenGod,
+              ),
+          )
+          .filter(Boolean)
+      : [];
+
   return {
     chainId:
       path.chain.id,
@@ -701,6 +715,17 @@ function serializeWorkPath(
 
     evidenceText:
       path.evidenceText,
+
+    startTenGod:
+      nodeTenGods[0] ??
+      "",
+
+    endTenGod:
+      nodeTenGods.at(-1) ??
+      "",
+
+    nodeTenGods:
+      [...nodeTenGods],
   };
 }
 
@@ -1968,7 +1993,9 @@ function evaluateHurtOfficerMeetsOfficial(
           hurtCount >=
             finite(
               thresholds.hurtMin,
-            ),
+            ) &&
+          properResource.hasRoot &&
+          hurt.hasRoot,
       },
     );
 
@@ -2005,23 +2032,33 @@ function evaluateHurtOfficerMeetsOfficial(
       },
     );
 
-  const blockingEvidence = [];
+  let effectiveWorkStatus =
+    conflict.workStatus;
 
-  if (
-    resourceResolution.supported
-  ) {
-    blockingEvidence.push(
-      "正印能够有效制约伤官，伤官见官冲突已由伤官配印路线承接",
-    );
-  }
-
+  /*
+   * 伤官生财转官形成有效缓解时，
+   * 冲突仍存在，但不能继续维持最高成立等级。
+   *
+   * 正印制伤官不在这里直接压制；
+   * 是否完全压制交给统一裁决层，
+   * 且必须由正式“伤官配印”规则达到支持级。
+   */
   if (
     wealthMediation.supported
   ) {
-    blockingEvidence.push(
-      "伤官通过财星转生正官，直接冲突已形成生财转官缓解路线",
-    );
+    effectiveWorkStatus =
+      downgradeMixedWorkStatus(
+        effectiveWorkStatus,
+      );
   }
+
+  const confirmed =
+    effectiveWorkStatus ===
+    "activated";
+
+  const structurallySupported =
+    effectiveWorkStatus ===
+    "structurally_supported";
 
   const supportingEvidence =
     uniqueText([
@@ -2032,11 +2069,11 @@ function evaluateHurtOfficerMeetsOfficial(
         ? `伤官见官路径：${conflict.workPath.evidenceText}`
         : "",
 
-      conflict.structurallySupported
+      structurallySupported
         ? "伤官制正官的力量和路径达到原局结构支持标准"
         : "",
 
-      conflict.confirmed
+      confirmed
         ? "伤官见官冲突具有显式激活证据"
         : "",
     ]);
@@ -2047,17 +2084,21 @@ function evaluateHurtOfficerMeetsOfficial(
         ? "伤官与正官虽同时存在，但未识别伤官制正官的真实路径"
         : "",
 
-      conflict.workStatus ===
+      effectiveWorkStatus ===
         "connected"
-        ? "已有伤官见官方向，但路径或力量条件尚不足"
+        ? "已有伤官见官方向，但路径、力量或缓解条件使其不足以维持完整冲突结构"
         : "",
 
       resourceResolution.workPath
-        ? "原局存在正印制伤官的缓解候选"
+        ? "原局存在正印制伤官的缓解候选，是否成立由伤官配印专项规则裁决"
         : "",
 
       wealthMediation.workPath
-        ? "原局存在伤官生财转官的缓解候选"
+        ? "原局存在伤官生财转官的缓解路线"
+        : "",
+
+      wealthMediation.supported
+        ? "伤官生财转官达到结构支持级，直接冲突已经降级"
         : "",
 
       officer.isRelationAffected
@@ -2067,37 +2108,39 @@ function evaluateHurtOfficerMeetsOfficial(
 
   return {
     title:
-      conflict.workStatus ===
+      effectiveWorkStatus ===
         "presence_only"
         ? "伤官正官并见，冲突链待确认"
-        : conflict.confirmed
+        : confirmed
           ? "伤官见官冲突链"
-          : conflict.structurallySupported
+          : structurallySupported
             ? "伤官见官结构张力明显"
-            : "伤官见官结构候选",
+            : wealthMediation.supported
+              ? "伤官见官受生财转官缓解"
+              : "伤官见官结构候选",
 
     role:
       "tension",
 
     status:
-      conflict.confirmed
+      confirmed
         ? "confirmed"
-        : conflict.structurallySupported
+        : structurallySupported
           ? "structurally_supported"
           : "conditional",
 
     confidence:
       resolveWorkConfidence(
-        conflict.workStatus,
+        effectiveWorkStatus,
         conflict.workPath,
       ),
 
     workStatus:
-      conflict.workStatus,
+      effectiveWorkStatus,
 
     resolutionMode:
       resourceResolution.supported
-        ? "resource_controls_hurt_officer"
+        ? "resource_resolution_candidate"
         : wealthMediation.supported
           ? "wealth_mediation"
           : "unresolved",
@@ -2115,7 +2158,13 @@ function evaluateHurtOfficerMeetsOfficial(
 
     supportingEvidence,
     weakeningEvidence,
-    blockingEvidence,
+
+    /*
+     * 不再提前压制。
+     * 完整压制统一交给
+     * professionalControlArbitration。
+     */
+    blockingEvidence: [],
   };
 }
 

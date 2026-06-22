@@ -4,6 +4,12 @@ import {
   professionalEvidenceStatusRank,
 } from "./professional/domainProfessionalAggregation.js";
 
+import {
+  compareNatalMasterNarrativeImages,
+  isNatalMasterAnchorCandidate,
+  resolveNatalNarrativeCluster,
+} from "./professional/professionalImageRanking.js";
+
 /**
  * 原局命理总批引擎。
  *
@@ -1387,21 +1393,52 @@ function buildContractNatalMasterSummary({
     compareProfessionalEvidenceImages,
   );
 
+  const masterAnchorCandidates =
+    images
+      .filter(
+        isNatalMasterAnchorCandidate,
+      )
+      .slice()
+      .sort(
+        compareNatalMasterNarrativeImages,
+      );
+
   const primaryImage =
+    masterAnchorCandidates[0] ||
     supportedPrimaryCandidates[0] ||
     images[0] ||
     null;
 
+  const primaryNarrativeCluster =
+    resolveNatalNarrativeCluster(
+      primaryImage,
+    );
+
+  const sameClusterSecondary =
+    images
+      .filter(
+        (image) =>
+          image !== primaryImage &&
+          resolveNatalNarrativeCluster(
+            image,
+          ) ===
+            primaryNarrativeCluster,
+      )
+      .slice()
+      .sort(
+        compareNatalMasterNarrativeImages,
+      )[0] ||
+    null;
+
   const secondaryImage =
+    sameClusterSecondary ||
+    masterAnchorCandidates.find(
+      (image) =>
+        image !== primaryImage,
+    ) ||
     positiveImages.find(
       (image) =>
-        image !== primaryImage &&
-        cleanSentence(
-          image.ruleId,
-        ) !==
-          cleanSentence(
-            primaryImage?.ruleId,
-          ),
+        image !== primaryImage,
     ) ||
     null;
 
@@ -1858,7 +1895,10 @@ function buildContractNatalMasterSummary({
     selectionDebug: {
       source:
         "contract_composition_domains_and_semantics",
+      primaryNarrativeCluster,
 
+      masterAnchorCount:
+        masterAnchorCandidates.length,
       hitListCount:
         hitRows.length,
 
@@ -1908,6 +1948,20 @@ function buildProfessionalOpening({
     );
   }
 
+  const primaryStatus =
+    cleanSentence(
+      primaryImage?.status ||
+      primaryRow?.rawStatus ||
+      primaryRow?.status ||
+      "",
+    );
+
+  const isConditionalStructure =
+    primaryStatus ===
+      "conditional" ||
+    primaryStatus ===
+      "candidate";
+      
   const isPressureStructure =
     primaryImage?.role ===
       "tension" ||
@@ -1919,13 +1973,15 @@ function buildProfessionalOpening({
       "conditional";
 
   const lead =
-    isPressureStructure
-      ? `原局较明显的结构线索是${primaryTitle}`
-      : secondaryTitle &&
-          secondaryTitle !==
-            primaryTitle
-        ? `原局以${primaryTitle}为主，兼见${secondaryTitle}`
-        : `原局以${primaryTitle}为主要结构`;
+    isConditionalStructure
+      ? `原局较重要、但仍需结合制化轻重复核的结构线索是${primaryTitle}`
+      : isPressureStructure
+        ? `原局较明显的结构张力是${primaryTitle}`
+        : secondaryTitle &&
+            secondaryTitle !==
+              primaryTitle
+          ? `原局以${primaryTitle}为主，兼见${secondaryTitle}`
+          : `原局以${primaryTitle}为主要结构`;
 
   return joinDistinctSentences([
     lead,

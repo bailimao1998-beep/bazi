@@ -1,6 +1,22 @@
 export const NATAL_STRUCTURE_SYNOPSIS_VERSION =
   "natal-structure-synopsis-v2";
 
+
+const branchElementKeys = {
+  寅: "wood",
+  卯: "wood",
+  辰: "earth",
+  巳: "fire",
+  午: "fire",
+  未: "earth",
+  申: "metal",
+  酉: "metal",
+  戌: "earth",
+  亥: "water",
+  子: "water",
+  丑: "earth",
+};
+
 const pillarKeys = [
   "year",
   "month",
@@ -235,6 +251,10 @@ export function buildNatalStructureSynopsis(
     buildElementLine({
       elementOrder,
       elements,
+
+      monthBranch:
+        pillars.month
+          ?.branch,
     });
 
   const visibilityLine =
@@ -693,6 +713,7 @@ function buildTenGodLine({
 function buildElementLine({
   elementOrder,
   elements,
+  monthBranch,
 }) {
   const present =
     elementOrder.filter(
@@ -730,20 +751,44 @@ function buildElementLine({
     normalizeText(
       elements.biasLevel,
     );
+  const normalizedMonthBranch =
+    normalizeText(
+      monthBranch,
+    );
 
-  if (
+  const monthElementKey =
+    branchElementKeys[
+      normalizedMonthBranch
+    ];
+
+  const monthElementLabel =
+    elementLabels[
+      monthElementKey
+    ] || "";
+
+  const quantityLine =
     weakestText &&
     dominantText
-  ) {
-    return `五行以${dominantText}较集中，${weakestText}相对不足${
-      biasLevel &&
-      biasLevel !== "unknown"
-        ? `，整体呈${biasLevel}`
-        : ""
-    }`;
-  }
+      ? `按原局明暗数量，五行以${dominantText}较集中，${weakestText}相对不足${
+          biasLevel &&
+          biasLevel !== "unknown"
+            ? `，整体呈${biasLevel}`
+            : ""
+        }`
+      : `按原局明暗数量，五行以${dominantText}较集中`;
 
-  return `五行以${dominantText}较集中`;
+  const seasonLine =
+    normalizedMonthBranch &&
+    monthElementLabel
+      ? `月令${normalizedMonthBranch}使${monthElementLabel}的季节力量更突出，不能只按数量判断旺衰`
+      : "";
+
+  return [
+    quantityLine,
+    seasonLine,
+  ]
+    .filter(Boolean)
+    .join("；");
 }
 
 function buildVisibilityLine(
@@ -994,7 +1039,7 @@ function buildBalanceProfile({
       ),
     ]);
 
-  const cautionElements =
+  const rawCautionElements =
     uniqueText(
       cautionGroups
         .map(
@@ -1005,27 +1050,59 @@ function buildBalanceProfile({
         )
         .filter(Boolean),
     );
+  const conditionalElements =
+    climateCandidates.filter(
+      (element) =>
+        rawCautionElements.includes(
+          element,
+        ) &&
+        !favorableElements.includes(
+          element,
+        ),
+    );
 
-  let text = "";
+  const cautionElements =
+    rawCautionElements.filter(
+      (element) =>
+        !conditionalElements.includes(
+          element,
+        ),
+    );
+
+  const textParts = [];
 
   if (
-    favorableElements.length &&
-    cautionElements.length
-  ) {
-    text =
-      `从原局平衡角度，可优先观察${formatElementKeys(
-        favorableElements,
-      )}的调节作用，${formatElementKeys(
-        cautionElements,
-      )}不宜继续无条件堆叠`;
-  } else if (
     favorableElements.length
   ) {
-    text =
-      `从原局平衡角度，可优先观察${formatElementKeys(
+    textParts.push(
+      `从原局平衡角度，可先观察${formatElementKeys(
         favorableElements,
-      )}的调节作用`;
+      )}的扶助与调节作用`,
+    );
   }
+
+  if (
+    conditionalElements.length
+  ) {
+    textParts.push(
+      `${formatElementKeys(
+        conditionalElements,
+      )}虽不宜脱离承载条件无节制增加，但可作为调候、疏通或现实输出的候选，需结合日主承载和完整结构使用`,
+    );
+  }
+
+  if (
+    cautionElements.length
+  ) {
+    textParts.push(
+      `${formatElementKeys(
+        cautionElements,
+      )}不宜继续无条件堆叠`,
+    );
+  }
+
+  const text =
+    textParts.join("；");
 
   return {
     favorableGroups,
@@ -1037,9 +1114,9 @@ function buildBalanceProfile({
     cautionElements,
 
     text,
-
+    conditionalElements,
     boundary:
-      "平衡方向只作候选提示，最终仍需结合格局、调候、做工与现实反馈复核。",
+      "平衡方向只作候选提示：扶助元素、条件调候元素和不宜增重元素必须分层理解，最终仍需结合格局、做工及现实反馈复核。",
   };
 }
 
@@ -1130,39 +1207,43 @@ function buildDomainBaselines({
       ]),
 
     parents:
-      groupNarrative(
-        resource,
-        {
-          strong:
-            "印星力量集中，家庭教育、长辈经验和早年规则对命主影响较深，获得支持的同时也容易承受期待",
+      joinSentences([
+        groupNarrative(
+          resource,
+          {
+            strong:
+              "印星力量集中，家庭教育、长辈经验和早年规则对命主影响较深，获得支持的同时也容易承受期待",
 
-          visible:
-            "印星有明显透出，家庭教育、长辈意见和规则要求对个人选择影响较深",
+            visible:
+              "印星有明显透出，家庭教育、长辈意见和规则要求对个人选择影响较深",
 
-          hidden:
-            "印星主要藏于地支，长辈影响往往通过生活经验、实际照顾或潜在观念体现",
+            hidden:
+              "印星主要藏于地支，长辈影响往往通过生活经验、实际照顾或潜在观念体现",
 
-          weak:
-            "印星力量偏弱，父母家庭方面不宜只凭印星作过多判断",
-        },
-      ),
+            weak:
+              "印星力量偏弱，父母家庭方面不宜只凭印星作过多判断",
+          },
+        ),
+
+        buildFamilyResourceWealthLine({
+          resource,
+          wealth,
+        }),
+      ]),
 
     siblings:
       groupNarrative(
         peer,
         {
           strong:
-            "比劫力量集中，兄弟同辈之间容易同时出现合作、比较、竞争和资源边界问题",
+            "比劫力量集中，亲缘同辈、熟人同龄和长期相处关系中，容易同时出现支持、比较、竞争与资源边界问题",
 
           visible:
-            "比劫有明显透出，同辈互动、合作分工和彼此比较较为明显",
+            "比劫有明显透出，在兄弟姐妹、熟人同辈和长期同龄关系中，个人立场与彼此比较较为直接",
 
           hidden:
-            "比劫主要藏于地支，同辈关系表面未必激烈，但利益和距离仍会影响相处",
-
-          weak:
-            "比劫力量偏弱，兄弟同辈方面缺少足够强的原局主象",
-        },
+            "比劫主要藏于地支，亲缘同辈之间表面未必激烈，但距离、责任和利益仍会影响长期相处",
+        }
       ),
 
     spouse:
@@ -1240,16 +1321,13 @@ function buildDomainBaselines({
         peer,
         {
           strong:
-            "比劫力量集中，朋友合作、圈层竞争和资源往来对现实发展影响较明显",
+            "比劫力量集中，外部圈层、项目合作和社会资源交换对现实发展影响较明显",
 
           visible:
-            "比劫有明显透出，人际合作中重视平等、边界和彼此投入",
+            "比劫有明显透出，在朋友合作、项目分工和外部人脉中重视平等、边界与实际投入",
 
           hidden:
-            "比劫主要藏于地支，人际关系表面平和，但利益和资源问题仍会影响距离",
-
-          weak:
-            "比劫力量偏弱，交友人脉方面缺少特别集中的原局主象",
+            "比劫主要藏于地支，外部社交表面平和，但合作利益和资源交换仍会影响关系远近",
         },
       ),
 
@@ -1292,8 +1370,8 @@ function buildDomainBaselines({
 
     property:
       elementCounts.earth > 0
-        ? "田宅资产方面主要观察资源沉淀、稳定承载和居住安排，不直接据此判断具体房产结果。"
-        : "田宅资产方面缺少足够直接的高阶信号，不宜只凭原局判断具体房产结果。",
+        ? "原局可见土气和资源承载线索，只能说明命主重视稳定、沉淀和居住安排；目前缺少足够直接的田宅专属高阶结构，不据此判断房产数量、得失或具体购置结果。"
+        : "原局缺少足够直接的田宅资产高阶信号，本领域只保留家庭背景、财星承接和居住稳定度作为辅助参考，不判断具体房产结果。",
 
     fortune:
       joinSentences([
@@ -1339,6 +1417,8 @@ function buildDomainBaselines({
       ]),
   };
 }
+
+
 
 function groupNarrative(
   profile,

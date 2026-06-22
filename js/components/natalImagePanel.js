@@ -1102,7 +1102,40 @@ function renderNatalHitListSection(
   const hitList =
     options.hitList ??
     buildNatalHitList(report);
-  const rows = hitList.all;
+  const allRows =
+  Array.isArray(
+    hitList.all,
+  )
+    ? hitList.all
+    : [];
+
+  const rows =
+    showEvidence
+      ? allRows
+      : (
+          Array.isArray(
+            hitList.featured,
+          ) &&
+          hitList.featured.length
+            ? hitList.featured
+            : allRows
+        );
+
+  const selectedIds =
+    new Set(
+      rows.map(
+        (row) =>
+          row.id,
+      ),
+    );
+
+  const remainingRows =
+    allRows.filter(
+      (row) =>
+        !selectedIds.has(
+          row.id,
+        ),
+    );
   const title =
     options.title || "取象索引";
   const showEvidence =
@@ -1111,8 +1144,50 @@ function renderNatalHitListSection(
     <section class="natal-hit-index">
       <div class="board-title">
         <h3>${display(title)}</h3>
-        <span>共 ${safe(rows.length)} 个象</span>
+        <span>
+        主要 ${safe(rows.length)} 个
+        ${
+          allRows.length !==
+          rows.length
+            ? ` · 完整命中 ${safe(
+                allRows.length,
+              )} 个`
+            : ""
+        }
+      </span>
       </div>
+      ${
+        !showEvidence &&
+        remainingRows.length
+          ? `
+            <details
+              class="natal-hit-details"
+            >
+              <summary>
+                展开其余
+                ${safe(
+                  remainingRows.length,
+                )}
+                个辅助取象
+              </summary>
+
+              <div
+                class="natal-hit-compact-list"
+              >
+                ${remainingRows
+                  .map(
+                    (row) =>
+                      renderNatalHitCard(
+                        row,
+                        false,
+                      ),
+                  )
+                  .join("")}
+              </div>
+            </details>
+          `
+          : ""
+      }
       <p class="natal-hit-intro">系统从四柱、十神、藏干、五行、关系和结构中提取到的主要取象。</p>
       ${
         !rows.length
@@ -1209,6 +1284,7 @@ function renderNatalHitCard(
       <div class="natal-hit-main">
         <span>
           ${display(
+            item.narrativeClusterLabel ||
             item.category ||
             item.type ||
             "取象",

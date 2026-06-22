@@ -1,6 +1,14 @@
 import {
   getNatalCompositionSemantic,
 } from "../narrative/natalCompositionSemantics.js";
+import {
+  professionalConfidenceRank,
+  professionalRoleRank,
+  professionalStatusRank,
+  resolveNatalNarrativeCluster,
+  resolveNatalNarrativeClusterLabel,
+  resolveNatalNarrativeTier,
+} from "../professional/professionalImageRanking.js";
 
 export const CONTRACT_NATAL_HIT_LIST_VERSION =
   "contract-natal-hit-list-v1";
@@ -81,10 +89,11 @@ export function buildContractNatalHitList({
     mode: "preview",
     scope: normalizedScope,
     all,
-    featured: all.slice(
-      0,
-      normalizedFeaturedLimit,
-    ),
+    featured:
+      buildFeaturedRows(
+        all,
+        normalizedFeaturedLimit,
+      ),
     confirmed: all.filter(
       (row) => row.status === "confirmed",
     ),
@@ -97,6 +106,67 @@ export function buildContractNatalHitList({
     byCategory: buildByCategory(all),
     warnings: uniqueSortedStrings(warnings),
   };
+}
+
+function buildFeaturedRows(
+  rows,
+  limit,
+) {
+  const selected = [];
+  const selectedIds =
+    new Set();
+  const seenClusters =
+    new Set();
+
+  for (const row of rows) {
+    const cluster =
+      row.narrativeCluster ||
+      row.semanticGroup ||
+      row.id;
+
+    if (
+      seenClusters.has(
+        cluster,
+      )
+    ) {
+      continue;
+    }
+
+    seenClusters.add(
+      cluster,
+    );
+
+    selected.push(row);
+    selectedIds.add(
+      row.id,
+    );
+
+    if (
+      selected.length >= limit
+    ) {
+      return selected;
+    }
+  }
+
+  for (const row of rows) {
+    if (
+      selectedIds.has(
+        row.id,
+      )
+    ) {
+      continue;
+    }
+
+    selected.push(row);
+
+    if (
+      selected.length >= limit
+    ) {
+      break;
+    }
+  }
+
+  return selected;
 }
 
 function buildHitListRow(
@@ -163,9 +233,28 @@ function buildHitListRow(
       image.ruleId,
     ),
     relatedFactIds,
-    semanticGroup: normalizeText(
-      image.ruleId,
-    ),
+    semanticGroup:
+      normalizeText(
+        image.semanticGroup,
+      ) ||
+      ruleId,
+
+    narrativeTier:
+      resolveNatalNarrativeTier(
+        image,
+      ),
+
+    narrativeCluster:
+      resolveNatalNarrativeCluster(
+        image,
+      ),
+
+    narrativeClusterLabel:
+      resolveNatalNarrativeClusterLabel(
+        resolveNatalNarrativeCluster(
+          image,
+        ),
+      ),
 
     domains,
     supports: domains,
@@ -405,29 +494,54 @@ function buildByCategory(all) {
   );
 }
 
-function compareRows(left, right) {
+function compareRows(
+  left,
+  right,
+) {
   return (
-    right.priority - left.priority ||
+    Number(
+      right.narrativeTier ??
+      0,
+    ) -
+      Number(
+        left.narrativeTier ??
+        0,
+      ) ||
+
     rankValue(
-      right.importance,
-      importanceRank,
+      right.rawStatus,
+      professionalStatusRank,
     ) -
       rankValue(
-        left.importance,
-        importanceRank,
+        left.rawStatus,
+        professionalStatusRank,
       ) ||
+
+    rankValue(
+      right.role,
+      professionalRoleRank,
+    ) -
+      rankValue(
+        left.role,
+        professionalRoleRank,
+      ) ||
+
     rankValue(
       right.confidence,
-      confidenceRank,
+      professionalConfidenceRank,
     ) -
       rankValue(
         left.confidence,
-        confidenceRank,
+        professionalConfidenceRank,
       ) ||
-    left.sourceRuleId.localeCompare(
-      right.sourceRuleId,
-    ) ||
-    left.id.localeCompare(right.id)
+
+    right.priority -
+      left.priority ||
+
+    left.sourceRuleId
+      .localeCompare(
+        right.sourceRuleId,
+      )
   );
 }
 

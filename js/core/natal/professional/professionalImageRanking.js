@@ -30,6 +30,241 @@ export const professionalRoleRank = {
   core: 4,
 };
 
+const highOrderContractRuleIds =
+  new Set([
+    "official_resource_support",
+    "wealth_official_resource_trace",
+    "peer_wealth_competition",
+    "resource_heavy_output_weak",
+    "output_wealth_chain",
+    "hurting_officer_resource_balance",
+    "hurting_officer_meets_officer",
+    "wealth_heavy_body_weak",
+    "officer_killing_mixed",
+  ]);
+
+const simpleRelationRuleIds =
+  new Set([
+    "day_pillar_repetition",
+    "spouse_palace_relation_tension",
+    "day_branch_combined",
+  ]);
+
+const basicSignalRuleIds =
+  new Set([
+    "month_command_official",
+    "element_bias_visible",
+    "metal_water_fire_weak",
+  ]);
+
+export function resolveNatalNarrativeTier(
+  image = {},
+) {
+  const ruleId =
+    normalizeRankingText(
+      image.ruleId,
+    );
+
+  if (
+    image.source ===
+      "professional_context" ||
+    ruleId.startsWith(
+      "professional_",
+    ) ||
+    image.workPath
+  ) {
+    return 4;
+  }
+
+  if (
+    highOrderContractRuleIds.has(
+      ruleId,
+    )
+  ) {
+    return 3;
+  }
+
+  if (
+    basicSignalRuleIds.has(
+      ruleId,
+    )
+  ) {
+    return 2;
+  }
+
+  if (
+    simpleRelationRuleIds.has(
+      ruleId,
+    )
+  ) {
+    return 1;
+  }
+
+  return 2;
+}
+
+export function isNatalMasterAnchorCandidate(
+  image = {},
+) {
+  return (
+    resolveNatalNarrativeTier(
+      image,
+    ) >= 3 &&
+    rank(
+      image.status,
+      professionalStatusRank,
+    ) >=
+      professionalStatusRank
+        .conditional
+  );
+}
+
+export function compareNatalMasterNarrativeImages(
+  left,
+  right,
+) {
+  return (
+    resolveNatalNarrativeTier(
+      right,
+    ) -
+      resolveNatalNarrativeTier(
+        left,
+      ) ||
+
+    rank(
+      right.status,
+      professionalStatusRank,
+    ) -
+      rank(
+        left.status,
+        professionalStatusRank,
+      ) ||
+
+    rank(
+      right.confidence,
+      professionalConfidenceRank,
+    ) -
+      rank(
+        left.confidence,
+        professionalConfidenceRank,
+      ) ||
+
+    rank(
+      right.role,
+      professionalRoleRank,
+    ) -
+      rank(
+        left.role,
+        professionalRoleRank,
+      ) ||
+
+    finite(
+      right.priority,
+    ) -
+      finite(
+        left.priority,
+      )
+  );
+}
+
+export function resolveNatalNarrativeCluster(
+  image = {},
+) {
+  const ruleId =
+    normalizeRankingText(
+      image.ruleId,
+    );
+
+  const semanticGroup =
+    normalizeRankingText(
+      image.semanticGroup,
+    );
+
+  const text =
+    `${ruleId}|${semanticGroup}`;
+
+  if (
+    /official_resource|kill_resource|wealth_official_resource|wealth_breaks_resource|month_command_official/.test(
+      text,
+    )
+  ) {
+    return "official_resource_route";
+  }
+
+  if (
+    /food_controls_kill|hurt_officer|output_wealth|resource_output|owl_seizes_food/.test(
+      text,
+    )
+  ) {
+    return "output_conversion_route";
+  }
+
+  if (
+    /resource_peer_dominance|peer_wealth/.test(
+      text,
+    )
+  ) {
+    return "peer_resource_route";
+  }
+
+  if (
+    /spouse|day_pillar_repetition|day_branch_combined/.test(
+      text,
+    )
+  ) {
+    return "relationship_repetition_route";
+  }
+
+  if (
+    /element_bias|metal_water_fire_weak/.test(
+      text,
+    )
+  ) {
+    return "element_climate_route";
+  }
+
+  return (
+    semanticGroup ||
+    ruleId ||
+    normalizeRankingText(
+      image.id,
+    )
+  );
+}
+
+export function resolveNatalNarrativeClusterLabel(
+  cluster,
+) {
+  return {
+    official_resource_route:
+      "官印与财印主线",
+
+    output_conversion_route:
+      "输出与制化主线",
+
+    peer_resource_route:
+      "印比与合作主线",
+
+    relationship_repetition_route:
+      "关系与重复模式",
+
+    element_climate_route:
+      "五行与调候偏性",
+  }[
+    normalizeRankingText(
+      cluster,
+    )
+  ] || "其他结构";
+}
+
+function normalizeRankingText(
+  value,
+) {
+  return String(
+    value ?? "",
+  ).trim();
+}
+
 export function compareNatalProfessionalImages(
   left,
   right,

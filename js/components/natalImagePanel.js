@@ -570,6 +570,10 @@ function renderNatalMasterSummary(
             report.structureSynopsis ??
             null,
 
+          professionalContext:
+            report.professionalContext ??
+            null,
+
           atomicFacts:
             report.atomicFacts,
 

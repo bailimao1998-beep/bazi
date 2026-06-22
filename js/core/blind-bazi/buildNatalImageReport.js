@@ -39,6 +39,10 @@ import {
   buildNatalStructureSynopsis,
 } from "../natal/structure/buildNatalStructureSynopsis.js";
 
+import {
+  buildNatalProfessionalContext,
+} from "../natal/professional/buildNatalProfessionalContext.js";
+
 /**
  * 原局报告第二版总入口。
  *
@@ -76,6 +80,11 @@ export function buildNatalImageReport({
     buildNatalStructureSynopsis(
       featureVector,
     );
+
+  const professionalContext =
+    buildNatalProfessionalContext(
+      featureVector,
+    );
   /*
    * 第二层：
    * 基础事实、高阶规则、去重和冲突。
@@ -96,8 +105,10 @@ export function buildNatalImageReport({
    */
   const composed =
     composeNatalImages({
-      featureVector,
-      atomicFacts,
+        featureVector,
+        structureSynopsis,
+        professionalContext,
+        atomicFacts,
     });
 
   const contractCompositionComparison =
@@ -142,7 +153,9 @@ export function buildNatalImageReport({
 const legacyDomainResult =
   buildFactDrivenDomainReport({
     featureVector,
-    atomicFacts,
+structureSynopsis,
+professionalContext,
+atomicFacts,
 
     contractFacts:
       atomicFacts.facts ?? [],
@@ -186,6 +199,8 @@ const domainResult =
   const legacyMasterSummary =
     buildNatalMasterSummary({
       featureVector,
+      structureSynopsis,
+      professionalContext,
       atomicFacts,
       coreImages:
         composed.coreImages,
@@ -195,6 +210,8 @@ const domainResult =
     buildNatalMasterSummary({
       featureVector,
       structureSynopsis,
+
+      professionalContext,
 
       facts:
         atomicFacts.contractFacts ?? [],
@@ -211,22 +228,32 @@ const domainResult =
 
   const natalAiEvidencePack =
     buildNatalAiEvidencePack({
-      chart: safeChart,
+      chart:
+        safeChart,
+
       featureVector,
+
       structureSynopsis,
 
+      professionalContext,
+
       contractFacts:
-        atomicFacts.contractFacts ?? [],
+        atomicFacts.contractFacts ??
+        [],
 
       compositionImages:
-        contractComposition.images ?? [],
+        contractComposition.images ??
+        [],
 
       hitList:
         productionHitList,
 
       twelveDomains,
+
       masterSummary,
-      scope: "natal",
+
+      scope:
+        "natal",
     });
 
   return {
@@ -250,6 +277,7 @@ const domainResult =
 
     featureVector,
     structureSynopsis,
+    professionalContext,
     atomicFacts,
     domainEvidence,
     twelveDomains,

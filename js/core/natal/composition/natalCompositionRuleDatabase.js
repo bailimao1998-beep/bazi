@@ -109,14 +109,14 @@ export const natalCompositionRules = [
     tags: ["比劫", "财星", "资源", "边界"],
     domains: ["wealth", "friends", "siblings", "self"],
     thresholds: {
-      peerMinWeightedCount: 2,
+      peerMinWeightedCount: 1,
       wealthMinWeightedCount: 0.5,
     },
     brief:
       "比劫与财星均有实际权重，提示资源、合作、分配和边界之间存在互动线索。",
     reasoning: [
-      "比肩或劫财 weightedCount 大于阈值。",
-      "正财或偏财 weightedCount 大于阈值。",
+      "合同口径仅累计比肩与劫财，不包含日主自身；peer weightedCount 达到1，等价于旧口径 groupCounts.peer 达到2。",
+      "正财或偏财 weightedCount 达到0.5，说明财星存在实际落点。",
     ],
   },
   {

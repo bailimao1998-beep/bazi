@@ -1,5 +1,5 @@
 export const NATAL_COMPOSITION_COMPARISON_VERSION =
-  "natal-composition-shadow-compare-v1";
+  "natal-composition-shadow-compare-v2";
 
 const standardFamilyKeys = [
   "official_resource_support",
@@ -302,6 +302,28 @@ export function compareNatalCompositionShadow({
       .filter((group) => group.items.length > 0)
       .length;
   const matchedCount = matched.length;
+  const missingLegacyCount =
+    missingLegacy.length;
+  const contractOnlyCount =
+    contractOnly.length;
+  const legacyCoverageRate = clampRate(
+    comparableLegacyCount > 0
+      ? matchedCount / comparableLegacyCount
+      : 0,
+  );
+  const roleComparableCount =
+    matched.filter((item) =>
+      item.roleAgreement === true ||
+      item.roleAgreement === false,
+    ).length;
+  const roleAgreementCount =
+    matched.filter((item) =>
+      item.roleAgreement === true,
+    ).length;
+  const roleDisagreementCount =
+    matched.filter((item) =>
+      item.roleAgreement === false,
+    ).length;
 
   return {
     version:
@@ -316,14 +338,37 @@ export function compareNatalCompositionShadow({
       : 0,
     comparableLegacyCount,
     matchedCount,
-    missingLegacyCount:
-      missingLegacy.length,
-    contractOnlyCount:
-      contractOnly.length,
+    missingLegacyCount,
+    contractOnlyCount,
 
-    coverageRate: clampCoverageRate(
-      comparableLegacyCount > 0
-        ? matchedCount / comparableLegacyCount
+    coverageRate: legacyCoverageRate,
+    legacyCoverageRate,
+    contractAgreementRate: clampRate(
+      matchedCount + contractOnlyCount > 0
+        ? matchedCount /
+          (matchedCount + contractOnlyCount)
+        : 0,
+    ),
+    bidirectionalAgreementRate: clampRate(
+      matchedCount +
+        missingLegacyCount +
+        contractOnlyCount >
+        0
+        ? matchedCount /
+          (
+            matchedCount +
+            missingLegacyCount +
+            contractOnlyCount
+          )
+        : 0,
+    ),
+    roleComparableCount,
+    roleAgreementCount,
+    roleDisagreementCount,
+    roleAgreementRate: clampRate(
+      roleComparableCount > 0
+        ? roleAgreementCount /
+          roleComparableCount
         : 0,
     ),
 
@@ -671,7 +716,7 @@ function compareUncomparedItems(left, right) {
   );
 }
 
-function clampCoverageRate(value) {
+function clampRate(value) {
   if (!Number.isFinite(value)) {
     return 0;
   }

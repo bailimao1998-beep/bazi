@@ -193,14 +193,24 @@ function evaluateOfficialResourceSupport(
     rule.thresholds ?? {};
 
   if (
-    officer.total <=
+    officer.total <
       numberThreshold(
         thresholds.officerMinWeightedCount,
       ) ||
-    resource.total <=
+    resource.total <
       numberThreshold(
         thresholds.resourceMinWeightedCount,
       )
+  ) {
+    return null;
+  }
+
+  const anchorFacts =
+    findOfficialResourceAnchorFacts(context);
+
+  if (
+    thresholds.requireStructuralAnchor &&
+    anchorFacts.length === 0
   ) {
     return null;
   }
@@ -231,6 +241,7 @@ function evaluateOfficialResourceSupport(
       ...officer.positiveFacts,
       ...resource.positiveFacts,
       ...monthFacts,
+      ...anchorFacts,
     ].map(getFactId),
   });
 }
@@ -248,15 +259,15 @@ function evaluateWealthOfficialResourceTrace(
     rule.thresholds ?? {};
 
   if (
-    wealth.total <=
+    wealth.total <
       numberThreshold(
         thresholds.wealthMinWeightedCount,
       ) ||
-    officer.total <=
+    officer.total <
       numberThreshold(
         thresholds.officerMinWeightedCount,
       ) ||
-    resource.total <=
+    resource.total <
       numberThreshold(
         thresholds.resourceMinWeightedCount,
       )
@@ -359,11 +370,11 @@ function evaluatePeerWealthCompetition(
     rule.thresholds ?? {};
 
   if (
-    peer.total <=
+    peer.total <
       numberThreshold(
         thresholds.peerMinWeightedCount,
       ) ||
-    wealth.total <=
+    wealth.total <
       numberThreshold(
         thresholds.wealthMinWeightedCount,
       )
@@ -408,7 +419,10 @@ function evaluateResourceHeavyOutputWeak(
   if (
     resource.total < resourceMin ||
     output.total > outputWeakMax ||
-    ratio < ratioMin
+    (
+      ratioMin > 0 &&
+      ratio < ratioMin
+    )
   ) {
     return null;
   }
@@ -665,9 +679,59 @@ function buildPillars(facts) {
         fact,
       };
     }
+
+    if (
+      fact.predicate ===
+      "pillar_stem_ten_god"
+    ) {
+      slot.stemTenGod = {
+        value: normalizeText(fact.value),
+        fact,
+      };
+    }
   }
 
   return pillars;
+}
+
+function findOfficialResourceAnchorFacts(context) {
+  const monthStemTenGod =
+    context.pillars.month?.stemTenGod;
+  const monthBranchMainTenGod =
+    context.pillars.month?.branchMainTenGod;
+  const yearStemTenGod =
+    context.pillars.year?.stemTenGod;
+
+  const anchors = [];
+
+  if (
+    tenGodGroups.resource.includes(
+      normalizeText(monthStemTenGod?.value),
+    )
+  ) {
+    anchors.push(monthStemTenGod.fact);
+  }
+
+  if (
+    tenGodGroups.officer.includes(
+      normalizeText(monthBranchMainTenGod?.value),
+    )
+  ) {
+    anchors.push(monthBranchMainTenGod.fact);
+  }
+
+  if (
+    [
+      ...tenGodGroups.officer,
+      ...tenGodGroups.resource,
+    ].includes(
+      normalizeText(yearStemTenGod?.value),
+    )
+  ) {
+    anchors.push(yearStemTenGod.fact);
+  }
+
+  return anchors;
 }
 
 function buildElementFacts(facts) {

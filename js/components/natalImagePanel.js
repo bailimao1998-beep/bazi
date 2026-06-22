@@ -372,52 +372,35 @@ function renderNatalStructureSynopsis(
     return "";
   }
 
-  const keyPoints =
-    compact(
-      synopsis.keyPoints,
-    )
-      .filter(
-        (item) =>
-          !textRoughlySame(
-            item,
-            synopsis.summary,
-          ),
-      )
-      .slice(0, 5);
+  const elementLabelMap = {
+    wood: "木",
+    fire: "火",
+    earth: "土",
+    metal: "金",
+    water: "水",
+  };
 
   const favorableElements =
     compact(
       synopsis.balance
         ?.favorableElements,
-    )
-      .map(
-        (element) =>
-          ({
-            wood: "木",
-            fire: "火",
-            earth: "土",
-            metal: "金",
-            water: "水",
-          })[element] ||
-          element,
-      );
+    ).map(
+      (element) =>
+        elementLabelMap[
+          element
+        ] || element,
+    );
 
   const cautionElements =
     compact(
       synopsis.balance
         ?.cautionElements,
-    )
-      .map(
-        (element) =>
-          ({
-            wood: "木",
-            fire: "火",
-            earth: "土",
-            metal: "金",
-            water: "水",
-          })[element] ||
-          element,
-      );
+    ).map(
+      (element) =>
+        elementLabelMap[
+          element
+        ] || element,
+    );
 
   return `
     <section
@@ -486,50 +469,6 @@ function renderNatalStructureSynopsis(
       }
 
       ${
-        keyPoints.length
-          ? `
-            <div
-              class="natal-master-sections"
-            >
-              ${keyPoints
-                .map(
-                  (
-                    item,
-                    index,
-                  ) => `
-                    <article
-                      class="natal-master-section"
-                    >
-                      <div
-                        class="natal-master-section-head"
-                      >
-                        <i>
-                          ${String(
-                            index + 1,
-                          ).padStart(
-                            2,
-                            "0",
-                          )}
-                        </i>
-
-                        <b>
-                          结构依据
-                        </b>
-                      </div>
-
-                      <p>
-                        ${display(item)}
-                      </p>
-                    </article>
-                  `,
-                )
-                .join("")}
-            </div>
-          `
-          : ""
-      }
-
-      ${
         favorableElements.length ||
         cautionElements.length
           ? `
@@ -543,7 +482,7 @@ function renderNatalStructureSynopsis(
               <p>
                 ${
                   favorableElements.length
-                    ? `优先观察${display(
+                    ? `从原局平衡角度，可优先观察${display(
                         favorableElements.join(
                           "、",
                         ),

@@ -1437,83 +1437,100 @@ function buildContractNatalMasterSummary({
 
   const opening =
     compositionOpening
-      ? joinDistinctSentences([
+      ? prependNarrativeLead(
           "在上述原局基础上",
           compositionOpening,
-        ])
+        )
       : structureOpening;
 
   const characterLine =
     buildDomainNarrativeLine({
       domains,
+
       keys: [
         "self",
         "fortune",
       ],
+
       fields: [
-        "judgement",
         "manifestation",
+        "strength",
+        "pressure",
       ],
-      limit: 2,
-      allowFallback: true,
+
+      limit: 3,
     });
 
   const careerWealthLine =
     buildDomainNarrativeLine({
       domains,
+
       keys: [
         "career",
         "wealth",
       ],
+
       fields: [
-        "judgement",
         "manifestation",
+        "strength",
         "pressure",
       ],
-      limit: 3,
+
+      limit: 4,
     });
 
   const relationshipLine =
     buildDomainNarrativeLine({
       domains,
+
       keys: [
         "spouse",
         "friends",
       ],
+
       fields: [
-        "judgement",
+        "manifestation",
+        "strength",
         "pressure",
       ],
-      limit: 2,
+
+      limit: 3,
     });
 
   const familyLine =
     buildDomainNarrativeLine({
       domains,
+
       keys: [
         "parents",
-        "siblings",
         "children",
+        "siblings",
       ],
+
       fields: [
-        "judgement",
+        "manifestation",
+        "strength",
         "pressure",
       ],
-      limit: 2,
+
+      limit: 3,
     });
 
   const healthLine =
     buildDomainNarrativeLine({
       domains,
+
       keys: [
         "health",
         "fortune",
       ],
+
       fields: [
-        "judgement",
+        "manifestation",
         "pressure",
       ],
-      limit: 2,
+
+      limit: 3,
     });
 
   const strengthRows =
@@ -1615,10 +1632,7 @@ function buildContractNatalMasterSummary({
 
   const conclusion =
     buildProfessionalConclusion({
-      primaryTitle:
-        primaryRow?.name ||
-        primaryImage?.title ||
-        "",
+      structureSynopsis,
 
       strengths,
 
@@ -1628,6 +1642,7 @@ function buildContractNatalMasterSummary({
 
       usedTexts: [
         opening,
+
         ...sections.map(
           (section) =>
             section.text,
@@ -1678,7 +1693,7 @@ function buildContractNatalMasterSummary({
       "contract-master-summary-v1",
 
     narrativeVersion:
-      "professional-master-summary-v2",
+  "professional-master-summary-v3",
 
     narrativeStyle:
       "professional_master",
@@ -1695,7 +1710,7 @@ function buildContractNatalMasterSummary({
       opening,
 
     conclusion,
-    
+
     structureSynopsis,
 
     coreStructure:
@@ -2146,11 +2161,93 @@ function buildProfessionalSections({
   return sections;
 }
 
+function prependNarrativeLead(
+  lead,
+  value,
+) {
+  const normalizedLead =
+    stripTerminalPunctuation(
+      lead,
+    );
+
+  const body =
+    cleanSentence(value)
+      .replace(
+        /^原局/,
+        "",
+      );
+
+  if (!body) {
+    return normalizedLead;
+  }
+
+  return `${normalizedLead}，${body}`;
+}
+
+function buildStructureConclusionSentence(
+  structureSynopsis = {},
+) {
+  const strengthState =
+    structureSynopsis
+      .dayMaster
+      ?.strengthState;
+
+  const dominantGroups =
+    Array.isArray(
+      structureSynopsis
+        .tenGods
+        ?.dominantGroups,
+    )
+      ? structureSynopsis
+          .tenGods
+          .dominantGroups
+      : [];
+
+  const hasResource =
+    dominantGroups.includes(
+      "resource",
+    );
+
+  const hasPeer =
+    dominantGroups.includes(
+      "peer",
+    );
+
+  if (
+    strengthState === "strong" &&
+    hasResource &&
+    hasPeer
+  ) {
+    return "总体看，命主自身承载和内部积累能力较强，属于先学习、先判断、再逐步形成现实成果的类型；真正的发展重点，是把专业经验、责任感和判断能力稳定转化为输出与行动。";
+  }
+
+  if (
+    strengthState === "strong"
+  ) {
+    return "总体看，命主自身力量和承载意识较足，发展上更需要把内部优势落实为稳定输出、现实成果和长期能力。";
+  }
+
+  if (
+    strengthState === "weak"
+  ) {
+    return "总体看，命主更适合先稳住能力、精力和支持系统，再逐步扩大责任与现实目标，不宜长期超出自身承载。";
+  }
+
+  if (
+    strengthState ===
+    "balanced"
+  ) {
+    return "总体看，命局承载与输出相对均衡，发展重点在于保持稳定节奏，并持续把已有优势落实为现实成果。";
+  }
+
+  return "总体看，命局更适合走稳定积累、持续验证和逐步形成现实成果的路线。";
+}
+
 function buildProfessionalConclusion({
-  primaryTitle,
-  strengths,
-  tensions,
-  relationshipLine,
+  structureSynopsis = {},
+  strengths = [],
+  tensions = [],
+  relationshipLine = "",
   usedTexts = [],
 }) {
   const usedSentences =
@@ -2162,13 +2259,14 @@ function buildProfessionalConclusion({
 
   const candidates = [];
 
-  if (primaryTitle) {
-    candidates.push(
-      `总的看，这个命局真正需要把握的，不是反复强调${primaryTitle}本身，而是把这种结构转化为稳定选择、现实成果和长期能力。`,
+  const structureSentence =
+    buildStructureConclusionSentence(
+      structureSynopsis,
     );
-  } else {
+
+  if (structureSentence) {
     candidates.push(
-      "总的看，这个命局更适合走稳定积累、持续验证和逐步形成现实成果的路线。",
+      structureSentence,
     );
   }
 
@@ -2180,7 +2278,7 @@ function buildProfessionalConclusion({
 
     if (strengths[0]) {
       parts.push(
-        `真正可长期依靠的部分是：${stripTerminalPunctuation(
+        `真正能够长期依靠的是${stripTerminalPunctuation(
           strengths[0],
         )}`,
       );
@@ -2188,9 +2286,9 @@ function buildProfessionalConclusion({
 
     if (tensions[0]) {
       parts.push(
-        `需要控制的部分是：${stripTerminalPunctuation(
+        `需要防止${stripTerminalPunctuation(
           tensions[0],
-        )}`,
+        )}演变成反复消耗`,
       );
     }
 
@@ -2201,12 +2299,12 @@ function buildProfessionalConclusion({
 
   if (
     relationshipLine &&
-    /边界|责任|沟通|关系/.test(
+    /边界|责任|沟通|关系|反复/.test(
       relationshipLine,
     )
   ) {
     candidates.push(
-      "关系中把边界、责任和真实需求说清楚，比一味忍让或反复争执更有利。",
+      "关系中减少反复确认和自我较劲，把边界、责任和真实需求说清楚，会比一味坚持自己的尺度更有利。",
     );
   }
 
@@ -2220,7 +2318,7 @@ function buildProfessionalConclusion({
 
   return (
     conclusion ||
-    "总的看，命局中的优势需要落实为稳定能力，结构中的压力则需要通过清楚边界和现实节奏逐步化解。"
+    "总体看，命局中的优势需要逐步落实为稳定能力和现实成果，结构中的压力则需要通过清楚边界、稳定节奏和持续行动逐步化解。"
   );
 }
 

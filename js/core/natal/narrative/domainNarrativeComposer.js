@@ -759,12 +759,11 @@ export function composeDomainNarrative({
 
   const primaryManifestation =
     primary
-      ? qualifyConditionalText(
-          primary.detail
+        ? normalizeText(
+            primary.detail
             .manifestation,
-          primary.image,
         )
-      : "";
+        : "";
 
   const genericManifestation =
     useGenericSemantic
@@ -783,12 +782,11 @@ export function composeDomainNarrative({
 
   const positiveStrength =
     positive
-      ? qualifyConditionalText(
-          positive.detail
+        ? normalizeText(
+            positive.detail
             .strength,
-          positive.image,
         )
-      : "";
+        : "";
 
   const genericStrength =
     useGenericSemantic
@@ -813,12 +811,11 @@ export function composeDomainNarrative({
 
   const domainCaution =
     cautionSource
-      ? qualifyConditionalText(
-          cautionSource.detail
+        ? normalizeText(
+            cautionSource.detail
             .caution,
-          cautionSource.image,
         )
-      : "";
+        : "";
 
   const genericCaution =
     useGenericSemantic
@@ -886,7 +883,16 @@ export function composeDomainNarrative({
       Boolean(
         structureBaseline,
       ),
-
+    isConditionalNarrative:
+    Boolean(
+        primary &&
+        (
+        primary.image.role ===
+            "conditional" ||
+        primary.image.status ===
+            "conditional"
+        ),
+    ),
     hasCompositionNarrative:
       Boolean(primary),
 
@@ -1126,12 +1132,22 @@ function joinNarrativeParts(
       );
 
     const duplicated =
-      result.some(
-        (item) =>
+      result.some((item) => {
+        const existing =
           normalizeComparableText(
             item,
-          ) === comparable,
-      );
+          );
+
+        return (
+          existing === comparable ||
+          existing.includes(
+            comparable,
+          ) ||
+          comparable.includes(
+            existing,
+          )
+        );
+      });
 
     if (!duplicated) {
       result.push(text);

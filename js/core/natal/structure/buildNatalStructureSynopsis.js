@@ -1,5 +1,5 @@
 export const NATAL_STRUCTURE_SYNOPSIS_VERSION =
-  "natal-structure-synopsis-v1";
+  "natal-structure-synopsis-v2";
 
 const pillarKeys = [
   "year",
@@ -119,9 +119,19 @@ export function buildNatalStructureSynopsis(
     );
 
   const strengthState =
-    resolveStrengthState(
-      dayMaster.strengthLevel,
-    );
+    resolveStrengthState({
+        label:
+        dayMaster.strengthLevel,
+
+        score:
+        dayMaster.strengthScore,
+
+        inSeason:
+        dayMaster.inSeason,
+
+        rootLevel:
+        dayMaster.rootLevel,
+    });
 
   const elementCounts =
     normalizeElementCounts(
@@ -253,13 +263,12 @@ export function buildNatalStructureSynopsis(
 
   const keyPoints =
     uniqueText([
-      dayMasterLine,
-      tenGodLine,
-      elementLine,
-      visibilityLine,
-      repetitionLine,
-      climateLine,
-      balance.text,
+        dayMasterLine,
+        tenGodLine,
+        elementLine,
+        visibilityLine,
+        repetitionLine,
+        climateLine,
     ]).filter(Boolean);
 
   const summary =
@@ -1067,116 +1076,286 @@ function buildDomainBaselines({
         ? officer
         : null;
 
+  const dayMasterName =
+    `${normalizeText(
+      dayMaster.stem,
+    )}${normalizeText(
+      dayMaster.element,
+    )}`;
+
   return {
     self:
       joinSentences([
-        `${normalizeText(
-          dayMaster.stem,
-        )}${normalizeText(
-          dayMaster.element,
-        )}日主整体${strengthStateLabel(
-          strengthState,
-        )}`,
+        dayMasterName
+          ? `${dayMasterName}日主整体${strengthStateLabel(
+              strengthState,
+            )}，个人标准、主见和承载意识较明显`
+          : "",
 
-        describeGroupInfluence(
+        groupNarrative(
           resource,
-          "学习、规则和安全感来源",
+          {
+            strong:
+              "印星力量集中，学习吸收、规则意识和内在安全需求较强",
+
+            visible:
+              "印星有明显透出，重视学习、依据、规则和确定性",
+
+            hidden:
+              "印星藏于地支，遇到重要问题时习惯先理解和消化",
+
+            weak:
+              "印星力量不算明显，安全感更多需要从现实经验中建立",
+          },
         ),
 
-        describeGroupInfluence(
+        groupNarrative(
           peer,
-          "自我标准、主见和同辈互动",
+          {
+            strong:
+              "比劫力量集中，自我标准较强，也容易在同辈关系中出现比较和竞争",
+
+            visible:
+              "比劫有明显透出，主见、边界感和同辈意识较强",
+
+            hidden:
+              "比劫主要藏于地支，外表未必强势，但内在有自己的尺度",
+
+            weak:
+              "比劫力量偏弱，个人主见和竞争意识通常不会过度外显",
+          },
         ),
 
         repetitionLine,
       ]),
 
     parents:
-      describeGroupInfluence(
+      groupNarrative(
         resource,
-        "家庭教育、长辈经验和早年规则",
+        {
+          strong:
+            "印星力量集中，家庭教育、长辈经验和早年规则对命主影响较深，获得支持的同时也容易承受期待",
+
+          visible:
+            "印星有明显透出，家庭教育、长辈意见和规则要求对个人选择影响较深",
+
+          hidden:
+            "印星主要藏于地支，长辈影响往往通过生活经验、实际照顾或潜在观念体现",
+
+          weak:
+            "印星力量偏弱，父母家庭方面不宜只凭印星作过多判断",
+        },
       ),
 
     siblings:
-      describeGroupInfluence(
+      groupNarrative(
         peer,
-        "兄弟同辈、合作竞争和资源边界",
+        {
+          strong:
+            "比劫力量集中，兄弟同辈之间容易同时出现合作、比较、竞争和资源边界问题",
+
+          visible:
+            "比劫有明显透出，同辈互动、合作分工和彼此比较较为明显",
+
+          hidden:
+            "比劫主要藏于地支，同辈关系表面未必激烈，但利益和距离仍会影响相处",
+
+          weak:
+            "比劫力量偏弱，兄弟同辈方面缺少足够强的原局主象",
+        },
       ),
 
     spouse:
       spouseGroup
-        ? describeGroupInfluence(
+        ? groupNarrative(
             spouseGroup,
-            "配偶星与亲密关系中的现实承接",
+            {
+              strong:
+                "配偶星力量较集中，感情和现实责任容易成为人生中的重要议题",
+
+              visible:
+                "配偶星有明显透出，感情态度和择偶标准较容易直接表现",
+
+              hidden:
+                "配偶星主要藏于地支，感情表达和现实投入通常偏谨慎，往往需要经过观察确认后才容易稳定投入",
+
+              weak:
+                "配偶星力量偏弱或不显，感情发展通常不宜操之过急，需要结合夫妻宫和现实关系进一步判断",
+            },
           )
-        : "配偶星需要结合性别映射，当前只观察夫妻宫和关系结构。",
+        : "配偶星需要结合性别映射，目前主要观察夫妻宫、关系结构和现实互动。",
 
     children:
-      describeGroupInfluence(
+      groupNarrative(
         output,
-        "子女、作品、表达和成果输出",
+        {
+          strong:
+            "食伤力量集中，子女、作品、表达和项目成果是较明显的人生出口",
+
+          visible:
+            "食伤有明显透出，表达、创作和成果展示较容易直接体现",
+
+          hidden:
+            "食伤主要藏于地支，表达和成果并非没有出口，但通常需要环境推动和持续训练",
+
+          weak:
+            "食伤力量偏弱，容易出现准备较多、表达偏慢或成果显化不足的情况",
+        },
       ),
 
     wealth:
-      describeGroupInfluence(
+      groupNarrative(
         wealth,
-        "财富机会、资源取得和变现方式",
+        {
+          strong:
+            "财星力量集中，现实资源、收益和财富安排在命局中较为重要",
+
+          visible:
+            "财星有明显透出，对收益、资源和现实结果的关注较直接",
+
+          hidden:
+            "财星主要藏于地支，财富机会并非没有，但更依赖长期积累、现实条件和稳定承接",
+
+          weak:
+            "财星力量偏弱或不显，财富更适合依靠专业能力、长期积累和清楚的资源边界取得",
+        },
       ),
 
     health:
       joinSentences([
-        elementLine,
-        climateLine,
+        elementLine
+          ? `${elementLine}，身体状态更容易受到作息、压力和生活环境影响`
+          : "",
+
+        climateLine
+          ? `${climateLine}，需要重视寒暖燥湿和长期恢复节奏`
+          : "",
       ]),
 
     movement:
       "",
 
     friends:
-      describeGroupInfluence(
+      groupNarrative(
         peer,
-        "朋友合作、圈层竞争和资源往来",
+        {
+          strong:
+            "比劫力量集中，朋友合作、圈层竞争和资源往来对现实发展影响较明显",
+
+          visible:
+            "比劫有明显透出，人际合作中重视平等、边界和彼此投入",
+
+          hidden:
+            "比劫主要藏于地支，人际关系表面平和，但利益和资源问题仍会影响距离",
+
+          weak:
+            "比劫力量偏弱，交友人脉方面缺少特别集中的原局主象",
+        },
       ),
 
     career:
       joinSentences([
-        describeGroupInfluence(
+        groupNarrative(
           officer,
-          "岗位责任、规则压力和社会角色",
+          {
+            strong:
+              "官杀力量集中，岗位责任、规则压力和社会角色是事业发展的重要主轴",
+
+            visible:
+              "官杀有明显透出，容易直接面对岗位要求、责任和评价体系",
+
+            hidden:
+              "官杀主要藏于地支，事业责任和社会位置需要通过现实经历逐步显现",
+
+            weak:
+              "官杀力量偏弱或不显，职业发展更需要依靠专业积累、实际成果和后天平台建立位置",
+          },
         ),
 
-        describeGroupInfluence(
+        groupNarrative(
           output,
-          "职业成果、表达和实际交付",
+          {
+            strong:
+              "食伤力量集中，职业成果、表达和交付能力较容易形成现实价值",
+
+            visible:
+              "食伤有明显透出，职业中的表达、展示和成果输出较直接",
+
+            hidden:
+              "食伤藏于地支但仍有出口，职业成果需要持续训练和现实推动",
+
+            weak:
+              "食伤力量偏弱，事业上容易学习准备较多，而成果表达、展示和及时交付偏慢",
+          },
         ),
       ]),
 
     property:
       elementCounts.earth > 0
-        ? `土元素计数为${round(
-            elementCounts.earth,
-          )}，田宅资产只观察资源沉淀和居住承载倾向，不直接判断具体房产结果。`
-        : "田宅资产缺少直接高阶信号，不宜只凭原局判断具体房产结果。",
+        ? "田宅资产方面主要观察资源沉淀、稳定承载和居住安排，不直接据此判断具体房产结果。"
+        : "田宅资产方面缺少足够直接的高阶信号，不宜只凭原局判断具体房产结果。",
 
     fortune:
       joinSentences([
-        describeGroupInfluence(
+        groupNarrative(
           resource,
-          "内在安全感、学习吸收和精神依托",
+          {
+            strong:
+              "印星力量集中，内在安全感较依赖学习、理解、规则和可控感",
+
+            visible:
+              "印星有明显透出，习惯通过学习、理解和掌握方法稳定内心",
+
+            hidden:
+              "印星主要藏于地支，很多想法会先在内部消化，不一定马上表达",
+
+            weak:
+              "印星力量偏弱，精神安全感更需要从现实经验和外部支持中建立",
+          },
         ),
 
-        describeGroupInfluence(
+        groupNarrative(
           output,
-          "情绪表达、思想出口和现实释放",
+          {
+            strong:
+              "食伤力量集中，情绪、思想和表达具有较顺畅的现实出口",
+
+            visible:
+              "食伤有明显透出，思想和情绪较容易通过表达、创作或行动释放",
+
+            hidden:
+              "食伤藏于地支但仍有出口，表达通常需要合适环境和现实推动",
+
+            weak:
+              "食伤力量偏弱，容易想得多、表达得少，内部消化时间偏长",
+          },
         ),
 
-        climateLine,
+        climateLine
+          ? `${climateLine}，环境和生活节奏会明显影响精神状态`
+          : "",
 
         balance.text,
       ]),
   };
 }
 
+function groupNarrative(
+  profile,
+  phrases = {},
+) {
+  if (!profile) {
+    return "";
+  }
+
+  return normalizeText(
+    phrases[
+      profile.status
+    ] ||
+    phrases.default ||
+    "",
+  );
+}
 function describeGroupInfluence(
   profile,
   topic,
@@ -1324,20 +1503,27 @@ function buildRelativeElementMap(
   };
 }
 
-function resolveStrengthState(
-  value,
-) {
+function resolveStrengthState({
+  label,
+  score,
+  inSeason,
+  rootLevel,
+} = {}) {
   const text =
-    normalizeText(value);
+    normalizeText(label);
 
   if (
-    /弱/.test(text)
+    /从弱|极弱|身弱|偏弱|弱/.test(
+      text,
+    )
   ) {
     return "weak";
   }
 
   if (
-    /旺|强/.test(text)
+    /从强|极旺|身旺|偏旺|偏强|旺|强/.test(
+      text,
+    )
   ) {
     return "strong";
   }
@@ -1348,6 +1534,42 @@ function resolveStrengthState(
     )
   ) {
     return "balanced";
+  }
+
+  const numericScore =
+    finiteOrNull(score);
+
+  if (numericScore !== null) {
+    if (numericScore >= 60) {
+      return "strong";
+    }
+
+    if (numericScore <= 40) {
+      return "weak";
+    }
+
+    return "balanced";
+  }
+
+  const normalizedRoot =
+    normalizeText(rootLevel);
+
+  if (
+    Boolean(inSeason) &&
+    /强|旺|深|有力/.test(
+      normalizedRoot,
+    )
+  ) {
+    return "strong";
+  }
+
+  if (
+    !Boolean(inSeason) &&
+    /弱|浅|无根|不显/.test(
+      normalizedRoot,
+    )
+  ) {
+    return "weak";
   }
 
   return "unknown";

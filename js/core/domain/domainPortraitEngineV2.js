@@ -258,63 +258,140 @@ function buildDomainPortrait({
   structureSynopsis = {},
   scope,
 }) {
-  const images = selected.images;
-  const facts = selected.facts;
-  const primaryImage = images[0] ?? null;
+  const images =
+    selected.images;
+
+  const facts =
+    selected.facts;
+
+  const primaryImage =
+    images[0] ?? null;
+
   const tensionImage =
-    images.find((image) =>
-      image.role === "tension",
+    images.find(
+      (image) =>
+        image.role ===
+          "tension",
     ) ?? null;
-  const supportImage =
-    images.find((image) =>
-      image.role === "support" ||
-      image.role === "core",
-    ) ?? null;
-  const primaryFact = facts[0] ?? null;
-  const evidenceFactIds = uniqueSortedStrings([
-    ...facts.map((fact) => fact.id),
-    ...images.flatMap((image) =>
-      image.matchedFactIds ?? [],
-    ),
-  ]);
+
+  const primaryFact =
+    facts[0] ?? null;
+
+  const evidenceFactIds =
+    uniqueSortedStrings([
+      ...facts.map(
+        (fact) =>
+          fact.id,
+      ),
+
+      ...images.flatMap(
+        (image) =>
+          image.matchedFactIds ??
+          [],
+      ),
+    ]);
+
   const compositionImageIds =
     uniqueSortedStrings(
-      images.map((image) => image.id),
+      images.map(
+        (image) =>
+          image.id,
+      ),
     );
+
   const compositionRuleIds =
     uniqueSortedStrings(
-      images.map((image) => image.ruleId),
+      images.map(
+        (image) =>
+          image.ruleId,
+      ),
     );
-  const warnings = []; 
+
+  const warnings = [];
+
   const narrative =
-  composeDomainNarrative({
-    domainKey:
-      rule.key,
+    composeDomainNarrative({
+      domainKey:
+        rule.key,
 
-    images,
+      images,
 
-    facts,
+      facts,
 
-    structureSynopsis,
-  });
-  warnings.push( ...( Array.isArray( narrative.warnings, ) ? narrative.warnings : [] ), ); const title = rule.label; const summary = narrative.overview || rule.weakEvidenceText; const judgement = narrative.overview || rule.defaultJudgement; const manifestation = narrative.manifestation || ""; const strength = narrative.strength || ""; const pressure = narrative.caution || ( tensionImage ? cleanSentence( tensionImage.brief, ) : supportImage && supportImage.status === "conditional" ? `${cleanSentence( supportImage.brief, )}，成立轻重仍需现实反馈。` : facts[1] ? "该维度还有辅助事实参与，轻重取决于其他结构。" : rule.weakEvidenceText );
-  const keywords = uniqueSortedStrings([
-    ...images.flatMap((image) =>
-      image.tags ?? [],
+      structureSynopsis,
+    });
+
+  warnings.push(
+    ...(
+      Array.isArray(
+        narrative.warnings,
+      )
+        ? narrative.warnings
+        : []
     ),
-    ...facts.flatMap((fact) =>
-      fact.tags ?? [],
-    ),
-    ...rule.primarySignals,
-  ]).slice(0, 6);
+  );
+
+  const title =
+    rule.label;
+
+  const summary =
+    narrative.overview ||
+    rule.weakEvidenceText;
+
+  const judgement =
+    narrative.overview ||
+    rule.defaultJudgement;
+
+  const manifestation =
+    narrative.manifestation ||
+    "";
+
+  const strength =
+    narrative.strength ||
+    "";
+
+  const pressure =
+    narrative.caution ||
+    (
+      tensionImage
+        ? cleanSentence(
+            tensionImage.brief,
+          )
+        : ""
+    );
+
+  const keywords =
+    uniqueSortedStrings([
+      ...images.flatMap(
+        (image) =>
+          image.tags ?? [],
+      ),
+
+      ...facts.flatMap(
+        (fact) =>
+          fact.tags ?? [],
+      ),
+
+      ...rule.primarySignals,
+    ]).slice(0, 6);
+
   const confidence =
-    calculateDomainConfidence(images, facts);
-  const evidence = uniqueSortedStrings([
-    ...images.map((image) =>
-      image.brief,
-    ),
-    ...facts.map(factLabel),
-  ]).slice(0, 10);
+    calculateDomainConfidence(
+      images,
+      facts,
+    );
+
+  const evidence =
+    uniqueSortedStrings([
+      ...images.map(
+        (image) =>
+          image.brief,
+      ),
+
+      ...facts.map(
+        factLabel,
+      ),
+    ]).slice(0, 10);
 
   if (
     !evidenceFactIds.length &&
@@ -325,20 +402,66 @@ function buildDomainPortrait({
     );
   }
 
-  return { key: rule.key, label: rule.label, title, narrativeVersion: DOMAIN_NARRATIVE_COMPOSER_VERSION, 
+  return {
+    key:
+      rule.key,
+
+    label:
+      rule.label,
+
+    title,
+
+    narrativeVersion:
+      DOMAIN_NARRATIVE_COMPOSER_VERSION,
+
     structureBasis:
+      narrative
+        .structureBaseline ||
       normalizeText(
         structureSynopsis
           .domainBaselines
           ?.[rule.key],
       ),
-    summary, judgement, manifestation, strength, pressure, hasCompositionNarrative: narrative .hasCompositionNarrative, narrativeSourceRuleIds: narrative.sourceRuleIds, narrativeSourceImageIds: narrative.sourceImageIds,
+
+    summary,
+
+    judgement,
+
+    manifestation,
+
+    strength,
+
+    pressure,
+
+    isConditionalNarrative:
+      Boolean(
+        narrative
+          .isConditionalNarrative,
+      ),
+
+    hasCompositionNarrative:
+      narrative
+        .hasCompositionNarrative,
+
+    narrativeSourceRuleIds:
+      narrative.sourceRuleIds,
+
+    narrativeSourceImageIds:
+      narrative.sourceImageIds,
+
     keywords,
-    tags: keywords,
+
+    tags:
+      keywords,
+
     evidence,
+
     evidenceFactIds,
+
     compositionImageIds,
+
     compositionRuleIds,
+
     primaryFact:
       primaryImage
         ? compactImageReference(
@@ -349,40 +472,68 @@ function buildDomainPortrait({
               primaryFact,
             )
           : null,
+
     secondaryFacts: [
-      ...images.slice(1, 3).map(
-        compactImageReference,
-      ),
-      ...facts.slice(1, 3).map(
-        compactFactReference,
-      ),
+      ...images
+        .slice(1, 3)
+        .map(
+          compactImageReference,
+        ),
+
+      ...facts
+        .slice(1, 3)
+        .map(
+          compactFactReference,
+        ),
     ],
-    tensionFact: tensionImage
-      ? compactImageReference(
-          tensionImage,
-        )
-      : null,
-    matchedFactIds: evidenceFactIds,
+
+    tensionFact:
+      tensionImage
+        ? compactImageReference(
+            tensionImage,
+          )
+        : null,
+
+    matchedFactIds:
+      evidenceFactIds,
+
     matchedCombinations:
-      images.map((image) => ({
-        id: image.id,
-        ruleId: image.ruleId,
-        label: image.title,
-        manifestation: image.brief,
-        keywords: image.tags ?? [],
-      })),
+      images.map(
+        (image) => ({
+          id:
+            image.id,
+
+          ruleId:
+            image.ruleId,
+
+          label:
+            image.title,
+
+          manifestation:
+            image.brief,
+
+          keywords:
+            image.tags ?? [],
+        }),
+      ),
+
     condition:
       uniqueSortedStrings(
-        images.flatMap((image) =>
-          image.reasoning ?? [],
+        images.flatMap(
+          (image) =>
+            image.reasoning ?? [],
         ),
       ).slice(0, 8),
+
     bookExplanation:
       rule.defaultJudgement,
+
     counterEvidence:
       uniqueSortedStrings(
-        images.flatMap((image) =>
-          image.counterFactIds ?? [],
+        images.flatMap(
+          (image) =>
+            image.counterFactIds ??
+            [],
         ),
       ).length
         ? [
@@ -391,21 +542,29 @@ function buildDomainPortrait({
         : [
             "本维度只作出生原局画像，具体事件仍需结合现实背景和时间层证据。",
           ],
+
     confidence,
+
     score:
       confidence === "high"
         ? 82
         : confidence === "medium"
           ? 62
           : 32,
+
     evidenceLevel:
       confidence === "high"
         ? "strong"
         : confidence === "medium"
           ? "medium"
           : "weak",
+
     scope,
-    warnings: uniqueSortedStrings(warnings),
+
+    warnings:
+      uniqueSortedStrings(
+        warnings,
+      ),
   };
 }
 

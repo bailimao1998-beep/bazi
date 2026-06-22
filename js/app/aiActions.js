@@ -127,9 +127,13 @@ function validateNatalAiResult({
   const parsed = parseJsonObject(text);
 
   if (!parsed) {
+    warnings.push(
+      "ai_result_not_structured_json",
+    );
+
     return {
       structured: null,
-      warnings,
+      warnings: uniqueText(warnings),
     };
   }
 
@@ -169,7 +173,8 @@ function validateNatalAiResult({
 }
 
 function parseJsonObject(text) {
-  const raw = String(text ?? "").trim();
+  const raw =
+    unwrapJsonCodeFence(text);
 
   if (!raw.startsWith("{")) {
     return null;
@@ -177,14 +182,31 @@ function parseJsonObject(text) {
 
   try {
     const parsed = JSON.parse(raw);
-    return parsed &&
+
+    return (
+      parsed &&
       typeof parsed === "object" &&
       !Array.isArray(parsed)
+    )
       ? parsed
       : null;
   } catch {
     return null;
   }
+}
+
+function unwrapJsonCodeFence(text) {
+  const raw =
+    String(text ?? "").trim();
+
+  const match =
+    /^```(?:json)?\s*([\s\S]*?)\s*```$/i.exec(
+      raw,
+    );
+
+  return match
+    ? match[1].trim()
+    : raw;
 }
 
 function uniqueText(items) {

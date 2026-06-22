@@ -250,6 +250,10 @@ runCase(
 
             confidence:
               "high",
+
+            domains: [
+              "wealth",
+            ],
           }),
         ],
       });

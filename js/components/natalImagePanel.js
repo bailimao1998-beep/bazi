@@ -1102,16 +1102,6 @@ function renderNatalHitListSection(
   const hitList =
     options.hitList ??
     buildNatalHitList(report);
-  const allRows =
-  Array.isArray(
-    hitList.all,
-  )
-    ? hitList.all
-    : [];
-
-  const hitList =
-    options.hitList ??
-    buildNatalHitList(report);
 
   const showEvidence =
     options.showEvidence !== false;
@@ -1133,28 +1123,112 @@ function renderNatalHitListSection(
             : allRows
         );
 
+  const selectedIds =
+    new Set(
+      rows.map(
+        (row) =>
+          row.id,
+      ),
+    );
+
+  const remainingRows =
+    allRows.filter(
+      (row) =>
+        !selectedIds.has(
+          row.id,
+        ),
+    );
+
+  const title =
+    options.title ||
+    "取象索引";
+
   return `
     <section class="natal-hit-index">
       <div class="board-title">
-        <h3>${display(title)}</h3>
+        <h3>
+          ${display(title)}
+        </h3>
+
         <span>
-        主要 ${safe(rows.length)} 个
-        ${
-          allRows.length !==
-          rows.length
-            ? ` · 完整命中 ${safe(
-                allRows.length,
-              )} 个`
-            : ""
-        }
-      </span>
+          主要 ${safe(rows.length)} 个
+          ${
+            allRows.length !==
+            rows.length
+              ? ` · 完整命中 ${safe(
+                  allRows.length,
+                )} 个`
+              : ""
+          }
+        </span>
       </div>
+
+      <p class="natal-hit-intro">
+        系统从四柱、十神、藏干、五行、关系和结构中提取到的主要取象。
+      </p>
+
+      ${
+        !rows.length
+          ? `
+            <p class="muted">
+              当前原局未形成可列出的明显取象。
+            </p>
+          `
+          : ""
+      }
+
+      ${
+        rows.length
+          ? (
+              showEvidence
+                ? `
+                  <details
+                    class="natal-hit-details"
+                  >
+                    <summary>
+                      展开全部取象依据
+                    </summary>
+
+                    <div
+                      class="natal-hit-compact-list"
+                    >
+                      ${rows
+                        .map(
+                          (row) =>
+                            renderNatalHitCard(
+                              row,
+                              true,
+                            ),
+                        )
+                        .join("")}
+                    </div>
+                  </details>
+                `
+                : `
+                  <div
+                    class="natal-hit-compact-list"
+                  >
+                    ${rows
+                      .map(
+                        (row) =>
+                          renderNatalHitCard(
+                            row,
+                            false,
+                          ),
+                      )
+                      .join("")}
+                  </div>
+                `
+            )
+          : ""
+      }
+
       ${
         !showEvidence &&
         remainingRows.length
           ? `
             <details
-              class="natal-hit-details"
+              class="natal-hit-details natal-hit-secondary-details"
             >
               <summary>
                 展开其余
@@ -1181,42 +1255,6 @@ function renderNatalHitListSection(
           `
           : ""
       }
-      <p class="natal-hit-intro">系统从四柱、十神、藏干、五行、关系和结构中提取到的主要取象。</p>
-      ${
-        !rows.length
-          ? `
-            <p class="muted">
-              当前原局未形成可列出的明显取象。
-            </p>
-          `
-          : ""
-      }
-      ${rows.length ? (
-        showEvidence
-          ? `
-            <details class="natal-hit-details">
-              <summary>展开全部取象依据</summary>
-              <div class="natal-hit-compact-list">
-                ${rows.map((row) =>
-                  renderNatalHitCard(
-                    row,
-                    showEvidence,
-                  ),
-                ).join("")}
-              </div>
-            </details>
-          `
-          : `
-            <div class="natal-hit-compact-list">
-              ${rows.map((row) =>
-                renderNatalHitCard(
-                  row,
-                  showEvidence,
-                ),
-              ).join("")}
-            </div>
-          `
-      ) : ""}
     </section>
   `;
 }

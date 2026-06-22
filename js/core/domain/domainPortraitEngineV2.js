@@ -1,6 +1,7 @@
 import {
   domainRules,
 } from "./domainRuleDatabase.js";
+import { DOMAIN_NARRATIVE_COMPOSER_VERSION, composeDomainNarrative, } from "../natal/narrative/domainNarrativeComposer.js";
 
 export const CONTRACT_DOMAIN_ENGINE_VERSION =
   "contract-domain-v1";
@@ -275,52 +276,7 @@ function buildDomainPortrait({
     uniqueSortedStrings(
       images.map((image) => image.ruleId),
     );
-  const warnings = [];
-  const primaryImageBrief =
-    primaryImage
-      ? cleanFrontText(
-          primaryImage.brief,
-        )
-      : "";
-  const title = rule.label;
-  const summary = primaryImage
-    ? primaryImageBrief
-    : primaryFact
-      ? buildDomainJudgement(
-          rule,
-          `${rule.label}已有基础事实落点，组合强度不突出`,
-        )
-      : rule.weakEvidenceText;
-  const judgement = primaryImage
-    ? buildDomainJudgement(
-        rule,
-        primaryImageBrief,
-      )
-    : primaryFact
-      ? buildDomainJudgement(
-          rule,
-          `${rule.label}目前以基础证据为主，轻重取决于组合象、柱位和现实反馈`,
-        )
-      : rule.defaultJudgement;
-  const manifestation = primaryImage
-    ? buildManifestation(
-        rule,
-        primaryImageBrief,
-      )
-    : primaryFact
-      ? buildManifestation(
-          rule,
-          `${rule.label}现实表现落在基础事实对应位置`,
-        )
-      : buildWeakManifestation(rule);
-  const pressure = tensionImage
-    ? cleanSentence(tensionImage.brief)
-    : supportImage &&
-        supportImage.status === "conditional"
-      ? `${cleanSentence(supportImage.brief)}，成立轻重仍需现实反馈。`
-      : facts[1]
-        ? "该维度还有辅助事实参与，轻重取决于其他结构。"
-        : rule.weakEvidenceText;
+  const warnings = []; const narrative = composeDomainNarrative({ domainKey: rule.key, images, facts, }); warnings.push( ...( Array.isArray( narrative.warnings, ) ? narrative.warnings : [] ), ); const title = rule.label; const summary = narrative.overview || rule.weakEvidenceText; const judgement = narrative.overview || rule.defaultJudgement; const manifestation = narrative.manifestation || ""; const strength = narrative.strength || ""; const pressure = narrative.caution || ( tensionImage ? cleanSentence( tensionImage.brief, ) : supportImage && supportImage.status === "conditional" ? `${cleanSentence( supportImage.brief, )}，成立轻重仍需现实反馈。` : facts[1] ? "该维度还有辅助事实参与，轻重取决于其他结构。" : rule.weakEvidenceText );
   const keywords = uniqueSortedStrings([
     ...images.flatMap((image) =>
       image.tags ?? [],
@@ -348,14 +304,7 @@ function buildDomainPortrait({
     );
   }
 
-  return {
-    key: rule.key,
-    label: rule.label,
-    title,
-    summary,
-    judgement,
-    manifestation,
-    pressure,
+  return { key: rule.key, label: rule.label, title, narrativeVersion: DOMAIN_NARRATIVE_COMPOSER_VERSION, summary, judgement, manifestation, strength, pressure, hasCompositionNarrative: narrative .hasCompositionNarrative, narrativeSourceRuleIds: narrative.sourceRuleIds, narrativeSourceImageIds: narrative.sourceImageIds,
     keywords,
     tags: keywords,
     evidence,

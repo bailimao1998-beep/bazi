@@ -52,7 +52,7 @@ test("natal feature vector separates ten-god layers and avoids element double co
   assert.equal(vector.elements.counts.fire, 0);
 });
 
-test("natal hit list uses contract composition rows and keeps legacy rows for debug", () => {
+test("natal hit list uses merged composition rows and keeps legacy rows for debug", () => {
   const { chart, report } = buildReport({
     birthDate: "1949-10-01",
     birthTime: "00:30",
@@ -66,10 +66,10 @@ test("natal hit list uses contract composition rows and keeps legacy rows for de
 
   assert.ok(Array.isArray(report.hitList.all));
   assert.equal(report.hitList.scope, "natal");
-  assert.equal(report.natalDebug.displayedHitListSource, "contract");
+  assert.equal(report.natalDebug.displayedHitListSource, "merged");
   assert.equal(
     report.hitList.all.length,
-    report.natalDebug.contractComposition.images.length,
+    report.natalDebug.mergedComposition.images.length,
   );
   assert.ok(report.hitList.all.length > 0);
   assert.ok(report.natalDebug.legacyHitList.all.length > report.hitList.all.length);
@@ -93,10 +93,10 @@ test("natal hit list uses contract composition rows and keeps legacy rows for de
 
   const names = report.hitList.all.map((item) => item.name);
   for (const expected of [
-    "官印承接",
+    "官印承接结构链候选",
     "月令正官",
     "日柱参与伏吟",
-    "日支关系牵动",
+    "夫妻宫见月支酉与日支子相破",
     "日支逢合",
     "金水偏重、火气不足线索",
   ]) {
@@ -109,7 +109,10 @@ test("natal hit list uses contract composition rows and keeps legacy rows for de
     assert.ok(Array.isArray(item.evidence));
     assert.ok(Array.isArray(item.relatedFactIds));
     assert.equal(item.scope, "natal");
-    assert.equal(item.source, "新版组合取象规则");
+    assert.match(
+      item.source,
+      /^(新版组合取象规则|V2专业组合判断)$/,
+    );
     assert.ok(item.evidence.every((entry) => typeof entry === "string" && entry));
     assert.doesNotMatch(JSON.stringify(item), forbiddenTransitPattern);
   }

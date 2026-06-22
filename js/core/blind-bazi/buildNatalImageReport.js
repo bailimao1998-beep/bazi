@@ -110,6 +110,10 @@ export function buildNatalImageReport({
     buildNatalProfessionalPatterns({
       structureSynopsis,
       professionalContext,
+
+      workChains:
+        featureVector.workChains ??
+        {},
     });
 
   const mergedComposition =
@@ -419,7 +423,7 @@ const domainResult =
 
       displayedHitListSource:
         hasValidContractHitList
-          ? "contract"
+          ? "merged"
           : "legacy",
 
       displayedDomainSource:

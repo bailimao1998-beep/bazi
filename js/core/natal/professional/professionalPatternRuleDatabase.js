@@ -1,6 +1,97 @@
 export const NATAL_PROFESSIONAL_PATTERN_RULE_VERSION =
   "natal-professional-pattern-rule-v1";
 
+const professionalRuleSchool = [
+  "blind_school",
+  "project_structured_v2",
+];
+
+const professionalSourceRefs = {
+  yangHostGuest: {
+    sourceId:
+      "yang_qingjuan_advanced",
+
+    title:
+      "杨清娟盲派八字高级班笔记",
+
+    locator:
+      "第六章 宾主理论及宫位，第44页起",
+
+    principle:
+      "年月宾位、日时主位及宫位观察框架",
+  },
+
+  yangWorkForms: {
+    sourceId:
+      "yang_qingjuan_advanced",
+
+    title:
+      "杨清娟盲派八字高级班笔记",
+
+    locator:
+      "第七章 八字制用的表现形式，第50—60页",
+
+    principle:
+      "制用、化用、生用、泄用、合用、墓用及复合结构",
+  },
+
+  cuiMethodOrder: {
+    sourceId:
+      "cui_wenju_notes_5000",
+
+    title:
+      "崔文举盲派八字笔记",
+
+    locator:
+      "看命顺序",
+
+    principle:
+      "区分财官归属，并观察体通过合、生、克等关系取得财官",
+  },
+
+  cuiOfficialResource: {
+    sourceId:
+      "cui_wenju_notes_5000",
+
+    title:
+      "崔文举盲派八字笔记",
+
+    locator:
+      "官印相生1",
+
+    principle:
+      "官生印、印生身及财坏印、食伤扰官等破坏条件",
+  },
+
+  cuiOutputWealth: {
+    sourceId:
+      "cui_wenju_notes_5000",
+
+    title:
+      "崔文举盲派八字笔记",
+
+    locator:
+      "发财命、老板命",
+
+    principle:
+      "食伤生财需结合日主承载、印星干扰和财富量判断",
+  },
+
+  cuiBalance: {
+    sourceId:
+      "cui_wenju_notes_5000",
+
+    title:
+      "崔文举盲派八字笔记",
+
+    locator:
+      "用忌神与通关",
+
+    principle:
+      "印多、比劫多、食伤多等结构需结合泄化、制约和通关判断",
+  },
+};
+
 export const natalProfessionalPatternRules = [
   {
     id: "professional_resource_peer_dominance",
@@ -11,6 +102,24 @@ export const natalProfessionalPatternRules = [
     importance: "high",
     baseConfidence: "high",
     priority: 96,
+
+    school:
+      professionalRuleSchool,
+
+    sourceRefs: [
+      professionalSourceRefs
+        .cuiBalance,
+      professionalSourceRefs
+        .yangWorkForms,
+    ],
+
+    masterNarrative: {
+      lifePattern:
+        "人生发展更偏向先吸收、先建立判断体系，再把专业经验和责任能力逐步转化为现实位置。",
+
+      conclusion:
+        "真正的发展关键不在继续增加内部准备，而在于建立稳定输出、持续行动和可验证成果。",
+    },
 
     domains: [
       "self",
@@ -48,7 +157,7 @@ export const natalProfessionalPatternRules = [
       ],
 
       boundary:
-        "印比成势不等同于必然富贵，最终层次仍取决于是否形成有效输出、制化和现实做功。",
+        "印比成势不等同于富贵结论，最终层次仍取决于是否形成有效输出、制化和现实做功。",
     },
 
     domainNarratives: {
@@ -134,6 +243,25 @@ export const natalProfessionalPatternRules = [
     baseConfidence: "medium",
     priority: 88,
 
+    school:
+      professionalRuleSchool,
+
+    replacementPolicy:
+      "authoritative_refinement",
+
+    sourceRefs: [
+      professionalSourceRefs
+        .cuiBalance,
+    ],
+
+    masterNarrative: {
+      lifePattern:
+        "人生优势来自学习、理解和体系化积累，但能否打开局面，取决于是否能把内部能力持续转化为表达、作品和现实交付。",
+
+      conclusion:
+        "减少过度准备和反复修改，建立固定输出节奏，比继续增加知识储备更重要。",
+    },
+
     replacesRuleIds: [
       "resource_heavy_output_weak",
     ],
@@ -173,7 +301,7 @@ export const natalProfessionalPatternRules = [
       ],
 
       boundary:
-        "若食伤在主位有根或得到岁运扶持，输出不足可以明显改善，因此不能直接判断终身表达能力差。",
+        "若食伤在主位有根或得到后续阶段扶持，输出不足可以明显改善，因此不能直接判断终身表达能力差。",
     },
 
     domainNarratives: {
@@ -244,6 +372,27 @@ export const natalProfessionalPatternRules = [
     importance: "high",
     baseConfidence: "medium",
     priority: 86,
+
+    school:
+      professionalRuleSchool,
+
+    replacementPolicy:
+      "authoritative_refinement",
+
+    sourceRefs: [
+      professionalSourceRefs
+        .cuiMethodOrder,
+      professionalSourceRefs
+        .yangWorkForms,
+    ],
+
+    masterNarrative: {
+      lifePattern:
+        "现实机会常与同辈、团队和合作关系相连，但发展是否稳定，取决于资源边界、分工和收益规则是否清楚。",
+
+      conclusion:
+        "合作可以扩大机会，但账目、权责和退出机制必须提前明确。",
+    },
 
     replacesRuleIds: [
       "peer_wealth_competition",
@@ -356,6 +505,27 @@ export const natalProfessionalPatternRules = [
     baseConfidence: "medium",
     priority: 92,
 
+    school:
+      professionalRuleSchool,
+
+    replacementPolicy:
+      "authoritative_refinement",
+
+    sourceRefs: [
+      professionalSourceRefs
+        .cuiOutputWealth,
+      professionalSourceRefs
+        .yangWorkForms,
+    ],
+
+    masterNarrative: {
+      lifePattern:
+        "人生价值更适合通过技能、作品、项目和实际交付转化为现实收益，但只有结构链真正连接并持续运转时，才算形成稳定做功。",
+
+      conclusion:
+        "应优先建立能够重复交付的成果通道，而不是只停留在能力和设想层面。",
+    },
+
     replacesRuleIds: [
       "output_wealth_chain",
     ],
@@ -451,6 +621,27 @@ export const natalProfessionalPatternRules = [
     baseConfidence: "medium",
     priority: 90,
 
+    school:
+      professionalRuleSchool,
+
+    replacementPolicy:
+      "authoritative_refinement",
+
+    sourceRefs: [
+      professionalSourceRefs
+        .cuiOfficialResource,
+      professionalSourceRefs
+        .yangWorkForms,
+    ],
+
+    masterNarrative: {
+      lifePattern:
+        "人生更容易通过规则平台、责任承担、专业资质和学习承接建立社会位置，但官印是否真正流通，需要结合做功链与破坏条件判断。",
+
+      conclusion:
+        "适合在规则明确、专业门槛清楚的环境中积累信用与位置，同时避免只重资质而缺少实际成果。",
+    },
+
     replacesRuleIds: [
       "official_resource_support",
     ],
@@ -484,7 +675,7 @@ export const natalProfessionalPatternRules = [
       ],
 
       risks: [
-        "官杀太弱或藏而不显时，社会位置需要后天平台和岁运推动。",
+        "官杀太弱或藏而不显时，社会位置需要后天平台和后续阶段推动。",
       ],
 
       boundary:
@@ -546,6 +737,25 @@ export const natalProfessionalPatternRules = [
     baseConfidence: "high",
     priority: 94,
 
+    school:
+      professionalRuleSchool,
+
+    replacementPolicy:
+      "authoritative_refinement",
+
+    sourceRefs: [
+      professionalSourceRefs
+        .yangHostGuest,
+    ],
+
+    masterNarrative: {
+      lifePattern:
+        "关系中的重复课题容易反馈到个人状态，真正的成长来自把沟通、边界和现实责任逐步说清。",
+
+      conclusion:
+        "感情不宜靠反复猜测维持，应把节奏、责任和真实需求落实到具体安排。",
+    },
+
     replacesRuleIds: [
       "spouse_palace_relation_tension",
     ],
@@ -579,7 +789,7 @@ export const natalProfessionalPatternRules = [
       ],
 
       boundary:
-        "夫妻宫受牵动不等于必然离婚，仍要结合配偶星状态、关系中的制化与大运触发。",
+        "夫妻宫受牵动不等于婚姻结果已经确定，仍要结合配偶星状态、关系中的制化与后续阶段触发。",
     },
 
     domainNarratives: {
@@ -623,6 +833,24 @@ export const natalProfessionalPatternRules = [
     baseConfidence: "medium",
     priority: 74,
 
+    school:
+      professionalRuleSchool,
+
+    sourceRefs: [
+      professionalSourceRefs
+        .yangHostGuest,
+      professionalSourceRefs
+        .cuiMethodOrder,
+    ],
+
+    masterNarrative: {
+      lifePattern:
+        "感情缘分更容易与外部环境、现实条件和社会圈层相连，关系推进需要同时看情感互动与现实承接。",
+
+      conclusion:
+        "感情判断应同时复核配偶星位置、夫妻宫牵动和现实条件，不宜只凭宾位直接下结论。",
+    },
+
     domains: [
       "spouse",
       "movement",
@@ -650,7 +878,7 @@ export const natalProfessionalPatternRules = [
       ],
 
       boundary:
-        "宾位只表示结构位置，不直接等同于异地婚姻或配偶一定来自外地。",
+        "宾位只表示结构位置，不直接等同于异地婚姻或配偶来自外地。",
     },
 
     domainNarratives: {
@@ -670,7 +898,7 @@ export const natalProfessionalPatternRules = [
 
       movement: {
         overview:
-          "感情缘分与外部环境、工作学习圈层或居住变化存在一定联系。",
+          "感情缘分与外部环境、工作学习圈层或居住变化存在某种联系。",
 
         manifestation:
           "环境转换可能增加认识对象或调整关系状态的机会。",
@@ -679,7 +907,7 @@ export const natalProfessionalPatternRules = [
           "进入新的圈层有利于扩大关系选择。",
 
         caution:
-          "不能仅凭配偶星落宾位就判断一定异地发展。",
+          "不能仅凭配偶星落宾位就判断异地发展。",
       },
     },
   },
@@ -693,6 +921,24 @@ export const natalProfessionalPatternRules = [
     importance: "medium",
     baseConfidence: "high",
     priority: 78,
+
+    school:
+      professionalRuleSchool,
+
+    sourceRefs: [
+      professionalSourceRefs
+        .yangHostGuest,
+      professionalSourceRefs
+        .yangWorkForms,
+    ],
+
+    masterNarrative: {
+      lifePattern:
+        "后期发展更需要通过主位输出、作品项目和持续交付打开，行动出口越稳定，内部能力越容易显化。",
+
+      conclusion:
+        "应把表达、项目和实际完成度作为复核重点，避免长期只停留在准备和设想。",
+    },
 
     domains: [
       "career",

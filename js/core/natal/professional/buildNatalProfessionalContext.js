@@ -118,6 +118,13 @@ const positionPriority = {
   unknown: 1,
 };
 
+const nearestPillarOrder = [
+  "day",
+  "month",
+  "hour",
+  "year",
+];
+
 const kinshipKeys = [
   "father",
   "mother",
@@ -488,6 +495,18 @@ function buildTenGodContext({
       )
       .sort(comparePositions);
 
+  const primaryPosition =
+    positions[0] ??
+    null;
+
+  const nearestPosition =
+    positions
+      .slice()
+      .sort(
+        compareNearestPositions,
+      )[0] ??
+    null;
+
   const hostPositions =
     positions.filter(
       (position) =>
@@ -502,16 +521,16 @@ function buildTenGodContext({
         "guest",
     );
 
+  const relatedRelations =
+    Array.isArray(
+      state.relatedRelations,
+    )
+      ? state.relatedRelations
+      : [];
+
   const relationIds =
     uniqueText(
-      (
-        Array.isArray(
-          state.relatedRelations,
-        )
-          ? state
-              .relatedRelations
-          : []
-      ).map(
+      relatedRelations.map(
         (relation) =>
           relation?.id,
       ),
@@ -519,19 +538,93 @@ function buildTenGodContext({
 
   const relationTypes =
     uniqueText(
-      (
-        Array.isArray(
-          state.relatedRelations,
-        )
-          ? state
-              .relatedRelations
-          : []
-      ).map(
+      relatedRelations.map(
         (relation) =>
           relation
             ?.relationType,
       ),
     );
+
+  const tensionRelationIds =
+    uniqueText([
+      ...relatedRelations
+        .filter(
+          (relation) =>
+            relationNatureMap[
+              relation?.relationType
+            ] === "tension",
+        )
+        .map(
+          (relation) =>
+            relation?.id,
+        ),
+
+      ...(
+        Array.isArray(
+          state.clashedBy,
+        )
+          ? state.clashedBy
+          : []
+      ),
+
+      ...(
+        Array.isArray(
+          state.punishedBy,
+        )
+          ? state.punishedBy
+          : []
+      ),
+
+      ...(
+        Array.isArray(
+          state.harmedBy,
+        )
+          ? state.harmedBy
+          : []
+      ),
+
+      ...(
+        Array.isArray(
+          state.brokenBy,
+        )
+          ? state.brokenBy
+          : []
+      ),
+
+      ...(
+        Array.isArray(
+          state.controlledBy,
+        )
+          ? state.controlledBy
+          : []
+      ),
+    ]);
+
+  const connectionRelationIds =
+    uniqueText([
+      ...relatedRelations
+        .filter(
+          (relation) =>
+            relationNatureMap[
+              relation?.relationType
+            ] === "connection",
+        )
+        .map(
+          (relation) =>
+            relation?.id,
+        ),
+
+      ...(
+        Array.isArray(
+          state.combinedBy,
+        )
+          ? state.combinedBy
+          : []
+      ),
+    ]);
+
+  const isRelationAffected =
+    tensionRelationIds.length > 0;
 
   return {
     name:
@@ -614,9 +707,10 @@ function buildTenGodContext({
         guestPositions,
       }),
 
+    primaryPosition,
+
     nearestPosition:
-      positions[0] ??
-      null,
+      nearestPosition,
 
     nearestDistance:
       positions.length
@@ -632,6 +726,12 @@ function buildTenGodContext({
     relationIds,
 
     relationTypes,
+
+    isRelationAffected,
+
+    tensionRelationIds,
+
+    connectionRelationIds,
 
     combinedBy:
       uniqueText(
@@ -1080,6 +1180,18 @@ function buildKinshipContext({
       ),
     ].sort(comparePositions);
 
+  const primaryPosition =
+    positions[0] ??
+    null;
+
+  const nearestPosition =
+    positions
+      .slice()
+      .sort(
+        compareNearestPositions,
+      )[0] ??
+    null;
+
   const hostPositions =
     positions.filter(
       (position) =>
@@ -1146,9 +1258,10 @@ function buildKinshipContext({
         guestPositions,
       }),
 
+    primaryPosition,
+
     nearestPosition:
-      positions[0] ??
-      null,
+      nearestPosition,
 
     relationIds:
       uniqueText(
@@ -1493,6 +1606,28 @@ function comparePositions(
       left.pillar,
     ) -
       pillarKeys.indexOf(
+        right.pillar,
+      )
+  );
+}
+
+function compareNearestPositions(
+  left,
+  right,
+) {
+  return (
+    left.distanceFromDay -
+      right.distanceFromDay ||
+    positionPriority[
+      right.visibility
+    ] -
+      positionPriority[
+        left.visibility
+      ] ||
+    nearestPillarOrder.indexOf(
+      left.pillar,
+    ) -
+      nearestPillarOrder.indexOf(
         right.pillar,
       )
   );

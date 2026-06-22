@@ -344,6 +344,9 @@ function buildDomainPortrait({
 
   const manifestation =
     narrative.manifestation ||
+    rule.weakEvidenceText ||
+    rule.defaultJudgement ||
+    summary ||
     "";
 
   const strength =
@@ -423,11 +426,34 @@ function buildDomainPortrait({
           ?.[rule.key],
       ),
 
-    summary,
+    summary:
+      cleanFrontText(
+        limitSentences(
+          summary,
+          2,
+        ),
+      ),
 
-    judgement,
+    judgement:
+      cleanFrontText(
+        limitSentences(
+          judgement,
+          2,
+        ),
+      ),
 
-    manifestation,
+    manifestation:
+      cleanFrontText(
+        limitSentences(
+          resolveFrontManifestation({
+            domainKey:
+              rule.key,
+            judgement,
+            manifestation,
+          }),
+          2,
+        ),
+      ),
 
     strength,
 
@@ -1013,6 +1039,82 @@ function cleanFrontText(text) {
     )
     .replace(/先看/g, "落在")
     .replace(/再看/g, "并看");
+}
+
+function limitSentences(
+  text,
+  limit = 2,
+) {
+  const normalized =
+    normalizeText(text);
+
+  if (!normalized) {
+    return "";
+  }
+
+  const sentences =
+    normalized.match(
+      /[^。！？!?]+[。！？!?]?/g,
+    ) ?? [
+      normalized,
+    ];
+
+  return sentences
+    .map((sentence) =>
+      sentence.trim(),
+    )
+    .filter(Boolean)
+    .slice(0, limit)
+    .join("");
+}
+
+function resolveFrontManifestation({
+  domainKey,
+  judgement,
+  manifestation,
+} = {}) {
+  const combined =
+    `${judgement} ${manifestation}`;
+
+  if (domainKey === "wealth") {
+    const matchedCount =
+      [
+        "收入方式",
+        "资源调度",
+        "变现能力",
+        "财务承载",
+        "财务",
+      ].filter((term) =>
+        combined.includes(term),
+      ).length;
+
+    if (matchedCount >= 2) {
+      return manifestation;
+    }
+
+    return "现实里要看收入方式、资源调度和财务承载。";
+  }
+
+  if (domainKey !== "self") {
+    return manifestation;
+  }
+
+  const matchedCount =
+    [
+      "性格",
+      "主见",
+      "脾气",
+      "节奏",
+      "边界",
+    ].filter((term) =>
+      combined.includes(term),
+    ).length;
+
+  if (matchedCount >= 3) {
+    return manifestation;
+  }
+
+  return "现实里容易表现为主见、判断方式、边界感和自己的做事节奏。";
 }
 
 function uniqueSortedStrings(items) {

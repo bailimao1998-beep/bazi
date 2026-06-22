@@ -14,6 +14,18 @@ import {
   buildNatalMasterSummary,
 } from "../js/core/natal/natalMasterSummaryEngine.js";
 
+import {
+  buildNatalProfessionalContext,
+} from "../js/core/natal/professional/buildNatalProfessionalContext.js";
+
+import {
+  buildNatalProfessionalPatterns,
+} from "../js/core/natal/professional/buildNatalProfessionalPatterns.js";
+
+import {
+  mergeNatalProfessionalImages,
+} from "../js/core/natal/professional/mergeNatalProfessionalImages.js";
+
 const validDomains =
   new Set([
     "self",
@@ -68,6 +80,580 @@ test(
     }
   },
 );
+
+test(
+  "专业上下文区分最显位置、最近位置和关系牵动",
+  () => {
+    const context =
+      buildNatalProfessionalContext({
+        pillars: {
+          year: {
+            stem: "甲",
+            branch: "寅",
+          },
+          month: {
+            stem: "乙",
+            branch: "卯",
+          },
+          day: {
+            stem: "辛",
+            branch: "亥",
+          },
+          hour: {
+            stem: "丙",
+            branch: "子",
+          },
+        },
+
+        relationMatrix: {
+          items: [
+            {
+              id: "rel-day-hour-harm",
+              relationType:
+                "branch_harm",
+              participants: [
+                {
+                  pillar: "day",
+                  position:
+                    "branch",
+                  value: "亥",
+                },
+                {
+                  pillar: "hour",
+                  position:
+                    "branch",
+                  value: "子",
+                },
+              ],
+            },
+          ],
+        },
+
+        tenGodStates: {
+          正财: {
+            weightedCount: 1.7,
+            visiblePositions: [
+              "year.stem",
+            ],
+            mainQiPositions: [
+              "day.branch.mainQi",
+            ],
+            relatedRelations: [
+              {
+                id:
+                  "rel-day-hour-harm",
+                relationType:
+                  "branch_harm",
+              },
+            ],
+          },
+        },
+
+        palaceFeatures: {},
+
+        kinshipFeatures: {
+          spouse: {
+            label: "配偶",
+            mappingStatus:
+              "resolved",
+            starProfile: {
+              weightedCount: 1.7,
+              visiblePositions: [
+                "year.stem",
+              ],
+              mainQiPositions: [
+                "day.branch.mainQi",
+              ],
+            },
+          },
+        },
+      });
+
+    const wealth =
+      context.tenGods.正财;
+
+    assert.equal(
+      wealth.primaryPosition.pillar,
+      "year",
+    );
+    assert.equal(
+      wealth.nearestPosition.pillar,
+      "day",
+    );
+    assert.equal(
+      wealth.nearestDistance,
+      0,
+    );
+    assert.equal(
+      wealth.isRelationAffected,
+      true,
+    );
+    assert.deepEqual(
+      wealth.tensionRelationIds,
+      [
+        "rel-day-hour-harm",
+      ],
+    );
+
+    const spouse =
+      context.kinships.spouse;
+
+    assert.equal(
+      spouse.primaryPosition.pillar,
+      "year",
+    );
+    assert.equal(
+      spouse.nearestPosition.pillar,
+      "day",
+    );
+  },
+);
+
+test(
+  "专业模式用真实做功链区分并见、连接和激活",
+  () => {
+    const baseContext = {
+      tenGods: {
+        食神: {
+          weightedCount: 1,
+          visibleCount: 1,
+          positions: [],
+          hostPositions: [
+            {
+              pillarLabel:
+                "时柱",
+              positionLabel:
+                "天干",
+            },
+          ],
+          guestPositions: [],
+          hasRoot: true,
+          isVisible: true,
+          isBlocked: false,
+          statusText:
+            "食神透出",
+        },
+        正财: {
+          weightedCount: 1,
+          visibleCount: 1,
+          positions: [],
+          hostPositions: [],
+          guestPositions: [
+            {
+              pillarLabel:
+                "月柱",
+              positionLabel:
+                "天干",
+            },
+          ],
+          hasRoot: true,
+          isVisible: true,
+          isBlocked: false,
+          statusText:
+            "正财透出",
+        },
+        正印: {
+          weightedCount: 2,
+          visibleCount: 1,
+          positions: [],
+          hostPositions: [],
+          guestPositions: [],
+          hasRoot: true,
+          isVisible: true,
+          isBlocked: false,
+          statusText:
+            "正印有力",
+        },
+        比肩: {
+          weightedCount: 2,
+          visibleCount: 1,
+          positions: [],
+          hostPositions: [],
+          guestPositions: [],
+          hasRoot: true,
+          isVisible: true,
+          isBlocked: false,
+          statusText:
+            "比肩有力",
+        },
+      },
+      palaces: {},
+      kinships: {},
+      relations: [],
+    };
+
+    const rules = [
+      {
+        id:
+          "professional_resource_peer_dominance",
+        semanticGroup:
+          "resource_peer_dominance",
+        title: "印比成势",
+        role: "core",
+        baseStatus:
+          "confirmed",
+        baseConfidence: "high",
+        importance: "high",
+        priority: 96,
+        domains: ["self"],
+        thresholds: {
+          resourceMin: 1.4,
+          peerMin: 1.4,
+          confirmedResourceMin: 1.8,
+          confirmedPeerMin: 1.8,
+        },
+        semantic: {
+          meaning:
+            "印比成为原局主轴。",
+        },
+      },
+      {
+        id:
+          "professional_output_wealth_work_chain",
+        semanticGroup:
+          "output_wealth_work_chain",
+        title:
+          "食伤生财做功候选",
+        role: "core",
+        baseStatus:
+          "conditional",
+        baseConfidence:
+          "medium",
+        importance: "high",
+        priority: 120,
+        domains: [
+          "career",
+          "wealth",
+        ],
+        thresholds: {
+          outputMin: 0.5,
+          wealthMin: 0.3,
+          confirmedOutputMin: 0.9,
+          confirmedWealthMin: 0.5,
+        },
+        semantic: {
+          meaning:
+            "食伤财星并见。",
+        },
+      },
+    ];
+
+    const presenceOnly =
+      buildNatalProfessionalPatterns({
+        structureSynopsis: {
+          dayMaster: {
+            strengthState:
+              "strong",
+          },
+        },
+        professionalContext:
+          baseContext,
+        workChains: {
+          chains: [],
+        },
+        rules,
+      });
+
+    assert.equal(
+      presenceOnly.primaryImage.title,
+      "印比成势",
+    );
+
+    const outputWealth =
+      presenceOnly.images.find(
+        (image) =>
+          image.ruleId ===
+          "professional_output_wealth_work_chain",
+      );
+
+    assert.equal(
+      outputWealth.title,
+      "食伤财星并见，做功链待确认",
+    );
+    assert.equal(
+      outputWealth.status,
+      "conditional",
+    );
+    assert.equal(
+      outputWealth.workStatus,
+      "presence_only",
+    );
+    assert.ok(
+      outputWealth.school,
+    );
+    assert.ok(
+      outputWealth.sourceRefs,
+    );
+    assert.equal(
+      outputWealth
+        .masterNarrative,
+      null,
+    );
+    assert.equal(
+      outputWealth
+        .replacementPolicy,
+      "ranked",
+    );
+
+    const connected =
+      buildNatalProfessionalPatterns({
+        structureSynopsis: {
+          dayMaster: {
+            strengthState:
+              "strong",
+          },
+        },
+        professionalContext:
+          baseContext,
+        workChains:
+          createWorkChains({
+            activationLevel:
+              "potential",
+          }),
+        rules,
+      });
+
+    assert.equal(
+      connected.images.find(
+        (image) =>
+          image.ruleId ===
+          "professional_output_wealth_work_chain",
+      ).workStatus,
+      "connected",
+    );
+
+    const activated =
+      buildNatalProfessionalPatterns({
+        structureSynopsis: {
+          dayMaster: {
+            strengthState:
+              "strong",
+          },
+        },
+        professionalContext:
+          baseContext,
+        workChains:
+          createWorkChains({
+            activationLevel:
+              "activated",
+          }),
+        rules,
+      });
+
+    const activatedImage =
+      activated.images.find(
+        (image) =>
+          image.ruleId ===
+          "professional_output_wealth_work_chain",
+      );
+
+    assert.equal(
+      activatedImage.title,
+      "食伤生财做功链",
+    );
+    assert.equal(
+      activatedImage.status,
+      "confirmed",
+    );
+    assert.equal(
+      activatedImage.workStatus,
+      "activated",
+    );
+  },
+);
+
+test(
+  "合并层逐条记录专业规则替换裁决",
+  () => {
+    const result =
+      mergeNatalProfessionalImages({
+        contractImages: [
+          {
+            id:
+              "contract-output-wealth",
+            ruleId:
+              "output_wealth_chain",
+            semanticGroup:
+              "output_wealth_work_chain",
+            title:
+              "旧食伤生财",
+            role: "core",
+            status:
+              "confirmed",
+            confidence: "high",
+            priority: 90,
+          },
+        ],
+        professionalImages: [
+          {
+            id:
+              "professional-output-wealth",
+            ruleId:
+              "professional_output_wealth_work_chain",
+            semanticGroup:
+              "output_wealth_work_chain",
+            title:
+              "食伤财星并见，做功链待确认",
+            role:
+              "conditional",
+            status:
+              "conditional",
+            confidence: "low",
+            priority: 120,
+            replacesRuleIds: [
+              "output_wealth_chain",
+            ],
+            replacementPolicy:
+              "ranked",
+          },
+        ],
+      });
+
+    assert.equal(
+      result.primaryImage.ruleId,
+      "output_wealth_chain",
+    );
+    assert.equal(
+      result.replacementDecisions.length,
+      1,
+    );
+    assert.equal(
+      result
+        .replacementDecisions[0]
+        .accepted,
+      false,
+    );
+    assert.deepEqual(
+      result
+        .suppressedProfessionalImages
+        .map((image) => image.ruleId),
+      [
+        "professional_output_wealth_work_chain",
+      ],
+    );
+  },
+);
+
+test(
+  "命理总批优先读取专业规则专属主线",
+  () => {
+    const summary =
+      buildNatalMasterSummary({
+        structureSynopsis: {},
+        facts: [],
+        compositionImages: [
+          {
+            id:
+              "professional-image",
+            ruleId:
+              "professional_custom_rule",
+            title:
+              "专业自定义规则",
+            brief:
+              "专业规则主象。",
+            role: "core",
+            status:
+              "confirmed",
+            priority: 90,
+            confidence: "high",
+            importance: "high",
+            domains: ["self"],
+            masterNarrative: {
+              lifePattern:
+                "专属人生主线进入发展模式章节。",
+              conclusion:
+                "专属总结进入总批结论。",
+            },
+          },
+        ],
+        hitList: {
+          all: [
+            {
+              id:
+                "professional-row",
+              name:
+                "专业自定义规则",
+              sourceRuleId:
+                "professional_custom_rule",
+              role: "core",
+              status:
+                "confirmed",
+              priority: 90,
+              meaning:
+                "专业规则主象。",
+              strengths: [
+                "专业证据完整。",
+              ],
+              risks: [],
+            },
+          ],
+        },
+        twelveDomains: [],
+      });
+
+    assert.ok(
+      summary.sections.some(
+        (section) =>
+          section.key ===
+            "lifePattern" &&
+          section.text.includes(
+            "专属人生主线",
+          ),
+      ),
+    );
+
+    assert.match(
+      summary.conclusion,
+      /专属总结进入总批结论/,
+    );
+  },
+);
+
+function createWorkChains({
+  activationLevel,
+} = {}) {
+  return {
+    nodes: [
+      {
+        id: "output-node",
+        pillar: "hour",
+        tenGod: "食神",
+        tenGodGroup: "output",
+      },
+      {
+        id: "wealth-node",
+        pillar: "month",
+        tenGod: "正财",
+        tenGodGroup: "wealth",
+      },
+    ],
+    edges: [
+      {
+        id: "output-to-wealth",
+        source: "output-node",
+        target: "wealth-node",
+        semanticType: "generate",
+      },
+    ],
+    chains: [
+      {
+        id: "chain-output-wealth",
+        nodeIds: [
+          "output-node",
+          "wealth-node",
+        ],
+        edgeIds: [
+          "output-to-wealth",
+        ],
+        activationLevel,
+        confidence: "high",
+        hiddenNodeCount: 0,
+        priorityScore: 90,
+      },
+    ],
+    interruptionSignals: [],
+  };
+}
 
 test(
   "父母领域不会复用命主自身象义",

@@ -1471,6 +1471,7 @@ function buildContractNatalMasterSummary({
       ],
 
       fields: [
+        "judgement",
         "manifestation",
         "strength",
         "pressure",
@@ -1508,6 +1509,7 @@ function buildContractNatalMasterSummary({
       ],
 
       fields: [
+        "judgement",
         "manifestation",
         "strength",
         "pressure",
@@ -1608,6 +1610,7 @@ function buildContractNatalMasterSummary({
   const lifePatternLine =
     buildLifePatternLine({
       primaryRuleId,
+      primaryImage,
       domains,
       structureSynopsis,
     });
@@ -1633,6 +1636,12 @@ function buildContractNatalMasterSummary({
   const conclusion =
     buildProfessionalConclusion({
       structureSynopsis,
+
+      primaryConclusion:
+        primaryImage
+          ?.masterNarrative
+          ?.conclusion ??
+        "",
 
       strengths,
 
@@ -1992,10 +2001,16 @@ function buildAbilityTensionLine({
 
 function buildLifePatternLine({
   primaryRuleId,
+  primaryImage,
   domains,
   structureSynopsis = {},
 }) {
   const ruleLine =
+    cleanSentence(
+      primaryImage
+        ?.masterNarrative
+        ?.lifePattern,
+    ) ||
     MASTER_LIFE_PATTERN_BY_RULE[
       primaryRuleId
     ] ||
@@ -2245,6 +2260,7 @@ function buildStructureConclusionSentence(
 
 function buildProfessionalConclusion({
   structureSynopsis = {},
+  primaryConclusion = "",
   strengths = [],
   tensions = [],
   relationshipLine = "",
@@ -2258,6 +2274,19 @@ function buildProfessionalConclusion({
     );
 
   const candidates = [];
+
+  const normalizedPrimaryConclusion =
+    cleanSentence(
+      primaryConclusion,
+    );
+
+  if (
+    normalizedPrimaryConclusion
+  ) {
+    candidates.push(
+      normalizedPrimaryConclusion,
+    );
+  }
 
   const structureSentence =
     buildStructureConclusionSentence(

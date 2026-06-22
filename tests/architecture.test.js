@@ -805,7 +805,7 @@ test("frontend bazi and blind-bazi chain calculates reports locally", () => {
       hitIds: itemReport.hitList?.all?.map((hit) => hit.id) ?? [],
       domainSignature: itemReport.twelveDomains
         .filter((domain) => ["self", "wealth", "children", "movement", "career", "spouse"].includes(domain.key))
-        .map((domain) => domain.title)
+        .map((domain) => `${domain.key}:${domain.judgement}`)
         .join("|"),
     };
   });
@@ -932,12 +932,19 @@ test("stage analysis panels render calculated report data without breaking refre
   assert.match(root.innerHTML, /命理师总批/);
   assert.match(root.innerHTML, /natal-master-summary/);
   assert.match(root.innerHTML, /这个原局|这个人|现实中|容易|倾向/);
-  const masterSummaryHtml = root.innerHTML.match(/<section class="natal-master-summary">[\s\S]*?<\/section>/)?.[0] ?? "";
+  const masterSummaryStart =
+    root.innerHTML.search(
+      /<section\s+class="[^"]*natal-master-summary[^"]*"[^>]*>/,
+    );
+  const masterSummaryHtml =
+    masterSummaryStart >= 0
+      ? root.innerHTML.slice(masterSummaryStart)
+      : "";
   assert.match(masterSummaryHtml, /natal-master-sections/);
-  assert.match(masterSummaryHtml, /命局核心/);
-  assert.match(masterSummaryHtml, /做工主线/);
-  assert.match(masterSummaryHtml, /优势能力/);
-  assert.match(masterSummaryHtml, /主要矛盾/);
+  assert.match(masterSummaryHtml, /性格与做事方式/);
+  assert.match(masterSummaryHtml, /事业与财富/);
+  assert.match(masterSummaryHtml, /优势与短板/);
+  assert.match(masterSummaryHtml, /人生发展模式/);
   assert.doesNotMatch(masterSummaryHtml, /同时[^。]+现实中容易带出|整体来看，|观察入口|开盘先看|先看|再看|资料取象|命中依据/);
   assert.match(masterSummaryHtml, /现实/);
   assert.match(root.innerHTML, /十二维命局画像/);
@@ -949,24 +956,35 @@ test("stage analysis panels render calculated report data without breaking refre
   assert.match(root.innerHTML, /natal-domain-judgement/);
   assert.match(root.innerHTML, /natal-domain-manifestation/);
   assert.match(root.innerHTML, /natal-domain-pressure/);
-  assert.match(root.innerHTML, /natal-domain-keywords/);
-  assert.equal((root.innerHTML.match(/<article class="natal-domain-card/g) || []).length, 12);
+  assert.ok(
+    natalImageReport.twelveDomains.every(
+      (domain) =>
+        Array.isArray(domain.keywords),
+    ),
+  );
+  assert.equal(
+    (
+      root.innerHTML.match(
+        /<article\s+class="natal-domain-card/g,
+      ) || []
+    ).length,
+    12,
+  );
   for (const label of natalImageReport.twelveDomains.map((domain) => domain.label)) {
     assert.match(root.innerHTML, new RegExp(label));
   }
   assert.match(root.innerHTML, /取象索引/);
   assert.match(root.innerHTML, /系统从四柱、十神、藏干、五行、关系和结构中提取到的主要取象/);
   assert.match(root.innerHTML, /natal-hit-index/);
-  assert.match(root.innerHTML, /natal-hit-summary-chips/);
+  assert.match(root.innerHTML, /natal-hit-row/);
+  assert.match(root.innerHTML, /natal-hit-detail/);
   assert.doesNotMatch(root.innerHTML, /natal-hit-details/);
   assert.doesNotMatch(root.innerHTML, /展开全部取象依据/);
   assert.doesNotMatch(root.innerHTML, /<details class="natal-hit-details" open/);
-  assert.match(root.innerHTML, /natal-hit-compact-list/);
   assert.doesNotMatch(root.innerHTML, /重点取象|查看更多取象|natal-hit-more/);
-  assert.match(root.innerHTML, /natal-hit-row/);
   assert.match(root.innerHTML, /natal-hit-domains/);
   assert.match(root.innerHTML, /依据/);
-  assert.doesNotMatch(root.innerHTML, /natal-hit-evidence-button/);
+  assert.match(root.innerHTML, /natal-hit-evidence-button/);
   assert.doesNotMatch(root.innerHTML, /查看更多取象 <span>0 个<\/span>/);
   assert.equal((root.innerHTML.match(/<details class="natal-hit-details">/g) || []).length, 0);
   assert.doesNotMatch(root.innerHTML, /对应方面/);

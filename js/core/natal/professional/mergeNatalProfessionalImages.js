@@ -1,19 +1,11 @@
+import {
+  compareNatalProfessionalImages,
+  evaluateProfessionalReplacement,
+  selectNatalPrimaryImage,
+} from "./professionalImageRanking.js";
+
 export const NATAL_PROFESSIONAL_IMAGE_MERGE_VERSION =
   "natal-professional-image-merge-v1";
-
-const confidenceRank = {
-  unknown: 0,
-  low: 1,
-  medium: 2,
-  high: 3,
-};
-
-const roleRank = {
-  core: 4,
-  support: 3,
-  tension: 2,
-  conditional: 1,
-};
 
 export function mergeNatalProfessionalImages({
   contractImages = [],
@@ -33,30 +25,117 @@ export function mergeNatalProfessionalImages({
       ? professionalImages
       : [];
 
-  const replacedRuleIds =
-    new Set(
-      safeProfessionalImages
-        .flatMap(
-          (image) =>
-            Array.isArray(
-              image.replacesRuleIds,
-            )
-              ? image.replacesRuleIds
-              : [],
-        )
-        .filter(Boolean),
+  const replacementDecisions = [];
+  const replacedRuleIds = new Set();
+  const suppressedProfessionalImages = [];
+  const acceptedProfessionalImages = [];
+  const retainedContractByRuleId =
+    new Map(
+      safeContractImages.map(
+        (image) => [
+          image.ruleId,
+          image,
+        ],
+      ),
     );
 
-  const retainedContractImages =
-    safeContractImages.filter(
-      (image) =>
-        !replacedRuleIds.has(
-          image.ruleId,
-        ),
+  for (const professionalImage of safeProfessionalImages) {
+    const targetRuleIds =
+      (
+        Array.isArray(
+          professionalImage
+            .replacesRuleIds,
+        )
+          ? professionalImage
+              .replacesRuleIds
+          : []
+      ).filter(Boolean);
+
+    const targetImages =
+      targetRuleIds
+        .map(
+          (ruleId) =>
+            retainedContractByRuleId
+              .get(ruleId),
+        )
+        .filter(Boolean);
+
+    if (!targetImages.length) {
+      acceptedProfessionalImages.push(
+        professionalImage,
+      );
+      continue;
+    }
+
+    const decisions =
+      targetImages.map(
+        (contractImage) => {
+          const replacement =
+            evaluateProfessionalReplacement({
+              professionalImage,
+              contractImage,
+            });
+
+          return {
+            professionalRuleId:
+              professionalImage.ruleId ??
+              "",
+
+            contractRuleId:
+              contractImage.ruleId ??
+              "",
+
+            accepted:
+              replacement.accepted,
+
+            reason:
+              replacement.reason,
+          };
+        },
+      );
+
+    replacementDecisions.push(
+      ...decisions,
     );
+
+    const acceptedDecisions =
+      decisions.filter(
+        (decision) =>
+          decision.accepted,
+      );
+
+    if (
+      acceptedDecisions.length
+    ) {
+      acceptedProfessionalImages.push(
+        professionalImage,
+      );
+
+      for (
+        const decision of
+        acceptedDecisions
+      ) {
+        replacedRuleIds.add(
+          decision.contractRuleId,
+        );
+        retainedContractByRuleId.delete(
+          decision.contractRuleId,
+        );
+      }
+    } else {
+      suppressedProfessionalImages.push(
+        professionalImage,
+      );
+    }
+  }
+
+  const retainedContractImages = [
+    ...retainedContractByRuleId
+      .values(),
+  ];
 
   const combined = [
-    ...safeProfessionalImages,
+    ...acceptedProfessionalImages,
     ...retainedContractImages,
   ];
 
@@ -76,7 +155,7 @@ export function mergeNatalProfessionalImages({
 
     if (
       !current ||
-      compareImages(
+      compareNatalProfessionalImages(
         image,
         current,
       ) < 0
@@ -91,19 +170,14 @@ export function mergeNatalProfessionalImages({
   const images =
     [
       ...bySemanticGroup.values(),
-    ].sort(compareImages);
+    ].sort(
+      compareNatalProfessionalImages,
+    );
 
   const primaryImage =
-    images.find(
-      (image) =>
-        image.role === "core",
-    ) ||
-    images.find(
-      (image) =>
-        image.role === "support",
-    ) ||
-    images[0] ||
-    null;
+    selectNatalPrimaryImage(
+      images,
+    );
 
   return {
     version:
@@ -112,6 +186,10 @@ export function mergeNatalProfessionalImages({
     images,
 
     primaryImage,
+
+    replacementDecisions,
+
+    suppressedProfessionalImages,
 
     replacedRuleIds:
       [...replacedRuleIds].sort(),
@@ -126,7 +204,7 @@ export function mergeNatalProfessionalImages({
         .sort(),
 
     professionalRuleIds:
-      safeProfessionalImages
+      acceptedProfessionalImages
         .map(
           (image) =>
             image.ruleId,
@@ -164,50 +242,4 @@ function buildByRole(
   }
 
   return result;
-}
-
-function compareImages(
-  left,
-  right,
-) {
-  return (
-    finite(
-      right.priority,
-    ) -
-      finite(
-        left.priority,
-      ) ||
-    roleRank[
-      right.role
-    ] -
-      roleRank[
-        left.role
-      ] ||
-    confidenceRank[
-      right.confidence
-    ] -
-      confidenceRank[
-        left.confidence
-      ] ||
-    String(
-      left.ruleId ?? "",
-    ).localeCompare(
-      String(
-        right.ruleId ?? "",
-      ),
-    )
-  );
-}
-
-function finite(
-  value,
-) {
-  const number =
-    Number(value);
-
-  return Number.isFinite(
-    number,
-  )
-    ? number
-    : 0;
 }

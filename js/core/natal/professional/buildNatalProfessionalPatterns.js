@@ -2,6 +2,11 @@ import {
   natalProfessionalPatternRules,
 } from "./professionalPatternRuleDatabase.js";
 
+import {
+  compareNatalProfessionalImages,
+  selectNatalPrimaryImage,
+} from "./professionalImageRanking.js";
+
 export const NATAL_PROFESSIONAL_PATTERN_VERSION =
   "natal-professional-pattern-v1";
 
@@ -39,22 +44,17 @@ const confidenceRank = {
   high: 3,
 };
 
-const roleRank = {
-  core: 4,
-  support: 3,
-  tension: 2,
-  conditional: 1,
-};
-
 export function buildNatalProfessionalPatterns({
   structureSynopsis = {},
   professionalContext = {},
+  workChains = {},
   rules = natalProfessionalPatternRules,
 } = {}) {
   const context =
     buildPatternContext({
       structureSynopsis,
       professionalContext,
+      workChains,
     });
 
   const images = [];
@@ -112,20 +112,13 @@ export function buildNatalProfessionalPatterns({
     images
       .slice()
       .sort(
-        compareImages,
+        compareNatalProfessionalImages,
       );
 
   const primaryImage =
-    sortedImages.find(
-      (image) =>
-        image.role === "core",
-    ) ||
-    sortedImages.find(
-      (image) =>
-        image.role === "support",
-    ) ||
-    sortedImages[0] ||
-    null;
+    selectNatalPrimaryImage(
+      sortedImages,
+    );
 
   return {
     version:
@@ -156,7 +149,7 @@ export function buildNatalProfessionalPatterns({
     suppressedPatterns:
       suppressedPatterns
         .sort(
-          compareImages,
+          compareNatalProfessionalImages,
         ),
 
     summary: {
@@ -184,6 +177,7 @@ export function buildNatalProfessionalPatterns({
 function buildPatternContext({
   structureSynopsis,
   professionalContext,
+  workChains,
 }) {
   const groups =
     Object.fromEntries(
@@ -234,6 +228,11 @@ function buildPatternContext({
         ? professionalContext
             .relations
         : [],
+
+    workChains:
+      normalizeWorkChainContext(
+        workChains,
+      ),
   };
 }
 
@@ -357,6 +356,298 @@ function buildTenGodGroup({
             state.statusText,
         ),
       ),
+  };
+}
+
+function normalizeWorkChainContext(
+  workChains = {},
+) {
+  const nodes =
+    Array.isArray(
+      workChains.nodes,
+    )
+      ? workChains.nodes
+      : [];
+
+  const edges =
+    Array.isArray(
+      workChains.edges,
+    )
+      ? workChains.edges
+      : [];
+
+  const chains =
+    Array.isArray(
+      workChains.chains,
+    )
+      ? workChains.chains
+      : [];
+
+  const interruptionSignals =
+    Array.isArray(
+      workChains
+        .interruptionSignals,
+    )
+      ? workChains
+          .interruptionSignals
+      : [];
+
+  return {
+    version:
+      workChains.version ?? "",
+
+    nodes,
+    edges,
+    chains,
+    interruptionSignals,
+
+    nodeById:
+      Object.fromEntries(
+        nodes.map(
+          (node) => [
+            node.id,
+            node,
+          ],
+        ),
+      ),
+
+    edgeById:
+      Object.fromEntries(
+        edges.map(
+          (edge) => [
+            edge.id,
+            edge,
+          ],
+        ),
+      ),
+  };
+}
+
+function findBestWorkPath(
+  workChains,
+  {
+    fromGroups = [],
+    toGroups = [],
+    semanticTypes = [],
+  } = {},
+) {
+  const candidates =
+    workChains.chains
+      .map((chain) => {
+        const nodes =
+          chain.nodeIds
+            .map(
+              (nodeId) =>
+                workChains
+                  .nodeById[
+                  nodeId
+                ],
+            )
+            .filter(Boolean);
+
+        const edges =
+          chain.edgeIds
+            .map(
+              (edgeId) =>
+                workChains
+                  .edgeById[
+                  edgeId
+                ],
+            )
+            .filter(Boolean);
+
+        const start =
+          nodes[0];
+
+        const end =
+          nodes.at(-1);
+
+        if (
+          !start ||
+          !end ||
+          !fromGroups.includes(
+            start.tenGodGroup,
+          ) ||
+          !toGroups.includes(
+            end.tenGodGroup,
+          )
+        ) {
+          return null;
+        }
+
+        if (
+          !edges.length ||
+          !edges.every(
+            (edge) =>
+              semanticTypes.includes(
+                edge.semanticType,
+              ),
+          )
+        ) {
+          return null;
+        }
+
+        return {
+          chain,
+          nodes,
+          edges,
+
+          activationLevel:
+            chain.activationLevel ??
+            "potential",
+
+          confidence:
+            chain.confidence ??
+            "unknown",
+
+          hiddenNodeCount:
+            Number(
+              chain.hiddenNodeCount ??
+              0,
+            ),
+
+          priorityScore:
+            Number(
+              chain.priorityScore ??
+              0,
+            ),
+
+          evidenceText:
+            nodes
+              .map(
+                describeWorkNode,
+              )
+              .join(" → "),
+        };
+      })
+      .filter(Boolean)
+      .sort(
+        compareWorkPaths,
+      );
+
+  return (
+    candidates[0] ??
+    null
+  );
+}
+
+function compareWorkPaths(
+  left,
+  right,
+) {
+  return (
+    workActivationRank(
+      right.activationLevel,
+    ) -
+      workActivationRank(
+        left.activationLevel,
+      ) ||
+    workConfidenceRank(
+      right.confidence,
+    ) -
+      workConfidenceRank(
+        left.confidence,
+      ) ||
+    left.hiddenNodeCount -
+      right.hiddenNodeCount ||
+    right.priorityScore -
+      left.priorityScore
+  );
+}
+
+function workActivationRank(
+  value,
+) {
+  return {
+    potential: 1,
+    mixed: 2,
+    activated: 3,
+  }[value] ?? 0;
+}
+
+function workConfidenceRank(
+  value,
+) {
+  return {
+    unknown: 0,
+    low: 1,
+    medium: 2,
+    high: 3,
+  }[value] ?? 0;
+}
+
+function describeWorkNode(
+  node = {},
+) {
+  const position = {
+    year: "年柱",
+    month: "月柱",
+    day: "日柱",
+    hour: "时柱",
+  }[
+    node.pillar
+  ] || node.pillar || "未知柱位";
+
+  return `${position}${node.tenGod || "未知十神"}`;
+}
+
+function resolvePathInterruptions(
+  workChains,
+  path,
+) {
+  if (!path) {
+    return [];
+  }
+
+  const nodeIds =
+    new Set(
+      path.chain.nodeIds,
+    );
+
+  return workChains
+    .interruptionSignals
+    .filter(
+      (edge) =>
+        nodeIds.has(
+          edge.source,
+        ) ||
+        nodeIds.has(
+          edge.target,
+        ),
+    );
+}
+
+function serializeWorkPath(
+  path,
+) {
+  if (!path) {
+    return null;
+  }
+
+  return {
+    chainId:
+      path.chain.id,
+
+    nodeIds:
+      [...path.chain.nodeIds],
+
+    edgeIds:
+      [...path.chain.edgeIds],
+
+    activationLevel:
+      path.activationLevel,
+
+    confidence:
+      path.confidence,
+
+    hiddenNodeCount:
+      path.hiddenNodeCount,
+
+    priorityScore:
+      path.priorityScore,
+
+    evidenceText:
+      path.evidenceText,
   };
 }
 
@@ -654,7 +945,7 @@ function evaluatePeerWealthPressure(
   const weakeningEvidence =
     uniqueText([
       officer.total >= 1
-        ? "官杀有一定力量，可约束比劫"
+        ? "官杀有相对力量，可约束比劫"
         : "",
 
       wealth.strong
@@ -727,6 +1018,38 @@ function evaluateOutputWealthWorkChain(
     return null;
   }
 
+  const workPath =
+    findBestWorkPath(
+      context.workChains,
+      {
+        fromGroups: [
+          "output",
+        ],
+
+        toGroups: [
+          "wealth",
+        ],
+
+        semanticTypes: [
+          "generate",
+        ],
+      },
+    );
+
+  const interruptions =
+    resolvePathInterruptions(
+      context.workChains,
+      workPath,
+    );
+
+  const workStatus =
+    !workPath
+      ? "presence_only"
+      : workPath.activationLevel ===
+          "activated"
+        ? "activated"
+        : "connected";
+
   const supportingEvidence =
     uniqueText([
       `食伤加权约${output.total}`,
@@ -739,16 +1062,36 @@ function evaluateOutputWealthWorkChain(
         ? "财星有根"
         : "",
 
-      !output
-        .isRelationAffected &&
-      !wealth
-        .isRelationAffected
-        ? "食伤与财星未见明显关系阻断"
+      workPath
+        ? `做功链：${workPath.evidenceText}`
+        : "",
+
+      workStatus ===
+        "activated"
+        ? "workChains识别为原局激活连接"
         : "",
     ]);
 
   const weakeningEvidence =
     uniqueText([
+      !workPath
+        ? "现有workChains未识别食伤到财星的方向连接，不能仅凭二者同时存在认定食伤生财做功"
+        : "",
+
+      workPath &&
+      workPath.activationLevel !==
+        "activated"
+        ? "结构边仍为潜在连接，不能视为原局已激活做功"
+        : "",
+
+      workPath?.hiddenNodeCount > 0
+        ? "路径包含藏干节点，置信度需要降低"
+        : "",
+
+      interruptions.length
+        ? "路径节点受到刑冲害破类中断信号牵动"
+        : "",
+
       output
         .isRelationAffected
         ? "食伤受到刑冲害破类关系牵动"
@@ -765,6 +1108,11 @@ function evaluateOutputWealthWorkChain(
     ]);
 
   const confirmed =
+    workPath &&
+    workPath.activationLevel ===
+      "activated" &&
+    workPath.hiddenNodeCount === 0 &&
+    interruptions.length === 0 &&
     output.total >=
       finite(
         thresholds.confirmedOutputMin,
@@ -772,13 +1120,16 @@ function evaluateOutputWealthWorkChain(
     wealth.total >=
       finite(
         thresholds.confirmedWealthMin,
-      ) &&
-    !output
-      .isRelationAffected &&
-    !wealth
-      .isRelationAffected;
+      );
 
   return {
+    title:
+      !workPath
+        ? "食伤财星并见，做功链待确认"
+        : confirmed
+          ? "食伤生财做功链"
+          : "食伤生财结构链候选",
+
     role:
       confirmed
         ? "core"
@@ -791,8 +1142,20 @@ function evaluateOutputWealthWorkChain(
 
     confidence:
       confirmed
-        ? "high"
-        : "medium",
+        ? workPath.confidence
+        : !workPath
+          ? "low"
+          : workPath.confidence ===
+              "high"
+            ? "medium"
+            : workPath.confidence,
+
+    workStatus,
+
+    workPath:
+      serializeWorkPath(
+        workPath,
+      ),
 
     evidence:
       [
@@ -832,6 +1195,38 @@ function evaluateOfficialResourceWorkChain(
     return null;
   }
 
+  const workPath =
+    findBestWorkPath(
+      context.workChains,
+      {
+        fromGroups: [
+          "officer",
+        ],
+
+        toGroups: [
+          "resource",
+        ],
+
+        semanticTypes: [
+          "generate",
+        ],
+      },
+    );
+
+  const interruptions =
+    resolvePathInterruptions(
+      context.workChains,
+      workPath,
+    );
+
+  const workStatus =
+    !workPath
+      ? "presence_only"
+      : workPath.activationLevel ===
+          "activated"
+        ? "activated"
+        : "connected";
+
   const supportingEvidence =
     uniqueText([
       `官杀加权约${officer.total}`,
@@ -847,10 +1242,37 @@ function evaluateOfficialResourceWorkChain(
       resource.hostPositions.length
         ? "印星在主位有承接"
         : "",
+
+      workPath
+        ? `做功链：${workPath.evidenceText}`
+        : "",
+
+      workStatus ===
+        "activated"
+        ? "workChains识别为原局激活连接"
+        : "",
     ]);
 
   const weakeningEvidence =
     uniqueText([
+      !workPath
+        ? "现有workChains未识别官杀到印星的方向连接，不能仅凭二者同时存在认定官印承接做功"
+        : "",
+
+      workPath &&
+      workPath.activationLevel !==
+        "activated"
+        ? "结构边仍为潜在连接，不能视为原局已激活做功"
+        : "",
+
+      workPath?.hiddenNodeCount > 0
+        ? "路径包含藏干节点，置信度需要降低"
+        : "",
+
+      interruptions.length
+        ? "路径节点受到刑冲害破类中断信号牵动"
+        : "",
+
       officer.isHiddenOnly
         ? "官杀藏而不透，社会位置需要后天推动"
         : "",
@@ -867,6 +1289,11 @@ function evaluateOfficialResourceWorkChain(
     ]);
 
   const confirmed =
+    workPath &&
+    workPath.activationLevel ===
+      "activated" &&
+    workPath.hiddenNodeCount === 0 &&
+    interruptions.length === 0 &&
     officer.total >=
       finite(
         thresholds.confirmedOfficerMin,
@@ -874,13 +1301,16 @@ function evaluateOfficialResourceWorkChain(
     resource.total >=
       finite(
         thresholds.confirmedResourceMin,
-      ) &&
-    officer.hasRoot &&
-    resource.hasRoot &&
-    !officer
-      .isRelationAffected;
+      );
 
   return {
+    title:
+      !workPath
+        ? "官印并见，承接链待确认"
+        : confirmed
+          ? "官印承接做功链"
+          : "官印承接结构链候选",
+
     role:
       confirmed
         ? "support"
@@ -893,8 +1323,20 @@ function evaluateOfficialResourceWorkChain(
 
     confidence:
       confirmed
-        ? "high"
-        : "medium",
+        ? workPath.confidence
+        : !workPath
+          ? "low"
+          : workPath.confidence ===
+              "high"
+            ? "medium"
+            : workPath.confidence,
+
+    workStatus,
+
+    workPath:
+      serializeWorkPath(
+        workPath,
+      ),
 
     evidence:
       [
@@ -1220,6 +1662,40 @@ function createPatternImage(
         rule.domains,
       ),
 
+    workStatus:
+      evaluation.workStatus ??
+      "not_applicable",
+
+    workPath:
+      evaluation.workPath ??
+      null,
+
+    school:
+      Array.isArray(
+        rule.school,
+      )
+        ? [...rule.school]
+        : [],
+
+    sourceRefs:
+      Array.isArray(
+        rule.sourceRefs,
+      )
+        ? rule.sourceRefs.map(
+            (item) => ({
+              ...item,
+            }),
+          )
+        : [],
+
+    masterNarrative:
+      rule.masterNarrative ??
+      null,
+
+    replacementPolicy:
+      rule.replacementPolicy ??
+      "ranked",
+
     replacesRuleIds:
       uniqueText(
         rule.replacesRuleIds,
@@ -1364,35 +1840,6 @@ function buildByRole(
   }
 
   return result;
-}
-
-function compareImages(
-  left,
-  right,
-) {
-  return (
-    finite(
-      right.priority,
-    ) -
-      finite(
-        left.priority,
-      ) ||
-    roleRank[
-      right.role
-    ] -
-      roleRank[
-        left.role
-      ] ||
-    confidenceRank[
-      right.confidence
-    ] -
-      confidenceRank[
-        left.confidence
-      ] ||
-    left.ruleId.localeCompare(
-      right.ruleId,
-    )
-  );
 }
 
 function normalizeConfidence(

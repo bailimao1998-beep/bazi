@@ -18,7 +18,7 @@ const INTERNAL_FIELD_NAMES = [
 const BASE_CHAT_RULES = [
   "你是命理报告语言组织器，不是排盘器，也不是规则引擎。",
   "你是命理系统的问答解释层，同时也是一般 AI 问答助手。",
-  "优先基于当前命盘完整数据快照回答，不依赖页面是否展开或是否显示。",
+  "命理问题只基于系统提供的原局证据包和已生成的时间层报告回答；普通问题不强行结合命盘。",
   "如果问题涉及原局判断，必须优先使用 natalAiEvidencePack。",
   "只能引用 evidence pack 和系统已生成时间层报告中的信息，不得新增包外格局、神煞、合冲或十神。",
   "当前 natalAiEvidencePack 的 scope 是 natal；用户问大运、流年、流月而缺少对应时间层证据时，应说明需要加载对应时间层证据。",
@@ -57,6 +57,26 @@ const OUTPUT_FORMAT_RULES = [
   "说明哪些不能仅凭命盘确认，不能使用一定、必然、注定。",
 ];
 
+const NATAL_CHAT_INTENTS = new Set([
+  "relationship",
+  "career",
+  "wealth",
+  "health",
+  "chartEvidence",
+]);
+
+const TIME_CHAT_INTENTS = new Set([
+  "multiYear",
+  "yearTrend",
+  "monthTrend",
+]);
+
+const VALID_CHAT_INTENTS = new Set([
+  ...NATAL_CHAT_INTENTS,
+  ...TIME_CHAT_INTENTS,
+  "free",
+]);
+
 function buildChatSystemPrompt() {
   return [
     ...BASE_CHAT_RULES,
@@ -68,9 +88,6 @@ function buildChatSystemPrompt() {
 
 export function buildChatPrompt({
   question,
-  input,
-  chart,
-  baseBaziViewModel,
   natalImageReport,
   luckImageReport,
   yearImageReport,
@@ -80,107 +97,114 @@ export function buildChatPrompt({
   requestedYears,
   requestedYearReports,
 } = {}) {
+  const normalizedIntent =
+    normalizeChatIntent(chatIntent);
+
+  const userPayload = {
+    question:
+      String(question ?? "").trim(),
+
+    chatIntent: normalizedIntent,
+  };
+
+  const needsNatalEvidence =
+    NATAL_CHAT_INTENTS.has(
+      normalizedIntent,
+    ) ||
+    TIME_CHAT_INTENTS.has(
+      normalizedIntent,
+    );
+
+  if (needsNatalEvidence) {
+    userPayload.natalAiEvidencePack =
+      natalImageReport?.natalAiEvidencePack ??
+      natalImageReport?.natalDebug
+        ?.natalAiEvidencePack ??
+      null;
+  }
+
+  if (normalizedIntent === "multiYear") {
+    userPayload.requestedYears =
+      normalizeYears(requestedYears);
+
+    userPayload.requestedYearReports =
+      compactRequestedYearReports(
+        requestedYearReports,
+      );
+  }
+
+  if (normalizedIntent === "yearTrend") {
+    userPayload.requestedYears =
+      normalizeYears(requestedYears);
+
+    userPayload.luckImageReport =
+      compactReport(luckImageReport);
+
+    userPayload.yearImageReport =
+      compactReport(yearImageReport);
+
+    userPayload.requestedYearReports =
+      compactRequestedYearReports(
+        requestedYearReports,
+      );
+  }
+
+  if (normalizedIntent === "monthTrend") {
+    userPayload.luckImageReport =
+      compactReport(luckImageReport);
+
+    userPayload.yearImageReport =
+      compactReport(yearImageReport);
+
+    userPayload.monthImageReport =
+      compactReport(monthImageReport);
+
+    userPayload.monthImageReports =
+      compactMonthReports(
+        monthImageReports,
+      );
+  }
+
   return {
     system: buildChatSystemPrompt(),
-    user: JSON.stringify({
-      question: String(question ?? "").trim(),
-      chatIntent,
-      requestedYears,
-      input: compactInput(input),
-      chartSummary: compactChartSummary(chart, baseBaziViewModel),
-      baseBaziViewModel: compactBaseBaziViewModel(baseBaziViewModel),
-      natalAiEvidencePack:
-        natalImageReport?.natalAiEvidencePack ??
-        natalImageReport?.natalDebug?.natalAiEvidencePack ??
-        null,
-      natalImageReport: compactNatalReport(natalImageReport),
-      luckImageReport: compactReport(luckImageReport),
-      yearImageReport: compactReport(yearImageReport),
-      monthImageReport: compactReport(monthImageReport),
-      monthImageReports: compactMonthReports(monthImageReports),
-      requestedYearReports: compactRequestedYearReports(requestedYearReports),
-    }, null, 2),
+
+    user: JSON.stringify(
+      userPayload,
+      null,
+      2,
+    ),
   };
 }
 
-function compactNatalReport(report = {}) {
-  return {
-    engineVersion: report.engineVersion,
-    domainEngineVersion: report.domainEngineVersion,
-    masterSummary: report.masterSummary,
-    twelveDomains: report.twelveDomains,
-    hitList: report.hitList
-      ? {
-          scope: report.hitList.scope,
-          all: (report.hitList.all ?? []).map((item) => ({
-            id: item.id,
-            name: item.name,
-            sourceRuleId: item.sourceRuleId,
-            brief: item.brief,
-            scope: item.scope,
-          })),
-        }
-      : null,
-  };
-}
-
-function compactBaseBaziViewModel(viewModel = {}) {
-  return {
-    birthInfo: viewModel.birthInfo,
-    pillars: viewModel.pillars,
-    fiveElements: viewModel.fiveElements,
-    tenGods: viewModel.tenGods,
-    relations: viewModel.relations,
-    structureAnalysis: viewModel.structureAnalysis,
-    luckCycles: viewModel.luckCycles,
-  };
-}
-
-function compactReport(report = {}) {
-  return {
-    summary: report.summary ?? null,
-    imageCards: report.imageCards ?? undefined,
-    luckItems: report.luckItems ?? undefined,
-    yearItem: report.yearItem ?? undefined,
-    monthItem: report.monthItem ?? undefined,
-    keySignals: report.keySignals ?? undefined,
-    needVerify: report.needVerify ?? undefined,
-  };
-}
-function compactInput(input = {}) {
-  return {
-    name: input.name,
-    gender: input.gender,
-    birthDate: input.birthDate,
-    birthTime: input.birthTime,
-    birthplace: input.birthplace,
-    targetYear: input.targetYear,
-    selectedMonth: input.selectedMonth,
-    trueSolarTime: input.trueSolarTime,
-  };
-}
-
-function compactChartSummary(chart = {}, baseBaziViewModel = {}) {
-  const pillars = baseBaziViewModel?.pillars ?? [];
+function compactReport(report) {
+  if (
+    !report ||
+    typeof report !== "object"
+  ) {
+    return null;
+  }
 
   return {
-    dayMaster: baseBaziViewModel?.dayMaster ?? chart?.dayMaster,
-    pillars: pillars.map((item) => ({
-      key: item.key,
-      name: item.name,
-      pillar: item.pillar,
-      stem: item.stem,
-      branch: item.branch,
-      stemTenGod: item.stemTenGod,
-      branchMainTenGod: item.branchMainTenGod,
-      hiddenStems: item.hiddenStems,
-      shensha: item.shensha,
-    })),
-    fiveElements: baseBaziViewModel?.fiveElements,
-    tenGods: baseBaziViewModel?.tenGods,
-    relations: baseBaziViewModel?.relations,
-    structureAnalysis: baseBaziViewModel?.structureAnalysis,
-    luckCycles: baseBaziViewModel?.luckCycles,
+    summary:
+      report.summary ?? null,
+
+    imageCards:
+      report.imageCards ?? undefined,
+
+    luckItems:
+      report.luckItems ?? undefined,
+
+    yearItem:
+      report.yearItem ?? undefined,
+
+    monthItem:
+      report.monthItem ?? undefined,
+
+    keySignals:
+      report.keySignals ?? undefined,
+
+    needVerify:
+      report.needVerify ?? undefined,
   };
 }
 
@@ -216,4 +240,33 @@ function compactRequestedYearReports(reports = []) {
     luckImageReport: compactReport(item.luckImageReport),
     yearImageReport: compactReport(item.yearImageReport),
   }));
+}
+
+function normalizeChatIntent(value) {
+  const normalized =
+    String(value ?? "").trim();
+
+  return VALID_CHAT_INTENTS.has(
+    normalized,
+  )
+    ? normalized
+    : "free";
+}
+
+function normalizeYears(items) {
+  return [
+    ...new Set(
+      (Array.isArray(items)
+        ? items
+        : [])
+        .map(Number)
+        .filter((year) =>
+          Number.isFinite(year) &&
+          year >= 1900 &&
+          year <= 2100,
+        ),
+    ),
+  ].sort((left, right) =>
+    left - right,
+  );
 }

@@ -176,6 +176,48 @@ function evaluateRule(rule, context) {
         context,
       );
 
+    case "output_wealth_chain":
+      return evaluateOutputWealthChain(
+        rule,
+        context,
+      );
+
+    case "hurting_officer_resource_balance":
+      return evaluateHurtingOfficerResourceBalance(
+        rule,
+        context,
+      );
+
+    case "hurting_officer_meets_officer":
+      return evaluateHurtingOfficerMeetsOfficer(
+        rule,
+        context,
+      );
+
+    case "wealth_heavy_body_weak":
+      return evaluateWealthHeavyBodyWeak(
+        rule,
+        context,
+      );
+
+    case "officer_killing_mixed":
+      return evaluateOfficerKillingMixed(
+        rule,
+        context,
+      );
+
+    case "day_branch_combined":
+      return evaluateDayBranchCombined(
+        rule,
+        context,
+      );
+
+    case "metal_water_fire_weak":
+      return evaluateMetalWaterFireWeak(
+        rule,
+        context,
+      );
+
     default:
       return null;
   }
@@ -508,6 +550,226 @@ function evaluateMonthCommandOfficial(
   });
 }
 
+function evaluateOutputWealthChain(
+  rule,
+  context,
+) {
+  const output = context.tenGodGroups.output;
+  const wealth = context.tenGodGroups.wealth;
+  const thresholds = rule.thresholds ?? {};
+
+  if (
+    output.total <
+      numberThreshold(
+        thresholds.outputMinWeightedCount,
+      ) ||
+    wealth.total <
+      numberThreshold(
+        thresholds.wealthMinWeightedCount,
+      )
+  ) {
+    return null;
+  }
+
+  return createImage(rule, {
+    matchedFactIds: [
+      ...output.positiveFacts,
+      ...wealth.positiveFacts,
+    ].map(getFactId),
+  });
+}
+
+function evaluateHurtingOfficerResourceBalance(
+  rule,
+  context,
+) {
+  const hurtingOfficer =
+    context.tenGodFactsByName["伤官"];
+  const resource =
+    context.tenGodGroups.resource;
+  const thresholds = rule.thresholds ?? {};
+
+  if (
+    weightedCount(hurtingOfficer) <
+      numberThreshold(
+        thresholds.hurtingOfficerMinWeightedCount,
+      ) ||
+    resource.total <
+      numberThreshold(
+        thresholds.resourceMinWeightedCount,
+      )
+  ) {
+    return null;
+  }
+
+  return createImage(rule, {
+    matchedFactIds: [
+      getFactId(hurtingOfficer),
+      ...resource.positiveFacts.map(getFactId),
+    ],
+  });
+}
+
+function evaluateHurtingOfficerMeetsOfficer(
+  rule,
+  context,
+) {
+  const hurtingOfficer =
+    context.tenGodFactsByName["伤官"];
+  const properOfficer =
+    context.tenGodFactsByName["正官"];
+  const thresholds = rule.thresholds ?? {};
+
+  if (
+    weightedCount(hurtingOfficer) <
+      numberThreshold(
+        thresholds.hurtingOfficerMinWeightedCount,
+      ) ||
+    weightedCount(properOfficer) <
+      numberThreshold(
+        thresholds.properOfficerMinWeightedCount,
+      )
+  ) {
+    return null;
+  }
+
+  return createImage(rule, {
+    matchedFactIds: [
+      getFactId(hurtingOfficer),
+      getFactId(properOfficer),
+    ],
+  });
+}
+
+function evaluateWealthHeavyBodyWeak(
+  rule,
+  context,
+) {
+  const wealth = context.tenGodGroups.wealth;
+  const strengthScoreFact =
+    context.dayMasterFacts.strengthScore;
+  const strengthScore = parseFiniteNumber(
+    strengthScoreFact?.value,
+  );
+  const thresholds = rule.thresholds ?? {};
+
+  if (
+    strengthScore === null ||
+    wealth.total <
+      numberThreshold(
+        thresholds.wealthMinWeightedCount,
+      ) ||
+    strengthScore >
+      numberThreshold(
+        thresholds.maxDayMasterStrengthScore,
+      )
+  ) {
+    return null;
+  }
+
+  return createImage(rule, {
+    matchedFactIds: [
+      ...wealth.positiveFacts.map(getFactId),
+      getFactId(strengthScoreFact),
+    ],
+  });
+}
+
+function evaluateOfficerKillingMixed(
+  rule,
+  context,
+) {
+  const properOfficer =
+    context.tenGodFactsByName["正官"];
+  const killing =
+    context.tenGodFactsByName["七杀"];
+  const thresholds = rule.thresholds ?? {};
+
+  if (
+    weightedCount(properOfficer) <
+      numberThreshold(
+        thresholds.properOfficerMinWeightedCount,
+      ) ||
+    weightedCount(killing) <
+      numberThreshold(
+        thresholds.killingMinWeightedCount,
+      )
+  ) {
+    return null;
+  }
+
+  return createImage(rule, {
+    matchedFactIds: [
+      getFactId(properOfficer),
+      getFactId(killing),
+    ],
+  });
+}
+
+function evaluateDayBranchCombined(
+  rule,
+  context,
+) {
+  const allowedTypes = new Set(
+    normalizeArray(
+      rule.thresholds?.combineRelationTypes,
+    ),
+  );
+  const matchedFacts =
+    context.relationFacts.filter((fact) => {
+      const relationType = normalizeText(
+        fact.value?.relationType,
+      );
+
+      return (
+        allowedTypes.has(relationType) &&
+        relationHasDayBranch(fact)
+      );
+    });
+
+  if (matchedFacts.length === 0) {
+    return null;
+  }
+
+  return createImage(rule, {
+    matchedFactIds:
+      matchedFacts.map(getFactId),
+  });
+}
+
+function evaluateMetalWaterFireWeak(
+  rule,
+  context,
+) {
+  const counts = context.elementFacts.counts;
+  const thresholds = rule.thresholds ?? {};
+  const metal = counts.metal;
+  const water = counts.water;
+  const fire = counts.fire;
+
+  if (
+    !metal.fact ||
+    !water.fact ||
+    !fire.fact ||
+    metal.value <
+      numberThreshold(thresholds.metalMinCount) ||
+    water.value <
+      numberThreshold(thresholds.waterMinCount) ||
+    fire.value >
+      numberThreshold(thresholds.fireMaxCount)
+  ) {
+    return null;
+  }
+
+  return createImage(rule, {
+    matchedFactIds: [
+      getFactId(metal.fact),
+      getFactId(water.fact),
+      getFactId(fire.fact),
+    ],
+  });
+}
+
 function buildCompositionContext(facts) {
   const tenGodPresenceFacts =
     selectAtomicFacts({
@@ -549,20 +811,52 @@ function buildCompositionContext(facts) {
         "bias_level",
         "dominant_elements",
         "weakest_elements",
+        "element_count",
       ],
+    },
+  }).selectedFacts;
+
+  const dayMasterFacts = selectAtomicFacts({
+    facts,
+    query: {
+      categories: ["day_master"],
+      predicates: ["strength_score"],
     },
   }).selectedFacts;
 
   return {
     tenGodGroups:
       buildTenGodGroups(tenGodPresenceFacts),
+    tenGodFactsByName:
+      buildTenGodFactsByName(
+        tenGodPresenceFacts,
+      ),
     monthTenGodFacts:
       buildMonthTenGodFacts(pillarFacts),
     pillars: buildPillars(pillarFacts),
     relationFacts,
     elementFacts:
       buildElementFacts(elementFacts),
+    dayMasterFacts:
+      buildDayMasterFacts(dayMasterFacts),
   };
+}
+
+function buildTenGodFactsByName(facts) {
+  const result = {};
+
+  for (const fact of facts) {
+    const tenGod = normalizeText(
+      fact.value?.tenGod ??
+        fact.subject?.key,
+    );
+
+    if (tenGod && !result[tenGod]) {
+      result[tenGod] = fact;
+    }
+  }
+
+  return result;
 }
 
 function buildTenGodGroups(facts) {
@@ -739,6 +1033,13 @@ function buildElementFacts(facts) {
     biasLevel: null,
     dominantElements: null,
     weakestElements: null,
+    counts: {
+      wood: { value: 0, fact: null },
+      fire: { value: 0, fact: null },
+      earth: { value: 0, fact: null },
+      metal: { value: 0, fact: null },
+      water: { value: 0, fact: null },
+    },
   };
 
   for (const fact of facts) {
@@ -752,6 +1053,40 @@ function buildElementFacts(facts) {
 
     if (fact.predicate === "weakest_elements") {
       result.weakestElements = fact;
+    }
+
+    if (fact.predicate === "element_count") {
+      const element = normalizeText(
+        fact.value?.element ??
+          fact.subject?.key,
+      );
+      const count =
+        parseFiniteNumber(
+          fact.value?.count ??
+            fact.value?.weightedCount ??
+            fact.value,
+        ) ?? 0;
+
+      if (Object.hasOwn(result.counts, element)) {
+        result.counts[element] = {
+          value: count,
+          fact,
+        };
+      }
+    }
+  }
+
+  return result;
+}
+
+function buildDayMasterFacts(facts) {
+  const result = {
+    strengthScore: null,
+  };
+
+  for (const fact of facts) {
+    if (fact.predicate === "strength_score") {
+      result.strengthScore = fact;
     }
   }
 
@@ -887,6 +1222,12 @@ function parseFiniteNumber(value) {
   return Number.isFinite(parsed)
     ? parsed
     : null;
+}
+
+function weightedCount(fact) {
+  return parseFiniteNumber(
+    fact?.value?.weightedCount,
+  ) ?? 0;
 }
 
 function normalizeValueArray(value) {

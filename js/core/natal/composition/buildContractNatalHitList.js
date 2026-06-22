@@ -159,7 +159,7 @@ function buildHitListRow(
       factById,
     ),
 
-    source: "新版原局组合规则",
+    source: "新版组合取象规则",
     brief: normalizeText(image.brief),
     image: tags,
     tags,

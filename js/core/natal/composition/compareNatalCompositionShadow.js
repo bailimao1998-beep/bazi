@@ -1,201 +1,18 @@
+import {
+  NATAL_COMPOSITION_MIGRATION_CATALOG_VERSION,
+  getNatalCompositionComparableItems,
+  natalCompositionFamilyKeys,
+  natalCompositionMigrationSummary,
+} from "./natalCompositionMigrationCatalog.js";
+
 export const NATAL_COMPOSITION_COMPARISON_VERSION =
-  "natal-composition-shadow-compare-v2";
+  "natal-composition-shadow-compare-v3";
 
-const standardFamilyKeys = [
-  "official_resource_support",
-  "wealth_official_resource_trace",
-  "day_pillar_repetition",
-  "spouse_palace_relation_tension",
-  "peer_wealth_competition",
-  "resource_heavy_output_weak",
-  "element_bias_visible",
-  "month_command_official",
-];
+const standardFamilyKeys =
+  natalCompositionFamilyKeys;
 
-const legacyFamilyAliases = {
-  official_resource_support: {
-    sourceRuleIds: [
-      "officer_resource_chain",
-    ],
-    semanticGroups: [
-      "officer-resource-chain",
-    ],
-    ids: [
-      "officer_resource_chain",
-    ],
-    names: [
-      "官印承接",
-      "杀印承接",
-      "官印相生",
-    ],
-    requiredTags: [
-      ["官印", "承接"],
-      ["杀印", "承接"],
-    ],
-  },
-
-  wealth_official_resource_trace: {
-    sourceRuleIds: [
-      "wealth_officer_resource_chain",
-      "wealth_officer_resource_trace",
-    ],
-    semanticGroups: [
-      "wealth-officer-resource-chain",
-    ],
-    ids: [
-      "wealth_officer_resource_chain",
-      "wealth_officer_resource_trace",
-    ],
-    names: [
-      "财官印承接线索",
-      "年月财官印有承接线索",
-    ],
-    requiredTags: [
-      ["财官印"],
-    ],
-  },
-
-  day_pillar_repetition: {
-    sourceRuleIds: [
-      "day_pillar_fuyin",
-    ],
-    semanticGroups: [
-      "day-pillar-fuyin",
-    ],
-    ids: [
-      "day_pillar_fuyin",
-    ],
-    idPatterns: [
-      /^repetition-pillar-(year|month|hour)-day-.+$/,
-      /^repetition-pillar-day-(year|month|hour)-.+$/,
-    ],
-    names: [
-      "日柱参与伏吟",
-    ],
-    namePatterns: [
-      /日柱.+伏吟/,
-      /.+日柱.+伏吟/,
-    ],
-    requiredTags: [
-      ["日柱", "伏吟"],
-    ],
-  },
-
-  spouse_palace_relation_tension: {
-    sourceRuleIds: [
-      "day_branch_clashed",
-      "day_branch_punished_harmed_broken",
-    ],
-    semanticGroups: [
-      "day-branch-clashed",
-      "day-branch-tension",
-    ],
-    ids: [
-      "day_branch_clashed",
-      "day_branch_punished_harmed_broken",
-    ],
-    idPatterns: [
-      /^relation-.+day-branch.+branch_(clash|punish|self_punish|harm|break).+$/,
-      /^relation-.+branch_(clash|punish|self_punish|harm|break).+day-branch.+$/,
-    ],
-    names: [
-      "日支受冲",
-      "日支刑害破牵动",
-    ],
-    namePatterns: [
-      /日支.+(冲|刑|害|破|自刑)/,
-    ],
-    requiredTags: [
-      ["日支", "冲"],
-      ["日支", "刑害破"],
-    ],
-  },
-
-  peer_wealth_competition: {
-    sourceRuleIds: [
-      "peer_wealth_tension",
-    ],
-    semanticGroups: [
-      "peer-wealth-tension",
-    ],
-    ids: [
-      "peer_wealth_tension",
-    ],
-    names: [
-      "比劫牵财",
-    ],
-    requiredTags: [
-      ["比劫", "财星"],
-    ],
-  },
-
-  resource_heavy_output_weak: {
-    sourceRuleIds: [
-      "resource_heavy_output_weak",
-    ],
-    semanticGroups: [
-      "resource-heavy-output-weak",
-    ],
-    ids: [
-      "resource_heavy_output_weak",
-    ],
-    names: [
-      "印重食伤弱",
-    ],
-    requiredTags: [
-      ["印重", "食伤弱"],
-    ],
-  },
-
-  element_bias_visible: {
-    sourceRuleIds: [
-      "element_bias_clear",
-    ],
-    semanticGroups: [
-      "element-bias-clear",
-    ],
-    ids: [
-      "element_bias_clear",
-    ],
-    names: [
-      "五行偏性明显",
-      "五行偏颇明显",
-    ],
-    requiredTags: [
-      ["五行偏颇"],
-      ["偏性"],
-    ],
-  },
-
-  month_command_official: {
-    sourceRuleIds: [
-      "branch-main-month-正官",
-      "branch-main-month-七杀",
-    ],
-    semanticGroups: [
-      "branch-main-month-正官",
-      "branch-main-month-七杀",
-    ],
-    ids: [
-      "branch-main-month-正官",
-      "branch-main-month-七杀",
-    ],
-    idPatterns: [
-      /^branch-main-month-(正官|七杀)$/,
-    ],
-    names: [
-      "月令正官",
-      "月令七杀",
-    ],
-    namePatterns: [
-      /^月令(正官|七杀)$/,
-    ],
-    requiredTags: [
-      ["月令", "正官"],
-      ["月令", "七杀"],
-    ],
-  },
-};
+const comparableCatalogItems =
+  getNatalCompositionComparableItems();
 
 const atomicCategories = new Set([
   "日主根气",
@@ -372,6 +189,29 @@ export function compareNatalCompositionShadow({
         : 0,
     ),
 
+    catalogVersion:
+      NATAL_COMPOSITION_MIGRATION_CATALOG_VERSION,
+    totalCatalogItems:
+      natalCompositionMigrationSummary.totalCatalogItems,
+    compositionNatalItems:
+      natalCompositionMigrationSummary
+        .compositionNatalItems,
+    coveredCatalogItems:
+      natalCompositionMigrationSummary
+        .coveredCatalogItems,
+    mergedCatalogItems:
+      natalCompositionMigrationSummary
+        .mergedCatalogItems,
+    excludedCatalogItems:
+      natalCompositionMigrationSummary
+        .excludedCatalogItems,
+    blockedCatalogItems:
+      natalCompositionMigrationSummary
+        .blockedCatalogItems,
+    unclassifiedCatalogItems:
+      natalCompositionMigrationSummary
+        .unclassifiedCatalogItems,
+
     matched,
     missingLegacy,
     contractOnly,
@@ -448,19 +288,18 @@ function buildContractProjection(images) {
 }
 
 function normalizeLegacyFamilyKey(item) {
-  for (const familyKey of standardFamilyKeys) {
-    const alias =
-      legacyFamilyAliases[familyKey];
-
-    if (matchesAlias(item, alias)) {
-      return familyKey;
+  for (const catalogItem of comparableCatalogItems) {
+    if (matchesCatalogItem(item, catalogItem)) {
+      return normalizeText(
+        catalogItem.targetFamilyKey,
+      );
     }
   }
 
   return "";
 }
 
-function matchesAlias(item, alias = {}) {
+function matchesCatalogItem(item, catalogItem) {
   const sourceRuleId = normalizeText(
     item.sourceRuleId,
   );
@@ -472,51 +311,93 @@ function matchesAlias(item, alias = {}) {
   const tags = uniqueSortedStrings(
     Array.isArray(item.tags) ? item.tags : [],
   );
+  const aliases = Array.isArray(
+    catalogItem.aliases,
+  )
+    ? catalogItem.aliases
+    : [];
 
   return (
-    includesText(alias.sourceRuleIds, sourceRuleId) ||
-    includesText(alias.semanticGroups, semanticGroup) ||
-    includesText(alias.ids, id) ||
-    matchesPattern(alias.idPatterns, id) ||
-    includesText(alias.names, title) ||
-    matchesPattern(alias.namePatterns, title) ||
-    matchesRequiredTags(alias.requiredTags, tags)
+    sourceRuleId ===
+      normalizeText(catalogItem.legacyRuleId) ||
+    semanticGroup ===
+      normalizeText(
+        catalogItem.legacySemanticGroup,
+      ) ||
+    id === normalizeText(catalogItem.legacyRuleId) ||
+    title === normalizeText(catalogItem.legacyTitle) ||
+    matchesAliasList(aliases, {
+      sourceRuleId,
+      semanticGroup,
+      id,
+      title,
+      tags,
+    })
   );
 }
 
-function includesText(items, value) {
-  return (
-    Boolean(value) &&
-    Array.isArray(items) &&
-    items.map(normalizeText).includes(value)
-  );
+function matchesAliasList(aliases, values) {
+  for (const alias of aliases) {
+    if (matchesAlias(alias, values)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
-function matchesRequiredTags(
-  tagGroups,
-  tags,
-) {
-  if (!Array.isArray(tagGroups)) {
+function matchesAlias(alias, values) {
+  const text = normalizeText(alias);
+
+  if (!text) {
     return false;
   }
 
-  return tagGroups.some((group) =>
-    Array.isArray(group) &&
-    group.every((tag) =>
-      tags.includes(normalizeText(tag)),
-    ),
-  );
+  if (text.startsWith("idPattern:")) {
+    return matchesPatternText(
+      text.slice("idPattern:".length),
+      values.id,
+    );
+  }
+
+  if (text.startsWith("namePattern:")) {
+    return matchesPatternText(
+      text.slice("namePattern:".length),
+      values.title,
+    );
+  }
+
+  if (text.startsWith("tags:")) {
+    const requiredTags = text
+      .slice("tags:".length)
+      .split("|")
+      .map(normalizeText)
+      .filter(Boolean);
+
+    return requiredTags.every((tag) =>
+      values.tags.includes(tag),
+    );
+  }
+
+  return [
+    values.sourceRuleId,
+    values.semanticGroup,
+    values.id,
+    values.title,
+    ...values.tags,
+  ].includes(text);
 }
 
-function matchesPattern(patterns, value) {
-  return (
-    Boolean(value) &&
-    Array.isArray(patterns) &&
-    patterns.some((pattern) =>
-      pattern instanceof RegExp &&
-      pattern.test(value),
-    )
-  );
+function matchesPatternText(pattern, value) {
+  if (!pattern || !value) {
+    return false;
+  }
+
+  try {
+    return new RegExp(pattern).test(value);
+  } catch {
+    return false;
+  }
 }
 
 function createMatchedItem(
@@ -583,17 +464,40 @@ function createMatchedItem(
 }
 
 function compareRoles(legacyRoles, contractRoles) {
+  const normalizedLegacyRoles =
+    uniqueSortedStrings(
+      legacyRoles.map(normalizeComparableRole),
+    );
+  const normalizedContractRoles =
+    uniqueSortedStrings(
+      contractRoles.map(normalizeComparableRole),
+    );
+
   if (
-    legacyRoles.length === 0 ||
-    contractRoles.length === 0
+    normalizedLegacyRoles.length === 0 ||
+    normalizedContractRoles.length === 0
   ) {
     return null;
   }
 
   return intersectSorted(
-    legacyRoles,
-    contractRoles,
+    normalizedLegacyRoles,
+    normalizedContractRoles,
   ).length > 0;
+}
+
+function normalizeComparableRole(role) {
+  const normalized = normalizeText(role);
+
+  if (normalized === "main") {
+    return "core";
+  }
+
+  if (normalized === "condition") {
+    return "conditional";
+  }
+
+  return normalized;
 }
 
 function classifyIntentionallyUncompared(

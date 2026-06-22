@@ -2,6 +2,10 @@ import {
   domainRules,
 } from "./domainRuleDatabase.js";
 import { DOMAIN_NARRATIVE_COMPOSER_VERSION, composeDomainNarrative, } from "../natal/narrative/domainNarrativeComposer.js";
+import {
+  aggregateDomainProfessionalImages,
+  compareProfessionalEvidenceImages,
+} from "../natal/professional/domainProfessionalAggregation.js";
 
 export const CONTRACT_DOMAIN_ENGINE_VERSION =
   "contract-domain-v1";
@@ -238,7 +242,10 @@ function selectDomainEvidence({
         normalizeText(image.id),
       ),
     )
-    .sort(compareImages);
+    .sort(
+      compareProfessionalEvidenceImages,
+    )
+    .slice(0, 8);
   const domainFacts = facts
     .filter((fact) =>
       factMatchesDomain(fact, rule),
@@ -264,15 +271,25 @@ function buildDomainPortrait({
   const facts =
     selected.facts;
 
+  const professionalAggregation =
+    aggregateDomainProfessionalImages({
+      images,
+
+      domainKey:
+        rule.key,
+    });
+
   const primaryImage =
-    images[0] ?? null;
+    professionalAggregation
+      .primaryImage;
+
+  const supportImage =
+    professionalAggregation
+      .supportImage;
 
   const tensionImage =
-    images.find(
-      (image) =>
-        image.role ===
-          "tension",
-    ) ?? null;
+    professionalAggregation
+      .primaryTension;
 
   const primaryFact =
     facts[0] ?? null;
@@ -319,6 +336,9 @@ function buildDomainPortrait({
       facts,
 
       structureSynopsis,
+
+      aggregation:
+        professionalAggregation,
     });
 
   warnings.push(
@@ -380,7 +400,7 @@ function buildDomainPortrait({
 
   const confidence =
     calculateDomainConfidence(
-      images,
+      professionalAggregation,
       facts,
     );
 
@@ -474,6 +494,45 @@ function buildDomainPortrait({
 
     narrativeSourceImageIds:
       narrative.sourceImageIds,
+      
+    professionalAggregationVersion:
+      professionalAggregation.version,
+
+    professionalEvidenceLevel:
+      professionalAggregation
+        .evidenceLevel,
+
+    primaryProfessionalImage:
+      primaryImage
+        ? compactImageReference(
+            primaryImage,
+          )
+        : null,
+
+    supportProfessionalImage:
+      supportImage
+        ? compactImageReference(
+            supportImage,
+          )
+        : null,
+
+    tensionProfessionalImage:
+      tensionImage
+        ? compactImageReference(
+            tensionImage,
+          )
+        : null,
+
+    decisiveProfessionalImageIds:
+      professionalAggregation
+        .decisiveImages
+        .map(
+          (image) =>
+            image.id,
+        ),
+
+    professionalCounts:
+      professionalAggregation.counts,
 
     keywords,
 
@@ -546,28 +605,47 @@ function buildDomainPortrait({
     condition:
       uniqueSortedStrings(
         images.flatMap(
-          (image) =>
-            image.reasoning ?? [],
+          (image) => [
+            ...(
+              image
+                .weakeningEvidence ??
+              []
+            ),
+
+            ...(
+              image
+                .blockingEvidence ??
+              []
+            ),
+
+            ...(
+              image
+                .arbitrationNotes ??
+              []
+            ),
+          ],
         ),
       ).slice(0, 8),
 
     bookExplanation:
       rule.defaultJudgement,
 
-    counterEvidence:
-      uniqueSortedStrings(
-        images.flatMap(
-          (image) =>
-            image.counterFactIds ??
-            [],
-        ),
-      ).length
-        ? [
-            "该领域存在反证事实，需回到证据链复核轻重。",
-          ]
+    counterEvidence: (() => {
+      const counterTexts =
+        uniqueSortedStrings(
+          images.flatMap(
+            (image) =>
+              image.counterEvidence ??
+              [],
+          ),
+        ).slice(0, 6);
+
+      return counterTexts.length
+        ? counterTexts
         : [
             "本维度只作出生原局画像，具体事件仍需结合现实背景和时间层证据。",
-          ],
+          ];
+    })(),
 
     confidence,
 
@@ -701,19 +779,6 @@ function includesDomain(item, domainKey) {
     .includes(domainKey);
 }
 
-function compareImages(left, right) {
-  return (
-    roleRank(right.role) -
-      roleRank(left.role) ||
-    Number(right.priority ?? 0) -
-      Number(left.priority ?? 0) ||
-    normalizeText(left.ruleId)
-      .localeCompare(
-        normalizeText(right.ruleId),
-      )
-  );
-}
-
 function compareFacts(left, right) {
   return (
     confidenceRank(right.confidence) -
@@ -729,10 +794,6 @@ function compareFacts(left, right) {
   );
 }
 
-function roleRank(role) {
-  return roleOrder[normalizeText(role)] ?? 0;
-}
-
 function confidenceRank(confidence) {
   return (
     confidenceOrder[
@@ -741,17 +802,47 @@ function confidenceRank(confidence) {
   );
 }
 
-function calculateDomainConfidence(images, facts) {
+function calculateDomainConfidence(
+  aggregation,
+  facts,
+) {
   if (
-    images.some((image) =>
-      image.confidence === "high" ||
-      image.importance === "high",
-    )
+    aggregation
+      ?.evidenceLevel ===
+    "high"
   ) {
     return "high";
   }
 
-  if (images.length || facts.length >= 3) {
+  if (
+    aggregation
+      ?.evidenceLevel ===
+      "medium"
+  ) {
+    return "medium";
+  }
+
+  const highFactCount =
+    (
+      Array.isArray(facts)
+        ? facts
+        : []
+    ).filter(
+      (fact) =>
+        fact.confidence ===
+        "high",
+    ).length;
+
+  if (
+    highFactCount >= 2 ||
+    (
+      aggregation
+        ?.evidenceLevel ===
+        "low" &&
+      facts.length >= 2
+    ) ||
+    facts.length >= 4
+  ) {
     return "medium";
   }
 

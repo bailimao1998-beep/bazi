@@ -1,6 +1,10 @@
 import {
   getNatalCompositionSemantic,
 } from "./natalCompositionSemantics.js";
+import {
+  aggregateDomainProfessionalImages,
+  compareProfessionalEvidenceImages,
+} from "../professional/domainProfessionalAggregation.js";
 
 export const DOMAIN_NARRATIVE_COMPOSER_VERSION =
   "natal-domain-narrative-v2";
@@ -632,114 +636,128 @@ export function composeDomainNarrative({
   images = [],
   facts = [],
   structureSynopsis = {},
+  aggregation,
 } = {}) {
   const normalizedDomainKey =
     normalizeText(domainKey);
 
-  const relevantImages =
-    (
-      Array.isArray(images)
-        ? images
-        : []
-    )
-      .filter(
-        (image) =>
-          includesDomain(
-            image,
-            normalizedDomainKey,
-          ),
-      )
-      .sort(compareImages);
+const professionalAggregation =
+  aggregation?.version
+    ? aggregation
+    : aggregateDomainProfessionalImages({
+        images,
 
-  const candidates =
-    relevantImages
-      .map((image) => {
-        const ruleId =
-          normalizeText(
-            image.ruleId,
-          );
+        domainKey:
+          normalizedDomainKey,
+      });
 
-        const inlineNarrative =
-            image.domainNarratives
-                ?.[normalizedDomainKey] ??
-            null;
+const relevantImages =
+  professionalAggregation
+    .relevantImages
+    .slice()
+    .sort(
+      compareProfessionalEvidenceImages,
+    );
 
-            const semantic =
-            image.semantic ||
-            getNatalCompositionSemantic(
-                ruleId,
-            );
+const candidates =
+  relevantImages
+    .map((image) => {
+      const ruleId =
+        normalizeText(
+          image.ruleId,
+        );
 
-            const ruleOverview =
-            normalizeText(
-                inlineNarrative
-                ?.overview ||
-                domainRuleNarratives[
-                normalizedDomainKey
-                ]?.[ruleId],
-            );
+      const inlineNarrative =
+        image.domainNarratives
+          ?.[normalizedDomainKey] ??
+        null;
 
-            const detail =
-            inlineNarrative
-                ? createDomainDetail({
-                    manifestation:
-                    inlineNarrative
-                        .manifestation,
-
-                    strength:
-                    inlineNarrative
-                        .strength,
-
-                    caution:
-                    inlineNarrative
-                        .caution,
-                })
-                : resolveDomainDetail(
-                    normalizedDomainKey,
-                    ruleId,
-                );
-
-        return {
-          image,
+      const semantic =
+        image.semantic ||
+        getNatalCompositionSemantic(
           ruleId,
-          semantic,
-          overview:
-            ruleOverview,
-          detail,
-        };
-      })
-      .filter(
-        (item) =>
-          item.overview,
-      );
+        );
 
-  const positive =
-    candidates.find(
+      const ruleOverview =
+        normalizeText(
+          inlineNarrative
+            ?.overview ||
+          domainRuleNarratives[
+            normalizedDomainKey
+          ]?.[ruleId],
+        );
+
+      const detail =
+        inlineNarrative
+          ? createDomainDetail({
+              manifestation:
+                inlineNarrative
+                  .manifestation,
+
+              strength:
+                inlineNarrative
+                  .strength,
+
+              caution:
+                inlineNarrative
+                  .caution,
+            })
+          : resolveDomainDetail(
+              normalizedDomainKey,
+              ruleId,
+            );
+
+      return {
+        image,
+        ruleId,
+        semantic,
+        overview:
+          ruleOverview,
+        detail,
+      };
+    })
+    .filter(
       (item) =>
-        item.image.role ===
-          "core" ||
-        item.image.role ===
-          "support",
-    ) ??
-    null;
+        item.overview,
+    );
 
-  const tension =
-    candidates.find(
-      (item) =>
-        item.image.role ===
-          "tension" ||
-        item.image.role ===
-          "conditional" ||
-        item.image.status ===
-          "conditional",
-    ) ??
-    null;
+const findCandidate =
+  (image) =>
+    image
+      ? candidates.find(
+          (item) =>
+            item.image.id ===
+            image.id,
+        ) ?? null
+      : null;
 
-  const primary =
-    positive ||
-    tension ||
-    candidates[0] ||
-    null;
+const positive =
+  findCandidate(
+    professionalAggregation
+      .primaryPositive,
+  );
+
+const support =
+  findCandidate(
+    professionalAggregation
+      .supportImage,
+  );
+
+const tension =
+  findCandidate(
+    professionalAggregation
+      .primaryTension,
+  );
+
+const primary =
+  findCandidate(
+    professionalAggregation
+      .primaryImage,
+  ) ||
+  positive ||
+  tension ||
+  candidates[0] ||
+  null;
 
   const structureBaseline =
     normalizeText(
@@ -750,13 +768,28 @@ export function composeDomainNarrative({
         ],
     );
 
-  const compositionOverview =
+  const primaryOverview =
     primary
       ? qualifyConditionalText(
           primary.overview,
           primary.image,
         )
       : "";
+
+  const tensionOverview =
+    tension &&
+    tension !== primary
+      ? qualifyConditionalText(
+          tension.overview,
+          tension.image,
+        )
+      : "";
+
+  const compositionOverview =
+    joinNarrativeParts([
+      primaryOverview,
+      tensionOverview,
+    ]);
 
   const fallbackOverview =
     domainFallbacks[
@@ -802,18 +835,31 @@ export function composeDomainNarrative({
       genericManifestation,
     );
 
+  const strengthSource =
+    positive ||
+    support ||
+    (
+      primary?.image.role ===
+        "core" ||
+      primary?.image.role ===
+        "support"
+        ? primary
+        : null
+    );
+
   const positiveStrength =
-    positive
-        ? normalizeText(
-            positive.detail
+    strengthSource
+      ? normalizeText(
+          strengthSource
+            .detail
             .strength,
         )
-        : "";
+      : "";
 
   const genericStrength =
     useGenericSemantic
       ? normalizeText(
-          positive?.semantic
+          strengthsource?.semantic
             ?.strengths?.[0] ??
           primary?.semantic
             ?.strengths?.[0],
@@ -905,16 +951,45 @@ export function composeDomainNarrative({
       Boolean(
         structureBaseline,
       ),
+    aggregationVersion:
+      professionalAggregation
+        .version,
+
+    professionalEvidenceLevel:
+      professionalAggregation
+        .evidenceLevel,
+
+    primaryRuleId:
+      primary?.ruleId ??
+      "",
+
+    positiveRuleId:
+      positive?.ruleId ??
+      "",
+
+    supportRuleId:
+      support?.ruleId ??
+      "",
+
+    tensionRuleId:
+      tension?.ruleId ??
+      "",
+      
     isConditionalNarrative:
-    Boolean(
-        primary &&
+      Boolean(
+        professionalAggregation
+          .evidenceLevel ===
+          "low" ||
         (
-        primary.image.role ===
-            "conditional" ||
-        primary.image.status ===
-            "conditional"
-        ),
-    ),
+          primary &&
+          (
+            primary.image.role ===
+              "conditional" ||
+            primary.image.status ===
+              "conditional"
+          )
+        )
+      ),
     hasCompositionNarrative:
       Boolean(primary),
 

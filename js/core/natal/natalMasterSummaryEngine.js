@@ -1,3 +1,9 @@
+import {
+  compareProfessionalEvidenceImages,
+  isSupportedProfessionalImage,
+  professionalEvidenceStatusRank,
+} from "./professional/domainProfessionalAggregation.js";
+
 /**
  * 原局命理总批引擎。
  *
@@ -1334,19 +1340,28 @@ function buildContractNatalMasterSummary({
   const coreImages =
     images.filter(
       (image) =>
-        image.role === "core",
+        image.role === "core" &&
+        isSupportedProfessionalImage(
+          image,
+        ),
     );
 
   const supportImages =
     images.filter(
       (image) =>
-        image.role === "support",
+        image.role === "support" &&
+        isSupportedProfessionalImage(
+          image,
+        ),
     );
 
   const tensionImages =
     images.filter(
       (image) =>
-        image.role === "tension",
+        image.role === "tension" &&
+        isSupportedProfessionalImage(
+          image,
+        ),
     );
 
   const conditionalImages =
@@ -1361,10 +1376,17 @@ function buildContractNatalMasterSummary({
   const positiveImages = [
     ...coreImages,
     ...supportImages,
-  ];
+  ].sort(
+    compareProfessionalEvidenceImages,
+  );
 
   const primaryImage =
     positiveImages[0] ||
+    tensionImages
+      .slice()
+      .sort(
+        compareProfessionalEvidenceImages,
+      )[0] ||
     images[0] ||
     null;
 
@@ -1415,8 +1437,8 @@ function buildContractNatalMasterSummary({
 
   const primaryRuleId =
     cleanSentence(
-      primaryRow?.sourceRuleId ||
       primaryImage?.ruleId ||
+      primaryRow?.sourceRuleId ||
       "",
     );
 
@@ -1557,11 +1579,20 @@ function buildContractNatalMasterSummary({
     );
 
   let strengths =
-    collectNarrativeItems(
-      strengthRows,
+    collectImageNarrativeItems(
+      positiveImages,
       "strengths",
       2,
     );
+
+  if (!strengths.length) {
+    strengths =
+      collectNarrativeItems(
+        strengthRows,
+        "strengths",
+        2,
+      );
+  }
 
   if (
     !strengths.length &&
@@ -1576,11 +1607,20 @@ function buildContractNatalMasterSummary({
   }
 
   let tensions =
-    collectNarrativeItems(
-      tensionRows,
+    collectImageNarrativeItems(
+      tensionImages,
       "risks",
       2,
     );
+
+  if (!tensions.length) {
+    tensions =
+      collectNarrativeItems(
+        tensionRows,
+        "risks",
+        2,
+      );
+  }
 
   if (
     !tensions.length &&
@@ -2399,6 +2439,54 @@ function filterNovelSentences(
   );
 }
 
+function collectImageNarrativeItems(
+  images,
+  field,
+  limit,
+) {
+  const result = [];
+
+  for (
+    const image of
+    Array.isArray(images)
+      ? images
+      : []
+  ) {
+    const values =
+      normalizeArray(
+        image?.semantic
+          ?.[field],
+      );
+
+    for (
+      const value of
+      values
+    ) {
+      const text =
+        toMasterVoice(
+          value,
+        );
+
+      if (!text) {
+        continue;
+      }
+
+      pushDistinctText(
+        result,
+        text,
+      );
+
+      if (
+        result.length >= limit
+      ) {
+        return result;
+      }
+    }
+  }
+
+  return result;
+}
+
 function collectNarrativeItems(
   rows,
   field,
@@ -2490,8 +2578,20 @@ function compareMasterRows(
   right,
 ) {
   return (
-    roleRank(right?.role) -
-      roleRank(left?.role) ||
+    masterStatusRank(
+      right?.status,
+    ) -
+      masterStatusRank(
+        left?.status,
+      ) ||
+
+    roleRank(
+      right?.role,
+    ) -
+      roleRank(
+        left?.role,
+      ) ||
+
     Number(
       right?.priority ??
       right?.score ??
@@ -2505,27 +2605,24 @@ function compareMasterRows(
   );
 }
 
+function masterStatusRank(
+  status,
+) {
+  return (
+    professionalEvidenceStatusRank[
+      cleanSentence(status)
+    ] ?? 0
+  );
+}
+
 function compareContractImages(
   left,
   right,
 ) {
   return (
-    roleRank(right.role) -
-      roleRank(left.role) ||
-    Number(
-      right.priority ??
-      0,
-    ) -
-      Number(
-        left.priority ??
-        0,
-      ) ||
-    cleanSentence(
-      left.ruleId,
-    ).localeCompare(
-      cleanSentence(
-        right.ruleId,
-      ),
+    compareProfessionalEvidenceImages(
+      left,
+      right,
     )
   );
 }

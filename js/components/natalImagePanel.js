@@ -164,7 +164,7 @@ export function renderNatalImagePanel(
       <p class="eyebrow">原局取象</p>
       <h2>原局整体取象</h2>
       ${
-        report.engineVersion
+        showDebug && report.engineVersion
           ? `
             <span class="natal-engine-badge">
               ${display(report.engineVersion)}
@@ -413,14 +413,7 @@ function renderNatalMasterSummary(
           hasV2Summary
             ? `
               <span class="natal-v2-source">
-                事实驱动
-                ${
-                  evidenceCount
-                    ? ` · ${safe(
-                      evidenceCount,
-                    )} 条证据引用`
-                    : ""
-                }
+                结构化分析
               </span>
             `
             : `
@@ -608,8 +601,8 @@ function renderNatalDomainCard(
 ) {
   const mainText =
     cleanCardText(
-      domain.summary ||
       domain.judgement ||
+      domain.summary ||
       "当前领域以基础事实为主，尚未形成特别突出的高阶组合。",
       2,
     );
@@ -814,7 +807,6 @@ function renderNatalHitListSection(
     options.hitList ??
     buildNatalHitList(report);
   const rows = hitList.all;
-  const chips = hitList.featured;
   const title =
     options.title || "取象索引";
   const showEvidence =
@@ -833,26 +825,7 @@ function renderNatalHitListSection(
               当前原局未形成可列出的明显取象。
             </p>
           `
-          : (
-              chips.length <
-              rows.length
-                ? `
-                  <div class="natal-hit-summary-chips">
-                    ${chips
-                      .map(
-                        (item) => `
-                          <span>
-                            ${display(
-                              item.name,
-                            )}
-                          </span>
-                        `,
-                      )
-                      .join("")}
-                  </div>
-                `
-                : ""
-            )
+          : ""
       }
       ${rows.length ? (
         showEvidence

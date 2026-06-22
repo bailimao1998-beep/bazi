@@ -1505,11 +1505,6 @@ function buildContractSections({
     });
   };
 
-  addTextSection(
-    "core",
-    "命局核心",
-    coreStructure,
-  );
 
   addTextSection(
     "work",
@@ -1585,10 +1580,10 @@ function summarizeDomainGroup(domains, keys) {
         keys.includes(domain.key),
       )
       .map((domain) =>
-        domain.summary ||
         domain.judgement ||
+        domain.summary ||
         domain.title,
-      ),
+      )
   ).slice(0, 3).join("；");
 }
 
@@ -1620,17 +1615,6 @@ function buildContractConclusion({
 }) {
   const lines = [];
 
-  if (
-    coreStructure &&
-    !coreStructure.includes(
-      "尚未形成特别突出",
-    )
-  ) {
-    lines.push(
-      coreStructure,
-    );
-  }
-
   if (strengths[0]) {
     lines.push(
       `原局可用的支持点是：${strengths[0]}`,
@@ -1643,7 +1627,10 @@ function buildContractConclusion({
     );
   }
 
-  if (conditions[0]) {
+  if (
+    conditions[0] &&
+    lines.length < 2
+  ) {
     lines.push(
       `另有条件性线索：${conditions[0]}，具体轻重需要结合现实反馈。`,
     );
@@ -1651,6 +1638,7 @@ function buildContractConclusion({
 
   if (!lines.length) {
     lines.push(
+      coreStructure ||
       "当前原局以基础事实为主，高阶组合不算突出，宜结合现实反馈继续复核。",
     );
   }

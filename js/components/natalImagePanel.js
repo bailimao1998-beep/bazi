@@ -3570,15 +3570,48 @@ function normalizeDomainEvidenceRows(
    * “年柱藏干己”等具体证据必须保留。
    */
   return rows.filter(
-    (text) =>
-      !/^(年柱|月柱|日柱|时柱)$/.test(
-        text,
-      ) &&
-      !/^(年柱|月柱|日柱|时柱)[：:\s]*柱位信息$/.test(
-        text,
-      ) &&
-      text !==
-        "[object Object]",
+    (text) => {
+      const normalized =
+        String(text ?? "")
+          .replace(
+            /^[；：,\s]+|[；：,\s]+$/g,
+            "",
+          )
+          .trim();
+
+      if (!normalized) {
+        return false;
+      }
+
+      if (
+        /^(年柱|月柱|日柱|时柱)$/.test(
+          normalized,
+        )
+      ) {
+        return false;
+      }
+
+      if (
+        /^(年柱|月柱|日柱|时柱)[：:\s]*柱位信息$/.test(
+          normalized,
+        )
+      ) {
+        return false;
+      }
+
+      if (
+        /^[；：,\s]+$/.test(
+          normalized,
+        )
+      ) {
+        return false;
+      }
+
+      return (
+        normalized !==
+        "[object Object]"
+      );
+    },
   );
 }
 
@@ -3607,91 +3640,274 @@ function humanizeDomainEvidenceText(
         "",
       )
       .replace(
+        /\r?\n/g,
+        " ",
+      )
+      .replace(
         /_/g,
         " ",
-      );
+      )
+      .trim();
 
-  /*
-   * 柱位键中文化。
-   */
-  text = text
-    .replace(
-      /\byear\b/gi,
-      "年柱",
-    )
-    .replace(
-      /\bmonth\b/gi,
-      "月柱",
-    )
-    .replace(
-      /\bday\b/gi,
-      "日柱",
-    )
-    .replace(
-      /\bhour\b/gi,
-      "时柱",
-    )
-    .replace(
-      /\bhiddenStem\b/gi,
-      "藏干",
-    )
-    .replace(
-      /\bhidden stem\b/gi,
-      "藏干",
-    )
-    .replace(
-      /\bmainQi\b/gi,
-      "本气",
-    )
-    .replace(
-      /\bmain qi\b/gi,
-      "本气",
-    )
-    .replace(
-      /\bstem\b/gi,
-      "天干",
-    )
-    .replace(
-      /\bbranch\b/gi,
-      "地支",
-    )
-    .replace(
+  if (!text) {
+    return "";
+  }
+
+  const replacements = [
+    [
+      /\bvisiblePositions\b/gi,
+      "透显位置",
+    ],
+    [
+      /\bhiddenPositions\b/gi,
+      "藏支位置",
+    ],
+    [
+      /\bmainQiPositions\b/gi,
+      "本气位置",
+    ],
+    [
+      /\brootPositions\b/gi,
+      "根气位置",
+    ],
+    [
+      /\brootedPositions\b/gi,
+      "得根位置",
+    ],
+    [
+      /\bstrengthLevel\b/gi,
+      "力量层级",
+    ],
+    [
+      /\brelationIds\b/gi,
+      "关系证据",
+    ],
+    [
+      /\bsourceIds\b/gi,
+      "来源证据",
+    ],
+    [
+      /\bactivationLevel\b/gi,
+      "激活层级",
+    ],
+    [
+      /\bworkStatus\b/gi,
+      "做功状态",
+    ],
+    [
+      /\brootLevel\b/gi,
+      "根气层级",
+    ],
+    [
+      /\binSeason\b/gi,
+      "得令状态",
+    ],
+    [
+      /\btotalCount\b/gi,
+      "综合数量",
+    ],
+    [
       /\btenGod\b/gi,
       "十神",
-    )
-    .replace(
-      /\bten god\b/gi,
-      "十神",
-    )
-    .replace(
-      /\bposition\b/gi,
-      "位置",
-    )
-    .replace(
-      /\bpillar\b/gi,
-      "柱位",
+    ],
+    [
+      /\bhiddenStem\b/gi,
+      "藏干",
+    ],
+    [
+      /\bmainQi\b/gi,
+      "本气",
+    ],
+    [
+      /\byear\b/gi,
+      "年柱",
+    ],
+    [
+      /\bmonth\b/gi,
+      "月柱",
+    ],
+    [
+      /\bday\b/gi,
+      "日柱",
+    ],
+    [
+      /\bhour\b/gi,
+      "时柱",
+    ],
+    [
+      /\bstem\b/gi,
+      "天干",
+    ],
+    [
+      /\bbranch\b/gi,
+      "地支",
+    ],
+    [
+      /\bcombine\b/gi,
+      "合",
+    ],
+    [
+      /\bclash\b/gi,
+      "冲",
+    ],
+    [
+      /\bpunishment\b/gi,
+      "刑",
+    ],
+    [
+      /\bharm\b/gi,
+      "害",
+    ],
+    [
+      /\bbreak\b/gi,
+      "破",
+    ],
+    [
+      /\bcontrol\b/gi,
+      "克",
+    ],
+    [
+      /\bgenerate\b/gi,
+      "生",
+    ],
+  ];
+
+  for (
+    const [
+      pattern,
+      replacement,
+    ] of replacements
+  ) {
+    text = text.replace(
+      pattern,
+      replacement,
     );
+  }
 
   /*
-   * 将类似：
-   * year藏干己 柱位信息
-   * 整理为：
-   * 年柱藏干己
+   * 删除仍未识别的程序字段名，
+   * 但先不删除中文和干支取值。
    */
+  text = text.replace(
+    /\b[A-Za-z][A-Za-z0-9_]*\b/g,
+    "",
+  );
+
+  /*
+   * 按逗号、分号拆成片段，
+   * 删除空字段和仅剩冒号的片段。
+   */
+  const emptyFieldLabels =
+    new Set([
+      "透显位置",
+      "藏支位置",
+      "本气位置",
+      "根气位置",
+      "得根位置",
+      "关系证据",
+      "来源证据",
+    ]);
+
+  const parts =
+    text
+      .split(
+        /[;,，；|]+/,
+      )
+      .map(
+        (part) =>
+          part
+            .replace(
+              /^[\s:：]+|[\s:：]+$/g,
+              "",
+            )
+            .replace(
+              /\s*[:：]\s*/g,
+              "：",
+            )
+            .replace(
+              /\s+/g,
+              " ",
+            )
+            .trim(),
+      )
+      .filter(Boolean)
+      .filter(
+        (part) =>
+          !emptyFieldLabels.has(
+            part,
+          ),
+      );
+
+  text =
+    parts.join("；");
+
+  const tenGodPattern =
+    "(比肩|劫财|食神|伤官|正财|偏财|正官|七杀|正印|偏印)";
+
+  /*
+   * 把：
+   * 年柱；辛；正官
+   *
+   * 合并为：
+   * 年柱天干辛，十神为正官
+   */
+  text = text.replace(
+    new RegExp(
+      `(年柱|月柱|日柱|时柱)；([甲乙丙丁戊己庚辛壬癸])；${tenGodPattern}`,
+      "g",
+    ),
+    "$1天干$2，十神为$3",
+  );
+
+  /*
+   * 把：
+   * 年柱；酉；正官
+   *
+   * 合并为：
+   * 年柱地支酉，本气十神为正官
+   */
+  text = text.replace(
+    new RegExp(
+      `(年柱|月柱|日柱|时柱)；([子丑寅卯辰巳午未申酉戌亥])；${tenGodPattern}`,
+      "g",
+    ),
+    "$1地支$2，本气十神为$3",
+  );
+
   text = text
     .replace(
-      /(年柱|月柱|日柱|时柱)\s*藏干\s*([甲乙丙丁戊己庚辛壬癸])\s*柱位信息/g,
-      "$1藏干$2",
+      /；{2,}/g,
+      "；",
     )
     .replace(
-      /(年柱|月柱|日柱|时柱)\s*藏干\s*([甲乙丙丁戊己庚辛壬癸])/g,
-      "$1藏干$2",
+      /：{2,}/g,
+      "：",
     )
     .replace(
-      /\s+/g,
-      " ",
+      /；：/g,
+      "；",
+    )
+    .replace(
+      /：；/g,
+      "；",
+    )
+    .replace(
+      /^[；：,\s]+|[；：,\s]+$/g,
+      "",
     )
     .trim();
+
+  /*
+   * 单独只剩十神名称时，
+   * 转成完整可读句子。
+   */
+  if (
+    /^(比肩|劫财|食神|伤官|正财|偏财|正官|七杀|正印|偏印)$/.test(
+      text,
+    )
+  ) {
+    return `${text}在原局有落点`;
+  }
 
   return text;
 }

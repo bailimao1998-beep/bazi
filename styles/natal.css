@@ -944,8 +944,13 @@
 }
 
 .natal-evidence-list span {
+  min-width: 0;
   color: #48545f;
-  line-height: 1.65;
+  font-size: 14px;
+  line-height: 1.68;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .natal-evidence-two-col {
@@ -2587,41 +2592,39 @@
   }
 }
 
-
 /* ===== 十二领域卡片：最终布局 ===== */
-/*
- * 普通桌面使用两列：
- * 卡片更宽、文字换行更少，
- * 同一行卡片可以自然等高。
- */
+
 .natal-domain-grid {
   display: grid;
   grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-  gap: 18px;
+    repeat(3, minmax(0, 1fr));
+  column-gap: 20px;
+  row-gap: 22px;
   align-items: stretch;
 }
 
 /*
- * 只有真正的超宽屏才启用三列。
- * 1920宽度仍然使用两列，避免文字拥挤。
+ * 中等屏幕两列。
  */
-@media (min-width: 2200px) {
+@media (max-width: 1120px) {
   .natal-domain-grid {
     grid-template-columns:
-      repeat(3, minmax(0, 1fr));
+      repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 900px) {
+/*
+ * 手机和平板窄屏单列。
+ */
+@media (max-width: 720px) {
   .natal-domain-grid {
     grid-template-columns: 1fr;
   }
 }
 
 /*
- * 同一行卡片等高，
- * 但不设置固定像素高度。
+ * 同一行保持等高，
+ * 但正文区不再强行占满剩余高度。
  */
 .natal-domain-card {
   min-width: 0;
@@ -2630,11 +2633,11 @@
   align-self: stretch;
   grid-template-rows:
     auto
-    minmax(0, 1fr)
+    auto
     auto;
-  align-content: stretch;
+  align-content: start;
   gap: 14px;
-  padding: 18px;
+  padding: 19px;
 }
 
 .natal-domain-card-head {
@@ -2684,6 +2687,7 @@
 }
 
 .natal-domain-card-body {
+  min-width: 0;
   min-height: 0;
   display: grid;
   align-content: start;
@@ -2691,6 +2695,7 @@
 }
 
 .natal-domain-summary-block {
+  min-width: 0;
   display: grid;
   gap: 7px;
   padding: 12px 13px;
@@ -2707,6 +2712,7 @@
   font-size: 14px;
   line-height: 1.72;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .natal-domain-row-label {
@@ -2717,11 +2723,12 @@
 }
 
 .natal-domain-info-row {
+  min-width: 0;
   display: grid;
   grid-template-columns:
-    72px
+    70px
     minmax(0, 1fr);
-  gap: 12px;
+  gap: 11px;
   align-items: start;
   padding: 11px 2px;
   border-bottom: 1px dashed
@@ -2733,11 +2740,13 @@
 }
 
 .natal-domain-info-row p {
+  min-width: 0;
   margin: 0;
   color: #4f5961;
   font-size: 13.5px;
   line-height: 1.72;
   font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
 .natal-domain-info-row
@@ -2755,11 +2764,16 @@
   color: #8a5b3d;
 }
 
+/*
+ * 按钮紧跟正文。
+ * 卡片剩余空白位于按钮之后，
+ * 不再出现在正文和按钮中间。
+ */
 .natal-domain-card
 .natal-evidence-open {
-  align-self: end;
+  align-self: start;
   justify-self: start;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 @media (max-width: 480px) {

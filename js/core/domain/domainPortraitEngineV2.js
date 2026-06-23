@@ -1024,43 +1024,254 @@ function pillarLabel(key) {
   }[normalizeText(key)] ?? "";
 }
 
-function summarizeValue(value) {
-  if (typeof value === "string") {
-    return value;
+function summarizeValue(
+  value,
+) {
+  if (
+    value === undefined ||
+    value === null
+  ) {
+    return "";
   }
 
   if (
-    typeof value === "number" ||
-    typeof value === "boolean"
+    typeof value ===
+    "string"
+  ) {
+    return humanizeFactValue(
+      value,
+    );
+  }
+
+  if (
+    typeof value ===
+      "number" ||
+    typeof value ===
+      "boolean"
   ) {
     return String(value);
   }
 
   if (Array.isArray(value)) {
     return value
-      .map(summarizeValue)
+      .map(
+        (item) =>
+          summarizeValue(item),
+      )
       .filter(Boolean)
       .join("、");
   }
 
   if (
-    value &&
-    typeof value === "object"
+    typeof value ===
+    "object"
   ) {
-    return Object.entries(value)
-      .filter(([, item]) =>
-        item !== undefined &&
-        item !== null &&
-        item !== "",
+    return Object
+      .entries(value)
+      .map(
+        ([key, item]) => {
+          const summarized =
+            summarizeValue(
+              item,
+            );
+
+          /*
+           * 先判断处理后的值是否为空。
+           * 空数组、空对象和空字符串
+           * 都不能留下“字段名：”。
+           */
+          if (!summarized) {
+            return "";
+          }
+
+          const label =
+            friendlyValueKey(
+              key,
+            );
+
+          /*
+           * 不认识的纯内部字段，
+           * 不直接展示给用户。
+           */
+          if (!label) {
+            return "";
+          }
+
+          return `${label}：${summarized}`;
+        },
       )
-      .slice(0, 4)
-      .map(([key, item]) =>
-        `${key}:${summarizeValue(item)}`,
-      )
-      .join("，");
+      .filter(Boolean)
+      .slice(0, 6)
+      .join("；");
   }
 
   return "";
+}
+
+function friendlyValueKey(
+  key,
+) {
+  const normalized =
+    normalizeText(key);
+
+  const labels = {
+    stem:
+      "天干",
+
+    branch:
+      "地支",
+
+    tenGod:
+      "十神",
+
+    name:
+      "名称",
+
+    value:
+      "取值",
+
+    element:
+      "五行",
+
+    relationType:
+      "关系",
+
+    type:
+      "类型",
+
+    visiblePositions:
+      "透显位置",
+
+    hiddenPositions:
+      "藏支位置",
+
+    mainQiPositions:
+      "本气位置",
+
+    rootPositions:
+      "根气位置",
+
+    rootedPositions:
+      "得根位置",
+
+    strengthLevel:
+      "力量层级",
+
+    rootLevel:
+      "根气层级",
+
+    inSeason:
+      "得令状态",
+
+    count:
+      "数量",
+
+    totalCount:
+      "综合数量",
+
+    status:
+      "状态",
+
+    confidence:
+      "参考级别",
+  };
+
+  if (labels[normalized]) {
+    return labels[normalized];
+  }
+
+  /*
+   * 本身已经是中文字段时保留。
+   */
+  if (
+    /[\u4e00-\u9fff]/.test(
+      normalized,
+    )
+  ) {
+    return normalized;
+  }
+
+  return "";
+}
+
+function humanizeFactValue(
+  value,
+) {
+  const text =
+    normalizeText(value);
+
+  const labels = {
+    year:
+      "年柱",
+
+    month:
+      "月柱",
+
+    day:
+      "日柱",
+
+    hour:
+      "时柱",
+
+    confirmed:
+      "已确认",
+
+    structurally_supported:
+      "结构支持",
+
+    conditional:
+      "条件成立",
+
+    candidate:
+      "候选",
+
+    potential:
+      "潜在",
+
+    activated:
+      "已激活",
+
+    strong:
+      "偏强",
+
+    medium:
+      "可参考",
+
+    weak:
+      "偏弱",
+
+    high:
+      "重点",
+
+    low:
+      "待验证",
+
+    combine:
+      "合",
+
+    clash:
+      "冲",
+
+    punishment:
+      "刑",
+
+    harm:
+      "害",
+
+    break:
+      "破",
+
+    control:
+      "克",
+
+    generate:
+      "生",
+  };
+
+  return (
+    labels[text] ||
+    text
+  );
 }
 
 function compactFactReference(fact) {

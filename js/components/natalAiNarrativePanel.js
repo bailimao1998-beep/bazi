@@ -186,6 +186,7 @@ function renderDeepReport(
     <article
       class="
         natal-ai-deep-report
+        is-article-mode
       "
     >
       ${renderOverview(
@@ -194,6 +195,10 @@ function renderDeepReport(
 
       ${renderCoreMechanism(
         report.coreMechanism,
+      )}
+
+      ${renderLifeThemes(
+        report.lifeThemes,
       )}
 
       ${renderDualInsightSection({
@@ -215,10 +220,6 @@ function renderDeepReport(
         rightRenderer:
           renderPatternCard,
       })}
-
-      ${renderLifeThemes(
-        report.lifeThemes,
-      )}
 
       ${renderReviewGrid(
         report.realityChecks,
@@ -294,11 +295,103 @@ function renderOverview(
           `
           : ""
       }
-
+      ${renderOverviewHighlights(
+        report,
+      )}
       ${renderEvidenceCount(
         overview.evidenceRefs,
       )}
     </section>
+  `;
+}
+
+function renderOverviewHighlights(
+  report = {},
+) {
+  const strength =
+    asObjectRows(
+      report.strengths,
+    )[0];
+
+  const pattern =
+    asObjectRows(
+      report.repeatingPatterns,
+    )[0];
+
+  const primaryTheme =
+    asObjectRows(
+      report.lifeThemes,
+    ).find(
+      (item) =>
+        item.treatment ===
+        "standalone",
+    ) ??
+    asObjectRows(
+      report.lifeThemes,
+    )[0];
+
+  const rows = [
+    {
+      type: "strength",
+      label: "核心优势",
+      text:
+        strength?.title,
+    },
+
+    {
+      type: "pressure",
+      label: "主要卡点",
+      text:
+        pattern?.title,
+    },
+
+    {
+      type: "focus",
+      label: "现实落点",
+      text:
+        primaryTheme?.title,
+    },
+  ].filter(
+    (item) =>
+      item.text,
+  );
+
+  if (!rows.length) {
+    return "";
+  }
+
+  return `
+    <div
+      class="
+        natal-ai-key-strip
+      "
+    >
+      ${rows
+        .map(
+          (item) => `
+            <p
+              class="
+                is-${escapeHtml(
+                  item.type,
+                )}
+              "
+            >
+              <b>
+                ${escapeHtml(
+                  item.label,
+                )}
+              </b>
+
+              <span>
+                ${escapeHtml(
+                  item.text,
+                )}
+              </span>
+            </p>
+          `,
+        )
+        .join("")}
+    </div>
   `;
 }
 

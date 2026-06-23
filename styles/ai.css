@@ -2793,3 +2793,285 @@ summary b {
     align-items: flex-start;
   }
 }
+
+/* ===== 原局AI：文章式快速阅读 ===== */
+
+.natal-ai-deep-report.is-article-mode {
+  max-width: 980px;
+  gap: 0;
+
+  padding: 0 22px 24px;
+  margin: 0 auto;
+
+  background: #fffdf8;
+}
+
+.natal-ai-key-strip {
+  display: grid;
+  gap: 7px;
+
+  margin-top: 5px;
+}
+
+.natal-ai-key-strip p {
+  display: grid;
+  grid-template-columns:
+    82px
+    minmax(0, 1fr);
+
+  gap: 10px;
+
+  margin: 0;
+  padding: 8px 11px;
+
+  border-left: 4px solid;
+  border-radius: 5px;
+
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.natal-ai-key-strip p b {
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.natal-ai-key-strip
+.is-strength {
+  border-color: #367b64;
+  background:
+    rgba(54, 123, 100, 0.065);
+}
+
+.natal-ai-key-strip
+.is-strength b {
+  color: #367b64;
+}
+
+.natal-ai-key-strip
+.is-pressure {
+  border-color: #a36b35;
+  background:
+    rgba(163, 107, 53, 0.065);
+}
+
+.natal-ai-key-strip
+.is-pressure b {
+  color: #925b2f;
+}
+
+.natal-ai-key-strip
+.is-focus {
+  border-color: #2f6f73;
+  background:
+    rgba(47, 111, 115, 0.065);
+}
+
+.natal-ai-key-strip
+.is-focus b {
+  color: #2f6f73;
+}
+
+/* 各大章节改为连续文章，不再像独立卡片 */
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-section,
+.natal-ai-deep-report.is-article-mode
+.natal-ai-insight-column,
+.natal-ai-deep-report.is-article-mode
+.natal-ai-review-card {
+  display: grid;
+  gap: 12px;
+
+  padding: 24px 0;
+
+  border: 0;
+  border-top: 1px solid
+    #e7ddd0;
+  border-radius: 0;
+
+  background: transparent;
+}
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-dual-grid,
+.natal-ai-deep-report.is-article-mode
+.natal-ai-review-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-theme-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+/* 机制步骤压平成有编号的连续段落 */
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-mechanism-list {
+  gap: 0;
+}
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-mechanism-list li {
+  padding: 12px 0;
+
+  border: 0;
+  border-bottom: 1px dashed
+    #e8ded1;
+  border-radius: 0;
+
+  background: transparent;
+}
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-mechanism-list
+li:last-child {
+  border-bottom: 0;
+}
+
+/* 优势、模式、领域不再一项一个大卡 */
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-insight-card,
+.natal-ai-deep-report.is-article-mode
+.natal-ai-theme-card {
+  display: grid;
+  gap: 7px;
+
+  padding: 15px 0;
+
+  border: 0;
+  border-bottom: 1px dashed
+    #e8ded1;
+  border-radius: 0;
+
+  background: transparent;
+  box-shadow: none;
+}
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-theme-card.is-standalone {
+  padding-left: 14px;
+
+  border-left: 4px solid
+    rgba(47, 111, 115, 0.62);
+
+  box-shadow: none;
+}
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-theme-card:last-child,
+.natal-ai-deep-report.is-article-mode
+.natal-ai-insight-card:last-child {
+  border-bottom: 0;
+}
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-theme-card h4,
+.natal-ai-deep-report.is-article-mode
+.natal-ai-insight-card h4 {
+  font-size: 16px;
+}
+
+/* 字段由表格式改为紧凑行文 */
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-field {
+  display: block;
+  margin: 0;
+
+  color: #4f5b64;
+  font-size: 14px;
+  line-height: 1.78;
+}
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-field b {
+  margin-right: 7px;
+}
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-mini-list {
+  gap: 3px;
+}
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-mini-list ul {
+  margin-top: 0;
+}
+
+/* 依据改为小标签，不再占满整行 */
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-evidence-count {
+  width: auto;
+  min-height: 21px;
+
+  justify-self: start;
+  align-self: start;
+
+  padding: 1px 7px;
+
+  font-size: 10px;
+  opacity: 0.76;
+}
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-evidence-count::before {
+  content: "依据 · ";
+}
+
+/* 验证点和行动方向保持清晰，但减少卡片感 */
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-number-list li {
+  padding:
+    11px
+    6px
+    11px
+    38px;
+
+  border: 0;
+  border-bottom: 1px dashed
+    #e8ded1;
+  border-radius: 0;
+
+  background: transparent;
+}
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-number-list
+li:last-child {
+  border-bottom: 0;
+}
+
+/* 条件结构和边界继续折叠，避免抢主线 */
+
+.natal-ai-deep-report.is-article-mode
+.natal-ai-details {
+  margin-top: 16px;
+}
+
+@media (max-width: 640px) {
+  .natal-ai-deep-report.is-article-mode {
+    padding:
+      0
+      12px
+      18px;
+  }
+
+  .natal-ai-key-strip p {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .natal-ai-deep-report.is-article-mode
+  .natal-ai-theme-card.is-standalone {
+    padding-left: 10px;
+  }
+}

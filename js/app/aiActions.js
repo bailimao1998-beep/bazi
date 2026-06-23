@@ -4,6 +4,9 @@ import { buildMonthAiPrompt } from "../core/ai/buildMonthAiPrompt.js";
 import { buildNatalAiPrompt } from "../core/ai/buildNatalAiPrompt.js";
 import { buildYearAiPrompt } from "../core/ai/buildYearAiPrompt.js";
 import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260613b";
+import {
+  guardNatalAiContent,
+} from "../core/ai/natalAiContentGuard.js";
 
 export function createAiActions({ store, renderBaseOnly }) {
   async function generateNatalAiNarrative() {
@@ -243,11 +246,26 @@ function validateNatalAiResult({
       },
     );
 
-  const structured =
+  const normalized =
     normalizeNatalDeepAnalysisResult(
       sanitized,
       warnings,
     );
+
+  const guarded =
+    guardNatalAiContent({
+      report:
+        normalized,
+
+      evidencePack,
+    });
+
+  const structured =
+    guarded.report;
+
+  warnings.push(
+    ...guarded.warnings,
+  );
 
   return {
     structured,

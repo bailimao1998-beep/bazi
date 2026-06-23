@@ -41,6 +41,8 @@ export function buildNatalAiPrompt({
       "chart是不可修改的四柱事实。",
       "baseline是本地系统已经整理的原局基础状态。",
       "hardFacts是确定事实。",
+      "supportedFacts是结构支持较充分的事实，只能写成明显倾向，不得写成绝对结论。",
+      "conditionalFacts是条件事实或观察线索，只能进入条件结构、现实验证或边界说明。",
       "positionContext只描述十神、宫位、主宾、远近和关系所在位置。",
       "patterns.confirmedPatterns可以进入核心结论。",
       "patterns.supportedPatterns只能写成明显倾向。",

@@ -31,64 +31,57 @@ export function buildNatalAiTrustedPack({
       .natalDebug
       ?.professionalContext ??
     {};
-const sourceFacts =
-  natalImageReport
-    .atomicFacts
-    ?.contractFacts ??
-  natalImageReport
-    .natalDebug
-    ?.atomicFacts
-    ?.contractFacts ??
-  evidencePack.facts ??
-  [];
 
-const sourcePatterns =
-  natalImageReport
-    .mergedComposition
-    ?.images ??
-  natalImageReport
-    .natalDebug
-    ?.productionCompositionImages ??
-  evidencePack.compositions ??
-  [];
+  /*
+   * 优先读取新版原局原子事实。
+   * 新版不存在时，才回退到旧 evidencePack。
+   */
+  const sourceFacts =
+    natalImageReport
+      .atomicFacts
+      ?.contractFacts ??
+    natalImageReport
+      .natalDebug
+      ?.atomicFacts
+      ?.contractFacts ??
+    evidencePack.facts ??
+    [];
 
-const facts =
-  compactFacts(
-    sourceFacts,
-  );
+  /*
+   * 优先读取新版原局取象组合。
+   * 新版不存在时，才回退到旧 evidencePack。
+   */
+  const sourcePatterns =
+    natalImageReport
+      .mergedComposition
+      ?.images ??
+    natalImageReport
+      .natalDebug
+      ?.productionCompositionImages ??
+    evidencePack.compositions ??
+    [];
 
-const factGroups =
-  partitionFacts(
-    facts,
-  );
-
-const factIdSet =
-  new Set(
-    facts.map(
-      (fact) => fact.id,
-    ),
-  );
-
-const allPatterns =
-  compactPatterns(
-    sourcePatterns,
-    factIdSet,
-  );
   const facts =
     compactFacts(
-      evidencePack.facts,
+      sourceFacts,
+    );
+
+  const factGroups =
+    partitionFacts(
+      facts,
     );
 
   const factIdSet =
     new Set(
       facts.map(
-        (fact) => fact.id,
+        (fact) =>
+          fact.id,
       ),
     );
 
   const allPatterns =
     compactPatterns(
-      evidencePack.compositions,
+      sourcePatterns,
       factIdSet,
     );
 
@@ -118,7 +111,8 @@ const allPatterns =
   const evidenceIds =
     uniqueStrings([
       ...facts.map(
-        (fact) => fact.id,
+        (fact) =>
+          fact.id,
       ),
 
       ...allPatterns.map(
@@ -156,13 +150,25 @@ const allPatterns =
           {},
         ),
 
+      /*
+       * 确定事实：
+       * 可以用于核心机制和主要结论。
+       */
       hardFacts:
         factGroups.hardFacts,
 
-        supportedFacts:
+      /*
+       * 结构支持事实：
+       * 可以描述为明显倾向，但不能写成绝对结论。
+       */
+      supportedFacts:
         factGroups.supportedFacts,
 
-        conditionalFacts:
+      /*
+       * 条件事实：
+       * 只能作为条件线索和现实验证点。
+       */
+      conditionalFacts:
         factGroups.conditionalFacts,
 
       positionContext,
@@ -480,15 +486,16 @@ function compactFact(
     normalizeText(
       fact.predicate,
     );
-    const statement =
+
+  const statement =
     firstText(
-        fact.statement,
-        fact.brief,
-        fact.meaning,
-        fact.text,
-        fact.description,
-        fact.name,
-        fact.label,
+      fact.statement,
+      fact.brief,
+      fact.meaning,
+      fact.text,
+      fact.description,
+      fact.name,
+      fact.label,
     );
 
   if (

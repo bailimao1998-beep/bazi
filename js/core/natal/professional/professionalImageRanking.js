@@ -65,6 +65,25 @@ export function resolveNatalNarrativeTier(
       image.ruleId,
     );
 
+  const cluster =
+    resolveNatalNarrativeCluster(
+      image,
+    );
+
+  if (
+    cluster ===
+    "relationship_repetition_route"
+  ) {
+    return 1;
+  }
+
+  if (
+    cluster ===
+    "element_climate_route"
+  ) {
+    return 2;
+  }
+  
   if (
     image.source ===
       "professional_context" ||

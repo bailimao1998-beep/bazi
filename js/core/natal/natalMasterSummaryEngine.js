@@ -1925,6 +1925,7 @@ function buildProfessionalOpening({
       primaryImage?.title ||
       "",
     );
+  const primaryLeadTitle = normalizeMasterLeadTitle( primaryTitle, );
 
   const secondaryTitle =
     cleanSentence(
@@ -1974,20 +1975,22 @@ function buildProfessionalOpening({
 
   const lead =
     isConditionalStructure
-      ? `原局较重要、但仍需结合制化轻重复核的结构线索是${primaryTitle}`
+      ? `原局较重要、但仍需结合制化轻重复核的结构线索是${primaryLeadTitle}`
       : isPressureStructure
-        ? `原局较明显的结构张力是${primaryTitle}`
+        ? `原局较明显的结构张力是${primaryLeadTitle}`
         : secondaryTitle &&
             secondaryTitle !==
-              primaryTitle
-          ? `原局以${primaryTitle}为主，兼见${secondaryTitle}`
-          : `原局以${primaryTitle}为主要结构`;
+              primaryLeadTitle
+          ? `原局以${primaryLeadTitle}为主，兼见${secondaryTitle}`
+          : `原局以${primaryLeadTitle}为主要结构`;
 
   return joinDistinctSentences([
     lead,
     primaryMeaning,
   ]);
 }
+
+function normalizeMasterLeadTitle( value, ) { const text = cleanSentence(value); const normalized = text .replace( /结构张力明显$/, "", ) .trim(); return ( normalized || text ); }
 
 function buildDomainNarrativeLine({
   domains,

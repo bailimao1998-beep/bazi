@@ -46,6 +46,9 @@ export function renderFortuneTransitPanel(root, payload = {}) {
         `;
 
   bindTransitEvents(root, payload);
+  revealActiveTransitCards(
+    root,
+  );
 }
 
 function bindTransitEvents(root, payload = {}) {
@@ -79,4 +82,91 @@ function formatSelectionSummary(currentLuck = {}, yearItem = {}, monthItem = {})
       .join(" · ")
   : "",
   ].filter(Boolean).join(" · ") || "当前选择待查";
+}
+
+function revealActiveTransitCards(
+  root,
+) {
+  if (!root) {
+    return;
+  }
+
+  requestAnimationFrame(
+    () => {
+      const lists =
+        root.querySelectorAll(
+          ".transit-card-list",
+        );
+
+      lists.forEach(
+        (list) => {
+          const activeCard =
+            list.querySelector(
+              ".transit-select-card.is-active",
+            );
+
+          if (
+            !activeCard ||
+            list.scrollWidth <=
+              list.clientWidth
+          ) {
+            return;
+          }
+
+          const listRect =
+            list.getBoundingClientRect();
+
+          const cardRect =
+            activeCard.getBoundingClientRect();
+
+          const visiblePadding = 8;
+
+          const isFullyVisible =
+            cardRect.left >=
+              listRect.left +
+                visiblePadding &&
+            cardRect.right <=
+              listRect.right -
+                visiblePadding;
+
+          if (isFullyVisible) {
+            return;
+          }
+
+          const targetLeft =
+            list.scrollLeft +
+            (
+              cardRect.left -
+              listRect.left
+            ) -
+            (
+              list.clientWidth -
+              cardRect.width
+            ) /
+              2;
+
+          const maxLeft =
+            Math.max(
+              0,
+              list.scrollWidth -
+                list.clientWidth,
+            );
+
+          list.scrollTo({
+            left:
+              Math.min(
+                maxLeft,
+                Math.max(
+                  0,
+                  targetLeft,
+                ),
+              ),
+
+            behavior:
+              "auto",
+          });
+        },
+      );
+    },
+  );
 }

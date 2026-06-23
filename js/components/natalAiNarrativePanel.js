@@ -245,11 +245,60 @@ function renderContinuousReport({
 function resolveReportText(
   report = {},
 ) {
+  if (
+    typeof report ===
+    "string"
+  ) {
+    return normalizeReportMarkdown(
+      report,
+    );
+  }
+
   const direct =
     firstText(
       report.text,
 
       report.overview
+        ?.summary,
+
+      typeof report.overview ===
+        "string"
+        ? report.overview
+        : "",
+
+      report.summary,
+      report.content,
+      report.analysis,
+      report.answer,
+      report.markdown,
+      report.narrative,
+
+      report.result
+        ?.text,
+
+      report.result
+        ?.summary,
+
+      report.result
+        ?.content,
+
+      report.result
+        ?.analysis,
+
+      report.data
+        ?.text,
+
+      report.data
+        ?.summary,
+
+      report.data
+        ?.content,
+
+      report.data
+        ?.analysis,
+
+      report.data
+        ?.overview
         ?.summary,
     );
 
@@ -260,8 +309,8 @@ function resolveReportText(
   }
 
   /*
-   * 兼容修改前已经生成或缓存的旧结构，
-   * 但统一转成普通文章展示，不再渲染卡片。
+   * 兼容旧版结构。
+   * 这里只负责展示已有内容，不重新生成，也不改写AI原文。
    */
   const sections = [];
 
@@ -269,6 +318,11 @@ function resolveReportText(
     firstText(
       report.coreMechanism
         ?.synthesis,
+
+      report.coreMechanism
+        ?.content,
+
+      report.mainline,
     );
 
   if (mechanism) {
@@ -289,9 +343,15 @@ function resolveReportText(
     themes
   ) {
     const summary =
-      firstText(
-        theme?.summary,
-      );
+      typeof theme ===
+      "string"
+        ? theme
+        : firstText(
+            theme?.summary,
+            theme?.content,
+            theme?.description,
+            theme?.explanation,
+          );
 
     if (!summary) {
       continue;
@@ -318,9 +378,14 @@ function resolveReportText(
     actions
       .map(
         (item) =>
-          firstText(
-            item?.action,
-          ),
+          typeof item ===
+          "string"
+            ? item
+            : firstText(
+                item?.action,
+                item?.content,
+                item?.description,
+              ),
       )
       .filter(Boolean);
 
@@ -328,6 +393,7 @@ function resolveReportText(
     sections.push(
       [
         "## 综合建议",
+
         ...actionText.map(
           (item) =>
             `- ${item}`,
@@ -336,11 +402,101 @@ function resolveReportText(
     );
   }
 
-  return normalizeReportMarkdown(
+  const legacyText =
     sections.join(
       "\n\n",
+    );
+
+  if (legacyText) {
+    return normalizeReportMarkdown(
+      legacyText,
+    );
+  }
+
+  return normalizeReportMarkdown(
+    collectReadableReportText(
+      report,
     ),
   );
+}
+
+function collectReadableReportText(
+  value,
+  key = "",
+  seen = new Set(),
+) {
+  const ignoredKeys =
+    new Set([
+      "version",
+      "scope",
+      "title",
+      "headline",
+      "confidence",
+      "key",
+      "status",
+      "treatment",
+      "id",
+      "evidenceId",
+      "evidenceIds",
+      "evidenceRefs",
+      "warnings",
+      "boundaries",
+    ]);
+
+  if (
+    typeof value ===
+    "string"
+  ) {
+    const text =
+      value.trim();
+
+    if (
+      ignoredKeys.has(key) ||
+      text.length < 24 ||
+      seen.has(text)
+    ) {
+      return "";
+    }
+
+    seen.add(text);
+    return text;
+  }
+
+  if (
+    Array.isArray(value)
+  ) {
+    return value
+      .map(
+        (item) =>
+          collectReadableReportText(
+            item,
+            key,
+            seen,
+          ),
+      )
+      .filter(Boolean)
+      .join("\n\n");
+  }
+
+  if (
+    !value ||
+    typeof value !==
+      "object"
+  ) {
+    return "";
+  }
+
+  return Object.entries(value)
+    .map(
+      ([childKey, item]) =>
+        collectReadableReportText(
+          item,
+          childKey,
+          seen,
+        ),
+    )
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 function normalizeReportMarkdown(

@@ -66,11 +66,140 @@ function renderBlock(block = {}) {
   `;
 }
 
-function renderParagraph(text = "") {
-  const value = String(text ?? "").trim();
-  const isKeyLine = /^(核心判断|重点|结论|一句话|提醒|风险|机会|建议)[：:]/.test(value);
+function renderParagraph(
+  text = "",
+) {
+  const value =
+    String(
+      text ?? "",
+    ).trim();
+
+  const triadItems =
+    parseTriadItems(
+      value,
+    );
+
+  if (
+    triadItems.length >= 2
+  ) {
+    return `
+      <div
+        class="
+          ai-triad-group
+        "
+      >
+        ${triadItems
+          .map(
+            (item) => `
+              <div
+                class="
+                  ai-triad-item
+                  is-${item.type}
+                "
+              >
+                <strong>
+                  ${escapeHtml(
+                    item.label,
+                  )}：
+                </strong>
+
+                <span>
+                  ${formatInline(
+                    item.content,
+                  )}
+                </span>
+              </div>
+            `,
+          )
+          .join("")}
+      </div>
+    `;
+  }
+
+  const isKeyLine =
+    /^(核心判断|重点|结论|一句话|提醒|风险|机会|建议)[：:]/
+      .test(value);
 
   return `<p class="${isKeyLine ? "ai-key-line" : ""}">${formatInline(value)}</p>`;
+}
+
+function parseTriadItems(
+  value = "",
+) {
+  const pattern =
+    /\*{0,2}(优势|代价|建议)[：:]\*{0,2}\s*/g;
+
+  const matches = [
+    ...String(value)
+      .matchAll(pattern),
+  ];
+
+  if (matches.length < 2) {
+    return [];
+  }
+
+  const prefix =
+    value
+      .slice(
+        0,
+        matches[0].index,
+      )
+      .replace(
+        /[\s。；;，,、]/g,
+        "",
+      )
+      .trim();
+
+  if (prefix) {
+    return [];
+  }
+
+  return matches
+    .map(
+      (
+        match,
+        index,
+      ) => {
+        const start =
+          match.index +
+          match[0].length;
+
+        const end =
+          matches[index + 1]
+            ?.index ??
+          value.length;
+
+        const label =
+          match[1];
+
+        return {
+          label,
+
+          type: {
+            优势:
+              "advantage",
+
+            代价:
+              "cost",
+
+            建议:
+              "advice",
+          }[label],
+
+          content:
+            value
+              .slice(
+                start,
+                end,
+              )
+              .trim(),
+        };
+      },
+    )
+    .filter(
+      (item) =>
+        item.content,
+    );
 }
 
 function groupListItems(items = []) {

@@ -21,7 +21,6 @@ export async function generateWithDeepSeek({ settings, prompt } = {}) {
         { role: "user", content: prompt?.user ?? "" },
       ],
       temperature: 0.25,
-      max_tokens: 6000,
     }),
   });
   const data = await readResponseJson(response);

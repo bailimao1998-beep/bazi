@@ -28,11 +28,6 @@ export function guardNatalAiContent({
 } = {}) {
   const warnings = [];
 
-  const evidenceIndex =
-    buildEvidenceIndex(
-      evidencePack,
-    );
-
   const chartCounts =
     buildChartCounts(
       evidencePack,
@@ -52,96 +47,40 @@ export function guardNatalAiContent({
     sanitized.coreMechanism ?? {};
 
   sanitized.coreMechanism.steps =
-    filterMajorRows({
-      rows:
-        sanitized
-          .coreMechanism
-          .steps,
-
-      evidenceIndex,
-
-      warnings,
-
-      section:
-        "coreMechanism",
-
-      requireStrongPattern:
-        false,
-
-      minimumFacts:
-        2,
-    });
+    keepReadableRows(
+      sanitized
+        .coreMechanism
+        .steps,
+    );
 
   sanitized.strengths =
-    filterMajorRows({
-      rows:
-        sanitized.strengths,
-
-      evidenceIndex,
-
-      warnings,
-
-      section:
-        "strengths",
-
-      requireStrongPattern:
-        false,
-
-      minimumFacts:
-        3,
-    });
+    keepReadableRows(
+      sanitized.strengths,
+    );
 
   sanitized.repeatingPatterns =
-    filterMajorRows({
-      rows:
-        sanitized
-          .repeatingPatterns,
-
-      evidenceIndex,
-
-      warnings,
-
-      section:
-        "repeatingPatterns",
-
-      requireStrongPattern:
-        true,
-
-      minimumFacts:
-        99,
-    });
+    keepReadableRows(
+      sanitized
+        .repeatingPatterns,
+    );
 
   sanitized.lifeThemes =
-    filterMajorRows({
-      rows:
-        sanitized.lifeThemes,
-
-      evidenceIndex,
-
-      warnings,
-
-      section:
-        "lifeThemes",
-
-      requireStrongPattern:
-        false,
-
-      minimumFacts:
-        3,
-    });
+    keepReadableRows(
+      sanitized.lifeThemes,
+    );
 
   sanitized.realityChecks =
-    filterRowsWithEvidence(
+    keepReadableRows(
       sanitized.realityChecks,
     );
 
   sanitized.actions =
-    filterRowsWithEvidence(
+    keepReadableRows(
       sanitized.actions,
     );
 
   sanitized.conditionalInsights =
-    filterRowsWithEvidence(
+    keepReadableRows(
       sanitized
         .conditionalInsights,
     );
@@ -173,124 +112,7 @@ export function guardNatalAiContent({
   };
 }
 
-  const evidenceIndex =
-    buildEvidenceIndex(
-      evidencePack,
-    );
-
-  const chartCounts =
-    buildChartCounts(
-      evidencePack,
-    );
-
-  const sanitized =
-    sanitizeNode(
-      report,
-      {
-        warnings,
-        chartCounts,
-        path: "root",
-      },
-    );
-
-  sanitized.coreMechanism =
-    sanitized.coreMechanism ?? {};
-
-  sanitized.coreMechanism.steps =
-    filterMajorRows({
-      rows:
-        sanitized
-          .coreMechanism
-          .steps,
-
-      evidenceIndex,
-
-      warnings,
-
-      section:
-        "coreMechanism",
-
-      requireStrongPattern:
-        false,
-
-      minimumFacts:
-        2,
-    });
-
-  sanitized.strengths =
-    filterMajorRows({
-      rows:
-        sanitized.strengths,
-
-      evidenceIndex,
-
-      warnings,
-
-      section:
-        "strengths",
-
-      requireStrongPattern:
-        false,
-
-      minimumFacts:
-        3,
-    });
-
-  sanitized.repeatingPatterns =
-    filterMajorRows({
-      rows:
-        sanitized
-          .repeatingPatterns,
-
-      evidenceIndex,
-
-      warnings,
-
-      section:
-        "repeatingPatterns",
-
-      requireStrongPattern:
-        true,
-
-      minimumFacts:
-        99,
-    });
-
-  sanitized.lifeThemes =
-    filterMajorRows({
-      rows:
-        sanitized.lifeThemes,
-
-      evidenceIndex,
-
-      warnings,
-
-      section:
-        "lifeThemes",
-
-      requireStrongPattern:
-        false,
-
-      minimumFacts:
-        3,
-    });
-
-  sanitized.realityChecks =
-    filterRowsWithEvidence(
-      sanitized.realityChecks,
-    );
-
-  sanitized.actions =
-    filterRowsWithEvidence(
-      sanitized.actions,
-    );
-
-  sanitized.conditionalInsights =
-    filterRowsWithEvidence(
-      sanitized
-        .conditionalInsights,
-    );
-
+ 
 function keepReadableRows(
   rows,
 ) {

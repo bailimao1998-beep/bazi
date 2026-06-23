@@ -31,7 +31,49 @@ export function buildNatalAiTrustedPack({
       .natalDebug
       ?.professionalContext ??
     {};
+const sourceFacts =
+  natalImageReport
+    .atomicFacts
+    ?.contractFacts ??
+  natalImageReport
+    .natalDebug
+    ?.atomicFacts
+    ?.contractFacts ??
+  evidencePack.facts ??
+  [];
 
+const sourcePatterns =
+  natalImageReport
+    .mergedComposition
+    ?.images ??
+  natalImageReport
+    .natalDebug
+    ?.productionCompositionImages ??
+  evidencePack.compositions ??
+  [];
+
+const facts =
+  compactFacts(
+    sourceFacts,
+  );
+
+const factGroups =
+  partitionFacts(
+    facts,
+  );
+
+const factIdSet =
+  new Set(
+    facts.map(
+      (fact) => fact.id,
+    ),
+  );
+
+const allPatterns =
+  compactPatterns(
+    sourcePatterns,
+    factIdSet,
+  );
   const facts =
     compactFacts(
       evidencePack.facts,
@@ -115,7 +157,13 @@ export function buildNatalAiTrustedPack({
         ),
 
       hardFacts:
-        facts,
+        factGroups.hardFacts,
+
+        supportedFacts:
+        factGroups.supportedFacts,
+
+        conditionalFacts:
+        factGroups.conditionalFacts,
 
       positionContext,
 
@@ -131,6 +179,8 @@ export function buildNatalAiTrustedPack({
 
       evidenceRules: [
         "hardFacts是确定事实。",
+        "supportedFacts是结构支持较充分的倾向。",
+        "conditionalFacts只能作为条件或观察线索。",
         "positionContext只描述十神、宫位、主宾和关系所在位置，不等于现实事件已经发生。",
         "confirmedPatterns可进入核心结论。",
         "supportedPatterns只能作为明显倾向。",
@@ -148,6 +198,44 @@ export function buildNatalAiTrustedPack({
   return {
     modelPack,
     evidenceIds,
+  };
+}
+
+function partitionFacts(
+  facts,
+) {
+  return {
+    hardFacts:
+      facts.filter(
+        (fact) =>
+          [
+            "",
+            "confirmed",
+            "activated",
+          ].includes(
+            fact.status ?? "",
+          ),
+      ),
+
+    supportedFacts:
+      facts.filter(
+        (fact) =>
+          fact.status ===
+          "structurally_supported",
+      ),
+
+    conditionalFacts:
+      facts.filter(
+        (fact) =>
+          ![
+            "",
+            "confirmed",
+            "activated",
+            "structurally_supported",
+          ].includes(
+            fact.status ?? "",
+          ),
+      ),
   };
 }
 
@@ -392,11 +480,15 @@ function compactFact(
     normalizeText(
       fact.predicate,
     );
-
-  const statement =
+    const statement =
     firstText(
-      fact.statement,
-      fact.name,
+        fact.statement,
+        fact.brief,
+        fact.meaning,
+        fact.text,
+        fact.description,
+        fact.name,
+        fact.label,
     );
 
   if (

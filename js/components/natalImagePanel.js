@@ -1001,8 +1001,8 @@ function renderNatalDomainCard(
     <article
       class="natal-domain-card natal-summary-card"
     >
-      <div class="natal-domain-card-head">
-        <div>
+      <header class="natal-domain-card-head">
+        <div class="natal-domain-card-meta">
           <span>
             领域详解
           </span>
@@ -1013,58 +1013,97 @@ function renderNatalDomainCard(
           </i>
         </div>
 
-        <strong>
-          ${display(domain.label)}
-        </strong>
+        <div class="natal-domain-card-title-row">
+          <strong>
+            ${display(domain.label)}
+          </strong>
+
+          <span class="natal-domain-confidence">
+            ${display(confidence)}
+          </span>
+        </div>
+      </header>
+
+      <div class="natal-domain-card-body">
+        <section class="natal-domain-summary-block">
+          <span class="natal-domain-row-label">
+            整体判断
+          </span>
+
+          <p>
+            ${display(mainText)}
+          </p>
+        </section>
+
+        ${
+          showManifestation
+            ? `
+              <section
+                class="
+                  natal-domain-info-row
+                  is-manifestation
+                "
+              >
+                <span class="natal-domain-row-label">
+                  现实表现
+                </span>
+
+                <p>
+                  ${display(
+                    manifestationText,
+                  )}
+                </p>
+              </section>
+            `
+            : ""
+        }
+
+        ${
+          showStrength
+            ? `
+              <section
+                class="
+                  natal-domain-info-row
+                  is-strength
+                "
+              >
+                <span class="natal-domain-row-label">
+                  有利一面
+                </span>
+
+                <p>
+                  ${display(
+                    strengthText,
+                  )}
+                </p>
+              </section>
+            `
+            : ""
+        }
+
+        ${
+          showPressure
+            ? `
+              <section
+                class="
+                  natal-domain-info-row
+                  is-pressure
+                "
+              >
+                <span class="natal-domain-row-label">
+                  需要留意
+                </span>
+
+                <p>
+                  ${display(
+                    pressureText,
+                  )}
+                </p>
+              </section>
+            `
+            : ""
+        }
       </div>
-
-      <span class="natal-domain-confidence">
-        ${display(confidence)}
-      </span>
-
-      <p class="natal-domain-judgement">
-        <b>整体判断：</b>
-        ${display(mainText)}
-      </p>
-
-      ${
-        showManifestation
-          ? `
-            <p class="natal-domain-manifestation">
-              <b>现实表现：</b>
-              ${display(
-                manifestationText,
-              )}
-            </p>
-          `
-          : ""
-      }
-
-      ${
-        showStrength
-          ? `
-            <p class="natal-domain-strength">
-              <b>有利一面：</b>
-              ${display(
-                strengthText,
-              )}
-            </p>
-          `
-          : ""
-      }
-
-      ${
-        showPressure
-          ? `
-            <p class="natal-domain-pressure">
-              <b>需要留意：</b>
-              ${display(
-                pressureText,
-              )}
-            </p>
-          `
-          : ""
-      }
 
       <button
         type="button"

@@ -1248,39 +1248,65 @@ function renderNatalHitListSection(
     options.hitList ??
     buildNatalHitList(report);
 
+  /*
+   * 旧版/调试模式允许单条取象显示专业依据；
+   * 正常合同版仍保持简洁。
+   */
   const showEvidence =
     options.showEvidence !== false;
 
   const allRows =
     Array.isArray(hitList.all)
-      ? hitList.all
+      ? hitList.all.filter(Boolean)
       : [];
 
-  const rows =
-    showEvidence
-      ? allRows
-      : (
-          Array.isArray(
-            hitList.featured,
-          ) &&
-          hitList.featured.length
-            ? hitList.featured
-            : allRows
+  const featuredRows =
+    (
+      Array.isArray(hitList.featured) &&
+      hitList.featured.length
+    )
+      ? hitList.featured.filter(Boolean)
+      : allRows.slice(
+          0,
+          Math.min(
+            5,
+            allRows.length,
+          ),
         );
 
-  const selectedIds =
+  /*
+   * featured 和 all 可能不是同一对象引用，
+   * 因此使用稳定字段识别，避免主要取象
+   * 又重复进入辅助取象。
+   */
+  const rowIdentity = (
+    row = {},
+  ) =>
+    [
+      row.id,
+      row.key,
+      row.name,
+      row.label,
+      row.title,
+      row.category,
+      row.type,
+      row.brief,
+    ]
+      .filter(Boolean)
+      .join("::");
+
+  const featuredIdentities =
     new Set(
-      rows.map(
-        (row) =>
-          row.id,
+      featuredRows.map(
+        rowIdentity,
       ),
     );
 
-  const remainingRows =
+  const auxiliaryRows =
     allRows.filter(
       (row) =>
-        !selectedIds.has(
-          row.id,
+        !featuredIdentities.has(
+          rowIdentity(row),
         ),
     );
 
@@ -1296,109 +1322,185 @@ function renderNatalHitListSection(
         </h3>
 
         <span>
-          主要 ${safe(rows.length)} 个
-          ${
-            allRows.length !==
-            rows.length
-              ? ` · 完整命中 ${safe(
-                  allRows.length,
-                )} 个`
-              : ""
-          }
+          主要
+          ${safe(
+            featuredRows.length,
+          )}
+          个
+          · 完整命中
+          ${safe(
+            allRows.length,
+          )}
+          个
         </span>
       </div>
 
       <p class="natal-hit-intro">
-        系统从四柱、十神、藏干、五行、关系和结构中提取到的主要取象。
+        系统从四柱、十神、藏干、五行、关系和结构中提取出
+        ${safe(allRows.length)}
+        个取象，默认统一收起，需要时展开查看。
       </p>
 
       ${
-        !rows.length
+        !allRows.length
           ? `
             <p class="muted">
               当前原局未形成可列出的明显取象。
             </p>
           `
-          : ""
-      }
-
-      ${
-        rows.length
-          ? (
-              showEvidence
-                ? `
-                  <details
-                    class="natal-hit-details"
-                  >
-                    <summary>
-                      展开全部取象依据
-                    </summary>
-
-                    <div
-                      class="natal-hit-compact-list"
-                    >
-                      ${rows
-                        .map(
-                          (row) =>
-                            renderNatalHitCard(
-                              row,
-                              true,
-                            ),
-                        )
-                        .join("")}
-                    </div>
-                  </details>
-                `
-                : `
-                  <div
-                    class="natal-hit-compact-list"
-                  >
-                    ${rows
-                      .map(
-                        (row) =>
-                          renderNatalHitCard(
-                            row,
-                            false,
-                          ),
-                      )
-                      .join("")}
-                  </div>
-                `
-            )
-          : ""
-      }
-
-      ${
-        !showEvidence &&
-        remainingRows.length
-          ? `
+          : `
             <details
-              class="natal-hit-details natal-hit-secondary-details"
+              class="
+                natal-hit-details
+                natal-hit-all-details
+              "
             >
               <summary>
-                展开其余
-                ${safe(
-                  remainingRows.length,
-                )}
-                个辅助取象
+                <span
+                  class="
+                    natal-hit-toggle-copy
+                  "
+                >
+                  <span
+                    class="
+                      natal-hit-toggle-open
+                    "
+                  >
+                    展开全部
+                    ${safe(
+                      allRows.length,
+                    )}
+                    个取象
+                  </span>
+
+                  <span
+                    class="
+                      natal-hit-toggle-close
+                    "
+                  >
+                    收起全部取象
+                  </span>
+                </span>
+
+                <small>
+                  主要
+                  ${safe(
+                    featuredRows.length,
+                  )}
+                  个
+                  ${
+                    auxiliaryRows.length
+                      ? `
+                        · 辅助
+                        ${safe(
+                          auxiliaryRows.length,
+                        )}
+                        个
+                      `
+                      : ""
+                  }
+                </small>
               </summary>
 
               <div
-                class="natal-hit-compact-list"
+                class="
+                  natal-hit-details-body
+                "
               >
-                ${remainingRows
-                  .map(
-                    (row) =>
-                      renderNatalHitCard(
-                        row,
-                        false,
-                      ),
-                  )
-                  .join("")}
+                ${
+                  featuredRows.length
+                    ? `
+                      <section
+                        class="
+                          natal-hit-group
+                          is-primary
+                        "
+                      >
+                        <div
+                          class="
+                            natal-hit-group-head
+                          "
+                        >
+                          <h4>
+                            主要取象
+                          </h4>
+
+                          <span>
+                            ${safe(
+                              featuredRows.length,
+                            )}
+                            个
+                          </span>
+                        </div>
+
+                        <div
+                          class="
+                            natal-hit-compact-list
+                          "
+                        >
+                          ${featuredRows
+                            .map(
+                              (row) =>
+                                renderNatalHitCard(
+                                  row,
+                                  showEvidence,
+                                ),
+                            )
+                            .join("")}
+                        </div>
+                      </section>
+                    `
+                    : ""
+                }
+
+                ${
+                  auxiliaryRows.length
+                    ? `
+                      <section
+                        class="
+                          natal-hit-group
+                          is-secondary
+                        "
+                      >
+                        <div
+                          class="
+                            natal-hit-group-head
+                          "
+                        >
+                          <h4>
+                            辅助取象
+                          </h4>
+
+                          <span>
+                            ${safe(
+                              auxiliaryRows.length,
+                            )}
+                            个
+                          </span>
+                        </div>
+
+                        <div
+                          class="
+                            natal-hit-compact-list
+                          "
+                        >
+                          ${auxiliaryRows
+                            .map(
+                              (row) =>
+                                renderNatalHitCard(
+                                  row,
+                                  showEvidence,
+                                ),
+                            )
+                            .join("")}
+                        </div>
+                      </section>
+                    `
+                    : ""
+                }
               </div>
             </details>
           `
-          : ""
       }
     </section>
   `;

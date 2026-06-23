@@ -2873,3 +2873,194 @@
     gap: 5px;
   }
 }
+
+/* ===== 取象索引：统一折叠展示 ===== */
+
+.natal-hit-all-details {
+  overflow: hidden;
+  border: 1px solid #d9cbb8;
+  border-radius: 12px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 253, 248, 0.92),
+      rgba(255, 250, 241, 0.72)
+    );
+}
+
+/* 总开关 */
+
+.natal-hit-all-details > summary {
+  min-height: 52px;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 13px 15px;
+
+  cursor: pointer;
+  list-style: none;
+
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.natal-hit-all-details >
+summary::-webkit-details-marker {
+  display: none;
+}
+
+.natal-hit-all-details >
+summary::before {
+  content: "▸";
+
+  flex: 0 0 auto;
+
+  color: var(--accent);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.natal-hit-all-details[open] >
+summary::before {
+  content: "▾";
+}
+
+.natal-hit-toggle-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.natal-hit-toggle-close {
+  display: none;
+}
+
+.natal-hit-all-details[open]
+.natal-hit-toggle-open {
+  display: none;
+}
+
+.natal-hit-all-details[open]
+.natal-hit-toggle-close {
+  display: inline;
+}
+
+.natal-hit-all-details >
+summary small {
+  flex: 0 0 auto;
+
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* 展开后的总内容 */
+
+.natal-hit-details-body {
+  display: grid;
+  gap: 0;
+
+  padding: 15px;
+
+  border-top: 1px solid
+    rgba(217, 203, 184, 0.72);
+}
+
+/* 主要取象、辅助取象分组 */
+
+.natal-hit-group {
+  min-width: 0;
+
+  display: grid;
+  gap: 10px;
+}
+
+.natal-hit-group.is-secondary {
+  margin-top: 18px;
+  padding-top: 18px;
+
+  border-top: 1px dashed
+    rgba(217, 203, 184, 0.85);
+}
+
+.natal-hit-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.natal-hit-group-head h4 {
+  margin: 0;
+
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 950;
+}
+
+.natal-hit-group-head span {
+  flex: 0 0 auto;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+  padding: 2px 8px;
+
+  border: 1px solid
+    rgba(47, 111, 115, 0.18);
+  border-radius: 999px;
+
+  background:
+    rgba(47, 111, 115, 0.06);
+
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+/*
+ * 原来的列表自带左右和底部内边距，
+ * 放进统一折叠框后清除，避免双重缩进。
+ */
+
+.natal-hit-group
+.natal-hit-compact-list {
+  padding: 0;
+}
+
+/*
+ * 取象卡仍然保持纵向排列，
+ * 不改成多列，避免文字过度拥挤。
+ */
+
+.natal-hit-group
+.natal-hit-row {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 手机适配 */
+
+@media (max-width: 700px) {
+  .natal-hit-all-details > summary {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 12px;
+  }
+
+  .natal-hit-all-details >
+  summary small {
+    width: 100%;
+    padding-left: 24px;
+  }
+
+  .natal-hit-details-body {
+    padding: 12px;
+  }
+}

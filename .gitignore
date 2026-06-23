@@ -11,3 +11,4 @@ npm-debug.log*
 .superpowers/
 __pycache__/
 *.pyc
+.tmp-natal-ai-backup/

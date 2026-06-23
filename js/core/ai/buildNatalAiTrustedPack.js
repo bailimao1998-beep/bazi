@@ -236,6 +236,27 @@ export function buildNatalAiTrustedPack({
         deterministicEvidence
             .frameworkContext,
 
+        evidenceClassification: {
+        directFacts: [
+          "chart",
+          "seasonContext",
+          "distributions",
+          "tenGodPositions",
+          "dayMasterRootEvidence",
+          "repetitions",
+          "relations",
+        ],
+
+        palaceContext: [
+          "spousePalace",
+        ],
+
+        frameworkMappings: [
+          "frameworkContext.hostGuest",
+          "frameworkContext.kinshipMap",
+        ],
+        },
+
         evidenceRules: [
         "四柱、十神、藏干、所在柱位、透藏、重复和明确干支关系属于确定性数据。",
         "五行与十神数量只是原始出现次数，不代表最终旺衰。",
@@ -245,6 +266,12 @@ export function buildNatalAiTrustedPack({
         "现实判断原则上应由至少两个相互支持的独立证据共同形成。",
         "不得根据单一十神判断固定职业、收入高低、婚姻次数、亲属数量或具体疾病。",
         "当前只分析出生原局，不推断具体年份事件。",
+        "appearsInMonthBranch只表示十神出现在月支藏干，不等于掌月令。",
+        "isMonthBranchMainQi才表示该十神对应月支主气。",
+        "tenGodPositions只描述出现、透藏和位置，不包含旺衰、喜忌或成败判断。",
+        "frameworkContext属于本项目采用的盲派位置映射，其确定度低于四柱、藏干和明确干支关系。",
+        "夫妻宫关系只表示日支受到哪些关系牵动，不直接等于婚姻早晚、次数或质量。",
+        "不存在本地确认字段时，不得自行生成最终旺衰、格局、喜用神和十神有效性结论。",
         ],
     });
 
@@ -285,10 +312,6 @@ function buildAiDeterministicEvidence({
     tenGodPositions:
       buildAiTenGodPositions({
         chart,
-
-        source:
-          positionContext
-            .tenGodPositions,
       }),
 
     dayMasterRootEvidence:
@@ -303,11 +326,6 @@ function buildAiDeterministicEvidence({
     spousePalace:
       buildAiSpousePalace({
         chart,
-
-        source:
-          positionContext
-            .spousePalace,
-
         relations,
       }),
 
@@ -471,7 +489,6 @@ function buildAiRawDistributions(
 
 function buildAiTenGodPositions({
   chart = {},
-  source = {},
 } = {}) {
   const scanned =
     Object.fromEntries(
@@ -580,10 +597,6 @@ function buildAiTenGodPositions({
         const item =
           scanned[name];
 
-        const sourceItem =
-          source?.[name] ??
-          {};
-
         const totalCount =
           item.visibleCount +
           item.hiddenCount;
@@ -618,31 +631,7 @@ function buildAiTenGodPositions({
               item.hiddenCount >
                 0,
 
-            hasRoot:
-              typeof sourceItem
-                .hasRoot ===
-                "boolean"
-                ? sourceItem
-                    .hasRoot
-                : undefined,
-
-            isFloating:
-              typeof sourceItem
-                .isFloating ===
-                "boolean"
-                ? sourceItem
-                    .isFloating
-                : undefined,
-
-            isBlocked:
-              typeof sourceItem
-                .isBlocked ===
-                "boolean"
-                ? sourceItem
-                    .isBlocked
-                : undefined,
-
-            inMonthStem:
+            appearsInMonthStem:
               item.positions.some(
                 (position) =>
                   position.pillar ===
@@ -651,7 +640,7 @@ function buildAiTenGodPositions({
                     "stem",
               ),
 
-            inMonthCommand:
+            appearsInMonthBranch:
               item.positions.some(
                 (position) =>
                   position.pillar ===
@@ -660,11 +649,12 @@ function buildAiTenGodPositions({
                     "hiddenStem",
               ),
 
-            placementScope:
+            isMonthBranchMainQi:
               normalizeText(
-                sourceItem
-                  .placementScope,
-              ),
+                chart.pillars
+                  ?.month
+                  ?.branchMainTenGod,
+              ) === name,
 
             positions:
               item.positions,
@@ -751,6 +741,9 @@ function buildAiDayMasterRootEvidence(
   return cleanObject({
     evidenceId:
       "root:day-master",
+
+    evidenceType:
+      "direct_position_evidence",
 
     dayMaster,
 
@@ -1016,27 +1009,17 @@ function compactAiDeterministicRelations({
 
 function buildAiSpousePalace({
   chart = {},
-  source = {},
   relations = [],
 } = {}) {
   const dayPillar =
     chart.pillars?.day ??
     {};
 
-  const sourceRelationIds =
-    uniqueStrings(
-      source.relationIds,
-    );
-
   const relatedRelations =
     relations.filter(
       (relation) =>
         relation
-          .touchesDayBranch ||
-        sourceRelationIds
-          .includes(
-            relation.id,
-          ),
+          .touchesDayBranch,
     );
 
   return cleanObject({
@@ -1048,8 +1031,7 @@ function buildAiSpousePalace({
 
     mainTenGod:
       dayPillar
-        .branchMainTenGod ??
-      source.mainTenGod,
+        .branchMainTenGod,
 
     hiddenStems:
       dayPillar.hiddenStems,
@@ -1063,41 +1045,98 @@ function buildAiSpousePalace({
     relations:
       relatedRelations,
 
+    evidenceType:
+      "palace_position_evidence",
+
     hasCombine:
-      Boolean(
-        source.hasCombine,
+      relatedRelations.some(
+        (relation) =>
+          relationMatches(
+            relation,
+            /合|combine|harmony/i,
+          ),
       ),
 
     hasClash:
-      Boolean(
-        source.hasClash,
+      relatedRelations.some(
+        (relation) =>
+          relationMatches(
+            relation,
+            /冲|clash/i,
+          ),
       ),
 
     hasPunish:
-      Boolean(
-        source.hasPunish,
+      relatedRelations.some(
+        (relation) =>
+          relationMatches(
+            relation,
+            /刑|punish/i,
+          ),
       ),
 
     hasSelfPunish:
-      Boolean(
-        source.hasSelfPunish,
+      relatedRelations.some(
+        (relation) =>
+          relationMatches(
+            relation,
+            /自刑|self.?punish/i,
+          ),
       ),
 
     hasHarm:
-      Boolean(
-        source.hasHarm,
+      relatedRelations.some(
+        (relation) =>
+          relationMatches(
+            relation,
+            /害|harm/i,
+          ),
+      ),
+
+    hasPierce:
+      relatedRelations.some(
+        (relation) =>
+          relationMatches(
+            relation,
+            /穿|pierce/i,
+          ),
       ),
 
     hasBreak:
-      Boolean(
-        source.hasBreak,
+      relatedRelations.some(
+        (relation) =>
+          relationMatches(
+            relation,
+            /破|break/i,
+          ),
       ),
 
     hasRepetition:
-      Boolean(
-        source.hasRepetition,
+      relatedRelations.some(
+        (relation) =>
+          relationMatches(
+            relation,
+            /伏吟|重复|repetition/i,
+          ),
       ),
+
+    boundary:
+      "夫妻宫关系只说明日支受到哪些原局关系牵动，不直接等于婚姻早晚、次数或质量。",
   });
+}
+
+function relationMatches(
+  relation = {},
+  pattern,
+) {
+  const text = [
+    relation.relationType,
+    relation.relationLabel,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return pattern.test(text);
 }
 
 function buildAiFrameworkContext(
@@ -1187,6 +1226,12 @@ function buildAiFrameworkContext(
           cleanObject({
             id:
               `kinship:${key}`,
+
+            evidenceType:
+              "framework_mapping",
+
+            framework:
+              "blind_bazi_kinship_mapping",
 
             label:
               normalizeText(
@@ -1291,6 +1336,12 @@ function buildAiFrameworkContext(
     hostGuest: {
       id:
         "framework:host-guest",
+
+      evidenceType:
+        "framework_mapping",
+
+      framework:
+        "blind_bazi_host_guest",
 
       hostPillars:
         uniqueStrings(

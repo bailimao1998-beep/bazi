@@ -254,7 +254,9 @@ function resolveReportText(
     );
 
   if (direct) {
-    return direct;
+    return normalizeReportMarkdown(
+      direct,
+    );
   }
 
   /*
@@ -334,9 +336,34 @@ function resolveReportText(
     );
   }
 
-  return sections.join(
-    "\n\n",
+  return normalizeReportMarkdown(
+    sections.join(
+      "\n\n",
+    ),
   );
+}
+
+function normalizeReportMarkdown(
+  text = "",
+) {
+  return String(text)
+    .replace(
+      /\r\n?/g,
+      "\n",
+    )
+    .replace(
+      /([。！？；])\s*##\s*/g,
+      "$1\n\n## ",
+    )
+    .replace(
+      /([^\n])\s*##\s*/g,
+      "$1\n\n## ",
+    )
+    .replace(
+      /\n{3,}/g,
+      "\n\n",
+    )
+    .trim();
 }
 
 function bindGenerate(

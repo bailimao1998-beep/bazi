@@ -14,7 +14,7 @@ const timingPattern =
   /大运|流年|流月|岁运|解空|引动|某年|哪年|运到|运势触发/;
 
 const specificHealthPattern =
-  /呼吸系统|循环系统|消化系统|肺部|肝胆|肾脏|脾胃|心脏|血液|皮肤病|癌症|疾病|手术|体弱|容易生病/;
+  /呼吸系统|循环系统|消化系统|消化功能|肺部|肝胆|肾脏|脾胃|心脏|血液|皮肤病|癌症|疾病|手术|体弱|容易生病/;
 
 const unsupportedFamilyPattern =
   /兄弟姐妹(?:多|少|数量)|朋友(?:多|不少|很少)|子女缘(?:薄|浅|晚)|父亲缘(?:薄|浅)|母亲.{0,8}(?:助力大|支持大)|房产(?:基础|数量|多|少|纠纷)|不动产守财/;
@@ -301,7 +301,71 @@ function sanitizeText(
       )
       .replace(
         /子水被(?:强势)?酉金(?:压制|克制)/g,
-        "子水的泄秀作用受到整体结构与子酉关系干扰",
+        "子水相关的表达与成果路径受到子酉关系牵动",
+      )
+      .replace(
+        /身旺印旺|身极强旺|身极强|身极旺/g,
+        "印比支持明显",
+      )
+      .replace(
+        /日主自身力量非常突出/g,
+        "日主得到的印比支持明显",
+      )
+      .replace(
+        /印星过旺|正印星旺/g,
+        "印星信息较突出",
+      )
+      .replace(
+        /坐禄又得月令/g,
+        "月支与日支均见同类信息",
+      )
+      .replace(
+        /食神被破|食神受伤|食神遭破|食神失效/g,
+        "食神受关系牵动",
+      )
+      .replace(
+        /输出(?:通道|通路)(?:被)?堵死/g,
+        "输出过程容易反复",
+      )
+      .replace(
+        /财官(?:都)?被(?:旺)?金克制/g,
+        "财星受金气牵制，官星藏而未透",
+      )
+      .replace(
+        /妻子的信号较弱|妻星较弱/g,
+        "妻星藏而未透，感情需求不一定直接表现",
+      )
+      .replace(
+        /感情缘分来得较晚|缘分来得较晚/g,
+        "感情需求和择偶标准不一定直接表现出来",
+      )
+      .replace(
+        /土多金埋，?消化功能也需要留意/g,
+        "土金信息集中时，需要注意作息和放松",
+      )
+      .replace(
+        /土多金埋/g,
+        "土金信息集中",
+      )
+      .replace(
+        /财富进账容易有波动或不易积攒/g,
+        "财富处理中更需要重视预算、合作边界和长期兑现",
+      )
+      .replace(
+        /依靠技术或创意快速变现的通道不太顺畅/g,
+        "将技术或创意转化为成果时，可能需要更多实践和现实承接",
+      )
+      .replace(
+        /父亲在资源支持上不易直接体现/g,
+        "与父亲之间更重实际责任和资源安排，情感表达可能不算直接",
+      )
+      .replace(
+        /兄弟姐妹或同辈中既有互助也有竞争/g,
+        "同辈关系中既重合作，也重边界",
+      )
+      .replace(
+        /对子女的期望容易与现实产生落差，?教育上需避免过度保护或控制/g,
+        "在照顾和教育关系中容易带入较高标准，需要给彼此更多空间",
       )
       .replace(
         /贯穿一生/g,
@@ -356,11 +420,12 @@ function sanitizeText(
         sentence,
       )
     ) {
-      warnings.push(
-        `content_removed:timing:${path}`,
-      );
+      sentence =
+        "具体时间需要结合岁运判断，原局只说明长期倾向。";
 
-      continue;
+      warnings.push(
+        `content_rewritten:timing:${path}`,
+      );
     }
 
     if (
@@ -368,11 +433,14 @@ function sanitizeText(
         sentence,
       )
     ) {
-      warnings.push(
-        `content_removed:family_overreach:${path}`,
-      );
+      sentence =
+        softenFamilySentence(
+          sentence,
+        );
 
-      continue;
+      warnings.push(
+        `content_rewritten:family_overreach:${path}`,
+      );
     }
 
     if (
@@ -394,7 +462,9 @@ function sanitizeText(
       )
     ) {
       sentence =
-        "更适合选择能把专业积累转化为稳定输出、现实交付和清晰协作的环境。";
+        softenIndustrySentence(
+          sentence,
+        );
 
       warnings.push(
         `content_rewritten:industry:${path}`,
@@ -421,6 +491,61 @@ function sanitizeText(
   }
 
   return result.join("");
+}
+
+function softenFamilySentence(
+  sentence = "",
+) {
+  const softened =
+    sentence
+      .replace(
+        /父亲.{0,12}(?:支持不足|资源支持不易直接体现|关系疏远)/g,
+        "与父亲之间更重实际责任和资源安排，情感表达可能不算直接",
+      )
+      .replace(
+        /兄弟姐妹.{0,16}(?:互助也有竞争|竞争明显)/g,
+        "同辈关系中既重合作，也重边界",
+      )
+      .replace(
+        /子女.{0,18}(?:期望容易与现实产生落差|过度保护|控制)/g,
+        "在照顾和教育关系中容易带入较高标准，需要给彼此更多空间",
+      )
+      .replace(
+        /(?:妻星|妻子的信号).{0,8}(?:较弱|弱)/g,
+        "妻星藏而未透，感情需求不一定直接表现",
+      )
+      .replace(
+        /(?:感情缘分|缘分).{0,8}(?:来得较晚|较晚)/g,
+        "感情需求和择偶标准不一定直接表现出来",
+      );
+
+  if (softened !== sentence) {
+    return softened;
+  }
+
+  return sentence
+    .replace(
+      /(?:注定|必然|一定)/g,
+      "更容易",
+    );
+}
+
+function softenIndustrySentence(
+  sentence = "",
+) {
+  return sentence
+    .replace(
+      /最适合|只适合/g,
+      "较适合",
+    )
+    .replace(
+      /^适合/g,
+      "例如可参考",
+    )
+    .replace(
+      /唯一/g,
+      "主要",
+    );
 }
 
 function correctCountClaims(

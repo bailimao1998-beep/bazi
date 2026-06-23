@@ -402,6 +402,12 @@ function renderNatalStructureSynopsis(
         ] || element,
     );
 
+  const balanceText =
+    String(
+      synopsis.balance?.text ??
+      "",
+    ).trim();
+
   return `
     <section
       class="natal-master-summary natal-structure-synopsis"
@@ -469,6 +475,7 @@ function renderNatalStructureSynopsis(
       }
 
       ${
+        balanceText ||
         favorableElements.length ||
         cautionElements.length
           ? `
@@ -481,23 +488,35 @@ function renderNatalStructureSynopsis(
 
               <p>
                 ${
-                  favorableElements.length
-                    ? `从原局平衡角度，可优先观察${display(
-                        favorableElements.join(
-                          "、",
-                        ),
-                      )}的调节作用。`
-                    : ""
-                }
+                  balanceText
+                    ? display(
+                        /[。！？]$/.test(
+                          balanceText,
+                        )
+                          ? balanceText
+                          : `${balanceText}。`,
+                      )
+                    : `
+                      ${
+                        favorableElements.length
+                          ? `从原局平衡角度，可优先观察${display(
+                              favorableElements.join(
+                                "、",
+                              ),
+                            )}的调节作用。`
+                          : ""
+                      }
 
-                ${
-                  cautionElements.length
-                    ? `${display(
-                        cautionElements.join(
-                          "、",
-                        ),
-                      )}不宜继续无条件堆叠。`
-                    : ""
+                      ${
+                        cautionElements.length
+                          ? `${display(
+                              cautionElements.join(
+                                "、",
+                              ),
+                            )}不宜继续无条件堆叠。`
+                          : ""
+                      }
+                    `
                 }
               </p>
             </article>

@@ -106,6 +106,20 @@ export function resolveNatalNarrativeTier(
 export function isNatalMasterAnchorCandidate(
   image = {},
 ) {
+  const cluster =
+    resolveNatalNarrativeCluster(
+      image,
+    );
+
+  if (
+    cluster ===
+      "relationship_repetition_route" ||
+    cluster ===
+      "element_climate_route"
+  ) {
+    return false;
+  }
+
   return (
     resolveNatalNarrativeTier(
       image,
@@ -118,7 +132,6 @@ export function isNatalMasterAnchorCandidate(
         .conditional
   );
 }
-
 export function compareNatalMasterNarrativeImages(
   left,
   right,

@@ -113,8 +113,6 @@ function buildFeaturedRows(
   limit,
 ) {
   const selected = [];
-  const selectedIds =
-    new Set();
   const seenClusters =
     new Set();
 
@@ -135,27 +133,6 @@ function buildFeaturedRows(
     seenClusters.add(
       cluster,
     );
-
-    selected.push(row);
-    selectedIds.add(
-      row.id,
-    );
-
-    if (
-      selected.length >= limit
-    ) {
-      return selected;
-    }
-  }
-
-  for (const row of rows) {
-    if (
-      selectedIds.has(
-        row.id,
-      )
-    ) {
-      continue;
-    }
 
     selected.push(row);
 

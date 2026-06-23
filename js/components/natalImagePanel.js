@@ -3301,15 +3301,16 @@ function renderDomainEvidenceDetail(
       : [];
 
   const explanationText =
-    cleanCardText(
+    normalizeEvidenceNarrative(
       domain.bookExplanation ||
       "",
-      3,
     );
 
   const conditionRows =
     normalizeDomainEvidenceRows(
-      domain.condition,
+      domain.condition ||
+      domain.conditions ||
+      [],
       {
         dropPlaceholders:
           false,
@@ -3318,7 +3319,9 @@ function renderDomainEvidenceDetail(
 
   const counterRows =
     normalizeDomainEvidenceRows(
-      domain.counterEvidence,
+      domain.counterEvidence ||
+      domain.boundary ||
+      [],
       {
         dropPlaceholders:
           false,
@@ -3331,11 +3334,10 @@ function renderDomainEvidenceDetail(
    * 也不拿整体判断强行重复填充。
    */
   const realityText =
-    cleanCardText(
+    normalizeEvidenceNarrative(
       domain.manifestation ||
       domain.reality ||
       "",
-      3,
     );
 
   const hasContext =
@@ -3513,23 +3515,48 @@ function normalizeDomainEvidenceRows(
     options.dropPlaceholders !==
     false;
 
+  /*
+   * 这里不能使用compact(items)。
+   * compact会把证据对象提前转成字符串，
+   * 导致对象字段丢失或变成[object Object]。
+   */
+  const sourceItems =
+    (
+      Array.isArray(items)
+        ? items
+        : [items]
+    )
+      .flat(Infinity)
+      .filter(
+        (item) => {
+          if (
+            item === undefined ||
+            item === null
+          ) {
+            return false;
+          }
+
+          if (
+            typeof item ===
+            "string"
+          ) {
+            return Boolean(
+              item.trim(),
+            );
+          }
+
+          return true;
+        },
+      );
+
   const rows =
     uniqueText(
-      compact(items)
+      sourceItems
         .map(
-          (item) => {
-            if (
-              typeof item ===
-              "string"
-            ) {
-              return item.trim();
-            }
-
-            return String(
-              evidenceText(item) ||
-              "",
-            ).trim();
-          },
+          (item) =>
+            humanizeDomainEvidenceText(
+              evidenceText(item),
+            ),
         )
         .filter(Boolean),
     );
@@ -3538,25 +3565,135 @@ function normalizeDomainEvidenceRows(
     return rows;
   }
 
-  const meaningfulRows =
-    rows.filter(
-      (text) =>
-        !/^(年柱|月柱|日柱|时柱)[：:\s]*柱位信息$/.test(
-          text,
-        ) &&
-        !/^(年柱|月柱|日柱|时柱)$/.test(
-          text,
-        ),
+  /*
+   * 只删除完全没有有效内容的占位项。
+   * “年柱藏干己”等具体证据必须保留。
+   */
+  return rows.filter(
+    (text) =>
+      !/^(年柱|月柱|日柱|时柱)$/.test(
+        text,
+      ) &&
+      !/^(年柱|月柱|日柱|时柱)[：:\s]*柱位信息$/.test(
+        text,
+      ) &&
+      text !==
+        "[object Object]",
+  );
+}
+
+function normalizeEvidenceNarrative(
+  value,
+) {
+  return humanizeDomainEvidenceText(
+    String(value ?? "")
+      .replace(
+        /\s+/g,
+        " ",
+      )
+      .trim(),
+  );
+}
+
+function humanizeDomainEvidenceText(
+  value,
+) {
+  let text =
+    humanizeText(
+      String(value ?? ""),
+    )
+      .replace(
+        /\[object Object\]/g,
+        "",
+      )
+      .replace(
+        /_/g,
+        " ",
+      );
+
+  /*
+   * 柱位键中文化。
+   */
+  text = text
+    .replace(
+      /\byear\b/gi,
+      "年柱",
+    )
+    .replace(
+      /\bmonth\b/gi,
+      "月柱",
+    )
+    .replace(
+      /\bday\b/gi,
+      "日柱",
+    )
+    .replace(
+      /\bhour\b/gi,
+      "时柱",
+    )
+    .replace(
+      /\bhiddenStem\b/gi,
+      "藏干",
+    )
+    .replace(
+      /\bhidden stem\b/gi,
+      "藏干",
+    )
+    .replace(
+      /\bmainQi\b/gi,
+      "本气",
+    )
+    .replace(
+      /\bmain qi\b/gi,
+      "本气",
+    )
+    .replace(
+      /\bstem\b/gi,
+      "天干",
+    )
+    .replace(
+      /\bbranch\b/gi,
+      "地支",
+    )
+    .replace(
+      /\btenGod\b/gi,
+      "十神",
+    )
+    .replace(
+      /\bten god\b/gi,
+      "十神",
+    )
+    .replace(
+      /\bposition\b/gi,
+      "位置",
+    )
+    .replace(
+      /\bpillar\b/gi,
+      "柱位",
     );
 
   /*
-   * 存在真正证据时去掉“柱位信息”占位项。
-   * 如果全部都是占位项，仍保留前三项，
-   * 避免整个证据区变空。
+   * 将类似：
+   * year藏干己 柱位信息
+   * 整理为：
+   * 年柱藏干己
    */
-  return meaningfulRows.length
-    ? meaningfulRows
-    : rows.slice(0, 3);
+  text = text
+    .replace(
+      /(年柱|月柱|日柱|时柱)\s*藏干\s*([甲乙丙丁戊己庚辛壬癸])\s*柱位信息/g,
+      "$1藏干$2",
+    )
+    .replace(
+      /(年柱|月柱|日柱|时柱)\s*藏干\s*([甲乙丙丁戊己庚辛壬癸])/g,
+      "$1藏干$2",
+    )
+    .replace(
+      /\s+/g,
+      " ",
+    )
+    .trim();
+
+  return text;
 }
 
 function renderCombinationList(items = []) {
@@ -3701,9 +3838,82 @@ function statusLabel(value = "") {
   return { confirmed: "明确", conditional: "条件", weak: "辅助" }[value] || "明确";
 }
 
-function evidenceText(item) {
-  if (typeof item === "string") return item;
-  return item?.text || compact([item?.position, item?.value]).join("：") || "";
+function evidenceText(
+  item,
+) {
+  if (
+    item === undefined ||
+    item === null
+  ) {
+    return "";
+  }
+
+  if (
+    typeof item ===
+    "string"
+  ) {
+    return item;
+  }
+
+  if (
+    typeof item !==
+    "object"
+  ) {
+    return String(item);
+  }
+
+  const directText =
+    item.text ||
+    item.label ||
+    item.description ||
+    item.evidenceText ||
+    item.name ||
+    item.brief ||
+    "";
+
+  if (directText) {
+    return String(
+      directText,
+    );
+  }
+
+  const position =
+    item.position ||
+    item.path ||
+    item.subject?.key ||
+    "";
+
+  const rawValue =
+    item.value ??
+    item.actual ??
+    item.result ??
+    "";
+
+  const value =
+    Array.isArray(rawValue)
+      ? rawValue.join("、")
+      : (
+          typeof rawValue ===
+            "object" &&
+          rawValue !== null
+            ? (
+                rawValue.text ||
+                rawValue.label ||
+                rawValue.name ||
+                rawValue.key ||
+                ""
+              )
+            : String(
+                rawValue ?? "",
+              )
+        );
+
+  return [
+    position,
+    value,
+  ]
+    .filter(Boolean)
+    .join("：");
 }
 
 function humanizeText(value) {

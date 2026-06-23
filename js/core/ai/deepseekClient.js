@@ -28,14 +28,32 @@ export async function generateWithDeepSeek({ settings, prompt } = {}) {
   if (!response.ok) {
     throw new Error(readErrorMessage(data, response.status));
   }
-  const text = data?.choices?.[0]?.message?.content ?? data?.message?.content ?? "";
+  const choice =
+    data?.choices?.[0] ?? {};
+
+  const text =
+    choice?.message?.content ??
+    data?.message?.content ??
+    "";
+
+  const finishReason =
+    String(
+      choice?.finish_reason ??
+      data?.finish_reason ??
+      "",
+    ).trim();
+
   if (!String(text).trim()) {
-    throw new Error("DeepSeek 返回为空，请稍后重试。");
+    throw new Error(
+      "DeepSeek 返回为空，请稍后重试。",
+    );
   }
+
   return {
     provider: "deepseek",
     model,
     text: String(text).trim(),
+    finishReason,
   };
 }
 

@@ -7,31 +7,102 @@ import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260613b";
 
 export function createAiActions({ store, renderBaseOnly }) {
   async function generateNatalAiNarrative() {
-    store.natalAiState = { loading: true, text: "", error: "" };
+    store.natalAiState = {
+      loading: true,
+      text: "",
+      error: "",
+      structured: null,
+      warnings: [],
+    };
+
     renderBaseOnly();
+
     try {
-      const settings = readAiSettings({ includeSecret: true });
-      const prompt = buildNatalAiPrompt({
-        natalImageReport: store.state.natalImageReport,
-      });
-      const result = await generateWithDeepSeek({ settings, prompt });
+      const settings =
+        readAiSettings({
+          includeSecret: true,
+        });
+
+      const prompt =
+        buildNatalAiPrompt({
+          natalImageReport:
+            store.state
+              .natalImageReport,
+        });
+
+      const result =
+        await generateWithDeepSeek({
+          settings,
+          prompt,
+        });
+
+      /*
+      * 模型因长度限制停止时，
+      * 返回的JSON通常没有闭合。
+      */
+      if (
+        result.finishReason ===
+        "length"
+      ) {
+        throw new Error(
+          "本次AI报告内容过长，返回结果被截断。系统已拦截残缺内容，请重新生成。",
+        );
+      }
+
       const validated =
         validateNatalAiResult({
           text: result.text,
+
           evidencePack:
-            store.state.natalImageReport
+            store.state
+              .natalImageReport
               ?.natalAiEvidencePack,
         });
+
+      /*
+      * JSON解析失败时不能把原始JSON
+      * 当成普通文章显示给用户。
+      */
+      if (!validated.structured) {
+        console.warn(
+          "[natal-ai] invalid structured result",
+          validated.warnings,
+        );
+
+        throw new Error(
+          "AI返回的报告格式不完整，系统已拦截原始JSON，请重新生成。",
+        );
+      }
+
       store.natalAiState = {
         loading: false,
-        text: result.text,
+
+        /*
+        * JSON只作为内部数据，
+        * 用户页面只展示structured卡片。
+        */
+        text: "",
+
         error: "",
-        structured: validated.structured,
-        warnings: validated.warnings,
+
+        structured:
+          validated.structured,
+
+        warnings:
+          validated.warnings,
       };
     } catch (error) {
-      store.natalAiState = { loading: false, text: "", error: error.message };
+      store.natalAiState = {
+        loading: false,
+        text: "",
+        error:
+          error?.message ??
+          "AI深度分析生成失败。",
+        structured: null,
+        warnings: [],
+      };
     }
+
     renderBaseOnly();
   }
 

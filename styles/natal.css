@@ -2458,45 +2458,47 @@
   }
 }
 
-/* ===== 十二领域卡片：提高正文可读性 ===== */
-
-.natal-domain-grid {
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
+//* ===== 十二领域卡片：最终布局 ===== */
 
 /*
- * 极宽屏才显示四列。
- * 普通电脑屏幕保持三列，减少正文频繁换行。
+ * 普通桌面使用两列：
+ * 卡片更宽、文字换行更少，
+ * 同一行卡片可以自然等高。
  */
-@media (min-width: 2100px) {
+.natal-domain-grid {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+@media (min-width: 1800px) {
   .natal-domain-grid {
     grid-template-columns:
-      repeat(4, minmax(0, 1fr));
+      repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 1180px) {
-  .natal-domain-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .natal-domain-grid {
     grid-template-columns: 1fr;
   }
 }
 
+/*
+ * 同一行卡片等高，
+ * 但不设置固定像素高度。
+ */
 .natal-domain-card {
+  min-width: 0;
   min-height: 0;
   height: 100%;
+  align-self: stretch;
   grid-template-rows:
     auto
     minmax(0, 1fr)
     auto;
+  align-content: stretch;
   gap: 14px;
   padding: 18px;
 }
@@ -2533,6 +2535,7 @@
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 25px;
   padding: 2px 9px;
   border: 1px solid
@@ -2547,6 +2550,7 @@
 }
 
 .natal-domain-card-body {
+  min-height: 0;
   display: grid;
   align-content: start;
   gap: 0;
@@ -2581,9 +2585,9 @@
 .natal-domain-info-row {
   display: grid;
   grid-template-columns:
-    68px
+    72px
     minmax(0, 1fr);
-  gap: 11px;
+  gap: 12px;
   align-items: start;
   padding: 11px 2px;
   border-bottom: 1px dashed
@@ -2621,10 +2625,18 @@
 .natal-evidence-open {
   align-self: end;
   justify-self: start;
-  margin-top: auto;
+  margin-top: 4px;
 }
 
 @media (max-width: 480px) {
+  .natal-domain-card {
+    padding: 15px;
+  }
+
+  .natal-domain-card-title-row {
+    align-items: flex-start;
+  }
+
   .natal-domain-info-row {
     grid-template-columns: 1fr;
     gap: 5px;

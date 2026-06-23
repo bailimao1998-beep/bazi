@@ -2883,54 +2883,222 @@ function ensureNatalDebugStyles() {
   document.head.appendChild(style);
 }
 
-function bindNatalEvidencePopup(root) {
-  root.querySelectorAll(".natal-evidence-open").forEach((button) => {
-    button.addEventListener("click", () => {
-      const card = button.closest(".natal-summary-card");
-      const title = card?.querySelector("h3, h4, h5")?.textContent?.trim() || "取象依据";
-      const topic = card?.querySelector("header span")?.textContent?.trim() || "原局取象";
-      const template = card?.querySelector(".natal-evidence-template");
+function bindNatalEvidencePopup(
+  root,
+) {
+  root
+    .querySelectorAll(
+      ".natal-evidence-open",
+    )
+    .forEach(
+      (button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            const card =
+              button.closest(
+                ".natal-summary-card",
+              );
 
-      openNatalEvidencePopup({
-        title,
-        topic,
-        content: template?.innerHTML || "<p>暂无依据。</p>",
-      });
-    });
-  })
+            /*
+             * 十二领域标题现在是strong，
+             * 旧版取象卡标题可能仍是h3/h4。
+             */
+            const titleNode =
+              card?.querySelector(
+                [
+                  ".natal-domain-card-title-row strong",
+                  "header h3",
+                  "header h4",
+                  "header h5",
+                  "header strong",
+                ].join(","),
+              );
+
+            const topicNode =
+              card?.querySelector(
+                [
+                  ".natal-domain-card-meta span",
+                  "header .eyebrow",
+                  "header > span",
+                  "header span",
+                ].join(","),
+              );
+
+            const template =
+              card?.querySelector(
+                ".natal-evidence-template",
+              );
+
+            openNatalEvidencePopup({
+              title:
+                titleNode
+                  ?.textContent
+                  ?.trim() ||
+                "取象依据",
+
+              topic:
+                topicNode
+                  ?.textContent
+                  ?.trim() ||
+                "原局取象",
+
+              content:
+                template
+                  ?.innerHTML ||
+                "<p>暂无依据。</p>",
+            });
+          },
+        );
+      },
+    );
 }
 
-function openNatalEvidencePopup({ title, topic, content } = {}) {
-  document.querySelector(".natal-evidence-popup-backdrop")?.remove();
+function openNatalEvidencePopup({
+  title,
+  topic,
+  content,
+} = {}) {
+  const existing =
+    document.querySelector(
+      ".natal-evidence-popup-backdrop",
+    );
 
-  const backdrop = document.createElement("div");
-  backdrop.className = "natal-evidence-popup-backdrop";
+  if (existing) {
+    document.body.style.overflow =
+      existing.dataset
+        .restoreOverflow ||
+      "";
+
+    existing.remove();
+  }
+
+  const previousOverflow =
+    document.body.style.overflow;
+
+  const backdrop =
+    document.createElement(
+      "div",
+    );
+
+  backdrop.className =
+    "natal-evidence-popup-backdrop";
+
+  backdrop.dataset.restoreOverflow =
+    previousOverflow;
+
   backdrop.innerHTML = `
-    <div class="natal-evidence-popup" role="dialog" aria-modal="true">
-      <div class="natal-evidence-popup-head">
+    <div
+      class="natal-evidence-popup"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="natal-evidence-popup-title"
+    >
+      <div
+        class="natal-evidence-popup-head"
+      >
         <div>
-          <p class="eyebrow">${safe(topic || "原局取象")}</p>
-          <h3>${safe(title || "取象依据")}</h3>
+          <p class="eyebrow">
+            ${safe(
+              topic ||
+              "原局取象",
+            )}
+          </p>
+
+          <h3
+            id="natal-evidence-popup-title"
+          >
+            ${safe(
+              title ||
+              "取象依据",
+            )}
+          </h3>
         </div>
-        <button type="button" class="natal-evidence-popup-close" aria-label="关闭">×</button>
+
+        <button
+          type="button"
+          class="
+            natal-evidence-popup-close
+          "
+          aria-label="关闭"
+        >
+          ×
+        </button>
       </div>
-      <div class="natal-evidence-popup-body">
+
+      <div
+        class="natal-evidence-popup-body"
+      >
         ${content}
       </div>
     </div>
   `;
 
-  backdrop.addEventListener("click", (event) => {
-    if (event.target === backdrop) backdrop.remove();
-  });
+  const closeButton =
+    backdrop.querySelector(
+      ".natal-evidence-popup-close",
+    );
 
-  backdrop.querySelector(".natal-evidence-popup-close")?.addEventListener("click", () => {
+  const closePopup = () => {
+    document.removeEventListener(
+      "keydown",
+      onKeyDown,
+    );
+
+    document.body.style.overflow =
+      backdrop.dataset
+        .restoreOverflow ||
+      "";
+
     backdrop.remove();
-  });
+  };
 
-  document.body.appendChild(backdrop);
+  const onKeyDown = (
+    event,
+  ) => {
+    if (
+      event.key ===
+      "Escape"
+    ) {
+      closePopup();
+    }
+  };
+
+  backdrop.addEventListener(
+    "click",
+    (event) => {
+      if (
+        event.target ===
+        backdrop
+      ) {
+        closePopup();
+      }
+    },
+  );
+
+  closeButton?.addEventListener(
+    "click",
+    closePopup,
+  );
+
+  document.addEventListener(
+    "keydown",
+    onKeyDown,
+  );
+
+  document.body.appendChild(
+    backdrop,
+  );
+
+  document.body.style.overflow =
+    "hidden";
+
+  requestAnimationFrame(
+    () => {
+      closeButton?.focus();
+    },
+  );
 }
-
 function renderOverview(report = {}) {
   const summary = report.summary ?? {};
   const cards = report.imageCards ?? [];
@@ -3116,37 +3284,279 @@ function renderCardEvidenceDetail(card = {}) {
   `;
 }
 
-function renderDomainEvidenceDetail(domain = {}) {
+function renderDomainEvidenceDetail(
+  domain = {},
+) {
+  const evidenceRows =
+    normalizeDomainEvidenceRows(
+      domain.evidence,
+    );
+
+  const combinationRows =
+    Array.isArray(
+      domain.matchedCombinations,
+    )
+      ? domain.matchedCombinations
+          .filter(Boolean)
+      : [];
+
+  const explanationText =
+    cleanCardText(
+      domain.bookExplanation ||
+      "",
+      3,
+    );
+
+  const conditionRows =
+    normalizeDomainEvidenceRows(
+      domain.condition,
+      {
+        dropPlaceholders:
+          false,
+      },
+    );
+
+  const counterRows =
+    normalizeDomainEvidenceRows(
+      domain.counterEvidence,
+      {
+        dropPlaceholders:
+          false,
+      },
+    );
+
+  /*
+   * 现实对应只读取真正的现实表现字段。
+   * 没有内容时不再制造空白卡片，
+   * 也不拿整体判断强行重复填充。
+   */
+  const realityText =
+    cleanCardText(
+      domain.manifestation ||
+      domain.reality ||
+      "",
+      3,
+    );
+
+  const hasContext =
+    combinationRows.length > 0 ||
+    Boolean(explanationText);
+
+  const hasReview =
+    conditionRows.length > 0 ||
+    Boolean(realityText) ||
+    counterRows.length > 0;
+
   return `
-    <div class="natal-card-detail natal-evidence-detail">
-      <section class="natal-evidence-block">
-        <h4>命盘依据</h4>
-        ${renderEvidenceParagraphList(domain.evidence)}
+    <div
+      class="
+        natal-card-detail
+        natal-evidence-detail
+      "
+    >
+      <section
+        class="
+          natal-evidence-block
+          natal-evidence-primary
+        "
+      >
+        <h4>
+          命盘依据
+        </h4>
+
+        ${renderEvidenceParagraphList(
+          evidenceRows,
+        )}
       </section>
-      <section class="natal-evidence-block">
-        <h4>命中组合</h4>
-        ${renderCombinationList(domain.matchedCombinations)}
-      </section>
-      <section class="natal-evidence-block">
-        <h4>资料解释</h4>
-        <p>${display(domain.bookExplanation || "此维度需结合四柱、十神、五行、藏干与关系触发综合参考。")}</p>
-      </section>
-      <div class="natal-evidence-two-col">
-        <section class="natal-evidence-block is-reality">
-          <h4>成立条件</h4>
-          ${renderEvidenceParagraphList(domain.condition)}
-        </section>
-        <section class="natal-evidence-block is-reality">
-          <h4>现实对应</h4>
-          <p>${display(domain.manifestation || domain.reality || domain.summary || "这一项会通过阶段环境、现实选择和岁运触发慢慢显出来。")}</p>
-        </section>
-        <section class="natal-evidence-block is-boundary">
-          <h4>反证方式</h4>
-          ${renderEvidenceParagraphList(domain.counterEvidence)}
-        </section>
-      </div>
+
+      ${
+        hasContext
+          ? `
+            <div
+              class="
+                natal-evidence-context-grid
+              "
+            >
+              ${
+                combinationRows.length
+                  ? `
+                    <section
+                      class="
+                        natal-evidence-block
+                        is-combination
+                      "
+                    >
+                      <h4>
+                        命中组合
+                      </h4>
+
+                      ${renderCombinationList(
+                        combinationRows,
+                      )}
+                    </section>
+                  `
+                  : ""
+              }
+
+              ${
+                explanationText
+                  ? `
+                    <section
+                      class="
+                        natal-evidence-block
+                        is-explanation
+                      "
+                    >
+                      <h4>
+                        资料解释
+                      </h4>
+
+                      <p>
+                        ${display(
+                          explanationText,
+                        )}
+                      </p>
+                    </section>
+                  `
+                  : ""
+              }
+            </div>
+          `
+          : ""
+      }
+
+      ${
+        hasReview
+          ? `
+            <div
+              class="
+                natal-evidence-review-grid
+              "
+            >
+              ${
+                conditionRows.length
+                  ? `
+                    <section
+                      class="
+                        natal-evidence-block
+                        is-condition
+                      "
+                    >
+                      <h4>
+                        成立条件
+                      </h4>
+
+                      ${renderEvidenceParagraphList(
+                        conditionRows,
+                      )}
+                    </section>
+                  `
+                  : ""
+              }
+
+              ${
+                realityText
+                  ? `
+                    <section
+                      class="
+                        natal-evidence-block
+                        is-reality
+                      "
+                    >
+                      <h4>
+                        现实对应
+                      </h4>
+
+                      <p>
+                        ${display(
+                          realityText,
+                        )}
+                      </p>
+                    </section>
+                  `
+                  : ""
+              }
+
+              ${
+                counterRows.length
+                  ? `
+                    <section
+                      class="
+                        natal-evidence-block
+                        is-boundary
+                      "
+                    >
+                      <h4>
+                        反证与边界
+                      </h4>
+
+                      ${renderEvidenceParagraphList(
+                        counterRows,
+                      )}
+                    </section>
+                  `
+                  : ""
+              }
+            </div>
+          `
+          : ""
+      }
     </div>
   `;
+}
+
+function normalizeDomainEvidenceRows(
+  items = [],
+  options = {},
+) {
+  const dropPlaceholders =
+    options.dropPlaceholders !==
+    false;
+
+  const rows =
+    uniqueText(
+      compact(items)
+        .map(
+          (item) => {
+            if (
+              typeof item ===
+              "string"
+            ) {
+              return item.trim();
+            }
+
+            return String(
+              evidenceText(item) ||
+              "",
+            ).trim();
+          },
+        )
+        .filter(Boolean),
+    );
+
+  if (!dropPlaceholders) {
+    return rows;
+  }
+
+  const meaningfulRows =
+    rows.filter(
+      (text) =>
+        !/^(年柱|月柱|日柱|时柱)[：:\s]*柱位信息$/.test(
+          text,
+        ) &&
+        !/^(年柱|月柱|日柱|时柱)$/.test(
+          text,
+        ),
+    );
+
+  /*
+   * 存在真正证据时去掉“柱位信息”占位项。
+   * 如果全部都是占位项，仍保留前三项，
+   * 避免整个证据区变空。
+   */
+  return meaningfulRows.length
+    ? meaningfulRows
+    : rows.slice(0, 3);
 }
 
 function renderCombinationList(items = []) {

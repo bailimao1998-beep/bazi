@@ -1,9 +1,3 @@
-const strongStatuses =
-  new Set([
-    "activated",
-    "confirmed",
-    "structurally_supported",
-  ]);
 
 const metadataKeys =
   new Set([
@@ -179,104 +173,146 @@ export function guardNatalAiContent({
   };
 }
 
-function buildEvidenceIndex(
-  evidencePack,
+  const evidenceIndex =
+    buildEvidenceIndex(
+      evidencePack,
+    );
+
+  const chartCounts =
+    buildChartCounts(
+      evidencePack,
+    );
+
+  const sanitized =
+    sanitizeNode(
+      report,
+      {
+        warnings,
+        chartCounts,
+        path: "root",
+      },
+    );
+
+  sanitized.coreMechanism =
+    sanitized.coreMechanism ?? {};
+
+  sanitized.coreMechanism.steps =
+    filterMajorRows({
+      rows:
+        sanitized
+          .coreMechanism
+          .steps,
+
+      evidenceIndex,
+
+      warnings,
+
+      section:
+        "coreMechanism",
+
+      requireStrongPattern:
+        false,
+
+      minimumFacts:
+        2,
+    });
+
+  sanitized.strengths =
+    filterMajorRows({
+      rows:
+        sanitized.strengths,
+
+      evidenceIndex,
+
+      warnings,
+
+      section:
+        "strengths",
+
+      requireStrongPattern:
+        false,
+
+      minimumFacts:
+        3,
+    });
+
+  sanitized.repeatingPatterns =
+    filterMajorRows({
+      rows:
+        sanitized
+          .repeatingPatterns,
+
+      evidenceIndex,
+
+      warnings,
+
+      section:
+        "repeatingPatterns",
+
+      requireStrongPattern:
+        true,
+
+      minimumFacts:
+        99,
+    });
+
+  sanitized.lifeThemes =
+    filterMajorRows({
+      rows:
+        sanitized.lifeThemes,
+
+      evidenceIndex,
+
+      warnings,
+
+      section:
+        "lifeThemes",
+
+      requireStrongPattern:
+        false,
+
+      minimumFacts:
+        3,
+    });
+
+  sanitized.realityChecks =
+    filterRowsWithEvidence(
+      sanitized.realityChecks,
+    );
+
+  sanitized.actions =
+    filterRowsWithEvidence(
+      sanitized.actions,
+    );
+
+  sanitized.conditionalInsights =
+    filterRowsWithEvidence(
+      sanitized
+        .conditionalInsights,
+    );
+
+function keepReadableRows(
+  rows,
 ) {
-  const index =
-    new Map();
-
-  for (
-    const fact of
-    Array.isArray(
-      evidencePack.facts,
-    )
-      ? evidencePack.facts
+  return (
+    Array.isArray(rows)
+      ? rows
       : []
-  ) {
-    const id =
-      normalizeText(
-        fact.id,
-      );
-
-    if (!id) {
-      continue;
-    }
-
-    index.set(
-      id,
-      {
-        id,
-        kind: "fact",
-
-        status:
-          normalizeText(
-            fact.status,
-          ) ||
-          "confirmed",
-
-        confidence:
-          normalizeText(
-            fact.confidence,
-          ),
-      },
-    );
-  }
-
-  for (
-    const pattern of
-    Array.isArray(
-      evidencePack.compositions,
-    )
-      ? evidencePack.compositions
-      : []
-  ) {
-    const id =
-      normalizeText(
-        pattern.id,
-      );
-
-    if (!id) {
-      continue;
-    }
-
-    index.set(
-      id,
-      {
-        id,
-        kind: "pattern",
-
-        status:
-          strongestStatus(
-            pattern.status,
-            pattern.workStatus,
-          ),
-
-        confidence:
-          normalizeText(
-            pattern.confidence,
-          ),
-
-        sourceLayer:
-          normalizeText(
-            pattern.sourceLayer,
-          ),
-      },
-    );
-  }
-
-  return index;
+  ).filter(
+    hasReadableContent,
+  );
 }
 
 function buildChartCounts(
   evidencePack,
 ) {
-  const pillars =
+    const pillars =
     evidencePack
-      .chartSummary
-      ?.pillars ??
+        .chartSummary
+        ?.pillars ??
     evidencePack
-      .chart
-      ?.pillars ??
+        .chart
+        ?.pillars ??
     {};
 
   const stemCounts = {};
@@ -319,119 +355,6 @@ function buildChartCounts(
   };
 }
 
-function filterMajorRows({
-  rows,
-  evidenceIndex,
-  warnings,
-  section,
-  requireStrongPattern,
-  minimumFacts,
-}) {
-  return (
-    Array.isArray(rows)
-      ? rows
-      : []
-  ).filter(
-    (row) => {
-      const support =
-        inspectEvidence(
-          row?.evidenceRefs,
-          evidenceIndex,
-        );
-
-      const supported =
-        requireStrongPattern
-          ? support
-              .strongPatterns >
-            0
-          : (
-              support
-                .strongPatterns >
-                0 ||
-              support.facts >=
-                minimumFacts
-            );
-
-      if (!supported) {
-        warnings.push(
-          `content_removed:${section}:${normalizeText(
-            row?.title,
-          ) || "untitled"}`,
-        );
-      }
-
-      return supported;
-    },
-  );
-}
-
-function filterRowsWithEvidence(
-  rows,
-) {
-  return (
-    Array.isArray(rows)
-      ? rows
-      : []
-  ).filter(
-    (row) =>
-      Array.isArray(
-        row?.evidenceRefs,
-      ) &&
-      row.evidenceRefs.length >
-        0 &&
-      hasReadableContent(row),
-  );
-}
-
-function inspectEvidence(
-  refs,
-  evidenceIndex,
-) {
-  const result = {
-    facts: 0,
-    patterns: 0,
-    strongPatterns: 0,
-    conditionalPatterns: 0,
-  };
-
-  for (
-    const ref of
-    Array.isArray(refs)
-      ? refs
-      : []
-  ) {
-    const item =
-      evidenceIndex.get(ref);
-
-    if (!item) {
-      continue;
-    }
-
-    if (
-      item.kind === "fact"
-    ) {
-      result.facts += 1;
-      continue;
-    }
-
-    result.patterns += 1;
-
-    if (
-      strongStatuses.has(
-        item.status,
-      )
-    ) {
-      result.strongPatterns +=
-        1;
-    } else {
-      result
-        .conditionalPatterns +=
-        1;
-    }
-  }
-
-  return result;
-}
 
 function sanitizeNode(
   value,
@@ -751,37 +674,6 @@ function correctCountClaims(
   );
 }
 
-function strongestStatus(
-  ...values
-) {
-  const rank = {
-    unknown: 0,
-    weak: 1,
-    candidate: 2,
-    presence_only: 2,
-    conditional: 3,
-    connected: 4,
-    structurally_supported: 5,
-    confirmed: 6,
-    activated: 7,
-  };
-
-  return values
-    .map(normalizeText)
-    .filter(Boolean)
-    .sort(
-      (left, right) =>
-        (
-          rank[right] ??
-          0
-        ) -
-        (
-          rank[left] ??
-          0
-        ),
-    )[0] ||
-    "unknown";
-}
 
 function hasReadableContent(
   value,

@@ -33,6 +33,20 @@ export function createAiActions({ store, renderBaseOnly }) {
               .natalImageReport,
         });
 
+      globalThis
+        .__lastNatalAiDebug = {
+          trustedPack:
+            prompt.trustedPack,
+
+          evidenceIds:
+            prompt.evidenceIds,
+
+          rawResponse: "",
+
+          normalizedResponse:
+            null,
+        };
+
       const result =
         await generateWithDeepSeek({
           settings,
@@ -54,12 +68,14 @@ export function createAiActions({ store, renderBaseOnly }) {
 
       const validated =
         validateNatalAiResult({
-          text: result.text,
+          text:
+            result.text,
 
-          evidencePack:
-            store.state
-              .natalImageReport
-              ?.natalAiEvidencePack,
+          allowedEvidenceRefs:
+            prompt.evidenceIds,
+
+          guardEvidencePack:
+            prompt.trustedPack,
         });
 
       /*
@@ -190,49 +206,30 @@ export function createAiActions({ store, renderBaseOnly }) {
 
 function validateNatalAiResult({
   text = "",
-  evidencePack = {},
+  allowedEvidenceRefs = [],
+  guardEvidencePack = {},
 } = {}) {
   const warnings = [];
 
   const allowedRefs =
-    new Set([
-      ...(
-        evidencePack
-          .allowedFactIds ??
-        []
-      ),
-
-      ...(
-        evidencePack
-          .allowedPatternIds ??
-        []
-      ),
-
-      ...(
-        evidencePack
-          .allowedCompositionIds ??
-        []
-      ),
-
-      ...(
-        evidencePack
-          .allowedDomainKeys ??
-        []
-      ),
-    ]);
+    new Set(
+      Array.isArray(
+        allowedEvidenceRefs,
+      )
+        ? allowedEvidenceRefs
+        : [],
+    );
 
   const parsed =
     parseJsonObject(text);
 
   if (!parsed) {
-    warnings.push(
-      "ai_result_not_structured_json",
-    );
-
     return {
       structured: null,
-      warnings:
-        uniqueText(warnings),
+
+      warnings: [
+        "ai_result_not_structured_json",
+      ],
     };
   }
 
@@ -257,7 +254,8 @@ function validateNatalAiResult({
       report:
         normalized,
 
-      evidencePack,
+      evidencePack:
+        guardEvidencePack,
     });
 
   const structured =
@@ -274,7 +272,8 @@ function validateNatalAiResult({
       uniqueText([
         ...warnings,
         ...(
-          structured.warnings ??
+          structured
+            .warnings ??
           []
         ),
       ]),

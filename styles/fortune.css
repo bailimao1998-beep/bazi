@@ -1799,3 +1799,76 @@
     font-size: 16px;
   }
 }
+
+/* 流月卡：完整显示公历节气范围 + 流月干支 */
+.transit-select-card.is-month-card {
+  flex: 0 0 154px;
+  min-height: 72px;
+}
+
+.transit-select-card.is-month-card .transit-card-title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: 5px;
+  overflow: visible;
+}
+
+.transit-select-card.is-month-card .transit-card-primary {
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.transit-select-card.is-month-card .transit-card-dot {
+  font-size: 12px;
+}
+
+.transit-select-card.is-month-card .transit-card-ganzhi {
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .transit-select-card.is-month-card {
+    flex: 0 0 148px;
+  }
+}
+
+@media (max-width: 600px) {
+  .transit-select-card.is-month-card {
+    flex: 0 0 144px;
+  }
+
+  .transit-select-card.is-month-card .transit-card-primary {
+    font-size: 12px;
+  }
+
+  .transit-select-card.is-month-card .transit-card-ganzhi {
+    font-size: 15px;
+  }
+}
+```
+
+修改后效果应为：
+
+```text
+02/04–03/05 · 庚寅
+七杀 / 比肩
+暂无明显关系
+```
+
+如果仍然略挤，把：
+
+```css
+flex: 0 0 154px;
+```
+
+改成：
+
+```css
+flex: 0 0 162px;
+```

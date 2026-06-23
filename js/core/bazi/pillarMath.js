@@ -32,6 +32,20 @@ const monthBoundaryTerms = [
   { name: "立冬", month: 11, day: 7, longitude: 225, branch: "亥" },
   { name: "大雪", month: 12, day: 7, longitude: 255, branch: "子" },
 ];
+const flowMonthBoundaryNames = [
+  "立春",
+  "惊蛰",
+  "清明",
+  "立夏",
+  "芒种",
+  "小暑",
+  "立秋",
+  "白露",
+  "寒露",
+  "立冬",
+  "大雪",
+  "小寒",
+];
 const solarTermCache = new Map();
 const defaultLocations = [
   { name: "北京", aliases: ["北京市"], longitude: 116.4074, latitude: 39.9042, timezone: "Asia/Shanghai", standardMeridian: 120 },
@@ -93,9 +107,164 @@ export function createPillarFromYear(year, role = "流年") {
   return createPillarByIndex(Number(year) - 1984, role, { year: Number(year) });
 }
 
-export function createMonthPillar(year, month, role = "流月") {
-  const yearStem = createPillarFromYear(year, "流年").stem;
-  return createFlowMonthPillar(yearStem, month, role, { year: Number(year), month: Number(month) });
+export function createMonthPillar(
+  year,
+  month,
+  role = "流月",
+) {
+  const flowMonthRange =
+    getFlowMonthRange(
+      year,
+      month,
+    );
+
+  const yearStem =
+    createPillarFromYear(
+      flowMonthRange.targetYear,
+      "流年",
+    ).stem;
+
+  return createFlowMonthPillar(
+    yearStem,
+    flowMonthRange.flowMonthIndex,
+    role,
+    {
+      year:
+        flowMonthRange.targetYear,
+
+      month:
+        flowMonthRange.flowMonthIndex,
+
+      flowMonthRange,
+
+      dateRangeLabel:
+        flowMonthRange.dateRangeLabel,
+
+      dateTimeRangeLabel:
+        flowMonthRange.dateTimeRangeLabel,
+
+      startAt:
+        flowMonthRange.startAt,
+
+      endAt:
+        flowMonthRange.endAt,
+
+      startSolarTerm:
+        flowMonthRange.startSolarTerm,
+
+      endSolarTerm:
+        flowMonthRange.endSolarTerm,
+    },
+  );
+}
+
+export function getFlowMonthRange(
+  year,
+  month,
+) {
+  const parsedYear =
+    Number(year);
+
+  const targetYear =
+    Number.isFinite(parsedYear)
+      ? Math.trunc(parsedYear)
+      : new Date()
+          .getFullYear();
+
+  const flowMonthIndex =
+    Math.min(
+      12,
+      Math.max(
+        1,
+        Math.trunc(
+          Number(month) || 1,
+        ),
+      ),
+    );
+
+  const monthIndex =
+    flowMonthIndex - 1;
+
+  const startSolarTerm =
+    flowMonthBoundaryNames[
+      monthIndex
+    ];
+
+  const endSolarTerm =
+    flowMonthBoundaryNames[
+      (monthIndex + 1) % 12
+    ];
+
+  /*
+   * 第11流月：
+   * 大雪（目标年）→ 小寒（次年）
+   *
+   * 第12流月：
+   * 小寒（次年）→ 立春（次年）
+   */
+  const startYear =
+    monthIndex === 11
+      ? targetYear + 1
+      : targetYear;
+
+  const endYear =
+    monthIndex >= 10
+      ? targetYear + 1
+      : targetYear;
+
+  const startBoundary =
+    getSolarTermBoundary(
+      startYear,
+      startSolarTerm,
+    );
+
+  const endBoundary =
+    getSolarTermBoundary(
+      endYear,
+      endSolarTerm,
+    );
+
+  return {
+    targetYear,
+
+    flowMonthIndex,
+
+    branch:
+      monthBranches[
+        monthIndex
+      ],
+
+    startSolarTerm,
+
+    endSolarTerm,
+
+    startAt:
+      formatLocalDateTime(
+        startBoundary,
+      ),
+
+    endAt:
+      formatLocalDateTime(
+        endBoundary,
+      ),
+
+    dateRangeLabel:
+      `${formatBoundaryMonthDay(
+        startBoundary,
+      )}–${formatBoundaryMonthDay(
+        endBoundary,
+      )}`,
+
+    dateTimeRangeLabel:
+      `${formatLocalDateTime(
+        startBoundary,
+      )}—${formatLocalDateTime(
+        endBoundary,
+      )}`,
+
+    endExclusive:
+      true,
+  };
 }
 
 function createFlowMonthPillar(yearStem, month, role = "流月", meta = {}) {
@@ -166,6 +335,26 @@ export function getLocalBirthMs(birth) {
 
 export function formatLocalDateTime(boundary) {
   return `${boundary.localYear}-${String(boundary.localMonth).padStart(2, "0")}-${String(boundary.localDay).padStart(2, "0")} ${String(boundary.localHour).padStart(2, "0")}:${String(boundary.localMinute).padStart(2, "0")}`;
+}
+
+function formatBoundaryMonthDay(
+  boundary,
+) {
+  return [
+    String(
+      boundary.localMonth,
+    ).padStart(
+      2,
+      "0",
+    ),
+
+    String(
+      boundary.localDay,
+    ).padStart(
+      2,
+      "0",
+    ),
+  ].join("/");
 }
 
 function resolveBirthLocation(inputOrBirthplace, datasets) {

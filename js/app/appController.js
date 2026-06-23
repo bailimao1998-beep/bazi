@@ -371,7 +371,20 @@ function buildMonthStageSelector(state = {}) {
       .filter((item) => item.month)
       .map((item) => ({
         value: item.month,
-        label: [item.month ? `${item.month}月` : "", item.ganZhi].filter(Boolean).join(" · ") || "待查",
+        label:
+          [
+            item.dateRangeLabel ||
+            (
+              item.branch
+                ? `${item.branch}月`
+                : ""
+            ),
+
+            item.ganZhi,
+          ]
+            .filter(Boolean)
+            .join(" · ") ||
+          "待查",
       })),
   };
 }

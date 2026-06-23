@@ -81,23 +81,95 @@ function renderYearCard(item = {}, selectedYearItem = {}) {
     </button>
   `;
 }
+function renderMonthCard(
+  item = {},
+  selectedMonth,
+) {
+  const active =
+    Number(item.month) ===
+    Number(selectedMonth);
 
-function renderMonthCard(item = {}, selectedMonth) {
-  const active = Number(item.month) === Number(selectedMonth);
-  const tenGodText = joinTenGods(item.stemTenGod || item.tenGod, item.branchTenGod || item.branchMainTenGod);
-  const relationText = summarizeRelations([item.relationToNatal, item.relationToLuck, item.relationToYear].flat());
+  const tenGodText =
+    joinTenGods(
+      item.stemTenGod ||
+      item.tenGod,
+
+      item.branchTenGod ||
+      item.branchMainTenGod,
+    );
+
+  const relationText =
+    summarizeRelations(
+      [
+        item.relationToNatal,
+        item.relationToLuck,
+        item.relationToYear,
+      ].flat(),
+    );
+
+  const dateRangeText =
+    item.dateRangeLabel ||
+    item.flowMonthRange
+      ?.dateRangeLabel ||
+    "";
+
+  const preciseRangeText =
+    item.dateTimeRangeLabel ||
+    dateRangeText;
 
   return `
-    <button type="button" class="transit-select-card is-month-card${active ? " is-active" : ""}" data-month-select="${escapeHtml(item.month)}">
+    <button
+      type="button"
+      class="transit-select-card is-month-card${
+        active
+          ? " is-active"
+          : ""
+      }"
+      data-month-select="${escapeHtml(
+        item.month,
+      )}"
+      title="${escapeHtml(
+        preciseRangeText,
+      )}"
+    >
       ${renderCardTitle([
         {
-          value: item.branch ? `${item.branch}月` : "流月",
-          className: "transit-card-primary",
+          value:
+            dateRangeText ||
+            (
+              item.branch
+                ? `${item.branch}月`
+                : "流月"
+            ),
+
+          className:
+            "transit-card-primary",
         },
-        { value: item.ganZhi, className: "transit-card-ganzhi" },
+
+        {
+          value:
+            item.ganZhi,
+
+          className:
+            "transit-card-ganzhi",
+        },
       ])}
-      <small class="transit-card-support">${escapeHtml(tenGodText)}</small>
-      <i class="transit-card-signal">${escapeHtml(relationText)}</i>
+
+      <small
+        class="transit-card-support"
+      >
+        ${escapeHtml(
+          tenGodText,
+        )}
+      </small>
+
+      <i
+        class="transit-card-signal"
+      >
+        ${escapeHtml(
+          relationText,
+        )}
+      </i>
     </button>
   `;
 }

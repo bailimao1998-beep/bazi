@@ -64,8 +64,19 @@ function formatSelectionSummary(currentLuck = {}, yearItem = {}, monthItem = {})
   return [
     currentLuck.ganZhi ? `大运 ${currentLuck.ganZhi}` : "",
     yearItem.year ? `${yearItem.year} ${yearItem.ganZhi || ""}` : "",
-    monthItem.branch
-  ? `${monthItem.branch}月 ${monthItem.ganZhi || ""}`
+    monthItem.ganZhi
+  ? [
+      monthItem.dateRangeLabel ||
+      (
+        monthItem.branch
+          ? `${monthItem.branch}月`
+          : ""
+      ),
+
+      monthItem.ganZhi,
+    ]
+      .filter(Boolean)
+      .join(" · ")
   : "",
   ].filter(Boolean).join(" · ") || "当前选择待查";
 }

@@ -112,7 +112,22 @@ function buildMonthItem(context) {
   const branchTenGod = getTenGod(context.dayStem, branchMainStem(branch));
   const stemTheme = tenGodThemes[stemTenGod] ?? "当月外显主题待复核";
   const branchTheme = tenGodThemes[branchTenGod] ?? "当月环境承接待复核";
-  const flowMonthLabel = `${context.selectedMonth}月/${branch}月`;
+  const flowMonthRange =
+    pillar.meta
+      ?.flowMonthRange ??
+    {};
+
+  const dateRangeLabel =
+    flowMonthRange
+      .dateRangeLabel ??
+    pillar.meta
+      ?.dateRangeLabel ??
+    "";
+
+  const flowMonthLabel =
+    branch
+      ? `${branch}月`
+      : `第${context.selectedMonth}流月`;
   const relationToNatal = findRelationToNatal(branch, context.natalBranches);
   const relationToLuck = findRelationToLuck(branch, context.currentLuckItem);
   const relationToYear = findRelationToYear(branch, context.yearItem);
@@ -130,8 +145,56 @@ function buildMonthItem(context) {
 
   return {
     year: context.targetYear,
-    month: context.selectedMonth,
+    month:
+      context.selectedMonth,
+
+    flowMonthIndex:
+      context.selectedMonth,
+
     flowMonthLabel,
+
+    dateRangeLabel,
+
+    dateTimeRangeLabel:
+      flowMonthRange
+        .dateTimeRangeLabel ??
+      pillar.meta
+        ?.dateTimeRangeLabel ??
+      "",
+
+    startAt:
+      flowMonthRange
+        .startAt ??
+      pillar.meta
+        ?.startAt ??
+      "",
+
+    endAt:
+      flowMonthRange
+        .endAt ??
+      pillar.meta
+        ?.endAt ??
+      "",
+
+    startSolarTerm:
+      flowMonthRange
+        .startSolarTerm ??
+      pillar.meta
+        ?.startSolarTerm ??
+      "",
+
+    endSolarTerm:
+      flowMonthRange
+        .endSolarTerm ??
+      pillar.meta
+        ?.endSolarTerm ??
+      "",
+
+    endExclusive:
+      Boolean(
+        flowMonthRange
+          .endExclusive,
+      ),
     ganZhi: pillar.label,
     stem,
     branch,

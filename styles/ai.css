@@ -3075,3 +3075,78 @@ li:last-child {
     padding-left: 10px;
   }
 }
+
+/* ===== 原局AI纯样式重点优化 v4：开始 ===== */
+
+/*
+ * 纯样式版本：
+ * 不修改 AI 提示词，不改正文文本，不拆分段落。
+ * 只提升“优势 / 代价 / 建议”等加粗词的识别度。
+ */
+
+#natalAiNarrative
+.natal-ai-continuous-text
+.ai-output-section p {
+  text-wrap: pretty;
+}
+
+#natalAiNarrative
+.natal-ai-continuous-text
+.ai-output-section p strong {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  margin:
+    0
+    5px
+    0
+    14px;
+  padding:
+    1px
+    7px;
+  border:
+    1px solid
+    rgba(47, 111, 115, 0.16);
+  border-radius: 999px;
+  background:
+    rgba(47, 111, 115, 0.06);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.4;
+  vertical-align: 0.08em;
+}
+
+#natalAiNarrative
+.natal-ai-continuous-text
+.ai-output-section p strong:first-child {
+  margin-left: 0;
+}
+
+#natalAiNarrative
+.natal-ai-continuous-text
+.ai-output-section p + p {
+  margin-top: 10px;
+}
+
+#natalAiNarrative
+.natal-ai-continuous-text
+.ai-output-section {
+  scroll-margin-top: 18px;
+}
+
+@media (max-width: 640px) {
+  #natalAiNarrative
+  .natal-ai-continuous-text
+  .ai-output-section p strong {
+    margin-left: 8px;
+  }
+
+  #natalAiNarrative
+  .natal-ai-continuous-text
+  .ai-output-section p strong:first-child {
+    margin-left: 0;
+  }
+}
+
+/* ===== 原局AI纯样式重点优化 v4：结束 ===== */

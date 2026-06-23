@@ -2224,6 +2224,8 @@ function evaluateWealthBreaksResource(
       },
     );
 
+const semantic = { ...( rule.semantic ?? {} ), formation: route.confirmed ? "财星通过已激活的制克路径作用于印星，现实收益与资源追求会对学习、资格、保护和稳定承接形成直接牵制。" : route.structurallySupported ? "财星与印星之间存在方向明确、力量达到原局结构支持标准的制克路径，财印冲突具有较强结构基础。" : route.workPath ? "财星与印星之间已识别制克方向，但路径力量、显隐位置或承接条件尚不足，暂只能视为财印牵动候选。" : "财星与印星同时有落点，但暂未识别到足以成立财坏印的真实制克路径，只能说明现实收益与长期学习、资格和稳定体系之间可能存在取舍。", };
+
   return {
     title:
       route.workStatus ===
@@ -2250,7 +2252,8 @@ function evaluateWealthBreaksResource(
         route.workStatus,
         route.workPath,
       ),
-
+    importance: route.confirmed || route.structurallySupported ? "high" : "medium", 
+    semantic,
     workStatus:
       route.workStatus,
 
@@ -3856,10 +3859,11 @@ function createPatternImage(
         rule.baseStatus,
       ) || "conditional",
 
-    importance:
+    importance: 
       normalizeText(
+         evaluation.importance ??
         rule.importance,
-      ) || "medium",
+        ) || "medium",
 
     confidence:
       normalizeConfidence(
@@ -3961,8 +3965,7 @@ function createPatternImage(
         rule.replacesRuleIds,
       ),
 
-    semantic:
-      rule.semantic ?? null,
+    semantic: evaluation.semantic ?? rule.semantic ?? null,
 
     domainNarratives:
       rule.domainNarratives ??

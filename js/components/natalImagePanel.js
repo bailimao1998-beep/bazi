@@ -169,12 +169,13 @@ export function renderNatalImagePanel(
     );
 
   /*
-   * 页面原有顺序保持不变：
-   * 命理总批 → 十二维画像 → 取象索引。
-   *
-   * 页面上方“原局取象”是整个模块标题，
-   * 三个部分现在都读取新版事实数据。
-   */
+  * 页面统一为一套原局报告：
+  * 基础总纲 → 原局综合报告 → 取象索引。
+  *
+  * masterSummary继续负责全局聚合，
+  * twelveDomains继续负责领域详解，
+  * 展示层不再重复渲染两套正文。
+  */
   root.innerHTML = `
     <div class="plugin-header">
       <p class="eyebrow">原局取象</p>
@@ -198,12 +199,10 @@ export function renderNatalImagePanel(
       report,
     )}
 
-    ${renderNatalMasterSummary(
+    ${renderNatalIntegratedReport(
       report,
       context,
     )}
-
-    ${renderNatalDomainReport(report)}
 
     ${renderNatalHitListDisplay(
       report,
@@ -541,7 +540,7 @@ function renderNatalStructureSynopsis(
   `;
 }
 
-function renderNatalMasterSummary(
+function resolveNatalMasterSummary(
   report = {},
   context = {},
 ) {
@@ -558,6 +557,10 @@ function renderNatalMasterSummary(
       )
     );
 
+  if (hasV2Summary) {
+    return report.masterSummary;
+  }
+
   const domains =
     buildNatalDomainCards(
       report,
@@ -568,46 +571,53 @@ function renderNatalMasterSummary(
       report,
     );
 
+  return buildLegacyNatalMasterSummary({
+    summary:
+      report.summary,
+
+    twelveDomains:
+      domains,
+
+    hitList:
+      hitList.all ?? [],
+
+    featureVector:
+      report.featureVector,
+
+    structureSynopsis:
+      report.structureSynopsis ??
+      null,
+
+    professionalContext:
+      report.professionalContext ??
+      null,
+
+    atomicFacts:
+      report.atomicFacts,
+
+    domainEvidence:
+      report.domainEvidence,
+
+    database:
+      context
+        .masterSummaryDatabase,
+  });
+}
+
+function renderNatalIntegratedReport(
+  report = {},
+  context = {},
+) {
+  const domains =
+    buildNatalDomainCards(
+      report,
+    );
+
   const summary =
-    hasV2Summary
-      ? report.masterSummary
-      : buildLegacyNatalMasterSummary({
-          summary:
-            report.summary,
-
-          twelveDomains:
-            domains,
-
-          hitList:
-            hitList.all ??
-            [],
-
-          featureVector:
-            report.featureVector,
-
-          structureSynopsis:
-            report.structureSynopsis ??
-            null,
-
-          professionalContext:
-            report.professionalContext ??
-            null,
-
-          atomicFacts:
-            report.atomicFacts,
-
-          domainEvidence:
-            report.domainEvidence,
-
-          database:
-            context
-              .masterSummaryDatabase,
-        });
-
-  const headline =
-    summary.title ||
-    summary.headline ||
-    "命理总批（原局）";
+    resolveNatalMasterSummary(
+      report,
+      context,
+    );
 
   const openingText =
     summary.opening ||
@@ -616,140 +626,233 @@ function renderNatalMasterSummary(
     summary.core ||
     "";
 
-  const sectionTexts =
-    normalizeMasterSummarySections(
-      summary,
-    ).filter(
-      (section) =>
-        !openingText ||
-        !textRoughlySame(
-          openingText,
-          section.text,
-        ),
+  const conclusionText =
+    summary.conclusion ||
+    "";
+
+  const strengthText =
+    cleanCardText(
+      compact(
+        summary.strengths,
+      ).join("；"),
+      1,
     );
+
+  const tensionText =
+    cleanCardText(
+      compact(
+        summary.tensions,
+      ).join("；"),
+      1,
+    );
+
+  const conditionText =
+    cleanCardText(
+      compact(
+        summary.conditions,
+      ).join("；"),
+      1,
+    );
+
+  const overviewPoints = [
+    {
+      label:
+        "核心优势",
+
+      text:
+        strengthText,
+    },
+
+    {
+      label:
+        "主要张力",
+
+      text:
+        tensionText,
+    },
+
+    {
+      label:
+        "成立条件",
+
+      text:
+        conditionText,
+    },
+  ].filter(
+    (item) =>
+      item.text,
+  );
 
   return `
     <section
-      class="natal-master-summary"
+      class="
+        natal-portrait-section
+        natal-domain-section
+        natal-integrated-report
+      "
     >
       <div
-        class="natal-master-head"
+        class="board-title"
       >
-        <div>
-          <p class="eyebrow">
-            命理师总批
-          </p>
+        <h3>
+          原局综合报告
+        </h3>
 
-          <h3>
-            ${display(headline)}
-          </h3>
-        </div>
+        <span>
+          整体总论
+        </span>
       </div>
 
-      ${
-        openingText
-          ? `
-            <article
-              class="natal-master-opening"
-            >
-              <p>
+      <article
+        class="natal-integrated-overview"
+      >
+        <p class="eyebrow">
+          整体总论
+        </p>
+
+        <h4>
+          ${display(
+            summary.title ||
+            "命局核心判断",
+          )}
+        </h4>
+
+        ${
+          openingText
+            ? `
+              <p
+                class="
+                  natal-integrated-opening
+                "
+              >
                 ${display(
                   openingText,
                 )}
               </p>
-            </article>
-          `
-          : ""
-      }
-
-      <div
-        class="natal-master-sections"
-      >
-        ${
-          sectionTexts.length
-            ? sectionTexts
-                .map(
-                  (
-                    section,
-                    index,
-                  ) => `
-                    <article
-                      class="natal-master-section"
-                      data-section-key="${safe(
-                        section.key ||
-                        "",
-                      )}"
-                    >
-                      <div
-                        class="natal-master-section-head"
-                      >
-                        <i>
-                          ${String(
-                            index + 1,
-                          ).padStart(
-                            2,
-                            "0",
-                          )}
-                        </i>
-
-                        <b>
-                          ${display(
-                            section.title,
-                          )}
-                        </b>
-                      </div>
-
-                      <p>
-                        ${display(
-                          section.text,
-                        )}
-                      </p>
-                    </article>
-                  `,
-                )
-                .join("")
+            `
             : `
               <p class="muted">
-                当前原局事实不足，
-                暂未形成完整总批。
+                当前以基础事实为主，
+                暂未形成特别集中的高阶主线。
               </p>
             `
         }
-      </div>
 
-      ${
-        summary.conclusion
-          ? `
-            <article
-              class="natal-master-conclusion"
-            >
-              <b>
-                总评
-              </b>
+        ${
+          overviewPoints.length
+            ? `
+              <div
+                class="
+                  natal-integrated-overview-grid
+                "
+              >
+                ${overviewPoints
+                  .map(
+                    (item) => `
+                      <section
+                        class="
+                          natal-integrated-point
+                        "
+                      >
+                        <b>
+                          ${display(
+                            item.label,
+                          )}
+                        </b>
 
-              <p>
+                        <p>
+                          ${display(
+                            item.text,
+                          )}
+                        </p>
+                      </section>
+                    `,
+                  )
+                  .join("")}
+              </div>
+            `
+            : ""
+        }
+
+        ${
+          conclusionText &&
+          !textRoughlySame(
+            openingText,
+            conclusionText,
+          )
+            ? `
+              <p
+                class="
+                  natal-integrated-conclusion
+                "
+              >
+                <b>
+                  总评：
+                </b>
+
                 ${display(
-                  summary.conclusion,
+                  conclusionText,
                 )}
               </p>
-            </article>
-          `
-          : ""
-      }
+            `
+            : ""
+        }
 
-      ${
-        summary.boundary
-          ? `
-            <p
-              class="natal-master-boundary"
-            >
-              ${display(
-                summary.boundary,
-              )}
-            </p>
-          `
-          : ""
-      }
+        ${
+          summary.boundary
+            ? `
+              <p
+                class="
+                  natal-master-boundary
+                "
+              >
+                ${display(
+                  summary.boundary,
+                )}
+              </p>
+            `
+            : ""
+        }
+      </article>
+
+      <div
+        class="natal-domain-subhead"
+      >
+        <div>
+          <h4>
+            十二领域详解
+          </h4>
+
+          <p>
+            分领域查看现实表现、
+            有利条件、压力与证据。
+          </p>
+        </div>
+
+        <span>
+          ${safe(
+            domains.length,
+          )}
+          个方面
+        </span>
+      </div>
+
+      <div
+        class="natal-domain-grid"
+      >
+        ${domains
+          .map(
+            (
+              domain,
+              index,
+            ) =>
+              renderNatalDomainCard(
+                domain,
+                index,
+              ),
+          )
+          .join("")}
+      </div>
     </section>
   `;
 }
@@ -814,22 +917,6 @@ function normalizeMasterSummarySections(
     (section) =>
       section.text,
   );
-}
-
-
-function renderNatalDomainReport(report = {}) {
-  const domains = buildNatalDomainCards(report);
-  return `
-    <section class="natal-portrait-section natal-domain-section">
-      <div class="board-title">
-        <h3>十二维命局画像</h3>
-        <span>${safe(domains.length)} 个方面</span>
-      </div>
-      <div class="natal-domain-grid">
-        ${domains.map((domain, index) => renderNatalDomainCard(domain, index)).join("")}
-      </div>
-    </section>
-  `;
 }
 
 function renderNatalDomainCard(
@@ -917,7 +1004,7 @@ function renderNatalDomainCard(
       <div class="natal-domain-card-head">
         <div>
           <span>
-            十二领域
+            领域详解
           </span>
 
           <i class="natal-domain-index">

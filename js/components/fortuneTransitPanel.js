@@ -52,9 +52,32 @@ export function renderFortuneTransitPanel(root, payload = {}) {
 }
 
 function bindTransitEvents(root, payload = {}) {
-  root.querySelectorAll("[data-luck-step]").forEach((button) => {
-    button.addEventListener("click", () => payload.onSelectLuckYear?.(Number(button.dataset.luckStep)));
-  });
+  root
+    .querySelectorAll(
+      "[data-luck-year]",
+    )
+    .forEach(
+      (button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            payload.onSelectLuck?.({
+              year:
+                Number(
+                  button.dataset
+                    .luckYear,
+                ),
+
+              month:
+                Number(
+                  button.dataset
+                    .luckMonth,
+                ),
+            });
+          },
+        );
+      },
+    );
   root.querySelectorAll("[data-year-step]").forEach((button) => {
     button.addEventListener("click", () => payload.onSelectYear?.(Number(button.dataset.yearStep)));
   });
@@ -93,78 +116,58 @@ function revealActiveTransitCards(
 
   requestAnimationFrame(
     () => {
-      const lists =
-        root.querySelectorAll(
-          ".transit-card-list",
-        );
-
-      lists.forEach(
-        (list) => {
-          const activeCard =
-            list.querySelector(
-              ".transit-select-card.is-active",
+      requestAnimationFrame(
+        () => {
+          const lists =
+            root.querySelectorAll(
+              ".transit-card-list",
             );
 
-          if (
-            !activeCard ||
-            list.scrollWidth <=
-              list.clientWidth
-          ) {
-            return;
-          }
+          lists.forEach(
+            (list) => {
+              const activeCard =
+                list.querySelector(
+                  ".transit-select-card.is-active",
+                );
 
-          const listRect =
-            list.getBoundingClientRect();
+              if (
+                !activeCard ||
+                list.scrollWidth <=
+                  list.clientWidth
+              ) {
+                return;
+              }
 
-          const cardRect =
-            activeCard.getBoundingClientRect();
+              const targetLeft =
+                activeCard.offsetLeft -
+                (
+                  list.clientWidth -
+                  activeCard.offsetWidth
+                ) /
+                  2;
 
-          const visiblePadding = 8;
-
-          const isFullyVisible =
-            cardRect.left >=
-              listRect.left +
-                visiblePadding &&
-            cardRect.right <=
-              listRect.right -
-                visiblePadding;
-
-          if (isFullyVisible) {
-            return;
-          }
-
-          const targetLeft =
-            list.scrollLeft +
-            (
-              cardRect.left -
-              listRect.left
-            ) -
-            (
-              list.clientWidth -
-              cardRect.width
-            ) /
-              2;
-
-          const maxLeft =
-            Math.max(
-              0,
-              list.scrollWidth -
-                list.clientWidth,
-            );
-
-          list.scrollTo({
-            left:
-              Math.min(
-                maxLeft,
+              const maxLeft =
                 Math.max(
                   0,
-                  targetLeft,
-                ),
-              ),
+                  list.scrollWidth -
+                    list.clientWidth,
+                );
 
-            behavior:
-              "auto",
-          });
+              list.scrollTo({
+                left:
+                  Math.min(
+                    maxLeft,
+                    Math.max(
+                      0,
+                      targetLeft,
+                    ),
+                  ),
+
+                behavior:
+                  "smooth",
+              });
+            },
+          );
         },
       );
     },

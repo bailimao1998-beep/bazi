@@ -131,7 +131,8 @@ export function createAppController({ roots, initialInput }) {
       luckAiState: store.luckAiState,
       yearAiState: store.yearAiState,
       monthAiState: store.monthAiState,
-      onSelectLuckYear: selectTargetYear,
+      onSelectLuck:
+        selectTargetLuck,
       onSelectYear: selectTargetYear,
       onSelectMonth: selectTargetMonth,
       onGenerateLuckAi: aiActions.generateLuckAiNarrative,
@@ -427,4 +428,44 @@ function firstYearOfRange(range = "") {
 function parseYearRange(range = "") {
   const [start, end] = String(range).match(/\d{3,4}/g)?.map(Number) ?? [];
   return [start, end];
+}
+
+function selectTargetLuck({
+  year,
+  month,
+} = {}) {
+  const targetYear =
+    Number(year);
+
+  const selectedMonth =
+    Math.min(
+      12,
+      Math.max(
+        1,
+        Math.trunc(
+          Number(month),
+        ),
+      ),
+    );
+
+  if (
+    !Number.isFinite(
+      targetYear,
+    ) ||
+    !Number.isFinite(
+      selectedMonth,
+    )
+  ) {
+    return;
+  }
+
+  store.currentInput = {
+    ...store.currentInput,
+
+    targetYear,
+
+    selectedMonth,
+  };
+
+  refresh();
 }

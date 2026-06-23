@@ -135,6 +135,10 @@ function buildLuckItem(pillar, index, context) {
   const stem = pillar.stem ?? "";
   const branch = pillar.branch ?? "";
   const tenGod = getTenGod(context.dayStem, stem);
+  const selectionTarget =
+    resolveLuckSelectionTarget(
+      pillar,
+    );
   const branchTenGod = getTenGod(context.dayStem, branchMainStem(branch));
   const relationToNatal = findRelationToNatal(branch, context.natalBranches);
   const theme = tenGodThemes[tenGod] ?? "阶段主题待复核";
@@ -158,6 +162,11 @@ function buildLuckItem(pillar, index, context) {
     branch,
     tenGod,
     isCurrent,
+    selectionYear:
+      selectionTarget.year,
+
+    selectionMonth:
+      selectionTarget.month,
     relationToNatal,
     shortImage,
     image: shortImage,
@@ -354,4 +363,104 @@ function flowMonthToMonthIndex(
     gregorianMonth -
     1
   );
+}
+
+function resolveLuckSelectionTarget(
+  pillar = {},
+) {
+  const startMonthIndex =
+    Number(
+      pillar.startMonthIndex,
+    );
+
+  const endMonthIndexExclusive =
+    Number(
+      pillar
+        .endMonthIndexExclusive,
+    );
+
+  if (
+    Number.isFinite(
+      startMonthIndex,
+    ) &&
+    Number.isFinite(
+      endMonthIndexExclusive,
+    ) &&
+    startMonthIndex <
+      endMonthIndexExclusive
+  ) {
+    /*
+     * 不直接选边界月，
+     * 向运内移动一个月，
+     * 避免仍被判入上一运。
+     */
+    const safeMonthIndex =
+      Math.min(
+        startMonthIndex + 1,
+        endMonthIndexExclusive - 1,
+      );
+
+    return monthIndexToFlowSelection(
+      safeMonthIndex,
+    );
+  }
+
+  const startYear =
+    Number(pillar.startYear);
+
+  const endYear =
+    Number(pillar.endYear);
+
+  return {
+    year:
+      Number.isFinite(startYear)
+        ? (
+            Number.isFinite(endYear) &&
+            endYear > startYear
+              ? startYear + 1
+              : startYear
+          )
+        : "",
+
+    month: 1,
+  };
+}
+
+function monthIndexToFlowSelection(
+  monthIndex,
+) {
+  const gregorianYear =
+    Math.floor(
+      monthIndex / 12,
+    );
+
+  const gregorianMonth =
+    (
+      (
+        monthIndex % 12
+      ) +
+      12
+    ) % 12 + 1;
+
+  /*
+   * 项目流月：
+   * 1=寅月，约公历2月
+   * 12=丑月，约下一年1月
+   */
+  if (gregorianMonth === 1) {
+    return {
+      year:
+        gregorianYear - 1,
+
+      month: 12,
+    };
+  }
+
+  return {
+    year:
+      gregorianYear,
+
+    month:
+      gregorianMonth - 1,
+  };
 }

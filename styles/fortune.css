@@ -1851,24 +1851,23 @@
     font-size: 15px;
   }
 }
-```
 
-修改后效果应为：
+.transit-card-list {
+  scroll-behavior: smooth;
 
-```text
-02/04–03/05 · 庚寅
-七杀 / 比肩
-暂无明显关系
-```
+  /*
+   * 让第一、第二张和最后几张
+   * 也拥有真正居中的滚动空间。
+   */
+  padding-inline:
+    max(
+      10px,
+      calc(50% - 100px)
+    );
 
-如果仍然略挤，把：
-
-```css
-flex: 0 0 154px;
-```
-
-改成：
-
-```css
-flex: 0 0 162px;
-```
+  scroll-padding-inline:
+    max(
+      10px,
+      calc(50% - 100px)
+    );
+}

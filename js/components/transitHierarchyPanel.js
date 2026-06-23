@@ -49,9 +49,28 @@ function renderLuckCard(item = {}, currentLuck = {}) {
   const active = item.index === currentLuck.index || item.ganZhi === currentLuck.ganZhi;
   const tenGodText = joinTenGods(item.tenGod || item.stemTenGod, displayBranchTenGod(item));
   const relationText = summarizeRelations(item.relationToNatal);
+  const selectionYear =
+    Number(
+      item.selectionYear ??
+      firstYearOfRange(
+        item.yearRange,
+      ),
+    );
+
+  const selectionMonth =
+    Number(
+      item.selectionMonth ??
+      1,
+    );
 
   return `
-    <button type="button" class="transit-select-card is-luck-card${active ? " is-active" : ""}${item.isCurrent ? " is-current" : ""}" data-luck-step="${escapeHtml(firstYearOfRange(item.yearRange))}">
+    <button type="button" class="transit-select-card is-luck-card${active ? " is-active" : ""}${item.isCurrent ? " is-current" : ""}" data-luck-year="${escapeHtml(
+      selectionYear,
+    )}"
+
+    data-luck-month="${escapeHtml(
+      selectionMonth,
+    )}">
       ${renderCardTitle([
         { value: item.ageRange, className: "transit-card-primary" },
         { value: item.ganZhi, className: "transit-card-ganzhi" },

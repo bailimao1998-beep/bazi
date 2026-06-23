@@ -1101,9 +1101,11 @@
 }
 
 .natal-portrait-card .natal-evidence-open {
-  justify-self: start;
+  justify-self: end;
 }
-
+.natal-evidence-open{
+  justify-self: end !important;
+}
 .natal-domain-section {
   display: grid;
   gap: 14px;

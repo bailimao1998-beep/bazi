@@ -2237,3 +2237,559 @@
   font-size: 14px;
   line-height: 1.72;
 }
+
+/* ===== 原局 AI 深度分析 ===== */
+
+.natal-ai-deep-shell
+.ai-collapse-body {
+  padding: 18px;
+}
+
+.natal-ai-deep-report {
+  width: 100%;
+  max-width: 1180px;
+
+  display: grid;
+  gap: 18px;
+
+  margin: 0 auto;
+}
+
+.natal-ai-overview {
+  display: grid;
+  gap: 11px;
+
+  padding: 20px;
+
+  border: 1px solid
+    rgba(47, 111, 115, 0.22);
+  border-radius: 14px;
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(47, 111, 115, 0.1),
+      transparent 220px
+    ),
+    linear-gradient(
+      180deg,
+      #f7fbf8,
+      #fffdf8
+    );
+}
+
+.natal-ai-overview-meta,
+.natal-ai-section-head,
+.natal-ai-theme-head,
+.natal-ai-condition-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.natal-ai-overview-meta > span,
+.natal-ai-section-head span {
+  color: var(--accent);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 950;
+}
+
+.natal-ai-overview h3 {
+  max-width: 36em;
+  margin: 0;
+
+  color: var(--ink);
+  font-size: 23px;
+  line-height: 1.48;
+  font-weight: 950;
+}
+
+.natal-ai-overview > p {
+  max-width: 78ch;
+  margin: 0;
+
+  color: #44515b;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.natal-ai-confidence,
+.natal-ai-evidence-count,
+.natal-ai-theme-head span,
+.natal-ai-condition-head span {
+  flex: 0 0 auto;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 25px;
+  padding: 2px 9px;
+
+  border: 1px solid
+    rgba(47, 111, 115, 0.18);
+  border-radius: 999px;
+
+  background:
+    rgba(47, 111, 115, 0.07);
+
+  color: var(--accent);
+  font-size: 11px;
+  line-height: 1.25;
+  font-weight: 900;
+}
+
+.natal-ai-confidence.is-low,
+.natal-ai-evidence-count.is-empty {
+  border-color:
+    rgba(144, 97, 55, 0.22);
+
+  background:
+    rgba(144, 97, 55, 0.07);
+
+  color: #8b623d;
+}
+
+.natal-ai-section,
+.natal-ai-insight-column,
+.natal-ai-review-card {
+  min-width: 0;
+
+  display: grid;
+  gap: 13px;
+
+  padding: 17px;
+
+  border: 1px solid #e4d7c5;
+  border-radius: 13px;
+
+  background:
+    rgba(255, 253, 248, 0.84);
+}
+
+.natal-ai-section-head h3 {
+  margin: 4px 0 0;
+
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.45;
+  font-weight: 950;
+}
+
+.natal-ai-mechanism-list {
+  display: grid;
+  gap: 10px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.natal-ai-mechanism-list li {
+  display: grid;
+  grid-template-columns:
+    28px
+    minmax(0, 1fr);
+
+  gap: 11px;
+  align-items: start;
+
+  padding: 12px;
+
+  border: 1px solid #eadfce;
+  border-radius: 10px;
+
+  background: #fffdf8;
+}
+
+.natal-ai-mechanism-list
+li > b {
+  display: grid;
+  place-items: center;
+
+  width: 27px;
+  height: 27px;
+
+  border-radius: 999px;
+
+  background: var(--accent);
+  color: #fff;
+
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.natal-ai-mechanism-list
+li > div {
+  min-width: 0;
+
+  display: grid;
+  gap: 6px;
+}
+
+.natal-ai-mechanism-list strong {
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.natal-ai-mechanism-list p,
+.natal-ai-synthesis {
+  margin: 0;
+
+  color: #4d5962;
+  font-size: 14px;
+  line-height: 1.78;
+}
+
+.natal-ai-synthesis {
+  padding: 13px 14px;
+
+  border-left: 4px solid
+    var(--accent);
+  border-radius: 8px;
+
+  background:
+    rgba(47, 111, 115, 0.055);
+
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.natal-ai-dual-grid,
+.natal-ai-review-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+  align-items: start;
+}
+
+.natal-ai-insight-list {
+  display: grid;
+  gap: 10px;
+}
+
+.natal-ai-insight-card {
+  min-width: 0;
+
+  display: grid;
+  gap: 8px;
+
+  padding: 13px;
+
+  border: 1px solid #eadfce;
+  border-radius: 10px;
+
+  background: #fffdf8;
+}
+
+.natal-ai-insight-card h4,
+.natal-ai-theme-card h4,
+.natal-ai-condition-card h4 {
+  margin: 0;
+
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 950;
+}
+
+.natal-ai-field {
+  display: grid;
+  grid-template-columns:
+    86px
+    minmax(0, 1fr);
+
+  gap: 9px;
+
+  margin: 0;
+}
+
+.natal-ai-field b,
+.natal-ai-mini-list > b {
+  color: var(--accent);
+  font-size: 12px;
+  line-height: 1.6;
+  font-weight: 950;
+}
+
+.natal-ai-field span {
+  min-width: 0;
+
+  color: #4f5b64;
+  font-size: 13.5px;
+  line-height: 1.72;
+}
+
+.natal-ai-theme-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.natal-ai-theme-card {
+  min-width: 0;
+
+  display: grid;
+  align-content: start;
+  gap: 10px;
+
+  padding: 14px;
+
+  border: 1px solid #eadfce;
+  border-radius: 11px;
+
+  background: #fffdf8;
+}
+
+.natal-ai-theme-card.is-standalone {
+  border-color:
+    rgba(47, 111, 115, 0.25);
+
+  box-shadow:
+    inset 4px 0 0
+    rgba(47, 111, 115, 0.62);
+}
+
+.natal-ai-theme-card.is-brief {
+  background:
+    rgba(255, 250, 241, 0.66);
+}
+
+.natal-ai-theme-summary {
+  margin: 0;
+
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.78;
+  font-weight: 720;
+}
+
+.natal-ai-mini-list {
+  display: grid;
+  gap: 5px;
+}
+
+.natal-ai-mini-list ul,
+.natal-ai-details-body ul {
+  display: grid;
+  gap: 6px;
+
+  margin: 0;
+  padding-left: 20px;
+}
+
+.natal-ai-mini-list li,
+.natal-ai-details-body li {
+  color: #52606a;
+  font-size: 13px;
+  line-height: 1.68;
+}
+
+.natal-ai-mini-list.is-positive
+> b {
+  color: #39745e;
+}
+
+.natal-ai-mini-list.is-pressure
+> b {
+  color: #8a5b3d;
+}
+
+.natal-ai-number-list {
+  display: grid;
+  gap: 9px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+  counter-reset:
+    natal-ai-number;
+}
+
+.natal-ai-number-list li {
+  position: relative;
+
+  display: grid;
+  gap: 6px;
+
+  padding:
+    11px
+    11px
+    11px
+    42px;
+
+  border: 1px solid #eadfce;
+  border-radius: 10px;
+
+  background: #fffdf8;
+
+  counter-increment:
+    natal-ai-number;
+}
+
+.natal-ai-number-list
+li::before {
+  content:
+    counter(
+      natal-ai-number
+    );
+
+  position: absolute;
+  top: 11px;
+  left: 11px;
+
+  display: grid;
+  place-items: center;
+
+  width: 23px;
+  height: 23px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(47, 111, 115, 0.1);
+
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.natal-ai-number-list strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.natal-ai-number-list p {
+  margin: 0;
+
+  color: #52606a;
+  font-size: 13.5px;
+  line-height: 1.72;
+}
+
+.natal-ai-details {
+  overflow: hidden;
+
+  border: 1px solid #ded0bd;
+  border-radius: 12px;
+
+  background:
+    rgba(255, 250, 241, 0.68);
+}
+
+.natal-ai-details > summary {
+  min-height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 11px 14px;
+
+  cursor: pointer;
+  list-style: none;
+
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.natal-ai-details >
+summary::-webkit-details-marker {
+  display: none;
+}
+
+.natal-ai-details > summary::before {
+  content: "▸";
+}
+
+.natal-ai-details[open]
+> summary::before {
+  content: "▾";
+}
+
+.natal-ai-details >
+summary span {
+  flex: 1 1 auto;
+}
+
+.natal-ai-details >
+summary b {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.natal-ai-details-body {
+  display: grid;
+  gap: 10px;
+
+  padding: 0 14px 14px;
+
+  border-top: 1px solid
+    rgba(222, 208, 189, 0.72);
+}
+
+.natal-ai-condition-card {
+  display: grid;
+  gap: 8px;
+
+  margin-top: 12px;
+  padding: 12px;
+
+  border: 1px solid #eadfce;
+  border-radius: 10px;
+
+  background: #fffdf8;
+}
+
+.natal-ai-technical {
+  opacity: 0.75;
+}
+
+@media (max-width: 900px) {
+  .natal-ai-dual-grid,
+  .natal-ai-review-grid,
+  .natal-ai-theme-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .natal-ai-overview h3 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 560px) {
+  .natal-ai-deep-shell
+  .ai-collapse-body {
+    padding: 12px;
+  }
+
+  .natal-ai-overview,
+  .natal-ai-section,
+  .natal-ai-insight-column,
+  .natal-ai-review-card {
+    padding: 14px;
+  }
+
+  .natal-ai-field {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .natal-ai-overview-meta,
+  .natal-ai-section-head,
+  .natal-ai-theme-head,
+  .natal-ai-condition-head {
+    align-items: flex-start;
+  }
+}

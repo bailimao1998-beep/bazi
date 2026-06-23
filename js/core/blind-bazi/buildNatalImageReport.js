@@ -267,7 +267,7 @@ const domainResult =
       structureSynopsis,
 
       professionalContext,
-
+      professionalPatterns,
       contractFacts:
         atomicFacts.contractFacts ??
         [],

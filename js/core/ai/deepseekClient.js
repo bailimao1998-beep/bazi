@@ -20,7 +20,8 @@ export async function generateWithDeepSeek({ settings, prompt } = {}) {
         { role: "system", content: prompt?.system ?? "" },
         { role: "user", content: prompt?.user ?? "" },
       ],
-      temperature: 0.4,
+      temperature: 0.25,
+      max_tokens: 6000,
     }),
   });
   const data = await readResponseJson(response);

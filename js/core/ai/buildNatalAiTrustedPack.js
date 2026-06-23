@@ -109,11 +109,6 @@ export function buildNatalAiTrustedPack({
         {},
     );
 
-    const deterministicEvidence =
-    buildAiDeterministicEvidence({
-        chart,
-        positionContext,
-    });
   /*
    * 优先读取新版原局原子事实。
    * 新版不存在时，才回退到旧 evidencePack。
@@ -179,7 +174,11 @@ export function buildNatalAiTrustedPack({
 
       relations,
     });
-
+    const deterministicEvidence =
+    buildAiDeterministicEvidence({
+        chart,
+        positionContext,
+    });
   const patternGroups =
     partitionPatterns(
       allPatterns,

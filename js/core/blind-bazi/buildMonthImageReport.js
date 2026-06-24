@@ -1,5 +1,6 @@
 import { createMonthPillar } from "../bazi/pillarMath.js";
 import { branchMainStem, getTenGod } from "../bazi/tenGods.js";
+import { buildTransitDomainSignals } from "../transit/buildTransitDomainSignals.js";
 import { buildTransitStructureAnalysis } from "../transit/transitStructureAnalyzer.js";
 import { buildTransitTriggeredImages } from "../transit/transitImageComposer.js";
 
@@ -113,6 +114,7 @@ function createContext({
 
   return {
     chart: chart ?? {},
+    baseBaziViewModel: baseBaziViewModel ?? {},
     dayStem: chart?.dayMaster?.stem,
     natalPillars,
     natalBranches: natalPillars.map((pillar) => ({
@@ -182,6 +184,27 @@ function buildMonthItem(context) {
     structureAnalysis: transitStructure,
   });
 
+  const domainSignals = buildTransitDomainSignals({
+    stage: "month",
+    chart: context.chart,
+    baseBaziViewModel: context.baseBaziViewModel,
+    item: {
+      year: context.targetYear,
+      month: context.selectedMonth,
+      flowMonthIndex: context.selectedMonth,
+      ganZhi: pillar.label,
+      stem,
+      branch,
+      stemTenGod,
+      branchTenGod,
+      currentLuckItem: context.currentLuckItem,
+      yearItem: context.yearItem,
+    },
+    currentLuckItem: context.currentLuckItem,
+    yearItem: context.yearItem,
+    structureAnalysis: transitStructure,
+  });
+
   const natalText = relationToNatal.length
     ? relationToNatal.map((relation) => relation.description).join("；")
     : "流月与原局四支暂未命中基础冲、合、刑、害、破。";
@@ -221,6 +244,7 @@ function buildMonthItem(context) {
     relationToYear,
     transitStructure,
     triggerImages,
+    domainSignals,
     image: `${context.targetYear}年 ${flowMonthLabel} ${pillar.label}流月，天干${stemTenGod}看当月外显主题，重点观察${stemTheme}；地支${branch}看当月环境、执行场景和触发点，地支主气十神${branchTenGod}偏向${branchTheme}。当前大运背景为${luckLabel}，当前流年背景为${yearLabel}，流月取象需放在这两层背景下复核。${transitStructure.summary.text}`,
     reality: [
       `观察主题：${stemTheme}是否在当月更集中。`,

@@ -1,4 +1,5 @@
 import { branchMainStem, getTenGod } from "../bazi/tenGods.js";
+import { buildTransitDomainSignals } from "../transit/buildTransitDomainSignals.js";
 import { buildTransitStructureAnalysis } from "../transit/transitStructureAnalyzer.js";
 import { buildTransitTriggeredImages } from "../transit/transitImageComposer.js";
 
@@ -109,6 +110,7 @@ export function buildLuckImageReport({
   const natalPillars = collectNatalPillars(chart);
   const context = {
     chart: chart ?? {},
+    baseBaziViewModel: baseBaziViewModel ?? {},
     dayStem: chart?.dayMaster?.stem,
     natalPillars,
     natalBranches: natalPillars.map((pillar) => ({
@@ -179,6 +181,20 @@ function buildLuckItem(pillar, index, context) {
     structureAnalysis: transitStructure,
   });
 
+  const domainSignals = buildTransitDomainSignals({
+    stage: "luck",
+    chart: context.chart,
+    baseBaziViewModel: context.baseBaziViewModel,
+    item: {
+      ganZhi: label,
+      stem,
+      branch,
+      tenGod,
+      branchTenGod,
+    },
+    structureAnalysis: transitStructure,
+  });
+
   return {
     index: pillar.index ?? index + 1,
     ageRange: `${pillar.startAge ?? ""}-${pillar.endAge ?? ""}岁`,
@@ -194,6 +210,7 @@ function buildLuckItem(pillar, index, context) {
     relationToNatal,
     transitStructure,
     triggerImages,
+    domainSignals,
     shortImage,
     image: shortImage,
     structureImage: `${label}大运天干为${tenGod}，阶段主题偏向${theme}；地支${branch}可看环境、落地场景与根气承接，地支主气十神为${branchTenGod}，偏向${branchTheme}。原局关系触发：${relationText} ${transitStructure.summary.text}`,

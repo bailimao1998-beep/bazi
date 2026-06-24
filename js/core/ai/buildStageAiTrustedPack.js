@@ -51,6 +51,10 @@ export function buildStageAiTrustedPack({
     )
     .slice(0, 20);
 
+  const domainCoverage = compactDomainCoverage(
+    item?.domainSignals,
+  );
+
   const compactStoryPack = {
     schemaVersion: String(storyPack?.schemaVersion || "stage-story-v2"),
     themeHierarchy: {
@@ -94,6 +98,7 @@ export function buildStageAiTrustedPack({
   const allowedEvidenceRefs = unique([
     ...evidenceFacts.map((fact) => fact.id),
     ...collectThreadRefs(compactStoryPack),
+    ...collectDomainEvidenceRefs(domainCoverage),
   ]);
 
   return {
@@ -119,11 +124,15 @@ export function buildStageAiTrustedPack({
     },
     themeHierarchy: compactStoryPack.themeHierarchy,
     storyPack: compactStoryPack,
+    domainCoverage,
     evidenceFacts,
     allowedEvidenceRefs,
     outputRules: [
-      "所有判断必须能回指 themeHierarchy、storyPack 或 evidenceFacts。",
+      "所有判断必须能回指 themeHierarchy、storyPack、domainCoverage 或 evidenceFacts。",
       "主线、发展、转折、落点必须按 storyOrder 组织。",
+      "必须先读取 domainCoverage 的十二领域扫描，再决定详写哪些领域；不得因正文未展开就声称其他领域没有事情。",
+      "primaryDomains 用于主故事，secondaryDomains 必须在其他领域扫描中简述，quietDomains 只能写未见强直接触发。",
+      "领域分数表示触发强度，不等于吉凶；必须结合 polaritySummary、支持证据和压力证据判断走向。",
       "具体场景只能写成较可能、容易表现为、可观察，不得写成必然发生。",
       "条件组合不得进入一句话总览和主要结论。",
       "没有直接触发时，应明确写成背景延续，不得硬造事件。",
@@ -259,11 +268,24 @@ function compactMonth(item) {
 
 function compactNatalContext(viewModel, natalReport) {
   return {
+    gender: text(viewModel?.birthInfo?.gender || "unknown"),
     pillars: array(viewModel?.pillars).map((pillar) => ({
+      key: text(pillar?.key),
       name: text(pillar?.name || pillar?.label),
       stem: text(pillar?.stem),
       branch: text(pillar?.branch),
-      ganZhi: text(pillar?.ganZhi || pillar?.label),
+      ganZhi: text(pillar?.pillar || pillar?.ganZhi || pillar?.label),
+      stemTenGod: text(pillar?.stemTenGod),
+      branchMainTenGod: text(pillar?.branchMainTenGod),
+      hiddenStems: array(pillar?.hiddenStems).slice(0, 3).map((hidden) => ({
+        stem: text(hidden?.stem),
+        tenGod: text(hidden?.tenGod),
+        role: text(hidden?.role),
+      })),
+      shensha: array(pillar?.shensha).slice(0, 6).map((item) => ({
+        name: text(item?.name),
+        category: text(item?.category),
+      })),
     })),
     fiveElements: viewModel?.fiveElements || null,
     structureAnalysis: viewModel?.structureAnalysis || null,
@@ -277,6 +299,77 @@ function compactNatalContext(viewModel, natalReport) {
         evidence: unique(array(card?.evidence)).slice(0, 5),
       })),
   };
+}
+
+function compactDomainCoverage(value) {
+  const source = object(value);
+  const domains = array(source?.domains).map((entry) => ({
+    domain: text(entry?.domain),
+    label: text(entry?.label),
+    score: Number(entry?.score || 0),
+    level: text(entry?.level),
+    role: text(entry?.role),
+    status: text(entry?.status),
+    confidence: text(entry?.confidence),
+    polaritySummary: text(entry?.polaritySummary),
+    summary: shortText(entry?.summary, 220),
+    directFacts: compactDomainEvidence(entry?.directFacts, 3),
+    supportingFacts: compactDomainEvidence(entry?.supportingFacts, 3),
+    counterFacts: compactDomainEvidence(entry?.counterFacts, 3),
+    hiddenStemSignals: compactDomainEvidence(entry?.hiddenStemSignals, 2),
+    auxiliarySignals: compactDomainEvidence(entry?.auxiliarySignals, 2),
+    palaceTriggers: compactDomainEvidence(entry?.palaceTriggers, 2),
+    evidenceIds: unique(array(entry?.evidenceIds)),
+  }));
+
+  if (!domains.length) return null;
+
+  return {
+    schemaVersion: text(source?.schemaVersion || "transit-domain-signals-v1"),
+    checkedDomainCount: Number(source?.checkedDomainCount || domains.length),
+    triggeredDomainCount: Number(source?.triggeredDomainCount || 0),
+    primaryDomains: array(source?.primaryDomains).slice(0, 3).map(compactDomainHeadline),
+    secondaryDomains: array(source?.secondaryDomains).slice(0, 4).map(compactDomainHeadline),
+    quietDomains: array(source?.quietDomains).slice(0, 12).map((entry) => ({
+      domain: text(entry?.domain),
+      label: text(entry?.label),
+      status: text(entry?.status),
+    })),
+    domains,
+    summary: source?.summary || null,
+    boundaries: unique(array(source?.boundaries)).slice(0, 6),
+  };
+}
+
+function compactDomainHeadline(entry) {
+  return {
+    domain: text(entry?.domain),
+    label: text(entry?.label),
+    score: Number(entry?.score || 0),
+    level: text(entry?.level),
+    confidence: text(entry?.confidence),
+    polaritySummary: text(entry?.polaritySummary),
+    summary: shortText(entry?.summary, 200),
+  };
+}
+
+function compactDomainEvidence(values, limit) {
+  return array(values).slice(0, limit).map((entry) => ({
+    id: text(entry?.id),
+    type: text(entry?.type),
+    source: text(entry?.source),
+    status: text(entry?.status),
+    polarity: text(entry?.polarity),
+    strength: Number(entry?.strength || 0),
+    text: shortText(entry?.text, 200),
+    originalFactId: text(entry?.originalFactId),
+  }));
+}
+
+function collectDomainEvidenceRefs(domainCoverage) {
+  return array(domainCoverage?.domains).flatMap((entry) =>
+    array(entry?.evidenceIds),
+  );
 }
 
 function collectThreadRefs(storyPack) {

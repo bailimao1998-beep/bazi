@@ -1,5 +1,6 @@
 import { createPillarFromYear } from "../bazi/pillarMath.js";
 import { branchMainStem, getTenGod } from "../bazi/tenGods.js";
+import { buildTransitDomainSignals } from "../transit/buildTransitDomainSignals.js";
 import { buildTransitStructureAnalysis } from "../transit/transitStructureAnalyzer.js";
 import { buildTransitTriggeredImages } from "../transit/transitImageComposer.js";
 
@@ -105,6 +106,7 @@ function createContext({
 
   return {
     chart: chart ?? {},
+    baseBaziViewModel: baseBaziViewModel ?? {},
     dayStem: chart?.dayMaster?.stem,
     natalPillars,
     natalBranches: natalPillars.map((pillar) => ({
@@ -161,6 +163,23 @@ function buildYearItem(context) {
     structureAnalysis: transitStructure,
   });
 
+  const domainSignals = buildTransitDomainSignals({
+    stage: "year",
+    chart: context.chart,
+    baseBaziViewModel: context.baseBaziViewModel,
+    item: {
+      year: context.targetYear,
+      ganZhi: pillar.label,
+      stem,
+      branch,
+      stemTenGod,
+      branchTenGod,
+      currentLuckItem: context.currentLuckItem,
+    },
+    currentLuckItem: context.currentLuckItem,
+    structureAnalysis: transitStructure,
+  });
+
   const relationText = relationToNatal.length
     ? relationToNatal.map((relation) => relation.description).join("；")
     : "流年与原局四支暂未命中基础冲、合、刑、害、破。";
@@ -180,6 +199,7 @@ function buildYearItem(context) {
     relationToLuck,
     transitStructure,
     triggerImages,
+    domainSignals,
     image: `${context.targetYear}年${pillar.label}流年，天干${stemTenGod}主外显主题，重点看${stemTheme}；地支${branch}主当年环境与落地场景，地支主气十神${branchTenGod}偏向${branchTheme}。当前大运背景为${currentLuckLabel}，流年取象需放在这步大运中复核。${transitStructure.summary.text}`,
     reality: `现实应象可观察${stemTheme}是否在当年更容易浮出，同时看${branch}所对应的环境、人事与执行场景。原局触发：${relationText} 大运触发：${luckText}`,
     boundary: "流年只作单年结构触发提示，不直接等同具体事件；三合、三会、伏吟、天克地冲和多层激活仍需结合原局证据、大运背景、现实反馈和反证条件复核。",

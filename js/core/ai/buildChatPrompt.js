@@ -13,6 +13,8 @@ const INTERNAL_FIELD_NAMES = [
   "relationToYear",
   "baseBaziViewModel",
   "chartSummary",
+  "domainSignals",
+  "domainCoverage",
 ];
 
 const BASE_CHAT_RULES = [
@@ -268,6 +270,7 @@ function compactMonthReports(reports = []) {
         reality: item.reality,
         boundary: item.boundary,
         confidence: item.confidence,
+        domainSignals: item.domainSignals ?? null,
       },
     };
   });

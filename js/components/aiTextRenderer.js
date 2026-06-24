@@ -74,45 +74,31 @@ function renderParagraph(
       text ?? "",
     ).trim();
 
-  const triadItems =
-    parseTriadItems(
+  const insight =
+    parseInsightLine(
       value,
     );
 
-  if (
-    triadItems.length >= 2
-  ) {
+  if (insight) {
     return `
-      <div
+      <p
         class="
-          ai-triad-group
+          ai-insight-line
+          is-${insight.type}
         "
       >
-        ${triadItems
-          .map(
-            (item) => `
-              <div
-                class="
-                  ai-triad-item
-                  is-${item.type}
-                "
-              >
-                <strong>
-                  ${escapeHtml(
-                    item.label,
-                  )}：
-                </strong>
+        <strong>
+          ${escapeHtml(
+            insight.label,
+          )}：
+        </strong>
 
-                <span>
-                  ${formatInline(
-                    item.content,
-                  )}
-                </span>
-              </div>
-            `,
-          )
-          .join("")}
-      </div>
+        <span>
+          ${formatInline(
+            insight.content,
+          )}
+        </span>
+      </p>
     `;
   }
 
@@ -123,83 +109,40 @@ function renderParagraph(
   return `<p class="${isKeyLine ? "ai-key-line" : ""}">${formatInline(value)}</p>`;
 }
 
-function parseTriadItems(
+function parseInsightLine(
   value = "",
 ) {
-  const pattern =
-    /\*{0,2}(优势|代价|建议)[：:]\*{0,2}\s*/g;
+  const match =
+    /^\*{0,2}(优势|容易付出的代价|代价|建议)[：:]\*{0,2}\s*(.*)$/
+      .exec(value);
 
-  const matches = [
-    ...String(value)
-      .matchAll(pattern),
-  ];
-
-  if (matches.length < 2) {
-    return [];
+  if (!match) {
+    return null;
   }
 
-  const prefix =
-    value
-      .slice(
-        0,
-        matches[0].index,
-      )
-      .replace(
-        /[\s。；;，,、]/g,
-        "",
-      )
-      .trim();
+  const label =
+    match[1];
 
-  if (prefix) {
-    return [];
-  }
+  return {
+    label,
 
-  return matches
-    .map(
-      (
-        match,
-        index,
-      ) => {
-        const start =
-          match.index +
-          match[0].length;
+    type: {
+      优势:
+        "advantage",
 
-        const end =
-          matches[index + 1]
-            ?.index ??
-          value.length;
+      容易付出的代价:
+        "cost",
 
-        const label =
-          match[1];
+      代价:
+        "cost",
 
-        return {
-          label,
+      建议:
+        "advice",
+    }[label],
 
-          type: {
-            优势:
-              "advantage",
-
-            代价:
-              "cost",
-
-            建议:
-              "advice",
-          }[label],
-
-          content:
-            value
-              .slice(
-                start,
-                end,
-              )
-              .trim(),
-        };
-      },
-    )
-    .filter(
-      (item) =>
-        item.content,
-    );
+    content:
+      match[2].trim(),
+  };
 }
 
 function groupListItems(items = []) {

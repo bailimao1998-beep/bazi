@@ -10,12 +10,35 @@ import {
 
 export function createAiActions({ store, renderBaseOnly }) {
   async function generateNatalAiNarrative() {
+    const previousStructured =
+      store.natalAiState
+        ?.structured ??
+      null;
+
+    const previousWarnings =
+      Array.isArray(
+        store.natalAiState
+          ?.warnings,
+      )
+        ? store.natalAiState
+            .warnings
+        : [];
+
     store.natalAiState = {
-      loading: true,
-      text: "",
-      error: "",
-      structured: null,
-      warnings: [],
+      loading:
+        true,
+
+      text:
+        "",
+
+      error:
+        "",
+
+      structured:
+        previousStructured,
+
+      warnings:
+        previousWarnings,
     };
 
     renderBaseOnly();
@@ -23,7 +46,8 @@ export function createAiActions({ store, renderBaseOnly }) {
     try {
       const settings =
         readAiSettings({
-          includeSecret: true,
+          includeSecret:
+            true,
         });
 
       const prompt =
@@ -41,91 +65,95 @@ export function createAiActions({ store, renderBaseOnly }) {
           evidenceIds:
             prompt.evidenceIds,
 
-          rawResponse: "",
+          attempts: [],
+
+          rawResponse:
+            "",
 
           normalizedResponse:
             null,
         };
 
-      const result =
-        await generateWithDeepSeek({
+      const outcome =
+        await requestNatalAiReportWithRetry({
           settings,
           prompt,
         });
 
-      /*
-      * 模型因长度限制停止时，
-      * 返回的JSON通常没有闭合。
-      */
-      if (
-        result.finishReason ===
-        "length"
-      ) {
-        throw new Error(
-          "本次AI报告内容过长，返回结果被截断。系统已拦截残缺内容，请重新生成。",
-        );
-      }
+      globalThis
+        .__lastNatalAiDebug = {
+          ...globalThis
+            .__lastNatalAiDebug,
 
-      const validated =
-        validateNatalAiResult({
-          text:
-            result.text,
+          attempts:
+            outcome.attempts,
 
-          allowedEvidenceRefs:
-            prompt.evidenceIds,
+          rawResponse:
+            outcome.result
+              .text,
 
-          guardEvidencePack:
-            prompt.trustedPack,
-        });
-
-      /*
-      * JSON解析失败时不能把原始JSON
-      * 当成普通文章显示给用户。
-      */
-      if (!validated.structured) {
-        console.warn(
-          "[natal-ai] invalid structured result",
-          validated.warnings,
-        );
-
-        throw new Error(
-          "AI返回的报告格式不完整，系统已拦截原始JSON，请重新生成。",
-        );
-      }
+          normalizedResponse:
+            outcome.validated
+              .structured,
+        };
 
       store.natalAiState = {
-        loading: false,
+        loading:
+          false,
 
-        /*
-        * JSON只作为内部数据，
-        * 用户页面只展示structured卡片。
-        */
-        text: "",
+        text:
+          "",
 
-        error: "",
+        error:
+          "",
 
         structured:
-          validated.structured,
+          outcome.validated
+            .structured,
 
         warnings:
-          validated.warnings,
+          uniqueText([
+            ...outcome.validated
+              .warnings,
+
+            ...(
+              outcome.retried
+                ? [
+                    "auto_retry_used",
+                  ]
+                : []
+            ),
+          ]),
       };
     } catch (error) {
+      const message =
+        error?.message ??
+        "AI深度分析生成失败。";
+
       store.natalAiState = {
-        loading: false,
-        text: "",
+        loading:
+          false,
+
+        text:
+          "",
+
         error:
-          error?.message ??
-          "AI深度分析生成失败。",
-        structured: null,
-        warnings: [],
+          previousStructured
+            ? `${message} 已保留上一次成功报告。`
+            : message,
+
+        structured:
+          previousStructured,
+
+        warnings:
+          previousWarnings,
       };
     }
 
     renderBaseOnly();
   }
 
-  async function generateLuckAiNarrative() {
+async function generateLuckAiNarrative() {
     store.luckAiState = { loading: true, text: "", error: "" };
     renderBaseOnly();
     try {
@@ -203,6 +231,239 @@ export function createAiActions({ store, renderBaseOnly }) {
     generateMonthAiNarrative,
   };
 }
+
+/* ===== natal-ai-robust-json:start ===== */
+
+async function requestNatalAiReportWithRetry({
+  settings,
+  prompt,
+} = {}) {
+  const attempts = [];
+  let lastError = null;
+
+  for (
+    let attempt = 0;
+    attempt < 2;
+    attempt += 1
+  ) {
+    const attemptPrompt =
+      attempt === 0
+        ? prompt
+        : buildNatalRetryPrompt(
+            prompt,
+          );
+
+    try {
+      const result =
+        await generateWithDeepSeek({
+          settings,
+
+          prompt:
+            attemptPrompt,
+        });
+
+      attempts.push({
+        attempt:
+          attempt + 1,
+
+        finishReason:
+          result.finishReason,
+
+        textLength:
+          String(
+            result.text ??
+            "",
+          ).length,
+
+        usage:
+          result.usage ??
+          null,
+      });
+
+      if (
+        result.finishReason ===
+        "length"
+      ) {
+        lastError =
+          new Error(
+            "AI返回内容被截断。",
+          );
+
+        continue;
+      }
+
+      const validated =
+        validateNatalAiResult({
+          text:
+            result.text,
+
+          allowedEvidenceRefs:
+            prompt.evidenceIds,
+
+          guardEvidencePack:
+            prompt.trustedPack,
+        });
+
+      if (
+        validated.structured &&
+        hasRenderableNatalContent(
+          validated.structured,
+        )
+      ) {
+        return {
+          result,
+          validated,
+          attempts,
+
+          retried:
+            attempt > 0,
+        };
+      }
+
+      lastError =
+        new Error(
+          "AI返回的JSON缺少完整正文。",
+        );
+    } catch (error) {
+      lastError =
+        error;
+
+      attempts.push({
+        attempt:
+          attempt + 1,
+
+        error:
+          error?.message ??
+          "unknown_error",
+      });
+
+      if (
+        isFatalAiConfigurationError(
+          error,
+        )
+      ) {
+        break;
+      }
+    }
+  }
+
+  if (
+    isFatalAiConfigurationError(
+      lastError,
+    )
+  ) {
+    throw lastError;
+  }
+
+  throw new Error(
+    "本次AI返回格式异常，系统已自动重试一次但仍未成功，请稍后再试。",
+  );
+}
+
+function buildNatalRetryPrompt(
+  prompt = {},
+) {
+  return {
+    ...prompt,
+
+    maxTokens:
+      Math.max(
+        Number(
+          prompt.maxTokens,
+        ) || 0,
+        8192,
+      ),
+
+    system: [
+      prompt.system,
+
+      "",
+      "JSON格式纠错要求：",
+      "上一轮输出未形成可解析的完整JSON。",
+      "这一次必须从左大括号开始，到右大括号结束。",
+      "不得使用Markdown代码块，不得在JSON前后添加解释。",
+      "必须完整提供overview.headline和overview.summary。",
+      "overview.summary不得为空，且必须包含完整报告正文。",
+    ].join("\n"),
+  };
+}
+
+function hasRenderableNatalContent(
+  report = {},
+) {
+  if (
+    textValue(
+      report.text,
+    ) ||
+    textValue(
+      report.overview
+        ?.summary,
+    ) ||
+    textValue(
+      report.coreMechanism
+        ?.synthesis,
+    )
+  ) {
+    return true;
+  }
+
+  const themeHasText =
+    Array.isArray(
+      report.lifeThemes,
+    ) &&
+    report.lifeThemes.some(
+      (theme) =>
+        textValue(
+          theme?.summary,
+        ) ||
+        textValue(
+          theme?.content,
+        ),
+    );
+
+  if (themeHasText) {
+    return true;
+  }
+
+  return (
+    Array.isArray(
+      report.actions,
+    ) &&
+    report.actions.some(
+      (item) =>
+        textValue(
+          item?.action,
+        ) ||
+        textValue(
+          item?.content,
+        ),
+    )
+  );
+}
+
+function isFatalAiConfigurationError(
+  error,
+) {
+  const message =
+    String(
+      error?.message ??
+      "",
+    );
+
+  return (
+    message.includes(
+      "未检测到本地 DeepSeek Key",
+    ) ||
+    message.includes(
+      "401",
+    ) ||
+    message.includes(
+      "Unauthorized",
+    )
+  );
+}
+
+/* ===== natal-ai-robust-json:end ===== */
 
 function validateNatalAiResult({
   text = "",
@@ -644,41 +905,155 @@ function textValue(
     : "";
 }
 
-function parseJsonObject(text) {
+function parseJsonObject(
+  text,
+) {
   const raw =
-    unwrapJsonCodeFence(text);
-
-  if (!raw.startsWith("{")) {
-    return null;
-  }
-
-  try {
-    const parsed = JSON.parse(raw);
-
-    return (
-      parsed &&
-      typeof parsed === "object" &&
-      !Array.isArray(parsed)
+    unwrapJsonCodeFence(
+      text,
     )
-      ? parsed
-      : null;
-  } catch {
-    return null;
+      .replace(
+        /^\uFEFF/,
+        "",
+      )
+      .trim();
+
+  const candidates =
+    uniqueText([
+      raw,
+
+      extractFirstJsonObject(
+        raw,
+      ),
+    ]);
+
+  for (
+    const candidate of
+    candidates
+  ) {
+    if (
+      !candidate.startsWith(
+        "{",
+      )
+    ) {
+      continue;
+    }
+
+    try {
+      const parsed =
+        JSON.parse(
+          candidate,
+        );
+
+      if (
+        parsed &&
+        typeof parsed ===
+          "object" &&
+        !Array.isArray(
+          parsed,
+        )
+      ) {
+        return parsed;
+      }
+    } catch {
+      /*
+       * 当前候选不是完整JSON，
+       * 继续尝试下一个候选。
+       */
+    }
   }
+
+  return null;
 }
 
-function unwrapJsonCodeFence(text) {
+function unwrapJsonCodeFence(
+  text,
+) {
   const raw =
-    String(text ?? "").trim();
+    String(
+      text ??
+      "",
+    ).trim();
 
   const match =
-    /^```(?:json)?\s*([\s\S]*?)\s*```$/i.exec(
-      raw,
-    );
+    /^```(?:json)?\s*([\s\S]*?)\s*```$/i
+      .exec(raw);
 
   return match
     ? match[1].trim()
     : raw;
+}
+
+function extractFirstJsonObject(
+  text = "",
+) {
+  const raw =
+    String(text);
+
+  const start =
+    raw.indexOf(
+      "{",
+    );
+
+  if (start < 0) {
+    return "";
+  }
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (
+    let index = start;
+    index < raw.length;
+    index += 1
+  ) {
+    const char =
+      raw[index];
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+
+      if (char === "\\") {
+        escaped = true;
+        continue;
+      }
+
+      if (char === '"') {
+        inString = false;
+      }
+
+      continue;
+    }
+
+    if (char === '"') {
+      inString = true;
+      continue;
+    }
+
+    if (char === "{") {
+      depth += 1;
+      continue;
+    }
+
+    if (char === "}") {
+      depth -= 1;
+
+      if (depth === 0) {
+        return raw
+          .slice(
+            start,
+            index + 1,
+          )
+          .trim();
+      }
+    }
+  }
+
+  return "";
 }
 
 function uniqueText(items) {

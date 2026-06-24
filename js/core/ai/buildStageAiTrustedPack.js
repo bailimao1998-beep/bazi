@@ -51,7 +51,7 @@ export function buildStageAiTrustedPack({
     )
     .slice(0, 20);
 
-  const domainCoverage = compactDomainCoverage(
+  const domainEvidenceCandidates = compactDomainEvidenceCandidates(
     item?.domainSignals,
   );
 
@@ -98,7 +98,7 @@ export function buildStageAiTrustedPack({
   const allowedEvidenceRefs = unique([
     ...evidenceFacts.map((fact) => fact.id),
     ...collectThreadRefs(compactStoryPack),
-    ...collectDomainEvidenceRefs(domainCoverage),
+    ...collectDomainEvidenceRefs(domainEvidenceCandidates),
   ]);
 
   return {
@@ -124,18 +124,19 @@ export function buildStageAiTrustedPack({
     },
     themeHierarchy: compactStoryPack.themeHierarchy,
     storyPack: compactStoryPack,
-    domainCoverage,
+    domainEvidenceCandidates,
     evidenceFacts,
     allowedEvidenceRefs,
     outputRules: [
-      "所有判断必须能回指 themeHierarchy、storyPack、domainCoverage 或 evidenceFacts。",
+      "所有判断必须能回指 themeHierarchy、storyPack、domainEvidenceCandidates 或 evidenceFacts。",
       "主线、发展、转折、落点必须按 storyOrder 组织。",
-      "必须先读取 domainCoverage 的十二领域扫描，再决定详写哪些领域；不得因正文未展开就声称其他领域没有事情。",
-      "primaryDomains 用于主故事，secondaryDomains 必须在其他领域扫描中简述，quietDomains 只能写未见强直接触发。",
-      "领域分数表示触发强度，不等于吉凶；必须结合 polaritySummary、支持证据和压力证据判断走向。",
+      "domainEvidenceCandidates 只是浏览器收集的候选证据索引，不是领域排名、吉凶评分或最终结论。",
+      "必须由 AI 独立逐项分析十二领域，不得照搬前端旧分数、旧主线或旧副线。",
+      "候选领域没有直接证据时，可以结合原局和上下层背景写为证据较弱，但不得虚构事实。",
+      "桃花、贵人、驿马、藏干等辅助事实不能单独推出确定事件。",
       "具体场景只能写成较可能、容易表现为、可观察，不得写成必然发生。",
       "条件组合不得进入一句话总览和主要结论。",
-      "没有直接触发时，应明确写成背景延续，不得硬造事件。",
+      "没有直接触发时，应明确写成背景延续或证据不足，不得硬造事件。",
     ],
   };
 }
@@ -301,55 +302,55 @@ function compactNatalContext(viewModel, natalReport) {
   };
 }
 
-function compactDomainCoverage(value) {
+function compactDomainEvidenceCandidates(value) {
   const source = object(value);
-  const domains = array(source?.domains).map((entry) => ({
-    domain: text(entry?.domain),
-    label: text(entry?.label),
-    score: Number(entry?.score || 0),
-    level: text(entry?.level),
-    role: text(entry?.role),
-    status: text(entry?.status),
-    confidence: text(entry?.confidence),
-    polaritySummary: text(entry?.polaritySummary),
-    summary: shortText(entry?.summary, 220),
-    directFacts: compactDomainEvidence(entry?.directFacts, 3),
-    supportingFacts: compactDomainEvidence(entry?.supportingFacts, 3),
-    counterFacts: compactDomainEvidence(entry?.counterFacts, 3),
-    hiddenStemSignals: compactDomainEvidence(entry?.hiddenStemSignals, 2),
-    auxiliarySignals: compactDomainEvidence(entry?.auxiliarySignals, 2),
-    palaceTriggers: compactDomainEvidence(entry?.palaceTriggers, 2),
-    evidenceIds: unique(array(entry?.evidenceIds)),
-  }));
+  const domains = array(source?.domains).map((entry) => {
+    const directFacts = compactDomainEvidence(entry?.directFacts, 5);
+    const supportingFacts = compactDomainEvidence(entry?.supportingFacts, 5);
+    const counterFacts = compactDomainEvidence(entry?.counterFacts, 4);
+    const hiddenStemSignals = compactDomainEvidence(entry?.hiddenStemSignals, 4);
+    const auxiliarySignals = compactDomainEvidence(entry?.auxiliarySignals, 4);
+    const palaceTriggers = compactDomainEvidence(entry?.palaceTriggers, 4);
+    const evidenceIds = unique([
+      ...array(entry?.evidenceIds),
+      ...directFacts.map((fact) => fact.id),
+      ...supportingFacts.map((fact) => fact.id),
+      ...counterFacts.map((fact) => fact.id),
+      ...hiddenStemSignals.map((fact) => fact.id),
+      ...auxiliarySignals.map((fact) => fact.id),
+      ...palaceTriggers.map((fact) => fact.id),
+    ]);
+
+    return {
+      domain: text(entry?.domain),
+      label: text(entry?.label),
+      evidenceStatus: evidenceIds.length
+        ? "has_candidates"
+        : "no_direct_candidate",
+      directFacts,
+      supportingFacts,
+      counterFacts,
+      hiddenStemSignals,
+      auxiliarySignals,
+      palaceTriggers,
+      evidenceIds,
+    };
+  });
 
   if (!domains.length) return null;
 
   return {
-    schemaVersion: text(source?.schemaVersion || "transit-domain-signals-v1"),
-    checkedDomainCount: Number(source?.checkedDomainCount || domains.length),
-    triggeredDomainCount: Number(source?.triggeredDomainCount || 0),
-    primaryDomains: array(source?.primaryDomains).slice(0, 3).map(compactDomainHeadline),
-    secondaryDomains: array(source?.secondaryDomains).slice(0, 4).map(compactDomainHeadline),
-    quietDomains: array(source?.quietDomains).slice(0, 12).map((entry) => ({
-      domain: text(entry?.domain),
-      label: text(entry?.label),
-      status: text(entry?.status),
-    })),
+    schemaVersion: "stage-domain-evidence-candidates-v1",
+    checkedDomainCount: Number(
+      source?.checkedDomainCount ||
+      domains.length,
+    ),
     domains,
-    summary: source?.summary || null,
-    boundaries: unique(array(source?.boundaries)).slice(0, 6),
-  };
-}
-
-function compactDomainHeadline(entry) {
-  return {
-    domain: text(entry?.domain),
-    label: text(entry?.label),
-    score: Number(entry?.score || 0),
-    level: text(entry?.level),
-    confidence: text(entry?.confidence),
-    polaritySummary: text(entry?.polaritySummary),
-    summary: shortText(entry?.summary, 200),
+    boundaries: unique([
+      ...array(source?.boundaries),
+      "候选证据只说明该事实可能涉及某领域，不表示领域强弱、吉凶或主次。",
+      "同一事实可能被多个领域引用，AI必须自行去重并判断主落点与延伸落点。",
+    ]).slice(0, 8),
   };
 }
 
@@ -366,8 +367,8 @@ function compactDomainEvidence(values, limit) {
   }));
 }
 
-function collectDomainEvidenceRefs(domainCoverage) {
-  return array(domainCoverage?.domains).flatMap((entry) =>
+function collectDomainEvidenceRefs(domainEvidenceCandidates) {
+  return array(domainEvidenceCandidates?.domains).flatMap((entry) =>
     array(entry?.evidenceIds),
   );
 }

@@ -3,6 +3,10 @@ import { buildLuckAiPrompt } from "../core/ai/buildLuckAiPrompt.js";
 import { buildMonthAiPrompt } from "../core/ai/buildMonthAiPrompt.js";
 import { buildNatalAiPrompt } from "../core/ai/buildNatalAiPrompt.js";
 import { buildYearAiPrompt } from "../core/ai/buildYearAiPrompt.js";
+import {
+  buildStageAiRepairPrompt,
+  validateStageAiText,
+} from "../core/ai/stageAiTextValidator.js";
 import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260613b";
 import {
   guardNatalAiContent,
@@ -167,8 +171,17 @@ async function generateLuckAiNarrative() {
         natalImageReport: store.state.natalImageReport,
         luckImageReport: store.state.luckImageReport,
       });
-      const result = await generateWithDeepSeek({ settings, prompt });
-      store.luckAiState = { loading: false, text: result.text, error: "" };
+      const outcome = await requestStageAiNarrativeWithRetry({
+        settings,
+        prompt,
+        stage: "luck",
+      });
+      store.luckAiState = {
+        loading: false,
+        text: outcome.result.text,
+        error: "",
+        warnings: outcome.validation.warnings,
+      };
     } catch (error) {
       store.luckAiState = { loading: false, text: "", error: error.message };
     }
@@ -188,9 +201,18 @@ async function generateLuckAiNarrative() {
         luckImageReport: store.state.luckImageReport,
         yearImageReport: store.state.yearImageReport,
       });
-      const result = await generateWithDeepSeek({ settings, prompt });
+      const outcome = await requestStageAiNarrativeWithRetry({
+        settings,
+        prompt,
+        stage: "year",
+      });
       if (generationId !== store.yearAiGenerationId || targetYear !== store.state?.yearImageReport?.yearItem?.year) return;
-      store.yearAiState = { loading: false, text: result.text, error: "" };
+      store.yearAiState = {
+        loading: false,
+        text: outcome.result.text,
+        error: "",
+        warnings: outcome.validation.warnings,
+      };
     } catch (error) {
       if (generationId !== store.yearAiGenerationId || targetYear !== store.state?.yearImageReport?.yearItem?.year) return;
       store.yearAiState = { loading: false, text: "", error: error.message };
@@ -219,8 +241,17 @@ async function generateLuckAiNarrative() {
         yearImageReport: store.state.yearImageReport,
         monthImageReport: store.state.monthImageReport,
       });
-      const result = await generateWithDeepSeek({ settings, prompt });
-      store.monthAiState = { loading: false, text: result.text, error: "" };
+      const outcome = await requestStageAiNarrativeWithRetry({
+        settings,
+        prompt,
+        stage: "month",
+      });
+      store.monthAiState = {
+        loading: false,
+        text: outcome.result.text,
+        error: "",
+        warnings: outcome.validation.warnings,
+      };
     } catch (error) {
       store.monthAiState = { loading: false, text: "", error: error.message };
     }
@@ -235,6 +266,78 @@ async function generateLuckAiNarrative() {
     generateMonthAiNarrative,
   };
 }
+
+
+async function requestStageAiNarrativeWithRetry({
+  settings,
+  prompt,
+  stage,
+} = {}) {
+  const attempts = [];
+  let currentPrompt = prompt;
+  let lastValidation = null;
+  let lastResult = null;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const result = await generateWithDeepSeek({
+      settings,
+      prompt: currentPrompt,
+    });
+
+    const validation = validateStageAiText({
+      text: result.text,
+      stage,
+    });
+
+    attempts.push({
+      attempt: attempt + 1,
+      finishReason: result.finishReason,
+      textLength: String(result.text || "").length,
+      validation,
+    });
+
+    lastResult = result;
+    lastValidation = validation;
+
+    if (validation.valid) {
+      globalThis.__lastStageAiDebug = {
+        stage,
+        trustedPack: prompt?.trustedPack ?? null,
+        attempts,
+        rawResponse: result.text,
+        validation,
+      };
+
+      return {
+        result,
+        validation,
+        attempts,
+        retried: attempt > 0,
+      };
+    }
+
+    currentPrompt = buildStageAiRepairPrompt(
+      prompt,
+      validation,
+    );
+  }
+
+  globalThis.__lastStageAiDebug = {
+    stage,
+    trustedPack: prompt?.trustedPack ?? null,
+    attempts,
+    rawResponse: lastResult?.text ?? "",
+    validation: lastValidation,
+  };
+
+  throw new Error(
+    `AI报告未完整覆盖十二领域：${
+      lastValidation?.missingDomains?.join("、") ||
+      "存在格式或越界问题"
+    }`,
+  );
+}
+
 
 /* ===== natal-ai-robust-json:start ===== */
 

@@ -147,7 +147,7 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck", evidenceC
   return `
     <div class="stage-card-grid stage-card-grid-v2">
       ${renderStageQuickSummary(model)}
-      ${renderStageDomainScan(item?.domainSignals)}
+      ${renderStageDomainEvidenceCandidates(item?.domainSignals)}
       ${renderStageEvidenceDetails(model, evidencePack)}
     </div>
   `;
@@ -467,121 +467,91 @@ function renderStageTriggeredImages(triggeredImages = {}) {
 }
 
 
-function renderStageDomainScan(domainSignals = null) {
+function renderStageDomainEvidenceCandidates(domainSignals = null) {
   const domains = Array.isArray(domainSignals?.domains)
-    ? [...domainSignals.domains]
+    ? domainSignals.domains
     : [];
 
   if (!domains.length) {
     return "";
   }
 
-  const checkedCount = Number(
-    domainSignals?.checkedDomainCount ??
-    domains.length,
-  ) || domains.length;
+  const rows = domains.map((entry) => {
+    const groups = buildDomainCandidateGroups(entry);
+    return {
+      domain: entry?.domain,
+      label: String(entry?.label || "待复核领域"),
+      groups,
+      count: groups.reduce(
+        (sum, [, items]) => sum + items.length,
+        0,
+      ),
+    };
+  });
 
-  const triggeredCount = Number(
-    domainSignals?.triggeredDomainCount ??
-    domains.filter((entry) => Number(entry?.score || 0) > 0).length,
-  ) || 0;
-
-  const orderedDomains = domains.sort((left, right) =>
-    domainRoleWeight(left?.role) -
-      domainRoleWeight(right?.role) ||
-    Number(right?.score || 0) -
-      Number(left?.score || 0) ||
-    String(left?.label || "").localeCompare(
-      String(right?.label || ""),
-      "zh-CN",
-    ),
-  );
+  const withEvidence = rows.filter(
+    (entry) => entry.count > 0,
+  ).length;
 
   return `
-    <article class="stage-image-card stage-domain-scan">
-      <header class="stage-domain-scan-head">
+    <article class="stage-image-card stage-domain-candidates">
+      <header class="stage-domain-candidates-head">
         <div>
-          <span>本地规则扫描</span>
-          <h3>十二领域扫描</h3>
+          <span>本地硬事实索引</span>
+          <h3>十二领域候选证据</h3>
           <p>
-            已检查 ${checkedCount} 个领域，当前有 ${triggeredCount} 个领域出现不同强度的信号。
-            分数表示被岁运触发的强度，不代表吉凶。
+            这里仅展示浏览器捕获到的候选依据，不再计算领域分数，
+            也不替 AI 决定主线、副线或吉凶。
           </p>
         </div>
-
-        <strong>${triggeredCount} / ${checkedCount}</strong>
+        <strong>${withEvidence} / ${rows.length}</strong>
       </header>
 
-      <div class="stage-domain-scan-list">
-        ${orderedDomains
-          .map(renderStageDomainRow)
+      <div class="stage-domain-candidate-list">
+        ${rows
+          .map(renderStageDomainCandidateRow)
           .join("")}
       </div>
 
-      <footer class="stage-domain-scan-foot">
-        主线用于正文重点展开，副线和提示用于防止遗漏；
-        “未见强触发”只表示当前规则证据较弱，不等于现实中一定没有事情。
+      <footer class="stage-domain-candidates-foot">
+        同一事实可能同时涉及多个领域；最终轻重、主落点和现实表现由 AI
+        结合原局、大运、流年与流月独立判断。
       </footer>
     </article>
   `;
 }
 
-function renderStageDomainRow(entry = {}) {
-  const score = clampDomainScore(entry?.score);
-  const role = String(entry?.role || (
-    score > 0
-      ? "background"
-      : "quiet"
-  ));
-  const roleLabel = domainRoleLabel(role);
-  const polarity = String(
-    entry?.polaritySummary ||
-    (score > 0 ? "mixed" : "quiet"),
-  );
-  const polarityLabel = domainPolarityLabel(polarity);
-  const label = String(entry?.label || "待复核领域");
-  const summary = cleanDomainSummary(
-    entry?.summary,
-    label,
-    score,
-  );
-  const groups = buildDomainEvidenceGroups(entry);
-  const expandable = role !== "quiet" && groups.length > 0;
+function renderStageDomainCandidateRow(entry = {}) {
+  const hasEvidence = entry.count > 0;
+  const summary = hasEvidence
+    ? firstDomainCandidateText(entry.groups)
+    : "当前本地规则未捕获到明确候选依据，等待 AI 结合整体结构判断。";
 
-  const rowContent = `
-    <div class="stage-domain-row-main">
-      <span class="stage-domain-name">${escapeHtml(label)}</span>
-      <em class="is-${escapeHtml(role)}">${escapeHtml(roleLabel)}</em>
-      <small class="is-${escapeHtml(polarity)}">${escapeHtml(polarityLabel)}</small>
-    </div>
-
-    <div class="stage-domain-score" aria-label="${escapeHtml(label)}触发度${score}">
-      <b>${score}</b>
-      <span>
-        <i style="width: ${score}%"></i>
-      </span>
-    </div>
-
-    <p>${escapeHtml(summary)}</p>
-  `;
-
-  if (!expandable) {
+  if (!hasEvidence) {
     return `
-      <div class="stage-domain-row stage-domain-row-static is-${escapeHtml(role)}">
-        ${rowContent}
+      <div class="stage-domain-candidate-row is-empty">
+        <div>
+          <b>${escapeHtml(entry.label)}</b>
+          <span>暂无明确候选</span>
+        </div>
+        <p>${escapeHtml(summary)}</p>
       </div>
     `;
   }
 
   return `
-    <details class="stage-domain-row is-${escapeHtml(role)}">
+    <details class="stage-domain-candidate-row">
       <summary>
-        ${rowContent}
-        <span class="stage-domain-expand">查看依据</span>
+        <div>
+          <b>${escapeHtml(entry.label)}</b>
+          <span>${entry.count} 条候选依据</span>
+        </div>
+        <p>${escapeHtml(summary)}</p>
+        <em>查看依据</em>
       </summary>
 
-      <div class="stage-domain-evidence">
-        ${groups
+      <div class="stage-domain-candidate-evidence">
+        ${entry.groups
           .map(([title, items]) => `
             <section>
               <h4>${escapeHtml(title)}</h4>
@@ -598,10 +568,10 @@ function renderStageDomainRow(entry = {}) {
   `;
 }
 
-function buildDomainEvidenceGroups(entry = {}) {
-  const groups = [
+function buildDomainCandidateGroups(entry = {}) {
+  return [
     [
-      "直接触发",
+      "直接结构",
       uniqueDomainEvidence([
         ...(Array.isArray(entry?.directFacts)
           ? entry.directFacts
@@ -609,13 +579,13 @@ function buildDomainEvidenceGroups(entry = {}) {
         ...(Array.isArray(entry?.palaceTriggers)
           ? entry.palaceTriggers
           : []),
-      ], 4),
+      ], 5),
     ],
     [
-      "结构与支持",
+      "背景与支持",
       uniqueDomainEvidence(
         entry?.supportingFacts,
-        4,
+        5,
       ),
     ],
     [
@@ -627,7 +597,7 @@ function buildDomainEvidenceGroups(entry = {}) {
         ...(Array.isArray(entry?.auxiliarySignals)
           ? entry.auxiliarySignals
           : []),
-      ], 4),
+      ], 5),
     ],
     [
       "压力与反证",
@@ -636,12 +606,17 @@ function buildDomainEvidenceGroups(entry = {}) {
         4,
       ),
     ],
-  ];
-
-  return groups.filter(([, items]) => items.length);
+  ].filter(([, items]) => items.length);
 }
 
-function uniqueDomainEvidence(values = [], limit = 4) {
+function firstDomainCandidateText(groups = []) {
+  return groups
+    .flatMap(([, items]) => items)
+    .find(Boolean) ||
+    "已捕获候选依据，需结合上下层结构判断。";
+}
+
+function uniqueDomainEvidence(values = [], limit = 5) {
   const texts = (Array.isArray(values) ? values : [])
     .map((item) =>
       typeof item === "string"
@@ -656,68 +631,6 @@ function uniqueDomainEvidence(values = [], limit = 4) {
     .filter(Boolean);
 
   return [...new Set(texts)].slice(0, limit);
-}
-
-function cleanDomainSummary(value, label, score) {
-  const normalized = String(value || "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .replace(
-      new RegExp(
-        `^${escapeRegExp(label)}触发分${score}[，,：:]?\\s*`,
-      ),
-      "",
-    );
-
-  if (normalized) {
-    return normalized;
-  }
-
-  return score > 0
-    ? "当前存在不同强度的结构或辅助信号，需结合展开依据和现实反馈判断具体落点。"
-    : "已完成扫描，当前未见进入主线的强直接触发。";
-}
-
-function domainRoleWeight(role) {
-  return {
-    primary: 0,
-    secondary: 1,
-    background: 2,
-    quiet: 3,
-  }[String(role || "")] ?? 4;
-}
-
-function domainRoleLabel(role) {
-  return {
-    primary: "主线",
-    secondary: "副线",
-    background: "提示",
-    quiet: "未见强触发",
-  }[String(role || "")] ?? "提示";
-}
-
-function domainPolarityLabel(polarity) {
-  return {
-    supportive: "支持偏多",
-    pressure: "压力偏多",
-    mixed: "机会与压力并存",
-    quiet: "当前信号较弱",
-  }[String(polarity || "")] ?? "方向待复核";
-}
-
-function clampDomainScore(value) {
-  return Math.max(
-    0,
-    Math.min(
-      100,
-      Math.round(Number(value) || 0),
-    ),
-  );
-}
-
-function escapeRegExp(value) {
-  return String(value || "")
-    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 

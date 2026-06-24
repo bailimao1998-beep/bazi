@@ -75,6 +75,7 @@ export function createAppController({ roots, initialInput }) {
         baseBaziViewModel,
         natalImageReport,
         luckImageReport,
+        targetYear: store.currentInput.targetYear,
       });
       const monthImageReport = dedupeMonthImageReportRelations(buildMonthImageReport({
         chart,
@@ -260,18 +261,320 @@ export function createAppController({ roots, initialInput }) {
     renderFloatingAssistPanel(roots.floatingAssist, { state: store.state });
   }
 
+  function selectTargetLuck({ year, month } = {}) {
+    const targetYear = Number(year);
+    if (!Number.isFinite(targetYear)) return;
+
+    updateTransitSelection({
+      targetYear: Math.trunc(targetYear),
+      selectedMonth: normalizeSelectedMonth(month, 1),
+      resetScope: "all",
+    });
+  }
+
   function selectTargetYear(year) {
     const targetYear = Number(year);
     if (!Number.isFinite(targetYear)) return;
-    store.currentInput = { ...store.currentInput, targetYear };
-    refresh();
+
+    const previousLuck = findLuckItemForYear(
+      store.state?.luckImageReport?.luckItems,
+      store.currentInput?.targetYear,
+    );
+
+    const nextLuck = findLuckItemForYear(
+      store.state?.luckImageReport?.luckItems,
+      targetYear,
+    );
+
+    updateTransitSelection({
+      targetYear: Math.trunc(targetYear),
+      selectedMonth: normalizeSelectedMonth(
+        store.currentInput?.selectedMonth,
+        1,
+      ),
+      resetScope:
+        previousLuck &&
+        nextLuck &&
+        previousLuck.index === nextLuck.index
+          ? "year"
+          : "all",
+    });
   }
 
   function selectTargetMonth(month) {
-    const selectedMonth = Math.min(12, Math.max(1, Math.trunc(Number(month))));
+    const selectedMonth = normalizeSelectedMonth(month, NaN);
     if (!Number.isFinite(selectedMonth)) return;
-    store.currentInput = { ...store.currentInput, selectedMonth };
-    refresh();
+
+    updateTransitSelection({
+      targetYear: Number(store.currentInput?.targetYear),
+      selectedMonth,
+      resetScope: "month",
+    });
+  }
+
+  function updateTransitSelection({
+    targetYear,
+    selectedMonth,
+    resetScope = "all",
+  } = {}) {
+    const {
+      chart,
+      baseBaziViewModel,
+      natalImageReport,
+    } = store.state ?? {};
+
+    if (
+      !chart ||
+      !baseBaziViewModel ||
+      !natalImageReport ||
+      !Number.isFinite(Number(targetYear))
+    ) {
+      return;
+    }
+
+    const nextInput = {
+      ...store.currentInput,
+      targetYear: Math.trunc(Number(targetYear)),
+      selectedMonth: normalizeSelectedMonth(
+        selectedMonth,
+        1,
+      ),
+    };
+
+    const luckImageReport = buildLuckImageReport({
+      chart,
+      baseBaziViewModel,
+      natalImageReport,
+      targetYear: nextInput.targetYear,
+      selectedMonth: nextInput.selectedMonth,
+    });
+
+    const yearImageReport = buildYearImageReport({
+      chart,
+      baseBaziViewModel,
+      natalImageReport,
+      luckImageReport,
+      targetYear: nextInput.targetYear,
+    });
+
+    const yearImageReports =
+      buildYearImageReportsForCurrentLuck({
+        chart,
+        baseBaziViewModel,
+        natalImageReport,
+        luckImageReport,
+        targetYear: nextInput.targetYear,
+      });
+
+    const buildMonthReport = (monthValue) =>
+      dedupeMonthImageReportRelations(
+        buildMonthImageReport({
+          chart,
+          baseBaziViewModel,
+          natalImageReport,
+          luckImageReport,
+          yearImageReport,
+          targetYear: nextInput.targetYear,
+          selectedMonth: monthValue,
+        }),
+      );
+
+    const monthImageReport =
+      buildMonthReport(nextInput.selectedMonth);
+
+    const monthImageReports = Array.from(
+      { length: 12 },
+      (_, index) => buildMonthReport(index + 1),
+    );
+
+    store.currentInput = nextInput;
+
+    store.state = {
+      ...store.state,
+      input: nextInput,
+      luckImageReport,
+      yearImageReport,
+      yearImageReports,
+      monthImageReport,
+      monthImageReports,
+    };
+
+    resetTransitAiStates(resetScope);
+    renderTransitOnly();
+
+    if (roots.status) {
+      roots.status.textContent =
+        `已切换至 ${nextInput.targetYear} 年第 ${nextInput.selectedMonth} 流月。`;
+    }
+  }
+
+  function renderTransitOnly() {
+    renderFortuneTransitPanel(
+      roots.fortuneTransitPanel,
+      {
+        state: store.state,
+        luckAiState: store.luckAiState,
+        yearAiState: store.yearAiState,
+        monthAiState: store.monthAiState,
+
+        onSelectLuck: selectTargetLuck,
+        onSelectYear: selectTargetYear,
+        onSelectMonth: selectTargetMonth,
+
+        onGenerateLuckAi:
+          aiActions.generateLuckAiNarrative,
+
+        onGenerateYearAi:
+          aiActions.generateYearAiNarrative,
+
+        onGenerateMonthAi:
+          aiActions.generateMonthAiNarrative,
+      },
+    );
+
+    renderStageAnalysisPanel(
+      roots.luckStageAnalysis,
+      {
+        title: "大运分析",
+        description:
+          "围绕当前选中的大运展开取象与 AI 分析。",
+        report: store.state.luckImageReport,
+        stage: "luck",
+        selector:
+          buildLuckStageSelector(store.state),
+
+        evidenceContext: {
+          baseBaziViewModel:
+            store.state.baseBaziViewModel,
+        },
+
+        aiState: store.luckAiState,
+        aiTitle: "AI 大运分析",
+        aiButton: "生成大运 AI 分析",
+
+        onGenerateAi:
+          aiActions.generateLuckAiNarrative,
+
+        onSelectStageValue:
+          selectTargetYear,
+      },
+    );
+
+    renderStageAnalysisPanel(
+      roots.yearStageAnalysis,
+      {
+        title: "流年分析",
+        description:
+          "围绕当前选中的流年展开取象与 AI 分析。",
+        report: store.state.yearImageReport,
+        stage: "year",
+        selector:
+          buildYearStageSelector(store.state),
+
+        evidenceContext: {
+          baseBaziViewModel:
+            store.state.baseBaziViewModel,
+
+          luckImageReport:
+            store.state.luckImageReport,
+        },
+
+        aiState: store.yearAiState,
+        aiTitle: "AI 流年分析",
+        aiButton: "生成流年 AI 分析",
+
+        onGenerateAi:
+          aiActions.generateYearAiNarrative,
+
+        onSelectStageValue:
+          selectTargetYear,
+      },
+    );
+
+    renderStageAnalysisPanel(
+      roots.monthStageAnalysis,
+      {
+        title: "流月分析",
+        description:
+          "围绕当前选中的流月展开取象与 AI 分析。",
+        report: store.state.monthImageReport,
+        stage: "month",
+        selector:
+          buildMonthStageSelector(store.state),
+
+        evidenceContext: {
+          baseBaziViewModel:
+            store.state.baseBaziViewModel,
+
+          luckImageReport:
+            store.state.luckImageReport,
+
+          yearImageReport:
+            store.state.yearImageReport,
+        },
+
+        aiState: store.monthAiState,
+        aiTitle: "AI 流月分析",
+        aiButton: "生成流月 AI 分析",
+
+        onGenerateAi:
+          aiActions.generateMonthAiNarrative,
+
+        onSelectStageValue:
+          selectTargetMonth,
+      },
+    );
+
+    renderFloatingAssistPanel(
+      roots.floatingAssist,
+      {
+        state: store.state,
+      },
+    );
+
+    bindShenshaPopupEvents();
+  }
+
+  function resetTransitAiStates(scope = "all") {
+    const emptyState = () => ({
+      loading: false,
+      text: "",
+      error: "",
+    });
+
+    store.yearAiGenerationId += 1;
+
+    if (scope === "all") {
+      store.luckAiState = emptyState();
+    }
+
+    if (
+      scope === "all" ||
+      scope === "year"
+    ) {
+      store.yearAiState = emptyState();
+    }
+
+    store.monthAiState = emptyState();
+  }
+
+  function normalizeSelectedMonth(
+    value,
+    fallback = 1,
+  ) {
+    const month = Number(value);
+
+    if (!Number.isFinite(month)) {
+      return fallback;
+    }
+
+    return Math.min(
+      12,
+      Math.max(
+        1,
+        Math.trunc(month),
+      ),
+    );
   }
 
   function bindAiChatDrawer() {
@@ -291,6 +594,7 @@ export function createAppController({ roots, initialInput }) {
     refresh,
     renderShell,
     renderBaseOnly,
+    selectTargetLuck,
     selectTargetYear,
     selectTargetMonth,
     bindAiChatDrawer,
@@ -328,21 +632,91 @@ function uniqueRelations(relations = []) {
   });
 }
 
+function findLuckItemForYear(
+  luckItems = [],
+  targetYear,
+) {
+  const year = Number(targetYear);
+
+  if (!Number.isFinite(year)) {
+    return null;
+  }
+
+  return (
+    (
+      Array.isArray(luckItems)
+        ? luckItems
+        : []
+    ).find((item) => {
+      const [
+        startYear,
+        endYear,
+      ] = parseYearRange(
+        item?.yearRange,
+      );
+
+      return (
+        Number.isFinite(startYear) &&
+        Number.isFinite(endYear) &&
+        year >= startYear &&
+        year <= endYear
+      );
+    }) ?? null
+  );
+}
+
 function buildLuckStageSelector(state = {}) {
-  const luckItems = Array.isArray(state.luckImageReport?.luckItems) ? state.luckImageReport.luckItems : [];
-  const currentLuck = luckItems.find((item) => item?.isCurrent) ?? luckItems[0] ?? {};
+  const luckItems =
+    Array.isArray(
+      state.luckImageReport?.luckItems,
+    )
+      ? state.luckImageReport.luckItems
+      : [];
+
+  const currentLuck =
+    findLuckItemForYear(
+      luckItems,
+      state.input?.targetYear,
+    ) ??
+    luckItems.find(
+      (item) =>
+        item?.isCurrent,
+    ) ??
+    luckItems[0] ??
+    {};
+
   return {
     label: "切换大运",
-    value: firstYearOfRange(currentLuck.yearRange),
+    value:
+      firstYearOfRange(
+        currentLuck.yearRange,
+      ),
+
     options: luckItems
       .map((item) => {
-        const value = firstYearOfRange(item.yearRange);
+        const value =
+          firstYearOfRange(
+            item.yearRange,
+          );
+
         return {
           value,
-          label: [item.ageRange, item.ganZhi].filter(Boolean).join(" · ") || item.yearRange || "待查",
+
+          label:
+            [
+              item.ageRange,
+              item.ganZhi,
+            ]
+              .filter(Boolean)
+              .join(" · ") ||
+            item.yearRange ||
+            "待查",
         };
       })
-      .filter((option) => option.value !== ""),
+      .filter(
+        (option) =>
+          option.value !== "",
+      ),
   };
 }
 
@@ -396,29 +770,62 @@ function buildYearImageReportsForCurrentLuck({
   baseBaziViewModel,
   natalImageReport,
   luckImageReport,
+  targetYear,
 } = {}) {
-  const luckItems = Array.isArray(luckImageReport?.luckItems)
-    ? luckImageReport.luckItems
-    : [];
+  const luckItems =
+    Array.isArray(
+      luckImageReport?.luckItems,
+    )
+      ? luckImageReport.luckItems
+      : [];
 
-  const currentLuck = luckItems.find((item) => item?.isCurrent) ?? luckItems[0];
-  const [startYear, endYear] = parseYearRange(currentLuck?.yearRange);
+  const currentLuck =
+    findLuckItemForYear(
+      luckItems,
+      targetYear,
+    ) ??
+    luckItems.find(
+      (item) =>
+        item?.isCurrent,
+    ) ??
+    luckItems[0];
 
-  if (!Number.isFinite(startYear) || !Number.isFinite(endYear)) {
+  const [
+    startYear,
+    endYear,
+  ] = parseYearRange(
+    currentLuck?.yearRange,
+  );
+
+  if (
+    !Number.isFinite(startYear) ||
+    !Number.isFinite(endYear)
+  ) {
     return [];
   }
 
-  return Array.from({ length: Math.max(1, endYear - startYear + 1) }, (_, index) => {
-    const targetYear = startYear + index;
+  return Array.from(
+    {
+      length:
+        Math.max(
+          1,
+          endYear - startYear + 1,
+        ),
+    },
 
-    return buildYearImageReport({
-      chart,
-      baseBaziViewModel,
-      natalImageReport,
-      luckImageReport,
-      targetYear,
-    });
-  });
+    (_, index) => {
+      const year =
+        startYear + index;
+
+      return buildYearImageReport({
+        chart,
+        baseBaziViewModel,
+        natalImageReport,
+        luckImageReport,
+        targetYear: year,
+      });
+    },
+  );
 }
 
 function firstYearOfRange(range = "") {
@@ -431,42 +838,3 @@ function parseYearRange(range = "") {
   return [start, end];
 }
 
-function selectTargetLuck({
-  year,
-  month,
-} = {}) {
-  const targetYear =
-    Number(year);
-
-  const selectedMonth =
-    Math.min(
-      12,
-      Math.max(
-        1,
-        Math.trunc(
-          Number(month),
-        ),
-      ),
-    );
-
-  if (
-    !Number.isFinite(
-      targetYear,
-    ) ||
-    !Number.isFinite(
-      selectedMonth,
-    )
-  ) {
-    return;
-  }
-
-  store.currentInput = {
-    ...store.currentInput,
-
-    targetYear,
-
-    selectedMonth,
-  };
-
-  refresh();
-}

@@ -27,6 +27,67 @@ const MONTH_TIMING_PATTERNS = [
   /\d{1,2}日(?:前后|左右)?/,
 ];
 
+const LUCK_TIMING_PATTERNS = [
+  /大运初期/,
+  /大运中期/,
+  /大运后期/,
+  /开始几年/,
+  /前几年/,
+  /后几年/,
+  /前半程/,
+  /后半程/,
+  /前半段/,
+  /后半段/,
+  /随着时间推移/,
+  /约\s*\d{1,2}\s*(?:[-—至~～到])\s*\d{1,2}\s*岁/,
+];
+
+const HIGH_SPECIFICITY_PATTERNS = [
+  /被骗/,
+  /被盗/,
+  /诈骗/,
+  /偷窃/,
+  /掉链子/,
+  /动机不纯/,
+];
+
+const SPOUSE_PALACE_ERROR_PATTERNS = [
+  /月支[^，。；\n]{0,12}配偶宫/,
+  /月柱[^，。；\n]{0,12}配偶宫/,
+  /日支与月支[^，。；\n]{0,8}(?:均为|都是|同为)[^，。；\n]{0,4}配偶宫/,
+];
+
+const TEN_GOD_RELATION_ERROR_PATTERNS = [
+  /(?:食神|伤官|食伤)[^，。；\n]{0,6}(?:合|六合)[^，。；\n]{0,6}(?:正财|偏财|财星|财)/,
+  /(?:正财|偏财|财星)[^，。；\n]{0,6}(?:合|六合)[^，。；\n]{0,6}(?:食神|伤官|食伤)/,
+];
+
+const THREE_MEETING_SETS = [
+  ["亥", "子", "丑"],
+  ["寅", "卯", "辰"],
+  ["巳", "午", "未"],
+  ["申", "酉", "戌"],
+];
+
+const THREE_HARMONY_SETS = [
+  ["申", "子", "辰"],
+  ["寅", "午", "戌"],
+  ["亥", "卯", "未"],
+  ["巳", "酉", "丑"],
+];
+
+const RELATION_TERM_PATTERNS = [
+  ["暗合", /暗合/],
+  ["半合", /半合/],
+  ["三合", /三合/],
+  ["三会", /三会|会局/],
+  ["冲", /六冲|相冲/],
+  ["刑", /相刑/],
+  ["害", /相害/],
+  ["破", /相破/],
+  ["合", /六合/],
+];
+
 const FULL_PILLAR_REPEAT_PATTERNS = [
   /(?:流月|本月|流年|今年|大运)[^，。；\n]{0,36}(?:伏吟|整柱相同|干支完全相同|完全相同)/,
   /与原局(?:年|月|日|时)柱[^，。；\n]{0,24}(?:伏吟|整柱相同|干支完全相同|完全相同)/,
@@ -196,6 +257,75 @@ export function validateStageAiText({
     ),
   );
 
+  hardViolations.push(
+    ...detectMissingConvergenceThemes(
+      normalized,
+      trustedPack,
+    ),
+  );
+
+  hardViolations.push(
+    ...detectUnsupportedRelationClaims(
+      normalized,
+      trustedPack,
+    ),
+  );
+
+  hardViolations.push(
+    ...detectIncompleteCombinationClaims(
+      normalized,
+    ),
+  );
+
+  hardViolations.push(
+    ...detectReversedTenGodControls(
+      normalized,
+      trustedPack,
+    ),
+  );
+
+  HIGH_SPECIFICITY_PATTERNS.forEach(
+    (pattern) => {
+      if (
+        pattern.test(
+          normalized,
+        )
+      ) {
+        hardViolations.push(
+          `unsupported_specific_event:${pattern.source}`,
+        );
+      }
+    },
+  );
+
+  SPOUSE_PALACE_ERROR_PATTERNS.forEach(
+    (pattern) => {
+      if (
+        pattern.test(
+          normalized,
+        )
+      ) {
+        hardViolations.push(
+          `invalid_spouse_palace:${pattern.source}`,
+        );
+      }
+    },
+  );
+
+  TEN_GOD_RELATION_ERROR_PATTERNS.forEach(
+    (pattern) => {
+      if (
+        pattern.test(
+          normalized,
+        )
+      ) {
+        hardViolations.push(
+          `imprecise_ten_god_relation:${pattern.source}`,
+        );
+      }
+    },
+  );
+
   if (stage === "year") {
     YEAR_TIMING_PATTERNS.forEach(
       (pattern) => {
@@ -229,6 +359,20 @@ export function validateStageAiText({
   }
 
   if (stage === "luck") {
+    LUCK_TIMING_PATTERNS.forEach(
+      (pattern) => {
+        if (
+          pattern.test(
+            normalized,
+          )
+        ) {
+          hardViolations.push(
+            `unsupported_luck_timing:${pattern.source}`,
+          );
+        }
+      },
+    );
+
     const ageRanges =
       normalized.match(
         /\d{1,2}\s*(?:[-—至~～到])\s*\d{1,2}\s*岁/g,
@@ -292,8 +436,11 @@ export function buildStageAiRepairPrompt(
       `需要修复：${violations}`,
       "主要主题至少写两个，不要把全部结构压缩成工作、合作或财务一个主题。",
       "对同一结构比较不同现实落点：最强可能详写，第二可能有独立证据才写，最弱可能省略。",
-      "不要增加无依据的具体事件，必须服从 relationFacts 与 mechanicalSignals。",
+      "不要增加无依据的具体事件，必须服从 relationFacts、relationWhitelist、mechanicalSignals 与 evidenceConvergences。",
+      "不得发明暗合、六合、冲刑害破、三合或三会；只允许使用白名单已有关系。",
+      "只有日支是配偶宫；不得把地支合改写成食神合财等十神关系。",
       "同支不等于整柱伏吟；没有流日数据不得拆分月初、上旬、中旬或下旬。",
+      "没有逐年事实不得拆分大运初中后期、前后半程或具体年龄段。",
     ].join("\n"),
     user: [
       prompt?.user || "",
@@ -491,6 +638,543 @@ function detectUnsupportedFullPillarRepeat(
 
   return [
     `unsupported_full_pillar_repeat:${stage}:${targetGanZhi || "unknown"}`,
+  ];
+}
+
+
+function detectMissingConvergenceThemes(
+  text,
+  trustedPack,
+) {
+  const section =
+    extractSection(
+      text,
+      "主要主题",
+    ) ||
+    text;
+
+  const convergences =
+    trustedPack
+      ?.evidenceConvergences ||
+    {};
+
+  const violations = [];
+
+  if (
+    convergences
+      ?.relationship
+      ?.priority ===
+      "must_compare" &&
+    !/(感情|恋爱|婚姻|异性|配偶|桃花|缘分)/.test(
+      section,
+    )
+  ) {
+    violations.push(
+      "missing_relationship_convergence_theme",
+    );
+  }
+
+  if (
+    convergences
+      ?.standardsReview
+      ?.priority ===
+      "must_compare" &&
+    !/(学业|考试|资格|审核|认证|论文|申请|手续|规则|标准)/.test(
+      section,
+    )
+  ) {
+    violations.push(
+      "missing_standards_review_theme",
+    );
+  }
+
+  return violations;
+}
+
+function detectUnsupportedRelationClaims(
+  text,
+  trustedPack,
+) {
+  const whitelist =
+    array(
+      trustedPack
+        ?.relationWhitelist,
+    );
+
+  const sentences =
+    String(text || "")
+      .split(
+        /[。；\n]+/,
+      )
+      .map(
+        (value) =>
+          value.trim(),
+      )
+      .filter(Boolean);
+
+  const violations = [];
+
+  sentences.forEach(
+    (sentence) => {
+      const branches =
+        uniqueText(
+          sentence.match(
+            /[子丑寅卯辰巳午未申酉戌亥]/g,
+          ) ||
+          [],
+        );
+
+      if (
+        branches.length !== 2
+      ) {
+        return;
+      }
+
+      const kinds =
+        extractClaimedRelationKinds(
+          sentence,
+        );
+
+      kinds.forEach(
+        (kind) => {
+          if (
+            !isRelationWhitelisted(
+              branches,
+              kind,
+              whitelist,
+            )
+          ) {
+            violations.push(
+              `unsupported_relation_claim:${branches.join("")}:${kind}`,
+            );
+          }
+        },
+      );
+    },
+  );
+
+  return violations;
+}
+
+function extractClaimedRelationKinds(
+  sentence,
+) {
+  const kinds = [];
+
+  RELATION_TERM_PATTERNS.forEach(
+    ([kind, pattern]) => {
+      pattern.lastIndex = 0;
+
+      if (
+        pattern.test(
+          sentence,
+        )
+      ) {
+        kinds.push(
+          kind,
+        );
+      }
+    },
+  );
+
+  const compactMatch =
+    sentence.match(
+      /([子丑寅卯辰巳午未申酉戌亥])([子丑寅卯辰巳午未申酉戌亥])(?:相)?(合|冲|刑|害|破)/,
+    );
+
+  if (
+    compactMatch
+  ) {
+    kinds.push(
+      compactMatch[3] ===
+        "合"
+        ? "合"
+        : compactMatch[3],
+    );
+  }
+
+  return uniqueText(kinds);
+}
+
+function isRelationWhitelisted(
+  branches,
+  claimedKind,
+  whitelist,
+) {
+  const expected =
+    [...branches].sort();
+
+  return array(whitelist)
+    .some((entry) => {
+      const actual =
+        array(
+          entry?.branches,
+        )
+          .slice()
+          .sort();
+
+      if (
+        actual.length < 2 ||
+        actual[0] !==
+          expected[0] ||
+        actual[1] !==
+          expected[1]
+      ) {
+        return false;
+      }
+
+      const allowedKind =
+        String(
+          entry?.kind ||
+          "",
+        );
+
+      if (
+        claimedKind ===
+        "合"
+      ) {
+        return [
+          "合",
+          "半合",
+          "三合",
+          "三会",
+        ].includes(
+          allowedKind,
+        );
+      }
+
+      return (
+        allowedKind ===
+        claimedKind
+      );
+    });
+}
+
+function detectIncompleteCombinationClaims(
+  text,
+) {
+  const sentences =
+    String(text || "")
+      .split(
+        /[。；\n]+/,
+      )
+      .map(
+        (value) =>
+          value.trim(),
+      )
+      .filter(Boolean);
+
+  const violations = [];
+
+  sentences.forEach(
+    (sentence) => {
+      if (
+        /未成局|尚未成局|条件未成|不得成局/.test(
+          sentence,
+        )
+      ) {
+        return;
+      }
+
+      const branches =
+        uniqueText(
+          sentence.match(
+            /[子丑寅卯辰巳午未申酉戌亥]/g,
+          ) ||
+          [],
+        );
+
+      if (
+        /三会|三会之势|会局/.test(
+          sentence,
+        ) &&
+        !containsCompleteSet(
+          branches,
+          THREE_MEETING_SETS,
+        )
+      ) {
+        violations.push(
+          `incomplete_three_meeting:${branches.join("") || "none"}`,
+        );
+      }
+
+      if (
+        /三合|三合局|形成[木火土金水]局|合局/.test(
+          sentence,
+        ) &&
+        !containsCompleteSet(
+          branches,
+          THREE_HARMONY_SETS,
+        )
+      ) {
+        violations.push(
+          `incomplete_three_harmony:${branches.join("") || "none"}`,
+        );
+      }
+    },
+  );
+
+  return violations;
+}
+
+function containsCompleteSet(
+  branches,
+  sets,
+) {
+  return array(sets)
+    .some(
+      (set) =>
+        set.every(
+          (branch) =>
+            array(branches)
+              .includes(
+                branch,
+              ),
+        ),
+    );
+}
+
+function detectReversedTenGodControls(
+  text,
+  trustedPack,
+) {
+  const layers =
+    trustedPack
+      ?.mechanicalSignals
+      ?.layers ||
+    {};
+
+  const pillarData =
+    array(
+      trustedPack
+        ?.factualContext
+        ?.natal
+        ?.pillars,
+    );
+
+  const violations = [];
+
+  array(
+    trustedPack
+      ?.relationFacts,
+  )
+    .filter(
+      (fact) =>
+        fact?.meta
+          ?.controller &&
+        fact?.meta
+          ?.controlled,
+    )
+    .forEach((fact) => {
+      const controller =
+        String(
+          fact.meta
+            .controller,
+        );
+
+      const controlled =
+        String(
+          fact.meta
+            .controlled,
+        );
+
+      const controllerTenGod =
+        findTenGodForStem(
+          controller,
+          layers,
+          pillarData,
+        );
+
+      const controlledTenGod =
+        findTenGodForStem(
+          controlled,
+          layers,
+          pillarData,
+        );
+
+      if (
+        !controllerTenGod ||
+        !controlledTenGod
+      ) {
+        return;
+      }
+
+      const controllerAliases =
+        tenGodAliases(
+          controllerTenGod,
+        );
+
+      const controlledAliases =
+        tenGodAliases(
+          controlledTenGod,
+        );
+
+      const reversedActive =
+        buildAliasControlRegex(
+          controlledAliases,
+          controllerAliases,
+          false,
+        );
+
+      const reversedPassive =
+        buildAliasControlRegex(
+          controllerAliases,
+          controlledAliases,
+          true,
+        );
+
+      if (
+        reversedActive.test(
+          text,
+        ) ||
+        reversedPassive.test(
+          text,
+        )
+      ) {
+        violations.push(
+          `reversed_ten_god_control:${controlledTenGod}->${controllerTenGod}`,
+        );
+      }
+    });
+
+  return violations;
+}
+
+function findTenGodForStem(
+  stem,
+  layers,
+  pillars,
+) {
+  const layerMatch =
+    Object.values(
+      layers,
+    ).find(
+      (entry) =>
+        entry?.stem ===
+        stem &&
+        entry
+          ?.stemTenGod,
+    );
+
+  if (
+    layerMatch
+      ?.stemTenGod
+  ) {
+    return layerMatch
+      .stemTenGod;
+  }
+
+  const pillarMatch =
+    array(pillars).find(
+      (pillar) =>
+        pillar?.stem ===
+          stem &&
+        pillar
+          ?.stemTenGod,
+    );
+
+  return pillarMatch
+    ?.stemTenGod ||
+    "";
+}
+
+function tenGodAliases(
+  tenGod,
+) {
+  const groups = {
+    食神: [
+      "食神",
+      "食伤",
+    ],
+    伤官: [
+      "伤官",
+      "食伤",
+    ],
+    正官: [
+      "正官",
+      "官星",
+      "官杀",
+    ],
+    七杀: [
+      "七杀",
+      "官杀",
+      "官星",
+    ],
+    正印: [
+      "正印",
+      "印星",
+    ],
+    偏印: [
+      "偏印",
+      "印星",
+    ],
+    正财: [
+      "正财",
+      "财星",
+    ],
+    偏财: [
+      "偏财",
+      "财星",
+    ],
+    比肩: [
+      "比肩",
+      "比劫",
+    ],
+    劫财: [
+      "劫财",
+      "比劫",
+    ],
+  };
+
+  return groups[tenGod] ||
+    [tenGod];
+}
+
+function buildAliasControlRegex(
+  actorAliases,
+  targetAliases,
+  passive,
+) {
+  const actor =
+    `(?:${array(actorAliases)
+      .map(
+        escapeRegExp,
+      )
+      .join("|")})`;
+
+  const target =
+    `(?:${array(targetAliases)
+      .map(
+        escapeRegExp,
+      )
+      .join("|")})`;
+
+  if (passive) {
+    return new RegExp(
+      `${actor}[^，。；\\n]{0,8}被[^，。；\\n]{0,8}${target}[^，。；\\n]{0,6}(?:克制|克|制约)`,
+    );
+  }
+
+  return new RegExp(
+    `${actor}[^，。；\\n]{0,8}(?:克制|克|制约)[^，。；\\n]{0,8}${target}`,
+  );
+}
+
+function uniqueText(
+  values,
+) {
+  return [
+    ...new Set(
+      array(values)
+        .map(
+          (value) =>
+            String(
+              value ||
+              "",
+            ),
+        )
+        .filter(Boolean),
+    ),
   ];
 }
 

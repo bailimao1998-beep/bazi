@@ -74,421 +74,389 @@ const baseBaziViewModel = {
   },
   structureAnalysis: {
     conclusion:
-      "原局结构候选解释",
+      "原局印星明显，取象仅供候选。",
   },
 };
 
-const controlFact = {
-  id: "control-1",
-  type: "stem_control",
-  label: "天干相克",
-  status: "direct",
-  category: "direct",
-  source: "岁运层级关系",
-  participants: ["癸", "丙"],
-  text:
-    "前端故事文字不应进入AI。",
-  strength: 99,
-  domains: ["career"],
-  meta: {
-    controller: "癸",
-    controlled: "丙",
-    direction:
-      "luck_controls_year",
-    formationStatus:
-      "not_applicable",
+const facts = [
+  {
+    id: "luck-year-control",
+    type: "stem_control",
+    label: "天干相克",
+    status: "direct",
+    category: "direct",
+    source: "岁运层级关系",
+    participants: ["癸", "丙"],
+    meta: {
+      controller: "癸",
+      controlled: "丙",
+      direction: "luck_controls_year",
+    },
   },
-};
+  {
+    id: "year-day-combine",
+    type: "stem_combine",
+    label: "天干五合",
+    status: "direct",
+    category: "direct",
+    source: "流年触发原局",
+    participants: ["丙", "辛"],
+    meta: {
+      natalPillar: "day",
+      currentStem: "丙",
+      targetStem: "辛",
+    },
+  },
+  {
+    id: "year-hour-clash",
+    type: "branch_六冲",
+    label: "地支六冲",
+    status: "direct",
+    category: "direct",
+    source: "流年触发原局",
+    participants: ["午", "子"],
+    meta: {
+      natalPillar: "hour",
+      currentBranch: "午",
+      targetBranch: "子",
+    },
+  },
+  {
+    id: "luck-year-combine",
+    type: "branch_六合",
+    label: "地支六合",
+    status: "direct",
+    category: "direct",
+    source: "大运触发原局",
+    participants: ["亥", "寅"],
+    meta: {
+      currentBranch: "亥",
+      targetBranch: "寅",
+    },
+  },
+];
 
 function buildPack({
   stage = "year",
   ganZhi = "丙午",
 } = {}) {
-  const item = {
-    year: 2026,
-    month: 1,
-    ganZhi,
-    stemTenGod:
-      stage === "month"
-        ? "劫财"
-        : "正官",
-    branchMainTenGod:
-      stage === "month"
-        ? "正财"
-        : "七杀",
-    transitStructure: {
-      facts: [
-        controlFact,
-      ],
-    },
-    triggerImages: {
-      threads: [
-        {
-          id:
-            "stage-story-1",
-          summary:
-            "家庭、房产与合作成为主线。",
-        },
-      ],
-    },
-  };
-
   return buildStageAiTrustedPack({
     stage,
-    item,
+    item: {
+      year: 2026,
+      month: 1,
+      ganZhi,
+      stemTenGod:
+        stage === "month"
+          ? "劫财"
+          : "正官",
+      branchMainTenGod:
+        stage === "month"
+          ? "正财"
+          : "七杀",
+      transitStructure: {
+        facts,
+      },
+    },
     currentLuckItem: {
       ganZhi: "癸亥",
-      stemTenGod:
-        "食神",
-      branchMainTenGod:
-        "伤官",
+      stemTenGod: "食神",
+      branchMainTenGod: "伤官",
     },
     yearItem: {
       year: 2026,
       ganZhi: "丙午",
-      stemTenGod:
-        "正官",
-      branchMainTenGod:
-        "七杀",
+      stemTenGod: "正官",
+      branchMainTenGod: "七杀",
     },
     baseBaziViewModel,
     natalImageReport: {
-      summary:
-        "原局候选总结",
-      imageCards: [
-        {
-          id:
-            "natal-1",
-          title:
-            "原局取象",
-          summary:
-            "原局候选场景",
-          evidence: [
-            "原局证据",
-          ],
-        },
-      ],
+      summary: "原局候选总结",
+      imageCards: [],
     },
   });
 }
 
-test(
-  "补回大运藏干及配偶星机械信号",
-  () => {
-    const pack =
-      buildPack();
+function validYearReport() {
+  return [
+    "### 今年总断",
+    "今年存在多个并行主题。",
+    "### 主要主题",
+    "#### 主题一：学业、资格与正式审核",
+    "主要表现：规则、考试或申请要求更突出；职业职责属于次要可能。",
+    "依据：官印和结果层关系同时出现。",
+    "#### 主题二：感情与关系机会",
+    "主要表现：配偶星、日支桃花和日柱关系共同形成候选。",
+    "依据：多类机械信号汇合。",
+    "#### 主题三：计划与成果调整",
+    "主要表现：原定安排、提交或未来计划需要调整。",
+    "依据：时支受到直接关系。",
+    "### 事情怎样发展",
+    "几个主题并行推进，具体落点需要现实验证。",
+    "### 有利与风险",
+    "有利于调整，风险在于过度推断。",
+    "### 现实验证点",
+    "观察考试审核、关系互动与计划变动。",
+  ].join("\n");
+}
 
-    const luck =
-      pack
-        .mechanicalSignals
-        .layers
-        .luck;
+test("生成关系白名单和证据汇合", () => {
+  const pack = buildPack();
 
-    assert.deepEqual(
-      luck.hiddenStems.map(
-        (entry) => [
-          entry.stem,
-          entry.tenGod,
-        ],
-      ),
-      [
-        ["壬", "伤官"],
-        ["甲", "正财"],
-      ],
+  assert.equal(
+    pack.schemaVersion,
+    "stage-ai-source-v5",
+  );
+
+  assert.ok(
+    pack.relationWhitelist.some(
+      (entry) =>
+        entry.kind === "冲" &&
+        entry.branches.includes("午") &&
+        entry.branches.includes("子"),
+    ),
+  );
+
+  assert.equal(
+    pack.evidenceConvergences.relationship.priority,
+    "must_compare",
+  );
+
+  assert.equal(
+    pack.evidenceConvergences.standardsReview.priority,
+    "must_compare",
+  );
+});
+
+test("流年强感情汇合不能被完全遗漏", () => {
+  const report = validYearReport()
+    .replace(
+      /#### 主题二：感情与关系机会[\s\S]*?依据：多类机械信号汇合。\n/,
+      "",
     );
 
-    assert.ok(
-      luck.spouseStarHits.some(
-        (entry) =>
-          entry.stem ===
-            "甲" &&
-          entry.tenGod ===
-            "正财",
-      ),
-    );
-  },
-);
+  const validation = validateStageAiText({
+    text: report,
+    stage: "year",
+    trustedPack: buildPack(),
+  });
 
-test(
-  "2026午命中日支酉桃花并保留依据",
-  () => {
-    const pack =
-      buildPack();
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.hardViolations.includes(
+      "missing_relationship_convergence_theme",
+    ),
+  );
+});
 
-    const year =
-      pack
-        .mechanicalSignals
-        .layers
-        .year;
+test("流年强审核汇合不能被完全遗漏", () => {
+  const report = validYearReport()
+    .replace(/学业、资格与正式审核/g, "个人调整")
+    .replace(/规则、考试或申请要求/g, "外部变化");
 
-    const peach =
-      year.auxiliaryHits.find(
-        (entry) =>
-          entry.name ===
-            "桃花" &&
-          entry.basisPillar ===
-            "day",
-      );
+  const validation = validateStageAiText({
+    text: report,
+    stage: "year",
+    trustedPack: buildPack(),
+  });
 
-    assert.ok(peach);
-    assert.equal(
-      peach.basisBranch,
-      "酉",
-    );
-    assert.equal(
-      peach.hitBranch,
-      "午",
-    );
-    assert.equal(
-      peach.rule,
-      "巳酉丑见午",
-    );
-  },
-);
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.hardViolations.includes(
+      "missing_standards_review_theme",
+    ),
+  );
+});
 
-test(
-  "庚寅与戊寅只标记同支不是整柱相同",
-  () => {
-    const pack =
-      buildPack({
-        stage: "month",
-        ganZhi: "庚寅",
-      });
+test("白名单外的寅酉暗合会被拦截", () => {
+  const report = validYearReport().replace(
+    "几个主题并行推进，具体落点需要现实验证。",
+    "寅木与酉金形成暗合，因此关系推进。",
+  );
 
-    const comparison =
-      pack
-        .mechanicalSignals
-        .layers
-        .month
-        .natalComparisons
-        .find(
-          (entry) =>
-            entry
-              .targetPillar ===
-            "year",
-        );
+  const validation = validateStageAiText({
+    text: report,
+    stage: "year",
+    trustedPack: buildPack(),
+  });
 
-    assert.ok(comparison);
-    assert.equal(
-      comparison.sameBranch,
-      true,
-    );
-    assert.equal(
-      comparison.sameStem,
-      false,
-    );
-    assert.equal(
-      comparison.samePillar,
-      false,
-    );
-  },
-);
-
-test(
-  "当前岁运故事仍不会进入可信包",
-  () => {
-    const serialized =
-      JSON.stringify(
-        buildPack(),
-      );
-
-    assert.doesNotMatch(
-      serialized,
-      /家庭、房产与合作成为主线/,
-    );
-
-    assert.doesNotMatch(
-      serialized,
-      /stageImages/,
-    );
-  },
-);
-
-test(
-  "Prompt要求比较多种现实落点并输出多个主题",
-  () => {
-    const prompt =
-      buildYearAiPrompt({
-        baseBaziViewModel,
-        natalImageReport: {},
-        luckImageReport: {
-          luckItems: [
-            {
-              isCurrent: true,
-              ganZhi: "癸亥",
-              stemTenGod:
-                "食神",
-              branchMainTenGod:
-                "伤官",
-            },
-          ],
-        },
-        yearImageReport: {
-          yearItem: {
-            year: 2026,
-            ganZhi: "丙午",
-            stemTenGod:
-              "正官",
-            branchMainTenGod:
-              "七杀",
-            transitStructure: {
-              facts: [
-                controlFact,
-              ],
-            },
-          },
-        },
-      });
-
-    assert.match(
-      prompt.system,
-      /二至五个主要主题/,
-    );
-
-    assert.match(
-      prompt.system,
-      /不得默认当事人正在工作、在校/,
-    );
-
-    assert.match(
-      prompt.system,
-      /官星可对应学校规则、考试资格、职业职责、官方手续/,
-    );
-
-    assert.match(
-      prompt.system,
-      /感情关系作为独立候选主题/,
-    );
-
-    assert.match(
-      prompt.system,
-      /主要表现/,
-    );
-
-    assert.match(
-      prompt.system,
-      /次要可能/,
-    );
-  },
-);
-
-test(
-  "只有一个主要主题会触发重试",
-  () => {
-    const validation =
-      validateStageAiText({
-        text: [
-          "### 今年总断",
-          "今年有一个主题。",
-          "### 主要主题",
-          "#### 主题一：规则压力",
-          "主要表现：需要适应标准。",
-          "### 事情怎样发展",
-          "逐步调整。",
-        ].join("\n"),
-        stage: "year",
-        trustedPack:
-          buildPack(),
-      });
-
-    assert.equal(
-      validation.valid,
-      false,
-    );
-
-    assert.ok(
-      validation
-        .hardViolations
-        .includes(
-          "insufficient_primary_themes:1",
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.hardViolations.some(
+      (entry) =>
+        entry.startsWith(
+          "unsupported_relation_claim:寅酉:暗合",
         ),
-    );
-  },
-);
+    ),
+  );
+});
 
-test(
-  "三个主要主题可以通过结构检查",
-  () => {
-    const validation =
-      validateStageAiText({
-        text: [
-          "### 今年总断",
-          "今年有多个并行主题。",
-          "### 主要主题",
-          "#### 主题一：学业资格",
-          "主要表现：规则与审核。",
-          "#### 主题二：感情关系",
-          "主要表现：配偶星与桃花汇合。",
-          "#### 主题三：计划调整",
-          "主要表现：结果层被冲动。",
-          "### 事情怎样发展",
-          "三条线分别验证。",
-        ].join("\n"),
-        stage: "year",
-        trustedPack:
-          buildPack(),
-      });
+test("白名单内的寅亥合可以使用", () => {
+  const report = validYearReport().replace(
+    "几个主题并行推进，具体落点需要现实验证。",
+    "亥与寅存在六合，但具体落点仍需验证。",
+  );
 
-    assert.equal(
-      validation.valid,
-      true,
-    );
+  const validation = validateStageAiText({
+    text: report,
+    stage: "year",
+    trustedPack: buildPack(),
+  });
 
-    assert.equal(
-      validation.themeCount,
-      3,
-    );
-  },
-);
+  assert.equal(validation.valid, true);
+});
 
-test(
-  "生克方向写反仍会被拦截",
-  () => {
-    const validation =
-      validateStageAiText({
-        text: [
-          "### 本月总断",
-          "结构需要调整。",
-          "### 主要主题",
-          "#### 主题一：规则",
-          "壬水克制戊土。",
-          "#### 主题二：关系",
-          "需要现实验证。",
-        ].join("\n"),
-        stage: "month",
-        trustedPack: {
-          ...buildPack({
-            stage: "month",
-            ganZhi: "庚寅",
-          }),
-          relationFacts: [
-            {
-              id:
-                "reverse-test",
-              type:
-                "stem_control",
-              meta: {
-                controller:
-                  "戊",
-                controlled:
-                  "壬",
-              },
-            },
-          ],
-        },
-      });
+test("亥子两支不能写三会或会局", () => {
+  const report = validYearReport().replace(
+    "几个主题并行推进，具体落点需要现实验证。",
+    "亥子形成三会之势并构成会局。",
+  );
 
-    assert.equal(
-      validation.valid,
-      false,
-    );
+  const validation = validateStageAiText({
+    text: report,
+    stage: "year",
+    trustedPack: buildPack(),
+  });
 
-    assert.ok(
-      validation
-        .hardViolations
-        .includes(
-          "reversed_control:壬->戊",
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.hardViolations.some(
+      (entry) =>
+        entry.startsWith("incomplete_three_meeting:"),
+    ),
+  );
+});
+
+test("月支不能被称为配偶宫", () => {
+  const report = validYearReport().replace(
+    "多类机械信号汇合。",
+    "日支与月支均为配偶宫。",
+  );
+
+  const validation = validateStageAiText({
+    text: report,
+    stage: "year",
+    trustedPack: buildPack(),
+  });
+
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.hardViolations.some(
+      (entry) =>
+        entry.startsWith("invalid_spouse_palace:"),
+    ),
+  );
+});
+
+test("不得把地支关系改写为食神合财", () => {
+  const report = validYearReport().replace(
+    "几个主题并行推进，具体落点需要现实验证。",
+    "本阶段形成食神合财，事情因此落地。",
+  );
+
+  const validation = validateStageAiText({
+    text: report,
+    stage: "year",
+    trustedPack: buildPack(),
+  });
+
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.hardViolations.some(
+      (entry) =>
+        entry.startsWith(
+          "imprecise_ten_god_relation:",
         ),
-    );
-  },
-);
+    ),
+  );
+});
+
+test("十神化表述写反生克方向也会拦截", () => {
+  const report = validYearReport().replace(
+    "几个主题并行推进，具体落点需要现实验证。",
+    "大运食伤被流年官星克制，因此表达受限。",
+  );
+
+  const validation = validateStageAiText({
+    text: report,
+    stage: "year",
+    trustedPack: buildPack(),
+  });
+
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.hardViolations.includes(
+      "reversed_ten_god_control:正官->食神",
+    ),
+  );
+});
+
+test("大运不得自行划分开始几年或后半程", () => {
+  const report = [
+    "### 十年总断",
+    "此运有多个主题。",
+    "### 主要主题",
+    "#### 主题一：技能表达",
+    "主要表现：输出增强。",
+    "#### 主题二：环境变化",
+    "主要表现：向外拓展。",
+    "#### 主题三：资源关系",
+    "主要表现：需要比较。",
+    "### 事情怎样发展",
+    "开始几年适应环境，后半程逐渐稳定。",
+  ].join("\n");
+
+  const validation = validateStageAiText({
+    text: report,
+    stage: "luck",
+    trustedPack: buildPack({
+      stage: "luck",
+      ganZhi: "癸亥",
+    }),
+  });
+
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.hardViolations.some(
+      (entry) =>
+        entry.startsWith("unsupported_luck_timing:"),
+    ),
+  );
+});
+
+test("高具体度被骗被盗说法会被拦截", () => {
+  const report = validYearReport().replace(
+    "几个主题并行推进，具体落点需要现实验证。",
+    "合作时可能被骗或被盗。",
+  );
+
+  const validation = validateStageAiText({
+    text: report,
+    stage: "year",
+    trustedPack: buildPack(),
+  });
+
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.hardViolations.some(
+      (entry) =>
+        entry.startsWith(
+          "unsupported_specific_event:",
+        ),
+    ),
+  );
+});
+
+test("完整的多主题报告可以通过", () => {
+  const validation = validateStageAiText({
+    text: validYearReport(),
+    stage: "year",
+    trustedPack: buildPack(),
+  });
+
+  assert.equal(
+    validation.valid,
+    true,
+    validation.hardViolations.join(","),
+  );
+});

@@ -162,6 +162,18 @@ export function buildStageAiTrustedPack({
       month: resolvedMonth,
     });
 
+  const relationWhitelist =
+    buildRelationWhitelist(
+      relationFacts,
+    );
+
+  const evidenceConvergences =
+    buildEvidenceConvergences({
+      natalFacts,
+      relationFacts,
+      mechanicalSignals,
+    });
+
   const allowedEvidenceRefs =
     unique([
       ...relationFacts.map(
@@ -174,7 +186,7 @@ export function buildStageAiTrustedPack({
 
   return {
     schemaVersion:
-      "stage-ai-source-v4",
+      "stage-ai-source-v5",
     stage: normalizedStage,
     stageLabel:
       STAGE_LABELS[
@@ -213,7 +225,11 @@ export function buildStageAiTrustedPack({
 
     relationFacts,
 
+    relationWhitelist,
+
     mechanicalSignals,
+
+    evidenceConvergences,
 
     candidateInterpretations: {
       natalStructure:
@@ -234,6 +250,10 @@ export function buildStageAiTrustedPack({
       "原局候选取象不是事实，也不是必须采用的结论。",
       "同一十神或结构可能落在多个现实场景，必须比较多组机械信号后再排序。",
       "选择证据汇合最多的表现作为主要可能；有第二组支持时可写次要可能；只有单一泛义支持的最弱可能不写。",
+      "relationWhitelist 是允许使用的岁运关系白名单，不得自行补充其中不存在的暗合、六合、冲、刑、害、破、三合、三会或半合。",
+      "evidenceConvergences 只整理多证据汇合，不等于确定事件；标为 must_compare 的汇合不得被完全忽略。",
+      "只有日支是配偶宫，不得把月支、月柱或其他地支称作配偶宫。",
+      "不得把地支合动改写成“食神合财”“官星合印”等并不存在的十神关系名称。",
       "不得默认当事人正在工作、在校、已婚或已有子女。",
       "年柱被触发不自动等于父母、房产或家庭大事。",
       "时柱被触发不自动等于实际子女、迁移或项目交付。",
@@ -801,6 +821,564 @@ function buildConvergence(
             ),
         ),
   };
+}
+
+
+function buildRelationWhitelist(
+  relationFacts,
+) {
+  return array(relationFacts)
+    .map((fact) => {
+      const kind =
+        normalizeRelationKind(
+          fact?.type,
+          fact?.label,
+        );
+
+      const sourceValues = [
+        ...array(
+          fact?.participants,
+        ),
+        fact?.meta
+          ?.currentStem,
+        fact?.meta
+          ?.currentBranch,
+        fact?.meta
+          ?.targetStem,
+        fact?.meta
+          ?.targetBranch,
+      ];
+
+      return {
+        id: text(fact?.id),
+        kind,
+        stems:
+          extractStems(
+            sourceValues,
+          ),
+        branches:
+          extractBranches(
+            sourceValues,
+          ),
+        status:
+          text(
+            fact?.status,
+          ),
+        formationStatus:
+          text(
+            fact?.meta
+              ?.formationStatus,
+          ),
+        transformationStatus:
+          text(
+            fact?.meta
+              ?.transformationStatus,
+          ),
+      };
+    })
+    .filter(
+      (entry) =>
+        entry.id &&
+        entry.kind,
+    );
+}
+
+function normalizeRelationKind(
+  type,
+  label,
+) {
+  const value =
+    `${text(type)}|${text(label)}`;
+
+  if (
+    value.includes("暗合")
+  ) {
+    return "暗合";
+  }
+
+  if (
+    value.includes("半合")
+  ) {
+    return "半合";
+  }
+
+  if (
+    value.includes("三合")
+  ) {
+    return "三合";
+  }
+
+  if (
+    value.includes("三会")
+  ) {
+    return "三会";
+  }
+
+  if (
+    value.includes("六合") ||
+    value.includes("天干五合") ||
+    value.includes("stem_combine")
+  ) {
+    return "合";
+  }
+
+  if (
+    value.includes("冲")
+  ) {
+    return "冲";
+  }
+
+  if (
+    value.includes("刑")
+  ) {
+    return "刑";
+  }
+
+  if (
+    value.includes("害")
+  ) {
+    return "害";
+  }
+
+  if (
+    value.includes("破")
+  ) {
+    return "破";
+  }
+
+  if (
+    value.includes("克")
+  ) {
+    return "克";
+  }
+
+  if (
+    value.includes("生")
+  ) {
+    return "生";
+  }
+
+  if (
+    value.includes("repeat") ||
+    value.includes("同支") ||
+    value.includes("伏吟")
+  ) {
+    return "重复";
+  }
+
+  return text(type);
+}
+
+function buildEvidenceConvergences({
+  natalFacts,
+  relationFacts,
+  mechanicalSignals,
+} = {}) {
+  const layers =
+    mechanicalSignals?.layers ||
+    {};
+
+  const availableLayers =
+    Object.entries(layers)
+      .filter(
+        ([, value]) =>
+          Boolean(value),
+      );
+
+  const natalTenGodCounts =
+    countNatalTenGods(
+      natalFacts?.pillars,
+    );
+
+  const spouseStarLayers =
+    array(
+      mechanicalSignals
+        ?.convergence
+        ?.spouseStarLayers,
+    );
+
+  const dayPeachHits =
+    array(
+      mechanicalSignals
+        ?.convergence
+        ?.auxiliaryHits,
+    ).filter(
+      (entry) =>
+        entry?.name ===
+          "桃花" &&
+        entry?.basisPillar ===
+          "day",
+    );
+
+  const dayRelationFacts =
+    findPillarRelationFacts({
+      pillarKey: "day",
+      natalFacts,
+      relationFacts,
+    });
+
+  const hourRelationFacts =
+    findPillarRelationFacts({
+      pillarKey: "hour",
+      natalFacts,
+      relationFacts,
+    });
+
+  const officerLayers =
+    findLayersWithTenGods(
+      availableLayers,
+      ["正官", "七杀"],
+    );
+
+  const sealCount =
+    Number(
+      natalTenGodCounts
+        .正印 ||
+      0,
+    ) +
+    Number(
+      natalTenGodCounts
+        .偏印 ||
+      0,
+    );
+
+  const outputLayers =
+    findLayersWithTenGods(
+      availableLayers,
+      ["食神", "伤官"],
+    );
+
+  const controlFacts =
+    array(relationFacts)
+      .filter(
+        (fact) =>
+          fact?.meta
+            ?.controller &&
+          fact?.meta
+            ?.controlled,
+      )
+      .map(compactRelationReference);
+
+  const relationshipEvidenceCount =
+    [
+      spouseStarLayers.length > 0,
+      dayPeachHits.length > 0,
+      dayRelationFacts.length > 0,
+    ].filter(Boolean).length;
+
+  const standardsEvidenceCount =
+    [
+      officerLayers.length > 0,
+      sealCount > 0,
+      hourRelationFacts.length > 0,
+    ].filter(Boolean).length;
+
+  const outputRuleEvidenceCount =
+    [
+      outputLayers.length > 0,
+      officerLayers.length > 0,
+      controlFacts.length > 0,
+    ].filter(Boolean).length;
+
+  const planEvidenceCount =
+    [
+      hourRelationFacts.length > 0,
+      outputLayers.length > 0,
+    ].filter(Boolean).length;
+
+  return {
+    natalTenGodCounts,
+
+    relationship: {
+      priority:
+        relationshipEvidenceCount >= 2
+          ? "must_compare"
+          : "optional",
+      independentEvidenceCount:
+        relationshipEvidenceCount,
+      spouseStarLayers,
+      dayPeachHits,
+      dayRelationFacts,
+      instruction:
+        "比较感情、配偶关系与资源收益两种落点；两类以上证据汇合时，感情必须作为独立候选主题，不得只写成合作。",
+    },
+
+    standardsReview: {
+      priority:
+        standardsEvidenceCount >= 2
+          ? "must_compare"
+          : "optional",
+      independentEvidenceCount:
+        standardsEvidenceCount,
+      officerLayers,
+      natalSealCount:
+        sealCount,
+      resultLayerRelations:
+        hourRelationFacts,
+      instruction:
+        "比较学业考试资格、职业职责和官方手续；根据官印、成果层和其他信号选择主要可能，并保留有独立支持的第二可能。",
+    },
+
+    outputAndRules: {
+      priority:
+        outputRuleEvidenceCount >= 2
+          ? "must_compare"
+          : "optional",
+      independentEvidenceCount:
+        outputRuleEvidenceCount,
+      outputLayers,
+      officerLayers,
+      directionalControlFacts:
+        controlFacts,
+      instruction:
+        "比较考试表达、技能输出、作品成果与规则冲突，不得自动固定为职场。",
+    },
+
+    planAndResults: {
+      priority:
+        planEvidenceCount >= 2
+          ? "must_compare"
+          : "optional",
+      independentEvidenceCount:
+        planEvidenceCount,
+      resultLayerRelations:
+        hourRelationFacts,
+      outputLayers,
+      instruction:
+        "优先解释计划、提交、执行和未来安排；只有职业信号另有汇合时才具体落到工作交付。",
+    },
+  };
+}
+
+function countNatalTenGods(
+  pillars,
+) {
+  const counts = {};
+
+  array(pillars).forEach(
+    (pillar) => {
+      [
+        pillar?.stemTenGod,
+        pillar
+          ?.branchMainTenGod,
+        ...array(
+          pillar?.hiddenStems,
+        ).map(
+          (entry) =>
+            entry?.tenGod,
+        ),
+      ]
+        .filter(Boolean)
+        .forEach(
+          (tenGod) => {
+            counts[tenGod] =
+              Number(
+                counts[tenGod] ||
+                0,
+              ) +
+              1;
+          },
+        );
+    },
+  );
+
+  return counts;
+}
+
+function findLayersWithTenGods(
+  availableLayers,
+  tenGods,
+) {
+  return array(availableLayers)
+    .filter(
+      ([, value]) => {
+        const values = unique([
+          value?.stemTenGod,
+          value
+            ?.branchMainTenGod,
+          ...array(
+            value?.hiddenStems,
+          ).map(
+            (entry) =>
+              entry?.tenGod,
+          ),
+        ]);
+
+        return array(tenGods)
+          .some(
+            (tenGod) =>
+              values.includes(
+                tenGod,
+              ),
+          );
+      },
+    )
+    .map(
+      ([layer, value]) => ({
+        layer,
+        ganZhi:
+          text(
+            value?.ganZhi,
+          ),
+        tenGods:
+          unique([
+            value?.stemTenGod,
+            value
+              ?.branchMainTenGod,
+            ...array(
+              value?.hiddenStems,
+            ).map(
+              (entry) =>
+                entry?.tenGod,
+            ),
+          ]).filter(
+            (tenGod) =>
+              array(tenGods)
+                .includes(
+                  tenGod,
+                ),
+          ),
+      }),
+    );
+}
+
+function findPillarRelationFacts({
+  pillarKey,
+  natalFacts,
+  relationFacts,
+} = {}) {
+  const pillar =
+    findPillar(
+      natalFacts?.pillars,
+      pillarKey,
+      {
+        year: "年",
+        month: "月",
+        day: "日",
+        hour: "时",
+      }[pillarKey] ||
+      "",
+    );
+
+  if (!pillar) {
+    return [];
+  }
+
+  return array(relationFacts)
+    .filter(
+      (fact) => {
+        const explicitPillar =
+          text(
+            fact?.meta
+              ?.natalPillar,
+          );
+
+        if (
+          explicitPillar ===
+            pillarKey ||
+          explicitPillar.includes(
+            pillar?.name,
+          )
+        ) {
+          return true;
+        }
+
+        const participantText =
+          array(
+            fact?.participants,
+          ).join("|");
+
+        return [
+          pillar?.stem,
+          pillar?.branch,
+          pillar?.ganZhi,
+        ]
+          .filter(Boolean)
+          .some(
+            (value) =>
+              participantText.includes(
+                value,
+              ),
+          );
+      },
+    )
+    .map(compactRelationReference);
+}
+
+function compactRelationReference(
+  fact,
+) {
+  return {
+    id: text(fact?.id),
+    type: text(fact?.type),
+    label: text(fact?.label),
+    status: text(fact?.status),
+    participants:
+      unique(
+        array(
+          fact?.participants,
+        ),
+      ),
+    natalPillar:
+      text(
+        fact?.meta
+          ?.natalPillar,
+      ),
+    controller:
+      text(
+        fact?.meta
+          ?.controller,
+      ),
+    controlled:
+      text(
+        fact?.meta
+          ?.controlled,
+      ),
+  };
+}
+
+function extractStems(
+  values,
+) {
+  const result = [];
+
+  array(values).forEach(
+    (value) => {
+      const matches =
+        text(value).match(
+          /[甲乙丙丁戊己庚辛壬癸]/g,
+        ) ||
+        [];
+
+      result.push(
+        ...matches,
+      );
+    },
+  );
+
+  return unique(result);
+}
+
+function extractBranches(
+  values,
+) {
+  const result = [];
+
+  array(values).forEach(
+    (value) => {
+      const matches =
+        text(value).match(
+          /[子丑寅卯辰巳午未申酉戌亥]/g,
+        ) ||
+        [];
+
+      result.push(
+        ...matches,
+      );
+    },
+  );
+
+  return unique(result);
 }
 
 function compactStageLayer(

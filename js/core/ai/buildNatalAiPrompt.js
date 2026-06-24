@@ -78,15 +78,16 @@ export function buildNatalAiPrompt({
       "3. 不向用户提问，不输出现实验证问题，不出现你是否之类问句。",
       "4. 不逐字段复述，不罗列本地依据数量，不展示内部字段名。",
       "5. 面向普通用户，命理术语出现后应立即解释其行为含义。",
-      "6. 正文使用自然小标题和连续段落，避免卡片、表格、编号证据清单和重复结论。",
-      "7. 正文约1200至1800个中文字符，建议覆盖总体判断、性格与能力、学习与事业、财富与资源、感情与人际、家庭与身心、综合建议。",
-      "8. 语言保持自然、直接和有命理解释感，不要把正文写成免责声明或系统规则说明。",
-      "9. 行业可以作为例子，但必须说明对应能力与工作环境，不得写成唯一职业结论。",
-      "10. 六亲可以描述互动方式，但不得把星位直接写成亲属现实事实。",
+      "6. 不得依赖Markdown标题组织正文；所有分析领域必须分别写入sections数组。",
+      "7. sections必须严格按照总体判断、性格与能力、学习与思维、事业与工作方式、财富与资源处理、感情互动、家庭与人际、表达与成果、身心节奏的顺序返回。",
+      "8. 每个section必须分别填写summary、advantage、cost和advice；证据较少时可以写得简短温和，但不得留空。",
+      "9. overview.summary只写120至220字的全局总览，不得再塞入整篇报告。",
       "",
       "返回格式：",
       "必须只返回一个完整合法JSON对象，不使用Markdown代码块，不在JSON外添加文字。",
-      "完整报告正文全部写入overview.summary；overview.summary内部可以使用Markdown小标题和换行。",
+      "overview只负责核心标题和简短总览；完整领域分析必须写入sections数组。",
+      "sections中的key、title、summary、advantage、cost、advice和evidenceRefs必须完整。",
+      "所有字段使用普通中文文本，不在字段中使用Markdown标题。",
       "overview.evidenceRefs只引用真正支持总体判断的有效证据ID，不为凑数量而引用。",
     ].join("\n"),
 
@@ -109,7 +110,7 @@ export function buildNatalAiPrompt({
             "none",
 
           outputStyle:
-            "continuous_text",
+            "structured_sections",
 
           purpose:
             "生成一篇谨慎、完整、少重复的出生原局分析与建议",
@@ -130,7 +131,7 @@ export function buildNatalAiPrompt({
 function buildOutputContract() {
   return {
     version:
-      "bazi-natal-text-v2",
+      "bazi-natal-report-v3",
 
     scope:
       "natal",
@@ -146,13 +147,75 @@ function buildOutputContract() {
         "一句谨慎、白话、能够统领全盘的核心判断",
 
       summary:
-        "一篇完整连续的中文原局分析与建议正文，可含自然小标题和换行，不得包含向用户提问的验证点",
+        "120至220字的全局总览，不使用Markdown标题",
 
       evidenceRefs: [],
     },
 
-    boundaries: [],
+    sections: [
+      buildSectionContract(
+        "overall",
+        "总体判断",
+      ),
+      buildSectionContract(
+        "personality",
+        "性格与能力",
+      ),
+      buildSectionContract(
+        "learning",
+        "学习与思维",
+      ),
+      buildSectionContract(
+        "career",
+        "事业与工作方式",
+      ),
+      buildSectionContract(
+        "wealth",
+        "财富与资源处理",
+      ),
+      buildSectionContract(
+        "relationship",
+        "感情互动",
+      ),
+      buildSectionContract(
+        "family",
+        "家庭与人际",
+      ),
+      buildSectionContract(
+        "expression",
+        "表达与成果",
+      ),
+      buildSectionContract(
+        "wellbeing",
+        "身心节奏",
+      ),
+    ],
 
+    boundaries: [],
     warnings: [],
+  };
+}
+
+function buildSectionContract(
+  key,
+  title,
+) {
+  return {
+    key,
+    title,
+
+    summary:
+      "该领域的主要结构、现实表现和命理解释",
+
+    advantage:
+      "这一结构容易发挥出的优势",
+
+    cost:
+      "这一结构容易付出的代价或需要留意的模式",
+
+    advice:
+      "直接对应前文结构的实际建议",
+
+    evidenceRefs: [],
   };
 }

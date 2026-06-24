@@ -3242,3 +3242,140 @@ li:last-child {
 }
 
 /* ===== 原局AI标题与三行展示修复 v8：结束 ===== */
+
+
+/* ===== 原局结构化章节 v9：开始 ===== */
+
+#natalAiNarrative
+.natal-ai-overview-summary {
+  max-width: 980px;
+  margin: 12px 0 0;
+  color: #53616a;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+#natalAiNarrative
+.natal-ai-sections {
+  width: 100%;
+}
+
+#natalAiNarrative
+.natal-ai-section {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 24px 4px 26px;
+  border-bottom:
+    1px solid
+    rgba(226, 215, 200, 0.82);
+}
+
+#natalAiNarrative
+.natal-ai-section:last-child {
+  border-bottom: 0;
+}
+
+#natalAiNarrative
+.natal-ai-section h4 {
+  position: relative;
+  margin: 0 0 13px;
+  padding-left: 13px;
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+#natalAiNarrative
+.natal-ai-section h4::before {
+  content: "";
+  position: absolute;
+  top: 0.2em;
+  bottom: 0.2em;
+  left: 0;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0.72;
+}
+
+#natalAiNarrative
+.natal-ai-section-summary {
+  max-width: 1080px;
+  margin: 0 0 15px;
+  color: #313b43;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+#natalAiNarrative
+.natal-ai-section-points {
+  max-width: 1080px;
+  display: grid;
+  gap: 9px;
+}
+
+#natalAiNarrative
+.natal-ai-section-point {
+  display: grid;
+  grid-template-columns:
+    126px
+    minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  box-sizing: border-box;
+  padding: 10px 13px;
+  border-left: 3px solid transparent;
+  border-radius: 7px;
+}
+
+#natalAiNarrative
+.natal-ai-section-point b {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 950;
+  line-height: 1.75;
+}
+
+#natalAiNarrative
+.natal-ai-section-point p {
+  margin: 0;
+  color: #313b43;
+  font-size: 14.5px;
+  line-height: 1.78;
+}
+
+#natalAiNarrative
+.natal-ai-section-point.is-advantage {
+  border-left-color:
+    rgba(62, 128, 96, 0.72);
+  background:
+    rgba(238, 248, 242, 0.62);
+}
+
+#natalAiNarrative
+.natal-ai-section-point.is-cost {
+  border-left-color:
+    rgba(178, 126, 58, 0.72);
+  background:
+    rgba(255, 248, 237, 0.68);
+}
+
+#natalAiNarrative
+.natal-ai-section-point.is-advice {
+  border-left-color:
+    rgba(56, 112, 142, 0.7);
+  background:
+    rgba(239, 247, 250, 0.66);
+}
+
+@media (max-width: 640px) {
+  #natalAiNarrative
+  .natal-ai-section-point {
+    grid-template-columns: 1fr;
+    gap: 3px;
+    padding: 9px 10px;
+  }
+}
+
+/* ===== 原局结构化章节 v9：结束 ===== */

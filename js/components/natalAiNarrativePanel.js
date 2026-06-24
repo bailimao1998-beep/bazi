@@ -87,11 +87,24 @@ function renderContinuousReport({
 
       "出生原局综合分析",
     );
-
-  const reportText =
-    resolveReportText(
-      report,
+  const overviewSummary =
+    firstText(
+      report.overview
+        ?.summary,
     );
+
+  const sections =
+    Array.isArray(
+      report.sections,
+    )
+      ? report.sections
+      : [];
+  const legacyReportText =
+    sections.length
+      ? ""
+      : resolveReportText(
+          report,
+        );
 
   return `
     <details
@@ -219,26 +232,178 @@ function renderContinuousReport({
                 headline,
               )}
             </h3>
+            ${
+              overviewSummary
+                ? `
+                  <p
+                    class="
+                      natal-ai-overview-summary
+                    "
+                  >
+                    ${escapeHtml(
+                      overviewSummary,
+                    )}
+                  </p>
+                `
+                : ""
+            }
           </section>
 
           ${
-            reportText
-              ? renderAiText(
-                  reportText,
-                  {
-                    className:
-                      "natal-ai-continuous-text",
-                  },
+            sections.length
+              ? renderStructuredSections(
+                  sections,
                 )
-              : `
-                <p class="muted">
-                  AI没有返回可展示的正文，请重新生成。
-                </p>
-              `
+              : (
+                  legacyReportText
+                    ? renderAiText(
+                        legacyReportText,
+                        {
+                          className:
+                            "natal-ai-continuous-text",
+                        },
+                      )
+                    : `
+                      <p class="muted">
+                        当前报告结构不完整，系统将保留上一次有效报告。
+                      </p>
+                    `
+                )
           }
         </article>
       </div>
     </details>
+  `;
+}
+
+function renderStructuredSections(
+  sections = [],
+) {
+  return `
+    <div
+      class="
+        natal-ai-sections
+      "
+    >
+      ${sections
+        .map(
+          renderStructuredSection,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderStructuredSection(
+  section = {},
+) {
+  const title =
+    firstText(
+      section.title,
+      "领域分析",
+    );
+
+  return `
+    <section
+      class="
+        natal-ai-section
+        natal-ai-section-${escapeHtml(
+          section.key ||
+          "general",
+        )}
+      "
+    >
+      <h4>
+        ${escapeHtml(
+          title,
+        )}
+      </h4>
+
+      ${
+        section.summary
+          ? `
+            <p
+              class="
+                natal-ai-section-summary
+              "
+            >
+              ${escapeHtml(
+                section.summary,
+              )}
+            </p>
+          `
+          : ""
+      }
+
+      <div
+        class="
+          natal-ai-section-points
+        "
+      >
+        ${renderSectionPoint({
+          label:
+            "优势",
+
+          value:
+            section.advantage,
+
+          type:
+            "advantage",
+        })}
+
+        ${renderSectionPoint({
+          label:
+            "容易付出的代价",
+
+          value:
+            section.cost,
+
+          type:
+            "cost",
+        })}
+
+        ${renderSectionPoint({
+          label:
+            "建议",
+
+          value:
+            section.advice,
+
+          type:
+            "advice",
+        })}
+      </div>
+    </section>
+  `;
+}
+
+function renderSectionPoint({
+  label,
+  value,
+  type,
+} = {}) {
+  const text =
+    firstText(value);
+
+  if (!text) {
+    return "";
+  }
+
+  return `
+    <div
+      class="
+        natal-ai-section-point
+        is-${escapeHtml(type)}
+      "
+    >
+      <b>
+        ${escapeHtml(label)}
+      </b>
+
+      <p>
+        ${escapeHtml(text)}
+      </p>
+    </div>
   `;
 }
 

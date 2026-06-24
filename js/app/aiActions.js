@@ -7,6 +7,10 @@ import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260613b";
 import {
   guardNatalAiContent,
 } from "../core/ai/natalAiContentGuard.js";
+import {
+  normalizeNatalAiReport,
+  validateNatalAiReport,
+} from "../core/ai/natalAiReportContract.js";
 
 export function createAiActions({ store, renderBaseOnly }) {
   async function generateNatalAiNarrative() {
@@ -305,11 +309,9 @@ async function requestNatalAiReportWithRetry({
         });
 
       if (
-        validated.structured &&
-        hasRenderableNatalContent(
-          validated.structured,
-        )
-      ) {
+          validated.structured &&
+          validated.valid
+        ) {
         return {
           result,
           validated,
@@ -382,8 +384,10 @@ function buildNatalRetryPrompt(
       "上一轮输出未形成可解析的完整JSON。",
       "这一次必须从左大括号开始，到右大括号结束。",
       "不得使用Markdown代码块，不得在JSON前后添加解释。",
-      "必须完整提供overview.headline和overview.summary。",
-      "overview.summary不得为空，且必须包含完整报告正文。",
+      "必须完整提供overview和sections。",
+      "sections必须包含overall、personality、learning、career、wealth、relationship、family、expression、wellbeing九个固定key。",
+      "每个section必须包含title、summary、advantage、cost、advice和evidenceRefs。",
+      "不得把完整报告重新塞入overview.summary。",
     ].join("\n"),
   };
 }
@@ -505,9 +509,8 @@ function validateNatalAiResult({
     );
 
   const normalized =
-    normalizeNatalDeepAnalysisResult(
+    normalizeNatalAiReport(
       sanitized,
-      warnings,
     );
 
   const guarded =
@@ -522,12 +525,28 @@ function validateNatalAiResult({
   const structured =
     guarded.report;
 
+  const structureValidation =
+    validateNatalAiReport(
+      structured,
+    );
+
+  warnings.push(
+    ...structureValidation
+      .errors
+      .map(
+        (error) =>
+          `invalid_natal_report:${error}`,
+      ),
+  );
   warnings.push(
     ...guarded.warnings,
   );
 
   return {
     structured,
+
+    valid:
+      structureValidation.ok,
 
     warnings:
       uniqueText([

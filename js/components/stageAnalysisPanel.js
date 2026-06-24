@@ -7,6 +7,7 @@ import {
 } from "../core/evidence/evidencePackBuilder.js";
 import { buildLocalNarrative } from "../core/evidence/narrativeBuilder.js";
 import { escapeHtml } from "../utils/html.js";
+import { buildStagePresentationModel } from "../core/transit/buildStagePresentationModel.js";
 
 export function renderStageAnalysisPanel(root, {
   title,
@@ -127,49 +128,203 @@ export function renderAiCollapse({ title, button, helper, state = {}, hasReport 
 }
 
 function renderStageImageCards(report = {}, item = {}, stage = "luck", evidenceContext = {}) {
-  const summary = report.summary?.overview || item.shortImage || item.image || item.structureImage || "当前阶段取象待复核。";
   const relationGroups = buildRelationGroups(item, stage);
-  const evidence = buildEvidenceSignals(report, item, stage);
-  const relationTuples = relationGroups.map((group) => [`${group.title}关系触发`, group.relations]);
-  const evidencePack = buildStageEvidencePack({ report, stage, evidenceContext });
+  const evidencePack = buildStageEvidencePack({
+    report,
+    stage,
+    evidenceContext,
+  });
   const localNarrative = buildLocalNarrative(evidencePack);
+  const model = buildStagePresentationModel({
+    stage,
+    item,
+    report,
+    evidencePack,
+    localNarrative,
+  });
 
   return `
-    <div class="stage-card-grid">
-      ${renderLocalNarrativeCard(localNarrative)}
-      <article class="stage-image-card stage-main-card stage-overview-card">
-        <div class="board-title">
-          <h3>${escapeHtml(stageTitle(stage, item))}</h3>
-          <span>${escapeHtml(item.ganZhi || item.label || "待查")}</span>
-        </div>
-        ${renderStageFacts(item, stage)}
-        <p>${escapeHtml(summary)}</p>
-      </article>
-
-      <div class="stage-detail-grid">
-        ${renderTransitEvidenceCard({
-          title: `${stageLabel(stage)}取象`,
-          marker: stageMarker(item, stage),
-          summary,
-          chips: buildStageChips(item, stage),
-          structure: item.structureImage || item.image,
-          reality: item.reality,
-          boundary: item.boundary,
-          relations: relationTuples,
-          signals: evidence,
-        })}
-        <div class="stage-side-stack">
-          ${renderAdviceCard({
-            stage,
-            item,
-            report,
-            relationGroups,
-          })}
-        </div>
-      </div>
+    <div class="stage-card-grid stage-card-grid-v2">
+      ${renderStageQuickSummary(model)}
+      ${renderStageEvidenceDetails(model, evidencePack)}
+      ${renderAdviceCard({
+        stage,
+        item,
+        report,
+        relationGroups,
+      })}
     </div>
   `;
 }
+
+function renderStageQuickSummary(model = {}) {
+  const contextChain = Array.isArray(model.contextChain) ? model.contextChain : [];
+  const focusDomains = Array.isArray(model.focusDomains) ? model.focusDomains : [];
+  const keyFacts = Array.isArray(model.keyFacts) ? model.keyFacts : [];
+  const advantages = Array.isArray(model.advantages) ? model.advantages : [];
+  const pressures = Array.isArray(model.pressures) ? model.pressures : [];
+  const boundaries = Array.isArray(model.boundaries) ? model.boundaries : [];
+
+  return `
+    <article class="stage-image-card stage-quick-summary">
+      <div class="stage-quick-head">
+        <div>
+          <span>阶段快速判断</span>
+          <h3>${escapeHtml(model.headline || "当前阶段结构待复核。")}</h3>
+        </div>
+        <strong>${escapeHtml(
+          [
+            model.target?.label,
+            model.target?.ganZhi,
+          ].filter(Boolean).join(" · ") || "待查",
+        )}</strong>
+      </div>
+
+      <div class="stage-context-chain">
+        ${contextChain.map((entry) => `
+          <span>
+            <b>${escapeHtml(entry.label || "")}</b>
+            ${escapeHtml(entry.value || "待复核")}
+          </span>
+        `).join("")}
+      </div>
+
+      <section class="stage-focus-section">
+        <h4>重点领域</h4>
+        <div class="stage-focus-domains">
+          ${focusDomains.length
+            ? focusDomains.map((entry) => `
+                <span>
+                  <b>${escapeHtml(entry.label)}</b>
+                  <small>${escapeHtml(entry.reason || "由当前证据排序")}</small>
+                </span>
+              `).join("")
+            : `<span><b>暂无明显集中领域</b><small>先结合现实反馈复核</small></span>`
+          }
+        </div>
+      </section>
+
+      <section class="stage-key-facts">
+        <h4>关键事实</h4>
+        <ol>
+          ${keyFacts.length
+            ? keyFacts.map((fact) => `
+                <li>
+                  <b>${escapeHtml(fact.label || "阶段事实")}</b>
+                  <span>${escapeHtml(fact.text || "")}</span>
+                  <small>${escapeHtml(fact.source || "")}</small>
+                </li>
+              `).join("")
+            : `<li><span>当前证据较少，先保留观察。</span></li>`
+          }
+        </ol>
+      </section>
+
+      <div class="stage-balance-grid">
+        <section class="stage-advantages">
+          <h4>可利用的力量</h4>
+          <ul>
+            ${advantages.length
+              ? advantages.map((entry) => `<li>${escapeHtml(entry.text)}</li>`).join("")
+              : `<li>暂无稳定优势结论，先观察现实承接。</li>`
+            }
+          </ul>
+        </section>
+
+        <section class="stage-pressures">
+          <h4>需要留意的压力</h4>
+          <ul>
+            ${pressures.length
+              ? pressures.map((entry) => `<li>${escapeHtml(entry.text)}</li>`).join("")
+              : `<li>暂无明显关系压力，仍需结合现实反馈。</li>`
+            }
+          </ul>
+        </section>
+      </div>
+
+      <section class="stage-boundaries">
+        <h4>判断边界</h4>
+        <ul>
+          ${boundaries.length
+            ? boundaries.map((entry) => `<li>${escapeHtml(entry.text)}</li>`).join("")
+            : `<li>阶段取象只提示结构方向，不直接等同具体事件。</li>`
+          }
+        </ul>
+      </section>
+    </article>
+  `;
+}
+
+function renderStageEvidenceDetails(model = {}, evidencePack = {}) {
+  const hits = Array.isArray(evidencePack?.hits) ? evidencePack.hits : [];
+  const relations = Array.isArray(evidencePack?.relations) ? evidencePack.relations : [];
+  const explanations = evidencePack?.explanations ?? {};
+  const conditions = Array.isArray(explanations.conditions) ? explanations.conditions : [];
+  const counterEvidence = Array.isArray(explanations.counterEvidence) ? explanations.counterEvidence : [];
+  const realityImages = Array.isArray(explanations.realityImages) ? explanations.realityImages : [];
+
+  return `
+    <details class="stage-evidence-details">
+      <summary>
+        <span>详细证据与复核</span>
+        <b>十神 / 关系 / 成立条件 / 反证</b>
+      </summary>
+
+      <div class="stage-evidence-details-body">
+        <section>
+          <h4>十神命中</h4>
+          ${hits.length
+            ? `<ul>${hits.map((hit) => `
+                <li>
+                  <b>${escapeHtml(hit.source || "十神命中")}：${escapeHtml(hit.label || "待查")}</b>
+                  <span>${escapeHtml(hit.bookExplanation || hit.masterTalk || "")}</span>
+                  <code>${escapeHtml(hit.id || "")}</code>
+                </li>
+              `).join("")}</ul>`
+            : `<p>暂无十神证据。</p>`
+          }
+        </section>
+
+        <section>
+          <h4>关系触发</h4>
+          ${relations.length
+            ? `<ul>${relations.map((relation) => `
+                <li>
+                  <b>${escapeHtml(relation.source || "关系触发")}：${escapeHtml(relation.label || "待查")}</b>
+                  <span>${escapeHtml(relation.description || relation.bookExplanation || "")}</span>
+                  <code>${escapeHtml(relation.id || "")}</code>
+                </li>
+              `).join("")}</ul>`
+            : `<p>暂未命中冲、合、刑、害、破。</p>`
+          }
+        </section>
+
+        ${renderEvidenceTextGroup("成立条件", conditions)}
+        ${renderEvidenceTextGroup("反证", counterEvidence)}
+        ${renderEvidenceTextGroup("现实取象", realityImages)}
+      </div>
+    </details>
+  `;
+}
+
+function renderEvidenceTextGroup(title, items = []) {
+  const visible = [...new Set(
+    (Array.isArray(items) ? items : [])
+      .map((item) => String(item || "").trim())
+      .filter(Boolean),
+  )].slice(0, 6);
+
+  return `
+    <section>
+      <h4>${escapeHtml(title)}</h4>
+      ${visible.length
+        ? `<ul>${visible.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+        : `<p>暂无明确内容。</p>`
+      }
+    </section>
+  `;
+}
+
 
 function buildStageEvidencePack({ report, stage, evidenceContext = {} }) {
   if (stage === "luck") return buildLuckEvidencePack({

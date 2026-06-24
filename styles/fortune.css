@@ -1852,22 +1852,132 @@
   }
 }
 
+/* ===== 岁运选择区宽度与滚动修复 v13：开始 ===== */
+
+/*
+ * 去掉为了“居中首尾卡片”而加入的半屏内边距。
+ * 宽屏尽量铺满，空间不足时再横向滚动。
+ */
+
+.transit-selector-shell,
+.transit-selector-board,
+.transit-selector-row,
 .transit-card-list {
-  scroll-behavior: smooth;
-
-  /*
-   * 让第一、第二张和最后几张
-   * 也拥有真正居中的滚动空间。
-   */
-  padding-inline:
-    max(
-      10px,
-      calc(50% - 100px)
-    );
-
-  scroll-padding-inline:
-    max(
-      10px,
-      calc(50% - 100px)
-    );
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
+
+.transit-card-list {
+  width: 100%;
+  padding:
+    1px
+    2px
+    7px !important;
+  scroll-padding-inline:
+    8px !important;
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(47, 111, 115, 0.35)
+    transparent;
+  overscroll-behavior-x: contain;
+}
+
+.transit-card-list::-webkit-scrollbar {
+  height: 7px;
+}
+
+.transit-card-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.transit-card-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background:
+    rgba(47, 111, 115, 0.28);
+}
+
+.transit-card-list::-webkit-scrollbar-thumb:hover {
+  background:
+    rgba(47, 111, 115, 0.46);
+}
+
+/*
+ * 桌面端压缩最小卡片宽度：
+ * 能完整排下时铺满，排不下时保持横向滚动。
+ */
+.transit-select-card.is-luck-card {
+  flex:
+    1
+    0
+    132px;
+}
+
+.transit-select-card.is-year-card {
+  flex:
+    1
+    0
+    104px;
+}
+
+.transit-select-card.is-month-card {
+  flex:
+    1
+    0
+    132px;
+}
+
+@media (max-width: 900px) {
+  .transit-select-card.is-luck-card {
+    flex:
+      0
+      0
+      132px;
+  }
+
+  .transit-select-card.is-year-card {
+    flex:
+      0
+      0
+      110px;
+  }
+
+  .transit-select-card.is-month-card {
+    flex:
+      0
+      0
+      140px;
+  }
+}
+
+@media (max-width: 600px) {
+  .transit-card-list {
+    padding:
+      1px
+      1px
+      7px !important;
+  }
+
+  .transit-select-card.is-luck-card {
+    flex:
+      0
+      0
+      124px;
+  }
+
+  .transit-select-card.is-year-card {
+    flex:
+      0
+      0
+      104px;
+  }
+
+  .transit-select-card.is-month-card {
+    flex:
+      0
+      0
+      136px;
+  }
+}
+
+/* ===== 岁运选择区宽度与滚动修复 v13：结束 ===== */

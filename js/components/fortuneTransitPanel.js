@@ -138,13 +138,46 @@ function revealActiveTransitCards(
                 return;
               }
 
-              const targetLeft =
-                activeCard.offsetLeft -
-                (
-                  list.clientWidth -
-                  activeCard.offsetWidth
-                ) /
-                  2;
+              const inset =
+                10;
+
+              const viewLeft =
+                list.scrollLeft;
+
+              const viewRight =
+                viewLeft +
+                list.clientWidth;
+
+              const cardLeft =
+                activeCard.offsetLeft;
+
+              const cardRight =
+                cardLeft +
+                activeCard.offsetWidth;
+
+              let targetLeft =
+                viewLeft;
+
+              /*
+               * 只在当前卡片超出可见范围时移动。
+               * 不再强制把卡片居中，避免整排内容左右跳动。
+               */
+              if (
+                cardLeft <
+                viewLeft + inset
+              ) {
+                targetLeft =
+                  cardLeft -
+                  inset;
+              } else if (
+                cardRight >
+                viewRight - inset
+              ) {
+                targetLeft =
+                  cardRight -
+                  list.clientWidth +
+                  inset;
+              }
 
               const maxLeft =
                 Math.max(
@@ -153,15 +186,27 @@ function revealActiveTransitCards(
                     list.clientWidth,
                 );
 
+              const safeLeft =
+                Math.min(
+                  maxLeft,
+                  Math.max(
+                    0,
+                    targetLeft,
+                  ),
+                );
+
+              if (
+                Math.abs(
+                  safeLeft -
+                  viewLeft,
+                ) < 2
+              ) {
+                return;
+              }
+
               list.scrollTo({
                 left:
-                  Math.min(
-                    maxLeft,
-                    Math.max(
-                      0,
-                      targetLeft,
-                    ),
-                  ),
+                  safeLeft,
 
                 behavior:
                   "smooth",

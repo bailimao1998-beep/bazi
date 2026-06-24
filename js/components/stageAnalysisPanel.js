@@ -147,6 +147,7 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck", evidenceC
   return `
     <div class="stage-card-grid stage-card-grid-v2">
       ${renderStageQuickSummary(model)}
+      ${renderStageDomainScan(item?.domainSignals)}
       ${renderStageEvidenceDetails(model, evidencePack)}
     </div>
   `;
@@ -464,6 +465,261 @@ function renderStageTriggeredImages(triggeredImages = {}) {
     </section>
   `;
 }
+
+
+function renderStageDomainScan(domainSignals = null) {
+  const domains = Array.isArray(domainSignals?.domains)
+    ? [...domainSignals.domains]
+    : [];
+
+  if (!domains.length) {
+    return "";
+  }
+
+  const checkedCount = Number(
+    domainSignals?.checkedDomainCount ??
+    domains.length,
+  ) || domains.length;
+
+  const triggeredCount = Number(
+    domainSignals?.triggeredDomainCount ??
+    domains.filter((entry) => Number(entry?.score || 0) > 0).length,
+  ) || 0;
+
+  const orderedDomains = domains.sort((left, right) =>
+    domainRoleWeight(left?.role) -
+      domainRoleWeight(right?.role) ||
+    Number(right?.score || 0) -
+      Number(left?.score || 0) ||
+    String(left?.label || "").localeCompare(
+      String(right?.label || ""),
+      "zh-CN",
+    ),
+  );
+
+  return `
+    <article class="stage-image-card stage-domain-scan">
+      <header class="stage-domain-scan-head">
+        <div>
+          <span>本地规则扫描</span>
+          <h3>十二领域扫描</h3>
+          <p>
+            已检查 ${checkedCount} 个领域，当前有 ${triggeredCount} 个领域出现不同强度的信号。
+            分数表示被岁运触发的强度，不代表吉凶。
+          </p>
+        </div>
+
+        <strong>${triggeredCount} / ${checkedCount}</strong>
+      </header>
+
+      <div class="stage-domain-scan-list">
+        ${orderedDomains
+          .map(renderStageDomainRow)
+          .join("")}
+      </div>
+
+      <footer class="stage-domain-scan-foot">
+        主线用于正文重点展开，副线和提示用于防止遗漏；
+        “未见强触发”只表示当前规则证据较弱，不等于现实中一定没有事情。
+      </footer>
+    </article>
+  `;
+}
+
+function renderStageDomainRow(entry = {}) {
+  const score = clampDomainScore(entry?.score);
+  const role = String(entry?.role || (
+    score > 0
+      ? "background"
+      : "quiet"
+  ));
+  const roleLabel = domainRoleLabel(role);
+  const polarity = String(
+    entry?.polaritySummary ||
+    (score > 0 ? "mixed" : "quiet"),
+  );
+  const polarityLabel = domainPolarityLabel(polarity);
+  const label = String(entry?.label || "待复核领域");
+  const summary = cleanDomainSummary(
+    entry?.summary,
+    label,
+    score,
+  );
+  const groups = buildDomainEvidenceGroups(entry);
+  const expandable = role !== "quiet" && groups.length > 0;
+
+  const rowContent = `
+    <div class="stage-domain-row-main">
+      <span class="stage-domain-name">${escapeHtml(label)}</span>
+      <em class="is-${escapeHtml(role)}">${escapeHtml(roleLabel)}</em>
+      <small class="is-${escapeHtml(polarity)}">${escapeHtml(polarityLabel)}</small>
+    </div>
+
+    <div class="stage-domain-score" aria-label="${escapeHtml(label)}触发度${score}">
+      <b>${score}</b>
+      <span>
+        <i style="width: ${score}%"></i>
+      </span>
+    </div>
+
+    <p>${escapeHtml(summary)}</p>
+  `;
+
+  if (!expandable) {
+    return `
+      <div class="stage-domain-row stage-domain-row-static is-${escapeHtml(role)}">
+        ${rowContent}
+      </div>
+    `;
+  }
+
+  return `
+    <details class="stage-domain-row is-${escapeHtml(role)}">
+      <summary>
+        ${rowContent}
+        <span class="stage-domain-expand">查看依据</span>
+      </summary>
+
+      <div class="stage-domain-evidence">
+        ${groups
+          .map(([title, items]) => `
+            <section>
+              <h4>${escapeHtml(title)}</h4>
+              <ul>
+                ${items
+                  .map((item) => `<li>${escapeHtml(item)}</li>`)
+                  .join("")}
+              </ul>
+            </section>
+          `)
+          .join("")}
+      </div>
+    </details>
+  `;
+}
+
+function buildDomainEvidenceGroups(entry = {}) {
+  const groups = [
+    [
+      "直接触发",
+      uniqueDomainEvidence([
+        ...(Array.isArray(entry?.directFacts)
+          ? entry.directFacts
+          : []),
+        ...(Array.isArray(entry?.palaceTriggers)
+          ? entry.palaceTriggers
+          : []),
+      ], 4),
+    ],
+    [
+      "结构与支持",
+      uniqueDomainEvidence(
+        entry?.supportingFacts,
+        4,
+      ),
+    ],
+    [
+      "藏干与辅助",
+      uniqueDomainEvidence([
+        ...(Array.isArray(entry?.hiddenStemSignals)
+          ? entry.hiddenStemSignals
+          : []),
+        ...(Array.isArray(entry?.auxiliarySignals)
+          ? entry.auxiliarySignals
+          : []),
+      ], 4),
+    ],
+    [
+      "压力与反证",
+      uniqueDomainEvidence(
+        entry?.counterFacts,
+        4,
+      ),
+    ],
+  ];
+
+  return groups.filter(([, items]) => items.length);
+}
+
+function uniqueDomainEvidence(values = [], limit = 4) {
+  const texts = (Array.isArray(values) ? values : [])
+    .map((item) =>
+      typeof item === "string"
+        ? item
+        : item?.text,
+    )
+    .map((value) =>
+      String(value || "")
+        .replace(/\s+/g, " ")
+        .trim(),
+    )
+    .filter(Boolean);
+
+  return [...new Set(texts)].slice(0, limit);
+}
+
+function cleanDomainSummary(value, label, score) {
+  const normalized = String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(
+      new RegExp(
+        `^${escapeRegExp(label)}触发分${score}[，,：:]?\\s*`,
+      ),
+      "",
+    );
+
+  if (normalized) {
+    return normalized;
+  }
+
+  return score > 0
+    ? "当前存在不同强度的结构或辅助信号，需结合展开依据和现实反馈判断具体落点。"
+    : "已完成扫描，当前未见进入主线的强直接触发。";
+}
+
+function domainRoleWeight(role) {
+  return {
+    primary: 0,
+    secondary: 1,
+    background: 2,
+    quiet: 3,
+  }[String(role || "")] ?? 4;
+}
+
+function domainRoleLabel(role) {
+  return {
+    primary: "主线",
+    secondary: "副线",
+    background: "提示",
+    quiet: "未见强触发",
+  }[String(role || "")] ?? "提示";
+}
+
+function domainPolarityLabel(polarity) {
+  return {
+    supportive: "支持偏多",
+    pressure: "压力偏多",
+    mixed: "机会与压力并存",
+    quiet: "当前信号较弱",
+  }[String(polarity || "")] ?? "方向待复核";
+}
+
+function clampDomainScore(value) {
+  return Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(Number(value) || 0),
+    ),
+  );
+}
+
+function escapeRegExp(value) {
+  return String(value || "")
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 
 function renderStageEvidenceDetails(
   model = {},

@@ -76,7 +76,7 @@ export function buildMonthAiPrompt(
       JSON.stringify(
         {
           任务:
-            "生成结构化流月报告。以两个最强主题为主，第三主题只有明显独立证据时才保留；不得自行划分月初、月中或月末。",
+            "生成结构化流月报告。可靠性优先并保持精简，只保留一至两个最直接的短期触发；每个主题可给一至两种短期表现，重点讲本月如何执行和调整，不得扩写长期人生结论，也不得自行划分月初、月中或月末。",
           资料:
             promptSource,
         },
@@ -92,6 +92,6 @@ export function buildMonthAiPrompt(
         .factIds,
 
     maxTokens:
-      3400,
+      3300,
   };
 }

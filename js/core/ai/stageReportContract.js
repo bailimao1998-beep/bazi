@@ -2,26 +2,122 @@ const STAGE_CONFIG = {
   luck: {
     heading:
       "十年总断",
+    themeHeading:
+      "十年主要结构",
     minThemes:
       2,
     maxThemes:
+      4,
+    summaryMax:
+      520,
+    judgmentMax:
+      220,
+    primaryStoryMax:
+      620,
+    minorStoryMax:
+      360,
+    possibilityLimit:
+      4,
+    possibilityTextMax:
+      180,
+    alternativeMax:
+      220,
+    highEvidenceLimit:
+      4,
+    normalEvidenceLimit:
       3,
+    advicePerTheme:
+      2,
+    minorAdviceLimit:
+      1,
+    opportunityLimit:
+      4,
+    riskLimit:
+      4,
+    actionLimit:
+      4,
+    verificationLimit:
+      4,
   },
   year: {
     heading:
       "今年总断",
+    themeHeading:
+      "年度重点",
     minThemes:
       2,
     maxThemes:
+      3,
+    summaryMax:
+      360,
+    judgmentMax:
+      190,
+    primaryStoryMax:
+      430,
+    minorStoryMax:
+      270,
+    possibilityLimit:
+      3,
+    possibilityTextMax:
+      160,
+    alternativeMax:
+      180,
+    highEvidenceLimit:
+      3,
+    normalEvidenceLimit:
+      2,
+    advicePerTheme:
+      2,
+    minorAdviceLimit:
+      1,
+    opportunityLimit:
+      3,
+    riskLimit:
+      3,
+    actionLimit:
+      3,
+    verificationLimit:
       3,
   },
   month: {
     heading:
       "本月总断",
+    themeHeading:
+      "本月触发",
     minThemes:
-      2,
+      1,
     maxThemes:
+      2,
+    summaryMax:
+      240,
+    judgmentMax:
+      160,
+    primaryStoryMax:
+      300,
+    minorStoryMax:
+      200,
+    possibilityLimit:
+      2,
+    possibilityTextMax:
+      130,
+    alternativeMax:
+      130,
+    highEvidenceLimit:
       3,
+    normalEvidenceLimit:
+      2,
+    advicePerTheme:
+      2,
+    minorAdviceLimit:
+      1,
+    opportunityLimit:
+      2,
+    riskLimit:
+      2,
+    actionLimit:
+      2,
+    verificationLimit:
+      2,
   },
 };
 
@@ -171,6 +267,22 @@ export function validateStageReportContract({
       verifiedFacts,
     );
 
+  const availableDomainIds =
+    new Set(
+      array(
+        verifiedFacts,
+      )
+        .flatMap(
+          (fact) =>
+            array(
+              fact
+                ?.meta
+                ?.domains,
+            ),
+        )
+        .filter(Boolean),
+    );
+
   const titleSet =
     new Set();
 
@@ -279,11 +391,25 @@ export function validateStageReportContract({
         );
       }
 
+      if (
+        array(
+          theme?.possibilities,
+        ).length >
+        config.possibilityLimit
+      ) {
+        warnings.push(
+          `${prefix}:too_many_possibilities`,
+        );
+      }
+
       const authoredText = [
         theme?.title,
         theme?.judgment,
         theme?.story,
         theme?.alternative,
+        ...array(
+          theme?.possibilities,
+        ),
         ...array(
           theme?.advice,
         ),
@@ -312,18 +438,69 @@ export function validateStageReportContract({
         specificity.termCount >= 4 ||
         specificity.categoryCount >= 3
       ) {
-        errors.push(
+        warnings.push(
           `${prefix}:over_specific_scene_enumeration`,
         );
       }
 
-      const evidenceTexts =
+      const evidenceFacts =
         evidenceIds
           .map(
             (id) =>
-              factMap.get(id)?.text || "",
+              factMap.get(id),
           )
           .filter(Boolean);
+
+      const evidenceTexts =
+        evidenceFacts
+          .map(
+            (fact) =>
+              fact?.text ||
+              "",
+          )
+          .filter(Boolean);
+
+      validateTechnicalTokenCoverage({
+        authoredText,
+        evidenceTexts,
+      }).forEach(
+        (code) =>
+          errors.push(
+            `${prefix}:${code}`,
+          ),
+      );
+
+      validateBranchRelationTokenCoverage({
+        authoredText,
+        evidenceTexts,
+      }).forEach(
+        (code) =>
+          errors.push(
+            `${prefix}:${code}`,
+          ),
+      );
+
+      validateNegativeTechnicalClaims({
+        authoredText,
+        evidenceTexts,
+      }).forEach(
+        (code) =>
+          errors.push(
+            `${prefix}:${code}`,
+          ),
+      );
+
+      validateThemeDomainBinding({
+        domainId:
+          theme?.domainId,
+        evidenceFacts,
+        availableDomainIds,
+      }).forEach(
+        (code) =>
+          errors.push(
+            `${prefix}:${code}`,
+          ),
+      );
 
       if (
         evidenceTexts.some(
@@ -349,18 +526,43 @@ export function validateStageReportContract({
           ),
       );
 
+      validateInterpretiveOverreach(
+        authoredText,
+      ).forEach(
+        (code) =>
+          warnings.push(
+            `${prefix}:${code}`,
+          ),
+      );
+
       if (
         hasLifeStageMismatch(
           authoredText,
           lifeContext,
         )
       ) {
-        errors.push(
+        warnings.push(
           `${prefix}:life_stage_scene_mismatch`,
         );
       }
     },
   );
+
+  const allEvidenceTexts =
+    array(
+      verifiedFacts,
+    )
+      .filter(
+        (fact) =>
+          fact?.evidenceEligible !==
+          false,
+      )
+      .map(
+        (fact) =>
+          fact?.text ||
+          "",
+      )
+      .filter(Boolean);
 
   const summaryAndLists = [
     report?.summary,
@@ -382,13 +584,46 @@ export function validateStageReportContract({
     )
     .join("\n");
 
+  validateTechnicalClaims({
+    authoredText:
+      summaryAndLists,
+    evidenceTexts:
+      allEvidenceTexts,
+  }).forEach(
+    (code) =>
+      errors.push(
+        `top_level:${code}`,
+      ),
+  );
+
+  validateNegativeTechnicalClaims({
+    authoredText:
+      summaryAndLists,
+    evidenceTexts:
+      allEvidenceTexts,
+  }).forEach(
+    (code) =>
+      errors.push(
+        `top_level:${code}`,
+      ),
+  );
+
+  validateInterpretiveOverreach(
+    summaryAndLists,
+  ).forEach(
+    (code) =>
+      warnings.push(
+        `top_level:${code}`,
+      ),
+  );
+
   if (
     hasLifeStageMismatch(
       summaryAndLists,
       lifeContext,
     )
   ) {
-    errors.push(
+    warnings.push(
       "top_level_life_stage_scene_mismatch",
     );
   }
@@ -453,13 +688,43 @@ export function renderStageReport({
       verifiedFacts,
     );
 
+  const allFactTexts =
+    array(
+      verifiedFacts,
+    )
+      .map(
+        (fact) =>
+          fact?.text ||
+          "",
+      )
+      .filter(Boolean);
+
   const themes =
     array(
       report?.themes,
-    ).slice(
-      0,
-      config.maxThemes,
-    );
+    )
+      .filter(
+        (theme) =>
+          text(
+            theme?.title,
+          ) &&
+          text(
+            theme?.judgment,
+          ).length >=
+            8 &&
+          text(
+            theme?.story,
+          ).length >=
+            20 &&
+          array(
+            theme?.evidenceIds,
+          ).length >
+            0,
+      )
+      .slice(
+        0,
+        config.maxThemes,
+      );
 
   const lines = [
     `### ${config.heading}`,
@@ -467,15 +732,15 @@ export function renderStageReport({
       value:
         compactParagraph(
           report?.summary,
-          300,
+          config.summaryMax,
         ),
       evidenceTexts:
-        [],
+        allFactTexts,
       lifeContext,
       stage,
     }),
     "",
-    "### 主要主题",
+    `### ${config.themeHeading}`,
   ];
 
   themes.forEach(
@@ -485,7 +750,10 @@ export function renderStageReport({
     ) => {
       const isLastMinor =
         index ===
-          2 &&
+          themes.length -
+          1 &&
+        index >
+          0 &&
         theme
           ?.importance !==
           "高";
@@ -523,7 +791,7 @@ export function renderStageReport({
           value:
             compactParagraph(
               theme?.judgment,
-              180,
+              config.judgmentMax,
             ),
           evidenceTexts:
             themeEvidenceTexts,
@@ -537,14 +805,24 @@ export function renderStageReport({
             compactParagraph(
               theme?.story,
               isLastMinor
-                ? 210
-                : 360,
+                ? config.minorStoryMax
+                : config.primaryStoryMax,
             ),
           evidenceTexts:
             themeEvidenceTexts,
           lifeContext,
           stage,
         });
+
+      if (
+        !safeTitle ||
+        !safeJudgment ||
+        !safeStory ||
+        themeEvidenceTexts.length ===
+          0
+      ) {
+        return;
+      }
 
       lines.push(
         "",
@@ -553,6 +831,53 @@ export function renderStageReport({
         "",
         `**现实剧本：**${safeStory}`,
       );
+
+      const possibilities =
+        unique(
+          array(
+            theme?.possibilities,
+          )
+            .map(
+              text,
+            )
+            .filter(Boolean),
+        )
+          .slice(
+            0,
+            config.possibilityLimit,
+          )
+          .map(
+            (item) =>
+              sanitizeRenderedText({
+                value:
+                  compactParagraph(
+                    item,
+                    config.possibilityTextMax,
+                  ),
+                evidenceTexts:
+                  themeEvidenceTexts,
+                lifeContext,
+                stage,
+              }),
+          )
+          .filter(Boolean);
+
+      if (
+        possibilities.length >
+        0
+      ) {
+        lines.push(
+          "",
+          "**可能表现：**",
+          ...possibilities.map(
+            (
+              item,
+              possibilityIndex,
+            ) =>
+              `${possibilityIndex + 1}. ${item}`,
+          ),
+        );
+      }
 
       if (
         text(
@@ -567,7 +892,7 @@ export function renderStageReport({
             value:
               compactParagraph(
                 theme.alternative,
-                160,
+                config.alternativeMax,
               ),
             evidenceTexts:
               themeEvidenceTexts,
@@ -600,8 +925,8 @@ export function renderStageReport({
             theme
               ?.importance ===
               "高"
-              ? 3
-              : 2,
+              ? config.highEvidenceLimit
+              : config.normalEvidenceLimit,
           );
 
       if (
@@ -634,8 +959,8 @@ export function renderStageReport({
           .slice(
             0,
             isLastMinor
-              ? 1
-              : 2,
+              ? config.minorAdviceLimit
+              : config.advicePerTheme,
           );
 
       if (
@@ -677,13 +1002,13 @@ export function renderStageReport({
             value:
               item,
             evidenceTexts:
-              [],
+              allFactTexts,
             lifeContext,
             stage,
           }),
       ),
-      3,
-      130,
+      config.opportunityLimit,
+      150,
     );
 
   const risks =
@@ -696,13 +1021,13 @@ export function renderStageReport({
             value:
               item,
             evidenceTexts:
-              [],
+              allFactTexts,
             lifeContext,
             stage,
           }),
       ),
-      3,
-      130,
+      config.riskLimit,
+      150,
     );
 
   if (
@@ -750,13 +1075,13 @@ export function renderStageReport({
             value:
               item,
             evidenceTexts:
-              [],
+              allFactTexts,
             lifeContext,
             stage,
           }),
       ),
-      3,
-      130,
+      config.actionLimit,
+      150,
     );
 
   if (
@@ -785,13 +1110,13 @@ export function renderStageReport({
             value:
               item,
             evidenceTexts:
-              [],
+              allFactTexts,
             lifeContext,
             stage,
           }),
       ),
-      3,
-      160,
+      config.verificationLimit,
+      180,
     );
 
   if (
@@ -959,6 +1284,13 @@ function normalizeTheme(
   stage,
 ) {
   return {
+    domainId:
+      text(
+        source?.领域编号 ||
+        source?.domainId ||
+        source?.domain,
+      ),
+
     title:
       sanitizeAuthorText(
         source?.标题 ||
@@ -990,6 +1322,20 @@ function normalizeTheme(
         source?.剧本 ||
         source?.story,
         stage,
+      ),
+
+    possibilities:
+      normalizeStringArray(
+        source?.可能表现 ||
+        source?.现实可能 ||
+        source?.possibleManifestations ||
+        source?.possibilities,
+      ).map(
+        (item) =>
+          sanitizeAuthorText(
+            item,
+            stage,
+          ),
       ),
 
     alternative:
@@ -1174,6 +1520,9 @@ function repeatedLineCount(
         theme?.story,
         theme?.alternative,
         ...array(
+          theme?.possibilities,
+        ),
+        ...array(
           theme?.advice,
         ),
       ],
@@ -1282,6 +1631,22 @@ function translateValidationError(
 
   if (
     value.includes(
+      "unsupported_hidden_tengod",
+    )
+  ) {
+    return "不得把某层地支藏干写成事实中不存在的十神组合，例如亥中没有官印就不能写大运地支藏官印";
+  }
+
+  if (
+    value.includes(
+      "unsupported_dark_combine",
+    )
+  ) {
+    return "只有确定事实明确存在暗合时才能使用暗合，不能把六合、藏财或其他关系改写成暗合财星";
+  }
+
+  if (
+    value.includes(
       "unsupported_fuyin_claim",
     )
   ) {
@@ -1334,6 +1699,69 @@ function translateValidationError(
     )
   ) {
     return "现实剧本必须符合当前年龄和人生阶段；工作、考试、晋升等只可作为有现实条件时的简短分支";
+  }
+
+  if (
+    value.includes(
+      "unbound_tengod"
+    ) ||
+    value.includes(
+      "unbound_layer_tengod"
+    )
+  ) {
+    return "正文出现的每个十神及其所属层级，都必须出现在本主题自己的依据编号中";
+  }
+
+  if (
+    value.includes(
+      "unbound_tengod_relation",
+    )
+  ) {
+    return "写食神制官、食神生财等十神关系时，必须同时引用双方十神事实和明确关系事实";
+  }
+
+  if (
+    value.includes(
+      "unbound_branch_relation",
+    )
+  ) {
+    return "正文写六合、三合、三会、冲刑害破或同支重复时，本主题自己的依据必须包含同一种关系事实";
+  }
+
+  if (
+    value.includes(
+      "unsupported_negative_relation"
+    ) ||
+    value.includes(
+      "unsupported_negative_opportunity"
+    ) ||
+    value.includes(
+      "unsupported_trigger_requirement"
+    )
+  ) {
+    return "不得自行判断没有冲合、机会偏弱或必须等待引动；没有明确否定事实时改写为当前依据不足";
+  }
+
+  if (
+    value.includes(
+      "missing_domain_id"
+    ) ||
+    value.includes(
+      "unknown_domain_id"
+    ) ||
+    value.includes(
+      "domain_without_evidence"
+    )
+  ) {
+    return "每个主题必须选择资料中的领域编号，并至少引用一条属于该领域的事实";
+  }
+
+  if (
+    value.includes(
+      "unsupported_tengod_strength",
+    )
+  ) {
+    return "不得自行把十神写成过旺、偏旺或过弱，除非确定事实已经给出强弱判断";
   }
 
   if (
@@ -1527,6 +1955,33 @@ function sanitizeAuthorText(
         );
   }
 
+  output =
+    output
+      .replace(
+        /本本月/g,
+        "本月",
+      )
+      .replace(
+        /此此运/g,
+        "此运",
+      )
+      .replace(
+        /本月过程中本月过程中/g,
+        "本月过程中",
+      )
+      .replace(
+        /本年过程中本年过程中/g,
+        "本年过程中",
+      )
+      .replace(
+        /[。！；]+？/g,
+        "？",
+      )
+      .replace(
+        /？？+/g,
+        "？",
+      );
+
   return output
     .replace(
       /\s+([，。；：！？])/g,
@@ -1537,6 +1992,770 @@ function sanitizeAuthorText(
       "$1",
     )
     .trim();
+}
+
+function validateLayerHiddenTenGodClaims({
+  authoredText,
+  evidenceTexts,
+} = {}) {
+  const errors = [];
+
+  const layerNames = [
+    "大运",
+    "流年",
+    "流月",
+  ];
+
+  const tenGodNames = [
+    "食神",
+    "伤官",
+    "正官",
+    "七杀",
+    "正印",
+    "偏印",
+    "正财",
+    "偏财",
+    "比肩",
+    "劫财",
+  ];
+
+  layerNames.forEach(
+    (layerName) => {
+      const layerHiddenFacts =
+        array(
+          evidenceTexts,
+        ).filter(
+          (value) =>
+            value.includes(
+              `${layerName}地支`,
+            ) &&
+            /藏干为|藏有/.test(
+              value,
+            ),
+        );
+
+      if (
+        layerHiddenFacts.length ===
+          0
+      ) {
+        return;
+      }
+
+      splitSentences(
+        authoredText,
+      )
+        .filter(
+          (sentence) =>
+            sentence.includes(
+              layerName,
+            ) &&
+            /地支|藏支|藏干|暗藏/.test(
+              sentence,
+            ),
+        )
+        .forEach(
+          (sentence) => {
+            const claimed =
+              tenGodNames.filter(
+                (name) =>
+                  sentence.includes(
+                    name,
+                  ),
+              );
+
+            claimed.forEach(
+              (name) => {
+                const supported =
+                  layerHiddenFacts.some(
+                    (fact) =>
+                      fact.includes(
+                        name,
+                      ),
+                  );
+
+                if (
+                  !supported
+                ) {
+                  errors.push(
+                    `unsupported_hidden_tengod:${layerName}:${name}`,
+                  );
+                }
+              },
+            );
+
+            if (
+              /官印/.test(
+                sentence,
+              ) &&
+              !layerHiddenFacts.some(
+                (fact) =>
+                  /正官|七杀/.test(
+                    fact,
+                  ) &&
+                  /正印|偏印/.test(
+                    fact,
+                  ),
+              )
+            ) {
+              errors.push(
+                `unsupported_hidden_tengod:${layerName}:官印`,
+              );
+            }
+          },
+        );
+    },
+  );
+
+  return unique(
+    errors,
+  );
+}
+
+function validateInterpretiveOverreach(
+  value,
+) {
+  const warnings = [];
+  const textValue =
+    text(
+      value,
+    );
+
+  if (
+    /正官[^。；]{0,12}贵人/.test(
+      textValue,
+    )
+  ) {
+    warnings.push(
+      "stereotype_official_as_benefactor",
+    );
+  }
+
+  if (
+    /保护公平竞争|公平竞争|结果倾向于公平/.test(
+      textValue,
+    )
+  ) {
+    warnings.push(
+      "unsupported_fairness_conclusion",
+    );
+  }
+
+  if (
+    /食神[^。；]{0,12}内在思考|食神为内在思考/.test(
+      textValue,
+    )
+  ) {
+    warnings.push(
+      "misframed_food_god_as_inner_thought",
+    );
+  }
+
+  if (
+    /食神好逸/.test(
+      textValue,
+    )
+  ) {
+    warnings.push(
+      "stereotype_food_god_as_laziness",
+    );
+  }
+
+  return warnings;
+}
+
+function validateTechnicalTokenCoverage({
+  authoredText,
+  evidenceTexts,
+} = {}) {
+  const errors = [];
+
+  const textValue =
+    text(
+      authoredText,
+    );
+
+  const facts =
+    array(
+      evidenceTexts,
+    );
+
+  const tenGodNames = [
+    "食神",
+    "伤官",
+    "正官",
+    "七杀",
+    "正印",
+    "偏印",
+    "正财",
+    "偏财",
+    "比肩",
+    "劫财",
+  ];
+
+  tenGodNames.forEach(
+    (tenGod) => {
+      if (
+        textValue.includes(
+          tenGod,
+        ) &&
+        !facts.some(
+          (fact) =>
+            fact.includes(
+              tenGod,
+            ),
+        )
+      ) {
+        errors.push(
+          `unbound_tengod:${tenGod}`,
+        );
+      }
+    },
+  );
+
+  const layerTenGodMatches =
+    [
+      ...textValue.matchAll(
+        /(大运|流年|流月)[^。；，]{0,18}(食神|伤官|正官|七杀|正印|偏印|正财|偏财|比肩|劫财)/g,
+      ),
+    ];
+
+  layerTenGodMatches.forEach(
+    (match) => {
+      const layer =
+        match[1];
+
+      const tenGod =
+        match[2];
+
+      const supported =
+        facts.some(
+          (fact) =>
+            fact.includes(
+              layer,
+            ) &&
+            fact.includes(
+              tenGod,
+            ),
+        );
+
+      if (
+        !supported
+      ) {
+        errors.push(
+          `unbound_layer_tengod:${layer}:${tenGod}`,
+        );
+      }
+    },
+  );
+
+  const relationMatches =
+    [
+      ...textValue.matchAll(
+        /(食神|伤官|正官|七杀|正印|偏印|正财|偏财|比肩|劫财|官|财)(?:与|对)?(克|制|生|合)(食神|伤官|正官|七杀|正印|偏印|正财|偏财|比肩|劫财|官|财)/g,
+      ),
+    ];
+
+  relationMatches.forEach(
+    (match) => {
+      const left =
+        match[1];
+
+      const operator =
+        match[2];
+
+      const right =
+        match[3];
+
+      const leftSupported =
+        tenGodAliasSupported(
+          left,
+          facts,
+        );
+
+      const rightSupported =
+        tenGodAliasSupported(
+          right,
+          facts,
+        );
+
+      const leftStems =
+        stemsForTenGodAlias(
+          left,
+          facts,
+        );
+
+      const rightStems =
+        stemsForTenGodAlias(
+          right,
+          facts,
+        );
+
+      const relationSupported =
+        facts.some(
+          (fact) => {
+            const hasBothStems =
+              leftStems.some(
+                (stem) =>
+                  fact.includes(
+                    stem,
+                  ),
+              ) &&
+              rightStems.some(
+                (stem) =>
+                  fact.includes(
+                    stem,
+                  ),
+              );
+
+            if (
+              !hasBothStems
+            ) {
+              return false;
+            }
+
+            if (
+              operator ===
+                "克" ||
+              operator ===
+                "制"
+            ) {
+              return /确定生克关系|克/.test(
+                fact,
+              );
+            }
+
+            if (
+              operator ===
+                "合"
+            ) {
+              return /合/.test(
+                fact,
+              );
+            }
+
+            return /生/.test(
+              fact,
+            );
+          },
+        );
+
+      if (
+        !(
+          leftSupported &&
+          rightSupported &&
+          leftStems.length >
+            0 &&
+          rightStems.length >
+            0 &&
+          relationSupported
+        )
+      ) {
+        errors.push(
+          `unbound_tengod_relation:${left}${operator}${right}`,
+        );
+      }
+    },
+  );
+
+  return unique(
+    errors,
+  );
+}
+
+function tenGodAliasSupported(
+  value,
+  evidenceTexts,
+) {
+  if (
+    value ===
+    "官"
+  ) {
+    return array(
+      evidenceTexts,
+    ).some(
+      (fact) =>
+        /正官|七杀/.test(
+          fact,
+        ),
+    );
+  }
+
+  if (
+    value ===
+    "财"
+  ) {
+    return array(
+      evidenceTexts,
+    ).some(
+      (fact) =>
+        /正财|偏财/.test(
+          fact,
+        ),
+    );
+  }
+
+  return array(
+    evidenceTexts,
+  ).some(
+    (fact) =>
+      fact.includes(
+        value,
+      ),
+  );
+}
+
+function stemsForTenGodAlias(
+  value,
+  evidenceTexts,
+) {
+  const aliases =
+    value ===
+      "官"
+      ? [
+          "正官",
+          "七杀",
+        ]
+      : value ===
+          "财"
+        ? [
+            "正财",
+            "偏财",
+          ]
+        : [
+            value,
+          ];
+
+  const stems = [];
+
+  array(
+    evidenceTexts,
+  ).forEach(
+    (fact) => {
+      aliases.forEach(
+        (alias) => {
+          const patterns = [
+            new RegExp(
+              `天干([甲乙丙丁戊己庚辛壬癸])为${alias}透出`,
+              "g",
+            ),
+            new RegExp(
+              `([甲乙丙丁戊己庚辛壬癸])${alias}`,
+              "g",
+            ),
+          ];
+
+          patterns.forEach(
+            (pattern) => {
+              for (
+                const match of
+                fact.matchAll(
+                  pattern,
+                )
+              ) {
+                stems.push(
+                  match[1],
+                );
+              }
+            },
+          );
+        },
+      );
+    },
+  );
+
+  return unique(
+    stems,
+  );
+}
+
+function validateBranchRelationTokenCoverage({
+  authoredText,
+  evidenceTexts,
+} = {}) {
+  const errors = [];
+
+  const joinedEvidence =
+    array(
+      evidenceTexts,
+    ).join("\n");
+
+  const rules = [
+    {
+      name:
+        "六合",
+      authored:
+        /地支六合|六合/,
+      evidence:
+        /地支六合|六合/,
+    },
+    {
+      name:
+        "三合",
+      authored:
+        /三合/,
+      evidence:
+        /三合/,
+    },
+    {
+      name:
+        "三会",
+      authored:
+        /三会/,
+      evidence:
+        /三会/,
+    },
+    {
+      name:
+        "半合",
+      authored:
+        /半合/,
+      evidence:
+        /半合/,
+    },
+    {
+      name:
+        "暗合",
+      authored:
+        /暗合/,
+      evidence:
+        /暗合/,
+    },
+    {
+      name:
+        "同支重复",
+      authored:
+        /同支重复/,
+      evidence:
+        /同支重复/,
+    },
+    {
+      name:
+        "相冲",
+      authored:
+        /六冲|相冲|地支冲|构成冲/,
+      evidence:
+        /六冲|相冲|地支冲|构成冲/,
+    },
+    {
+      name:
+        "相刑",
+      authored:
+        /三刑|自刑|相刑|构成刑/,
+      evidence:
+        /三刑|自刑|相刑|构成刑/,
+    },
+    {
+      name:
+        "相害",
+      authored:
+        /六害|相害|构成害/,
+      evidence:
+        /六害|相害|构成害/,
+    },
+    {
+      name:
+        "相破",
+      authored:
+        /相破|构成破/,
+      evidence:
+        /相破|构成破/,
+    },
+  ];
+
+  rules.forEach(
+    (rule) => {
+      if (
+        rule.authored.test(
+          text(
+            authoredText,
+          ),
+        ) &&
+        !rule.evidence.test(
+          joinedEvidence,
+        )
+      ) {
+        errors.push(
+          `unbound_branch_relation:${rule.name}`,
+        );
+      }
+    },
+  );
+
+  return unique(
+    errors,
+  );
+}
+
+function validateNegativeTechnicalClaims({
+  authoredText,
+  evidenceTexts,
+} = {}) {
+  const errors = [];
+
+  const joinedEvidence =
+    array(
+      evidenceTexts,
+    ).join("\n");
+
+  splitSentences(
+    authoredText,
+  ).forEach(
+    (sentence) => {
+      const hasNegativeRelation =
+        /(?:未与|没有与|并未与|不与|无)[^。；]{0,24}(?:冲|合|刑|害|破|三合|三会|暗合|关系|作用)/.test(
+          sentence,
+        ) ||
+        /(?:没有|未形成|无)[^。；]{0,16}(?:冲合|合冲|引动|作用)/.test(
+          sentence,
+        );
+
+      if (
+        hasNegativeRelation &&
+        !/(?:不存在|未形成|尚缺|未成局|没有构成|无此关系)/.test(
+          joinedEvidence,
+        )
+      ) {
+        errors.push(
+          "unsupported_negative_relation",
+        );
+      }
+
+      if (
+        /外部机会信号偏弱|机会信号偏弱|缺乏外部机会/.test(
+          sentence,
+        ) &&
+        !/机会信号偏弱|外部机会偏弱/.test(
+          joinedEvidence,
+        )
+      ) {
+        errors.push(
+          "unsupported_negative_opportunity",
+        );
+      }
+
+      if (
+        /(?:需要|只有|必须)[^。；]{0,12}引动|未被引动|没有引动/.test(
+          sentence,
+        ) &&
+        !/引动/.test(
+          joinedEvidence,
+        )
+      ) {
+        errors.push(
+          "unsupported_trigger_requirement",
+        );
+      }
+    },
+  );
+
+  return unique(
+    errors,
+  );
+}
+
+function validateThemeDomainBinding({
+  domainId,
+  evidenceFacts,
+  availableDomainIds,
+} = {}) {
+  const errors = [];
+
+  const normalizedDomainId =
+    text(
+      domainId,
+    );
+
+  if (
+    availableDomainIds.size >
+      0 &&
+    !normalizedDomainId
+  ) {
+    errors.push(
+      "missing_domain_id",
+    );
+
+    return errors;
+  }
+
+  if (
+    normalizedDomainId &&
+    !availableDomainIds.has(
+      normalizedDomainId,
+    )
+  ) {
+    errors.push(
+      `unknown_domain_id:${normalizedDomainId}`,
+    );
+
+    return errors;
+  }
+
+  if (
+    normalizedDomainId
+  ) {
+    const bound =
+      array(
+        evidenceFacts,
+      ).some(
+        (fact) =>
+          array(
+            fact
+              ?.meta
+              ?.domains,
+          ).includes(
+            normalizedDomainId,
+          ),
+      );
+
+    if (
+      !bound
+    ) {
+      errors.push(
+        `domain_without_evidence:${normalizedDomainId}`,
+      );
+    }
+  }
+
+  return errors;
+}
+
+function genericTenGodStrengthErrors(
+  authoredText,
+  evidenceTexts,
+) {
+  const errors = [];
+
+  const joinedEvidence =
+    array(
+      evidenceTexts,
+    ).join("\n");
+
+  const matches =
+    [
+      ...text(
+        authoredText,
+      ).matchAll(
+        /(食神|伤官|正官|七杀|正印|偏印|正财|偏财|比肩|劫财)[^。；，]{0,8}(过旺|太旺|偏旺|极旺|旺盛|过弱|太弱|偏弱|衰弱)/g,
+      ),
+    ];
+
+  matches.forEach(
+    (match) => {
+      if (
+        !joinedEvidence.includes(
+          match[2],
+        )
+      ) {
+        errors.push(
+          `unsupported_tengod_strength:${match[1]}:${match[2]}`,
+        );
+      }
+    },
+  );
+
+  return unique(
+    errors,
+  );
 }
 
 function validateTechnicalClaims({
@@ -1612,6 +2831,29 @@ function validateTechnicalClaims({
     },
   );
 
+  validateLayerHiddenTenGodClaims({
+    authoredText,
+    evidenceTexts,
+  }).forEach(
+    (code) =>
+      errors.push(
+        code,
+      ),
+  );
+
+  if (
+    /暗合/.test(
+      authoredText,
+    ) &&
+    !/暗合/.test(
+      joinedEvidence,
+    )
+  ) {
+    errors.push(
+      "unsupported_dark_combine",
+    );
+  }
+
   if (
     /食神制杀/.test(
       authoredText,
@@ -1670,6 +2912,16 @@ function validateTechnicalClaims({
       "unsupported_strength_upgrade",
     );
   }
+
+  genericTenGodStrengthErrors(
+    authoredText,
+    evidenceTexts,
+  ).forEach(
+    (code) =>
+      errors.push(
+        code,
+      ),
+  );
 
   const layerLabels = [
     "年柱",
@@ -1869,6 +3121,92 @@ function sanitizeRenderedText({
       evidenceTexts,
     ).join("\n");
 
+  output =
+    output
+      .replace(
+        /正官(?:象征|代表)?贵人(?:机遇|机会)?/g,
+        "正官带来正式要求或被评价的机会",
+      )
+      .replace(
+        /外部规则保护公平竞争|保护公平竞争|正官克制劫财，外部规则保护公平竞争/g,
+        "外部规则约束竞争行为",
+      )
+      .replace(
+        /反而促成解决方案|结果倾向于公平/g,
+        "促使各方回到规则边界",
+      )
+      .replace(
+        /食神(?:大运)?为内在思考提供支持/g,
+        "食神大运支持表达、技能与成果整理",
+      )
+      .replace(
+        /食神好逸/g,
+        "食神重享受的一面",
+      )
+      .replace(
+        /大运藏支暗合财星/g,
+        "财星藏于大运地支，相关地支关系同时参与",
+      );
+
+  splitSentences(
+    output,
+  ).forEach(
+    (sentence) => {
+      const hiddenErrors =
+        validateLayerHiddenTenGodClaims({
+          authoredText:
+            sentence,
+          evidenceTexts,
+        });
+
+      if (
+        hiddenErrors.length >
+        0
+      ) {
+        output =
+          output.replace(
+            sentence,
+            "",
+          );
+      }
+    },
+  );
+
+  output =
+    splitSentences(
+      output,
+    )
+      .filter(
+        (sentence) => {
+          const hardErrors = [
+            ...validateTechnicalClaims({
+              authoredText:
+                sentence,
+              evidenceTexts,
+            }),
+            ...validateTechnicalTokenCoverage({
+              authoredText:
+                sentence,
+              evidenceTexts,
+            }),
+            ...validateBranchRelationTokenCoverage({
+              authoredText:
+                sentence,
+              evidenceTexts,
+            }),
+            ...validateNegativeTechnicalClaims({
+              authoredText:
+                sentence,
+              evidenceTexts,
+            }),
+          ];
+
+          return hardErrors.length ===
+            0;
+        },
+      )
+      .join("");
+
   if (
     output.includes(
       "伏吟",
@@ -2017,6 +3355,30 @@ function sanitizeRenderedText({
 
   return output
     .replace(
+      /本本月/g,
+      "本月",
+    )
+    .replace(
+      /此此运/g,
+      "此运",
+    )
+    .replace(
+      /本月过程中本月过程中/g,
+      "本月过程中",
+    )
+    .replace(
+      /本年过程中本年过程中/g,
+      "本年过程中",
+    )
+    .replace(
+      /[。！；]+？/g,
+      "？",
+    )
+    .replace(
+      /？？+/g,
+      "？",
+    )
+    .replace(
       /每日或每周固定的小时段|每天或每周固定的小时段/g,
       "固定留出一段时间",
     )
@@ -2081,6 +3443,16 @@ function ensureMinimumThemeCoverage(
         : "次要发展方向";
 
   const secondTheme = {
+    domainId:
+      /收入|收益|财务|资源|储蓄|回报/.test(
+        alternative,
+      )
+        ? "resource_accumulation"
+        : /关系|合作|伙伴|人际/.test(
+            alternative,
+          )
+          ? "relation_environment_change"
+          : "ability_output",
     title:
       secondTitle,
     importance:
@@ -2089,6 +3461,8 @@ function ensureMinimumThemeCoverage(
       "这是次于主线的补充方向，是否明显显现取决于现实基础与持续投入。",
     story:
       alternative,
+    possibilities:
+      [],
     alternative:
       "",
     evidenceIds:
@@ -2334,8 +3708,16 @@ function ensureQuestion(
   const normalized =
     compactParagraph(
       value,
-      160,
-    );
+      180,
+    )
+      .replace(
+        /[。！；：，、\s]+$/g,
+        "",
+      )
+      .replace(
+        /？？+/g,
+        "？",
+      );
 
   return /[？?]$/.test(
     normalized,

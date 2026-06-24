@@ -66,7 +66,7 @@ export function buildYearAiPrompt(
       JSON.stringify(
         {
           任务:
-            "生成结构化流年报告。比较关系、规则手续、计划成果、资源和职业等落点，只选择证据最集中的二至三个主题；不得自行划分季度或月份。",
+            "生成结构化流年报告。可靠性优先，承接大运背景，只写本年新增或明显强化的二至三个主题；每个主题给一个主剧本和一至三种现实可能，说明哪些需要现实条件，不得原样重复完整十年结构，也不得自行划分季度或月份。",
           资料:
             promptSource,
         },
@@ -82,6 +82,6 @@ export function buildYearAiPrompt(
         .factIds,
 
     maxTokens:
-      4200,
+      5200,
   };
 }

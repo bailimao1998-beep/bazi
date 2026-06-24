@@ -3777,3 +3777,346 @@
 
 /* ===== 岁运证据页精简 v8：结束 ===== */
 
+/* ===== 岁运证据页排版紧凑与字号修正 v9：开始 ===== */
+
+/*
+ * 只调整页面排版和字号：
+ * - 不改岁运计算
+ * - 不改 pageDigest
+ * - 不改 AI storyPack
+ * - 不改 AI Prompt
+ */
+
+/* 总体压缩垂直留白 */
+.stage-card-grid-v2 {
+  gap: 12px;
+}
+
+.stage-quick-summary-compact {
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
+}
+
+/* 阶段标题 */
+.stage-compact-head {
+  gap: 12px;
+  padding-bottom: 10px;
+}
+
+.stage-compact-head > div > span {
+  margin-bottom: 3px;
+  font-size: 13px;
+}
+
+.stage-compact-head h3 {
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.stage-compact-head > strong {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+/* 原局 / 大运 / 流年 / 流月 */
+.stage-compact-context {
+  gap: 6px 20px;
+  padding: 2px 0 6px;
+}
+
+.stage-compact-context b,
+.stage-compact-context small {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/*
+ * 电脑宽屏改为一行四列，避免原来的两行两列产生大块留白。
+ * 四列依次为：外显主线、现实承接、主要结构、现实落点。
+ */
+.stage-compact-digest {
+  grid-template-columns:
+    minmax(150px, 0.72fr)
+    minmax(150px, 0.72fr)
+    minmax(190px, 1fr)
+    minmax(240px, 1.45fr);
+}
+
+.stage-compact-digest > div {
+  padding: 9px 11px;
+}
+
+.stage-compact-digest b {
+  margin-bottom: 3px;
+  font-size: 12px;
+}
+
+.stage-compact-digest span {
+  font-size: 15px;
+  line-height: 1.42;
+}
+
+.stage-compact-digest small {
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* 主要触发与重点观察 */
+.stage-compact-block {
+  gap: 6px;
+}
+
+.stage-compact-block > header h4 {
+  font-size: 15px;
+}
+
+.stage-compact-block > header span {
+  font-size: 12px;
+}
+
+.stage-compact-trigger-row {
+  grid-template-columns:
+    34px
+    minmax(120px, 0.58fr)
+    minmax(170px, 0.82fr)
+    minmax(0, 1.8fr);
+  gap: 12px;
+  align-items: center;
+  padding: 9px 0;
+}
+
+.stage-compact-index {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+}
+
+.stage-compact-trigger-main b {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.stage-compact-trigger-main small {
+  font-size: 11px;
+}
+
+.stage-compact-trigger-domains,
+.stage-compact-trigger-row p {
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.stage-compact-observations {
+  gap: 4px;
+  padding-left: 22px;
+}
+
+.stage-compact-observations li {
+  font-size: 13px;
+  line-height: 1.58;
+}
+
+/* 可利用 / 需留意改为横向两列，减少高度 */
+.stage-compact-balance {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 8px 22px;
+  padding-top: 9px;
+}
+
+.stage-compact-balance p {
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* 详细证据标题 */
+.stage-evidence-details-compact > summary {
+  padding: 12px 15px;
+}
+
+.stage-evidence-details-compact > summary b {
+  font-size: 16px;
+}
+
+.stage-evidence-details-compact > summary small {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+/*
+ * 十神与基础关系、层级与组合在宽屏并排显示。
+ * 成立条件和反证继续占整行。
+ */
+.stage-compact-evidence-body {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 12px 18px;
+  padding: 12px 15px 15px;
+}
+
+.stage-compact-evidence-body > section {
+  gap: 6px;
+}
+
+.stage-compact-evidence-body > section > header h4 {
+  font-size: 15px;
+}
+
+.stage-compact-evidence-body > section > header span {
+  font-size: 11px;
+}
+
+/*
+ * 每条证据改为横向信息行：
+ * 左侧放名称、类型、来源，右侧放解释。
+ * 这样既放大字号，也不会形成大片空白。
+ */
+.stage-compact-evidence-list > li {
+  display: grid;
+  grid-template-columns:
+    minmax(140px, 0.52fr)
+    minmax(0, 1.48fr);
+  gap: 3px 14px;
+  align-items: start;
+  padding: 8px 0;
+}
+
+.stage-compact-evidence-list > li > div {
+  grid-column: 1;
+  display: block;
+  min-width: 0;
+}
+
+.stage-compact-evidence-list > li > div > span {
+  display: block;
+  margin-top: 2px;
+}
+
+.stage-compact-evidence-list b {
+  font-size: 13px;
+  line-height: 1.42;
+}
+
+.stage-compact-evidence-list span {
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.stage-compact-evidence-list p {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: start;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.58;
+}
+
+.stage-compact-evidence-list small {
+  grid-column: 1;
+  margin-top: 0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* 成立条件与反证占整行 */
+.stage-compact-condition-grid {
+  grid-column: 1 / -1;
+  gap: 20px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(226, 215, 200, 0.72);
+}
+
+.stage-compact-condition-grid h5 {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.stage-compact-condition-grid ul {
+  gap: 5px;
+}
+
+.stage-compact-condition-grid li,
+.stage-compact-condition-grid p {
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* 中等屏幕：摘要回到两列，证据仍可并排 */
+@media (max-width: 1180px) {
+  .stage-compact-digest {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 平板：证据改为单列 */
+@media (max-width: 900px) {
+  .stage-compact-evidence-body {
+    grid-template-columns: 1fr;
+  }
+
+  .stage-compact-condition-grid {
+    grid-column: auto;
+  }
+
+  .stage-compact-trigger-row {
+    grid-template-columns:
+      30px
+      minmax(120px, 0.8fr)
+      minmax(0, 1.2fr);
+  }
+
+  .stage-compact-trigger-row p {
+    grid-column: 2 / -1;
+  }
+
+  .stage-compact-balance {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 手机：恢复自然上下布局 */
+@media (max-width: 680px) {
+  .stage-quick-summary-compact {
+    padding: 13px;
+  }
+
+  .stage-compact-head h3 {
+    font-size: 18px;
+  }
+
+  .stage-compact-digest,
+  .stage-compact-condition-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stage-compact-trigger-row {
+    grid-template-columns:
+      28px
+      minmax(0, 1fr);
+  }
+
+  .stage-compact-trigger-domains,
+  .stage-compact-trigger-row p {
+    grid-column: 2;
+  }
+
+  .stage-compact-evidence-list > li {
+    display: block;
+    padding: 9px 0;
+  }
+
+  .stage-compact-evidence-list p {
+    margin-top: 5px;
+  }
+
+  .stage-compact-evidence-list small {
+    margin-top: 4px;
+  }
+}
+
+/* ===== 岁运证据页排版紧凑与字号修正 v9：结束 ===== */
+

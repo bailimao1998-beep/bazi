@@ -1,5 +1,8 @@
 import { buildStageAiTrustedPack } from "./buildStageAiTrustedPack.js";
-import { buildStageAiPromptSource } from "./buildStageAiPromptSource.js";
+import {
+  buildStageStructuredPromptSource,
+  buildStageVerifiedFactPack,
+} from "./buildStageVerifiedFactPack.js";
 import { buildStageReportSystem } from "./stageReportPromptPolicy.js";
 
 export function buildLuckAiPrompt(
@@ -27,15 +30,21 @@ export function buildLuckAiPrompt(
   const trustedPack =
     buildStageAiTrustedPack({
       stage: "luck",
-      item: currentLuckItem,
+      item:
+        currentLuckItem,
       currentLuckItem,
       baseBaziViewModel,
       natalImageReport,
     });
 
-  const promptSource =
-    buildStageAiPromptSource(
+  const verifiedFactPack =
+    buildStageVerifiedFactPack(
       trustedPack,
+    );
+
+  const promptSource =
+    buildStageStructuredPromptSource(
+      verifiedFactPack,
     );
 
   return {
@@ -43,20 +52,27 @@ export function buildLuckAiPrompt(
       buildStageReportSystem(
         "luck",
       ),
-    user: JSON.stringify(
-      {
-        任务:
-          "生成当前大运正式报告。提炼三至四个主要主题，讲清每条主题最可能的现实剧本、另一种可能和可执行建议；保持内容丰富，但不重复同一依据。",
-        资料包:
-          promptSource,
-      },
-      null,
-      2,
-    ),
+
+    user:
+      JSON.stringify(
+        {
+          任务:
+            "生成结构化大运报告。只依据事实编号判断现实主题；重点讲清两至三个真正不同的主线，避免把规则、审核、计划和成果拆成重复主题。",
+          资料:
+            promptSource,
+        },
+        null,
+        2,
+      ),
+
     trustedPack,
+    verifiedFactPack,
+
     evidenceIds:
-      trustedPack
-        .allowedEvidenceRefs,
-    maxTokens: 6000,
+      verifiedFactPack
+        .factIds,
+
+    maxTokens:
+      5200,
   };
 }

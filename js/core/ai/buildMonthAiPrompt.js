@@ -1,5 +1,8 @@
 import { buildStageAiTrustedPack } from "./buildStageAiTrustedPack.js";
-import { buildStageAiPromptSource } from "./buildStageAiPromptSource.js";
+import {
+  buildStageStructuredPromptSource,
+  buildStageVerifiedFactPack,
+} from "./buildStageVerifiedFactPack.js";
 import { buildStageReportSystem } from "./stageReportPromptPolicy.js";
 
 export function buildMonthAiPrompt(
@@ -12,11 +15,13 @@ export function buildMonthAiPrompt(
 } = {}
 ) {
   const monthItem =
-    monthImageReport?.monthItem ??
+    monthImageReport
+      ?.monthItem ??
     null;
 
   const yearItem =
-    monthItem?.yearItem ??
+    monthItem
+      ?.yearItem ??
     yearImageReport
       ?.yearItem ??
     null;
@@ -43,16 +48,22 @@ export function buildMonthAiPrompt(
   const trustedPack =
     buildStageAiTrustedPack({
       stage: "month",
-      item: monthItem,
+      item:
+        monthItem,
       currentLuckItem,
       yearItem,
       baseBaziViewModel,
       natalImageReport,
     });
 
-  const promptSource =
-    buildStageAiPromptSource(
+  const verifiedFactPack =
+    buildStageVerifiedFactPack(
       trustedPack,
+    );
+
+  const promptSource =
+    buildStageStructuredPromptSource(
+      verifiedFactPack,
     );
 
   return {
@@ -60,20 +71,27 @@ export function buildMonthAiPrompt(
       buildStageReportSystem(
         "month",
       ),
-    user: JSON.stringify(
-      {
-        任务:
-          "生成当前流月正式报告。提炼二至三个主要主题，讲清本月最可能出现的现实过程、次要落点和具体建议；可以展开有价值的故事，但不得重复或编造关系。",
-        资料包:
-          promptSource,
-      },
-      null,
-      2,
-    ),
+
+    user:
+      JSON.stringify(
+        {
+          任务:
+            "生成结构化流月报告。以两个最强主题为主，第三主题只有明显独立证据时才保留；不得自行划分月初、月中或月末。",
+          资料:
+            promptSource,
+        },
+        null,
+        2,
+      ),
+
     trustedPack,
+    verifiedFactPack,
+
     evidenceIds:
-      trustedPack
-        .allowedEvidenceRefs,
-    maxTokens: 3800,
+      verifiedFactPack
+        .factIds,
+
+    maxTokens:
+      3400,
   };
 }

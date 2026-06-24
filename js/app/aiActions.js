@@ -4,9 +4,11 @@ import { buildMonthAiPrompt } from "../core/ai/buildMonthAiPrompt.js";
 import { buildNatalAiPrompt } from "../core/ai/buildNatalAiPrompt.js";
 import { buildYearAiPrompt } from "../core/ai/buildYearAiPrompt.js";
 import {
-  buildStageAiRepairPrompt,
-  validateStageAiText,
-} from "../core/ai/stageAiTextValidator.js";
+  buildStageStructuredRepairPrompt,
+  normalizeStageReportResponse,
+  renderStageReport,
+  validateStageReportContract,
+} from "../core/ai/stageReportContract.js";
 import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260613b";
 import {
   guardNatalAiContent,
@@ -369,121 +371,282 @@ async function requestStageAiNarrativeWithRetry({
   stage,
 } = {}) {
   const attempts = [];
-  let currentPrompt = prompt;
-  let lastValidation = null;
-  let lastResult = null;
 
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    const result = await generateWithDeepSeek({
-      settings,
-      prompt: currentPrompt,
-    });
+  let currentPrompt =
+    prompt;
 
-    const validation = validateStageAiText({
-      text: result.text,
-      stage,
-      trustedPack: prompt?.trustedPack ?? null,
-    });
+  let lastRawResult =
+    null;
+
+  let lastNormalized =
+    null;
+
+  let lastValidation =
+    null;
+
+  const verifiedFacts =
+    prompt
+      ?.verifiedFactPack
+      ?.facts ??
+    [];
+
+  for (
+    let attempt = 0;
+    attempt < 2;
+    attempt += 1
+  ) {
+    const rawResult =
+      await generateWithDeepSeek({
+        settings,
+        prompt:
+          currentPrompt,
+      });
+
+    const normalized =
+      normalizeStageReportResponse({
+        text:
+          rawResult.text,
+        stage,
+      });
+
+    const validation =
+      validateStageReportContract({
+        report:
+          normalized.report,
+        stage,
+        verifiedFacts,
+        parseError:
+          normalized.parseError,
+      });
+
+    const renderedText =
+      normalized.report
+        ? renderStageReport({
+            report:
+              normalized.report,
+            stage,
+            verifiedFacts,
+          })
+        : "";
 
     attempts.push({
-      attempt: attempt + 1,
-      finishReason: result.finishReason,
-      textLength: String(result.text || "").length,
+      attempt:
+        attempt + 1,
+      finishReason:
+        rawResult
+          .finishReason,
+      rawTextLength:
+        String(
+          rawResult
+            .text ||
+          "",
+        ).length,
+      renderedTextLength:
+        renderedText
+          .length,
       validation,
     });
 
-    lastResult = result;
-    lastValidation = validation;
+    lastRawResult =
+      rawResult;
 
-    if (validation.valid) {
-      globalThis.__lastStageAiDebug = {
-        stage,
-        trustedPack: prompt?.trustedPack ?? null,
-        attempts,
-        rawResponse: result.text,
-        validation,
-      };
+    lastNormalized =
+      normalized;
+
+    lastValidation =
+      validation;
+
+    if (
+      validation.valid &&
+      renderedText
+    ) {
+      globalThis
+        .__lastStageAiDebug = {
+          stage,
+          trustedPack:
+            prompt
+              ?.trustedPack ??
+            null,
+          verifiedFactPack:
+            prompt
+              ?.verifiedFactPack ??
+            null,
+          attempts,
+          rawResponse:
+            rawResult.text,
+          structuredReport:
+            normalized.report,
+          renderedReport:
+            renderedText,
+          validation,
+        };
 
       return {
-        result,
+        result: {
+          ...rawResult,
+          text:
+            renderedText,
+          structured:
+            normalized.report,
+        },
         validation,
         attempts,
-        retried: attempt > 0,
+        retried:
+          attempt > 0,
       };
     }
 
-    currentPrompt = buildStageAiRepairPrompt(
-      prompt,
-      validation,
-    );
+    if (
+      attempt ===
+      0
+    ) {
+      currentPrompt =
+        buildStageStructuredRepairPrompt(
+          prompt,
+          validation,
+        );
+    }
   }
 
-  globalThis.__lastStageAiDebug = {
-    stage,
-    trustedPack: prompt?.trustedPack ?? null,
-    attempts,
-    rawResponse: lastResult?.text ?? "",
-    validation: lastValidation,
-  };
+  if (
+    lastNormalized
+      ?.report
+  ) {
+    const renderedText =
+      renderStageReport({
+        report:
+          lastNormalized
+            .report,
+        stage,
+        verifiedFacts,
+      });
+
+    if (
+      renderedText
+    ) {
+      globalThis
+        .__lastStageAiDebug = {
+          stage,
+          trustedPack:
+            prompt
+              ?.trustedPack ??
+            null,
+          verifiedFactPack:
+            prompt
+              ?.verifiedFactPack ??
+            null,
+          attempts,
+          rawResponse:
+            lastRawResult
+              ?.text ??
+            "",
+          structuredReport:
+            lastNormalized
+              .report,
+          renderedReport:
+            renderedText,
+          validation:
+            lastValidation,
+          displayedWithWarnings:
+            true,
+        };
+
+      return {
+        result: {
+          ...lastRawResult,
+          text:
+            renderedText,
+          structured:
+            lastNormalized
+              .report,
+        },
+        validation:
+          lastValidation,
+        attempts,
+        retried:
+          true,
+        incomplete:
+          true,
+        displayedWithWarnings:
+          true,
+      };
+    }
+  }
+
+  const rawFallback =
+    String(
+      lastRawResult
+        ?.text ??
+      "",
+    ).trim();
 
   if (
-    lastResult?.text &&
-    lastValidation
-      ?.safeToDisplay
+    rawFallback
   ) {
-    globalThis.__lastStageAiDebug = {
-      stage,
-      trustedPack:
-        prompt?.trustedPack ??
-        null,
-      attempts,
-      rawResponse:
-        lastResult.text,
-      validation:
-        lastValidation,
-      displayedWithQualityWarnings:
+    const fallbackValidation = {
+      valid:
+        false,
+      safeToDisplay:
         true,
+      errors:
+        lastValidation
+          ?.errors ??
+        [
+          "structured_parse_failed",
+        ],
+      warnings:
+        lastValidation
+          ?.warnings ??
+        [
+          "structured_parse_failed",
+        ],
     };
 
+    globalThis
+      .__lastStageAiDebug = {
+        stage,
+        trustedPack:
+          prompt
+            ?.trustedPack ??
+          null,
+        verifiedFactPack:
+          prompt
+            ?.verifiedFactPack ??
+          null,
+        attempts,
+        rawResponse:
+          rawFallback,
+        structuredReport:
+          null,
+        renderedReport:
+          rawFallback,
+        validation:
+          fallbackValidation,
+        displayedRawFallback:
+          true,
+      };
+
     return {
-      result:
-        lastResult,
+      result: {
+        ...lastRawResult,
+        text:
+          rawFallback,
+      },
       validation:
-        lastValidation,
+        fallbackValidation,
       attempts,
       retried:
         true,
       incomplete:
         true,
-      displayedWithQualityWarnings:
+      displayedRawFallback:
         true,
     };
   }
 
-  const blockingSummary =
-    Array.isArray(
-      lastValidation
-        ?.blockingViolations,
-    )
-      ? lastValidation
-          .blockingViolations
-          .join("；")
-      : "";
-
-  const qualityError =
-    new Error(
-      blockingSummary
-        ? `本次AI报告仍存在无法自动修复的命理事实错误：${blockingSummary}`
-        : "本次AI报告仍存在无法自动修复的命理事实错误，请重新生成。",
-    );
-
-  qualityError.validation =
-    lastValidation;
-
-  qualityError.attempts =
-    attempts;
-
-  throw qualityError;
+  throw new Error(
+    "AI未返回可显示的报告内容，请重新生成。",
+  );
 }
 
 

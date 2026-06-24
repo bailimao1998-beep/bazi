@@ -1,5 +1,8 @@
 import { buildStageAiTrustedPack } from "./buildStageAiTrustedPack.js";
-import { buildStageAiPromptSource } from "./buildStageAiPromptSource.js";
+import {
+  buildStageStructuredPromptSource,
+  buildStageVerifiedFactPack,
+} from "./buildStageVerifiedFactPack.js";
 import { buildStageReportSystem } from "./stageReportPromptPolicy.js";
 
 export function buildYearAiPrompt(
@@ -11,7 +14,8 @@ export function buildYearAiPrompt(
 } = {}
 ) {
   const yearItem =
-    yearImageReport?.yearItem ??
+    yearImageReport
+      ?.yearItem ??
     null;
 
   const luckItems =
@@ -34,16 +38,22 @@ export function buildYearAiPrompt(
   const trustedPack =
     buildStageAiTrustedPack({
       stage: "year",
-      item: yearItem,
+      item:
+        yearItem,
       currentLuckItem,
       yearItem,
       baseBaziViewModel,
       natalImageReport,
     });
 
-  const promptSource =
-    buildStageAiPromptSource(
+  const verifiedFactPack =
+    buildStageVerifiedFactPack(
       trustedPack,
+    );
+
+  const promptSource =
+    buildStageStructuredPromptSource(
+      verifiedFactPack,
     );
 
   return {
@@ -51,20 +61,27 @@ export function buildYearAiPrompt(
       buildStageReportSystem(
         "year",
       ),
-    user: JSON.stringify(
-      {
-        任务:
-          "生成当前流年正式报告。提炼二至四个主要主题，比较学业资格、职业职责、手续规则、感情关系和计划成果；讲清最可能的发展剧本、替代剧本和现实建议。",
-        资料包:
-          promptSource,
-      },
-      null,
-      2,
-    ),
+
+    user:
+      JSON.stringify(
+        {
+          任务:
+            "生成结构化流年报告。比较关系、规则手续、计划成果、资源和职业等落点，只选择证据最集中的二至三个主题；不得自行划分季度或月份。",
+          资料:
+            promptSource,
+        },
+        null,
+        2,
+      ),
+
     trustedPack,
+    verifiedFactPack,
+
     evidenceIds:
-      trustedPack
-        .allowedEvidenceRefs,
-    maxTokens: 4800,
+      verifiedFactPack
+        .factIds,
+
+    maxTokens:
+      4200,
   };
 }

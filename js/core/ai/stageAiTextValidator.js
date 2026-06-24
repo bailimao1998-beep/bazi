@@ -51,6 +51,33 @@ const HIGH_SPECIFICITY_PATTERNS = [
   /动机不纯/,
 ];
 
+const OVER_SPECIFIC_STORY_PATTERNS = [
+  /第三者/,
+  /短暂分居/,
+  /搬离共同住所/,
+  /提出分手/,
+  /谈婚论嫁/,
+  /辞职/,
+  /失业/,
+  /诉讼/,
+  /违约金/,
+  /口腔溃疡/,
+  /视力下降/,
+  /退休金/,
+  /子女婚嫁/,
+  /房产收益/,
+  /长途独自驾驶/,
+  /推迟到下个大运/,
+  /推迟到下一步大运/,
+];
+
+const FALSE_TRANSPARENCY_PATTERNS = [
+  /食伤齐透/,
+  /财官齐透/,
+  /官杀齐透/,
+  /印星齐透/,
+];
+
 const SPOUSE_PALACE_ERROR_PATTERNS = [
   /月支[^，。；\n]{0,12}配偶宫/,
   /月柱[^，。；\n]{0,12}配偶宫/,
@@ -134,6 +161,8 @@ const QUALITY_ONLY_VIOLATION_PREFIXES = [
   "insufficient_primary_themes:",
   "missing_relationship_convergence_theme",
   "missing_standards_review_theme",
+  "over_specific_story:",
+  "unsupported_transparency_claim:",
 ];
 
 const FULL_PILLAR_REPEAT_PATTERNS = [
@@ -410,6 +439,38 @@ export function validateStageAiText({
       ) {
         hardViolations.push(
           `unsupported_specific_event:${pattern.source}`,
+        );
+      }
+    },
+  );
+
+  OVER_SPECIFIC_STORY_PATTERNS.forEach(
+    (pattern) => {
+      if (
+        pattern.test(
+          normalized,
+        )
+      ) {
+        hardViolations.push(
+          `over_specific_story:${pattern.source}`,
+        );
+      }
+    },
+  );
+
+  FALSE_TRANSPARENCY_PATTERNS.forEach(
+    (pattern) => {
+      if (
+        pattern.test(
+          normalized,
+        ) &&
+        !supportsTransparencyClaim(
+          pattern,
+          trustedPack,
+        )
+      ) {
+        hardViolations.push(
+          `unsupported_transparency_claim:${pattern.source}`,
         );
       }
     },
@@ -707,6 +768,14 @@ function describeStageViolation(
     return "推断了过度具体且无直接依据的事件，需要改成条件性风险";
   }
 
+  if (normalized.startsWith("over_specific_story:")) {
+    return "故事包含身份、疾病、分居、投资或生活背景等过度具体剧情，需要保留主线但改成中性条件表达";
+  }
+
+  if (normalized.startsWith("unsupported_transparency_claim:")) {
+    return "把透干与藏支混写成齐透，需要按实际十神位置改成双透、透干或藏支";
+  }
+
   if (normalized.startsWith("absolute_claim:")) {
     return "使用了绝对化措辞，需要改成概率和条件表达";
   }
@@ -732,6 +801,97 @@ function describeStageViolation(
   }
 
   return "报告仍存在事实或表达问题，需要按资料包重新核对";
+}
+
+function supportsTransparencyClaim(
+  pattern,
+  trustedPack,
+) {
+  const layers =
+    trustedPack
+      ?.mechanicalSignals
+      ?.layers ||
+    {};
+
+  const exposedTenGods =
+    Object.values(
+      layers,
+    )
+      .filter(Boolean)
+      .map(
+        (layer) =>
+          String(
+            layer
+              ?.stemTenGod ||
+            "",
+          ),
+      )
+      .filter(Boolean);
+
+  const has = (
+    tenGod,
+  ) =>
+    exposedTenGods.includes(
+      tenGod,
+    );
+
+  const source =
+    String(
+      pattern?.source ||
+      "",
+    );
+
+  if (
+    source.includes(
+      "食伤齐透",
+    )
+  ) {
+    return (
+      has("食神") &&
+      has("伤官")
+    );
+  }
+
+  if (
+    source.includes(
+      "财官齐透",
+    )
+  ) {
+    return (
+      (
+        has("正财") ||
+        has("偏财")
+      ) &&
+      (
+        has("正官") ||
+        has("七杀")
+      )
+    );
+  }
+
+  if (
+    source.includes(
+      "官杀齐透",
+    )
+  ) {
+    return (
+      has("正官") &&
+      has("七杀")
+    );
+  }
+
+  if (
+    source.includes(
+      "印星齐透",
+    )
+  ) {
+    return (
+      has("正印") &&
+      has("偏印")
+    );
+  }
+
+  return false;
 }
 
 function detectRepetitiveContent(

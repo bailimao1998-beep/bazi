@@ -1,5 +1,6 @@
 import { createPillarFromYear } from "../bazi/pillarMath.js";
 import { branchMainStem, getTenGod } from "../bazi/tenGods.js";
+import { buildTransitStructureAnalysis } from "../transit/transitStructureAnalyzer.js";
 
 const tenGodThemes = {
   比肩: "竞争、同辈、自主、合作",
@@ -70,7 +71,13 @@ export function buildYearImageReport({
   luckImageReport,
   targetYear,
 } = {}) {
-  const context = createContext({ chart, baseBaziViewModel, natalImageReport, luckImageReport, targetYear });
+  const context = createContext({
+    chart,
+    baseBaziViewModel,
+    natalImageReport,
+    luckImageReport,
+    targetYear,
+  });
   const yearItem = buildYearItem(context);
 
   return {
@@ -81,14 +88,30 @@ export function buildYearImageReport({
   };
 }
 
-function createContext({ chart, baseBaziViewModel, natalImageReport, luckImageReport, targetYear }) {
+function createContext({
+  chart,
+  baseBaziViewModel,
+  natalImageReport,
+  luckImageReport,
+  targetYear,
+}) {
   const normalizedYear = normalizeTargetYear(targetYear, chart, baseBaziViewModel);
-  const luckItems = Array.isArray(luckImageReport?.luckItems) ? luckImageReport.luckItems : [];
+  const luckItems = Array.isArray(luckImageReport?.luckItems)
+    ? luckImageReport.luckItems
+    : [];
   const currentLuckItem = luckItems.find((item) => item?.isCurrent) ?? luckItems[0] ?? null;
+  const natalPillars = collectNatalPillars(chart);
+
   return {
     chart: chart ?? {},
     dayStem: chart?.dayMaster?.stem,
-    natalBranches: collectNatalBranches(chart),
+    natalPillars,
+    natalBranches: natalPillars.map((pillar) => ({
+      key: pillar.key,
+      name: pillarNames[pillar.key] ?? pillar.key,
+      label: pillar.label,
+      branch: pillar.branch,
+    })),
     natalImageReport,
     luckImageReport,
     targetYear: normalizedYear,
@@ -107,13 +130,28 @@ function buildYearItem(context) {
   const branchTheme = tenGodThemes[branchTenGod] ?? "环境承接待复核";
   const relationToNatal = findRelationToNatal(branch, context.natalBranches);
   const relationToLuck = findRelationToLuck(branch, context.currentLuckItem);
+  const currentLuckLabel = context.currentLuckItem?.ganZhi ?? "当前大运待复核";
+
+  const transitStructure = buildTransitStructureAnalysis({
+    stage: "year",
+    current: {
+      id: `year:${context.targetYear}:${pillar.label}`,
+      ganZhi: pillar.label,
+      stem,
+      branch,
+      tenGod: stemTenGod,
+      branchTenGod,
+    },
+    natalPillars: context.natalPillars,
+    luckPillar: context.currentLuckItem,
+  });
+
   const relationText = relationToNatal.length
     ? relationToNatal.map((relation) => relation.description).join("；")
-    : "流年与原局四支暂未命中冲、合、刑、害、破，先以天干十神与地支主气观察。";
+    : "流年与原局四支暂未命中基础冲、合、刑、害、破。";
   const luckText = relationToLuck.length
     ? relationToLuck.map((relation) => relation.description).join("；")
-    : "流年地支与当前大运地支暂未命中冲、合、刑、害、破。";
-  const currentLuckLabel = context.currentLuckItem?.ganZhi ?? "当前大运待复核";
+    : "流年地支与当前大运地支暂未命中基础冲、合、刑、害、破。";
 
   return {
     year: context.targetYear,
@@ -125,46 +163,65 @@ function buildYearItem(context) {
     currentLuckItem: context.currentLuckItem,
     relationToNatal,
     relationToLuck,
-    image: `${context.targetYear}年${pillar.label}流年，天干${stemTenGod}主外显主题，重点看${stemTheme}；地支${branch}主当年环境与落地场景，地支主气十神${branchTenGod}偏向${branchTheme}。当前大运背景为${currentLuckLabel}，流年取象需放在这步大运中复核。`,
+    transitStructure,
+    image: `${context.targetYear}年${pillar.label}流年，天干${stemTenGod}主外显主题，重点看${stemTheme}；地支${branch}主当年环境与落地场景，地支主气十神${branchTenGod}偏向${branchTheme}。当前大运背景为${currentLuckLabel}，流年取象需放在这步大运中复核。${transitStructure.summary.text}`,
     reality: `现实应象可观察${stemTheme}是否在当年更容易浮出，同时看${branch}所对应的环境、人事与执行场景。原局触发：${relationText} 大运触发：${luckText}`,
-    boundary: "流年只作单年结构触发提示，不直接等同具体事件；需结合原局证据、大运背景、现实反馈和反证条件复核。",
-    confidence: confidenceForYearItem({ relationToNatal, relationToLuck, currentLuckItem: context.currentLuckItem }),
+    boundary: "流年只作单年结构触发提示，不直接等同具体事件；三合、三会、伏吟、天克地冲和多层激活仍需结合原局证据、大运背景、现实反馈和反证条件复核。",
+    confidence: confidenceForYearItem({
+      relationToNatal,
+      relationToLuck,
+      currentLuckItem: context.currentLuckItem,
+      transitStructure,
+    }),
   };
 }
 
-function buildSummary(yearItem, context) {
+function buildSummary(yearItem) {
   const luckLabel = yearItem.currentLuckItem?.ganZhi ?? "当前大运待复核";
   const relationCount = yearItem.relationToNatal.length + yearItem.relationToLuck.length;
+
   return {
     title: "流年取象总览",
-    overview: `${yearItem.year}年${yearItem.ganZhi}流年，以天干${yearItem.stemTenGod}看外显主题，以地支${yearItem.branch}看环境落点，并引用当前大运${luckLabel}作为背景。`,
+    overview: `${yearItem.year}年${yearItem.ganZhi}流年，以天干${yearItem.stemTenGod}看外显主题，以地支${yearItem.branch}看环境落点，并引用当前大运${luckLabel}作为背景。${yearItem.transitStructure.summary.text}`,
     currentLuck: luckLabel,
     relationCount,
+    structureCount: yearItem.transitStructure?.summary?.highFactCount || 0,
     confidence: yearItem.confidence,
   };
 }
 
 function buildKeySignals(yearItem) {
+  const structureSignals = yearItem.transitStructure?.facts
+    ?.slice(0, 6)
+    .map((fact) => `结构组合：${fact.text}`) ?? [];
+
   return compact([
     `目标年份：${yearItem.year}年${yearItem.ganZhi}`,
     `流年天干十神：${yearItem.stemTenGod}，主题偏向${tenGodThemes[yearItem.stemTenGod] ?? "待复核"}`,
     `流年地支主气十神：${yearItem.branchTenGod}，环境偏向${tenGodThemes[yearItem.branchTenGod] ?? "待复核"}`,
-    yearItem.currentLuckItem?.ganZhi ? `当前大运背景：${yearItem.currentLuckItem.ganZhi}` : "当前大运背景：待复核",
+    yearItem.currentLuckItem?.ganZhi
+      ? `当前大运背景：${yearItem.currentLuckItem.ganZhi}`
+      : "当前大运背景：待复核",
     yearItem.relationToNatal.length
       ? `原局触发：${yearItem.relationToNatal.map((relation) => `${relation.type}${relation.natalPillar}`).join("、")}`
-      : "原局触发：暂未命中冲、合、刑、害、破。",
+      : "原局触发：暂未命中基础冲、合、刑、害、破。",
     yearItem.relationToLuck.length
       ? `大运触发：${yearItem.relationToLuck.map((relation) => `${relation.type}当前大运支${relation.luckBranch}`).join("、")}`
-      : "大运触发：暂未命中冲、合、刑、害、破。",
+      : "大运触发：暂未命中基础冲、合、刑、害、破。",
+    ...structureSignals,
   ]);
 }
 
 function buildNeedVerify(context, yearItem) {
   return compact([
-    context.usedFallbackLuck ? "当前大运未能根据目标年份定位，已暂用第一步大运作为背景，需复核起运年份和目标年份。" : "",
-    "流年与原局、大运的冲、合、刑、害、破只提示结构被触发，不直接断具体事件。",
+    context.usedFallbackLuck
+      ? "当前大运未能根据目标年份定位，已暂用第一步大运作为背景，需复核起运年份和目标年份。"
+      : "",
+    "流年与原局、大运的基础关系、天干关系、伏吟、天克地冲、三合三会与多层激活只提示结构被触发，不直接断具体事件。",
     "需结合原局取象证据、大运阶段背景与现实反馈判断成立条件。",
-    yearItem.relationToLuck.length ? "该年对当前大运背景有明显触发，需重点复核大运取象中的现实应象与成立边界。" : "",
+    yearItem.transitStructure?.summary?.tone
+      ? `层级判断：${yearItem.transitStructure.summary.tone}，需结合现实承接复核。`
+      : "",
   ]);
 }
 
@@ -179,27 +236,31 @@ function normalizeTargetYear(targetYear, chart, baseBaziViewModel) {
   return matched ?? new Date().getFullYear();
 }
 
-function collectNatalBranches(chart = {}) {
+function collectNatalPillars(chart = {}) {
   return Object.entries(chart.pillars ?? {})
     .map(([key, pillar]) => ({
+      id: `natal:${key}:${pillar?.label || ""}`,
       key,
-      name: pillarNames[key] ?? key,
-      label: pillar?.label ?? "",
+      label: pillar?.label ?? `${pillar?.stem ?? ""}${pillar?.branch ?? ""}`,
+      stem: pillar?.stem ?? "",
       branch: pillar?.branch ?? "",
+      tenGod: pillar?.stemTenGod || pillar?.tenGod || "",
+      branchTenGod: pillar?.branchTenGod || pillar?.branchMainTenGod || "",
     }))
-    .filter((pillar) => pillar.branch);
+    .filter((pillar) => pillar.stem || pillar.branch);
 }
 
 function findRelationToNatal(yearBranch, natalBranches) {
   if (!yearBranch) return [];
-  return natalBranches.flatMap((pillar) => findBranchRelations(yearBranch, pillar.branch)
-    .map((relation) => ({
+  return natalBranches.flatMap((pillar) =>
+    findBranchRelations(yearBranch, pillar.branch).map((relation) => ({
       ...relation,
       natalPillar: `${pillar.name}${pillar.label}`,
       natalBranch: pillar.branch,
       yearBranch,
       description: `${relation.type}${pillar.name}${pillar.branch}：${pillarRoleMeanings[pillar.key] ?? "对应原局结构被牵动"}，${relation.effect}`,
-    })));
+    })),
+  );
 }
 
 function findRelationToLuck(yearBranch, currentLuckItem) {
@@ -224,12 +285,16 @@ function findBranchRelations(leftBranch, rightBranch) {
     }));
 }
 
-function confidenceForYearItem({ relationToNatal, relationToLuck, currentLuckItem }) {
-  const hasNatalRelation = relationToNatal.length > 0;
-  const hasLuckRelation = relationToLuck.length > 0;
-  if (currentLuckItem?.isCurrent && hasNatalRelation && hasLuckRelation) return "high";
-  if (currentLuckItem?.isCurrent && (hasNatalRelation || hasLuckRelation)) return "medium";
-  if (hasNatalRelation || hasLuckRelation) return "medium";
+function confidenceForYearItem({
+  relationToNatal,
+  relationToLuck,
+  currentLuckItem,
+  transitStructure,
+}) {
+  const relationCount = relationToNatal.length + relationToLuck.length;
+  const highFactCount = Number(transitStructure?.summary?.highFactCount || 0);
+  if (currentLuckItem?.isCurrent && relationCount >= 2 && highFactCount >= 1) return "high";
+  if (relationCount > 0 || highFactCount > 0 || currentLuckItem?.isCurrent) return "medium";
   return "low";
 }
 

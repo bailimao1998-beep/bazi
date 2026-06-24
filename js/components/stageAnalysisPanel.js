@@ -164,6 +164,14 @@ function renderStageQuickSummary(model = {}) {
   const advantages = Array.isArray(model.advantages) ? model.advantages : [];
   const pressures = Array.isArray(model.pressures) ? model.pressures : [];
   const boundaries = Array.isArray(model.boundaries) ? model.boundaries : [];
+  const structureFacts = Array.isArray(model.structureFacts) ? model.structureFacts : [];
+  const structureSummary = model.structureSummary ?? null;
+  const structureLabels = [...new Set(
+    structureFacts
+      .filter((fact) => Number(fact?.strength || 0) >= 3)
+      .map((fact) => fact?.label)
+      .filter(Boolean),
+  )].slice(0, 6);
 
   return `
     <article class="stage-image-card stage-quick-summary">
@@ -184,10 +192,27 @@ function renderStageQuickSummary(model = {}) {
         ${contextChain.map((entry) => `
           <span>
             <b>${escapeHtml(entry.label || "")}</b>
-            ${escapeHtml(entry.value || "待复核")}
+            <small>${escapeHtml(entry.value || "待复核")}</small>
           </span>
         `).join("")}
       </div>
+
+      ${structureSummary || structureLabels.length ? `
+        <section class="stage-structure-overview">
+          <div>
+            <h4>层级与组合</h4>
+            <p>${escapeHtml(
+              structureSummary?.text ||
+              "当前阶段的层级关系和组合条件待复核。",
+            )}</p>
+          </div>
+          ${structureLabels.length ? `
+            <div class="stage-structure-tags">
+              ${structureLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("")}
+            </div>
+          ` : ""}
+        </section>
+      ` : ""}
 
       <section class="stage-focus-section">
         <h4>重点领域</h4>
@@ -195,7 +220,10 @@ function renderStageQuickSummary(model = {}) {
           ${focusDomains.length
             ? focusDomains.map((entry) => `
                 <span>
-                  <b>${escapeHtml(entry.label)}</b>
+                  <span class="stage-focus-domain-head">
+                    <b>${escapeHtml(entry.label)}</b>
+                    <em>${escapeHtml(entry.level || "关注")}</em>
+                  </span>
                   <small>${escapeHtml(entry.reason || "由当前证据排序")}</small>
                 </span>
               `).join("")
@@ -255,19 +283,25 @@ function renderStageQuickSummary(model = {}) {
   `;
 }
 
+
 function renderStageEvidenceDetails(model = {}, evidencePack = {}) {
   const hits = Array.isArray(evidencePack?.hits) ? evidencePack.hits : [];
   const relations = Array.isArray(evidencePack?.relations) ? evidencePack.relations : [];
+  const structureFacts = Array.isArray(model?.structureFacts) ? model.structureFacts : [];
   const explanations = evidencePack?.explanations ?? {};
   const conditions = Array.isArray(explanations.conditions) ? explanations.conditions : [];
   const counterEvidence = Array.isArray(explanations.counterEvidence) ? explanations.counterEvidence : [];
   const realityImages = Array.isArray(explanations.realityImages) ? explanations.realityImages : [];
 
+  const visibleStructureFacts = structureFacts
+    .filter((fact) => fact?.text || fact?.description)
+    .slice(0, 12);
+
   return `
     <details class="stage-evidence-details">
       <summary>
         <span>详细证据与复核</span>
-        <b>十神 / 关系 / 成立条件 / 反证</b>
+        <b>十神 / 基础关系 / 层级组合 / 成立条件 / 反证</b>
       </summary>
 
       <div class="stage-evidence-details-body">
@@ -278,7 +312,7 @@ function renderStageEvidenceDetails(model = {}, evidencePack = {}) {
                 <li>
                   <b>${escapeHtml(hit.source || "十神命中")}：${escapeHtml(hit.label || "待查")}</b>
                   <span>${escapeHtml(hit.bookExplanation || hit.masterTalk || "")}</span>
-                  <code>${escapeHtml(hit.id || "")}</code>
+                  <small>证据来源：${escapeHtml(hit.source || "当前阶段")}</small>
                 </li>
               `).join("")}</ul>`
             : `<p>暂无十神证据。</p>`
@@ -286,16 +320,30 @@ function renderStageEvidenceDetails(model = {}, evidencePack = {}) {
         </section>
 
         <section>
-          <h4>关系触发</h4>
+          <h4>基础关系触发</h4>
           ${relations.length
             ? `<ul>${relations.map((relation) => `
                 <li>
                   <b>${escapeHtml(relation.source || "关系触发")}：${escapeHtml(relation.label || "待查")}</b>
                   <span>${escapeHtml(relation.description || relation.bookExplanation || "")}</span>
-                  <code>${escapeHtml(relation.id || "")}</code>
+                  <small>证据来源：${escapeHtml(relation.source || "当前阶段")}</small>
                 </li>
               `).join("")}</ul>`
-            : `<p>暂未命中冲、合、刑、害、破。</p>`
+            : `<p>暂未命中基础冲、合、刑、害、破。</p>`
+          }
+        </section>
+
+        <section class="stage-structure-evidence">
+          <h4>层级与组合证据</h4>
+          ${visibleStructureFacts.length
+            ? `<ul>${visibleStructureFacts.map((fact) => `
+                <li>
+                  <b>${escapeHtml(fact.label || "结构事实")}</b>
+                  <span>${escapeHtml(fact.text || fact.description || "")}</span>
+                  <small>${escapeHtml(fact.source || "结构分析")}</small>
+                </li>
+              `).join("")}</ul>`
+            : `<p>暂无伏吟、天干关系、三合三会、多层激活或层级转向等附加结构。</p>`
           }
         </section>
 
@@ -306,6 +354,8 @@ function renderStageEvidenceDetails(model = {}, evidencePack = {}) {
     </details>
   `;
 }
+
+
 
 function renderEvidenceTextGroup(title, items = []) {
   const visible = [...new Set(
@@ -425,8 +475,28 @@ function renderAdviceCard({ stage = "luck", item = {}, report = {}, relationGrou
   });
   const cards = Array.isArray(advice.cards) ? advice.cards : [];
 
+  const mainCard = cards.find((card) => card?.title === "先看主线") ?? cards[0] ?? null;
+  const realityCard = cards.find((card) => card?.title === "现实反馈") ?? cards[1] ?? null;
+  const boundaryCard = cards.find((card) => card?.title === "复核边界") ?? cards[2] ?? null;
+  const counterCard = cards.find((card) => card?.title === "反证提醒") ?? cards[3] ?? null;
+
+  const compactCards = [
+    {
+      title: "观察重点",
+      content: mainCard?.content,
+    },
+    {
+      title: "现实验证",
+      content: realityCard?.content,
+    },
+    {
+      title: "复核提醒",
+      content: boundaryCard?.content || counterCard?.content,
+    },
+  ].filter((card) => card.content && String(card.content).trim());
+
   return `
-    <article class="stage-image-card stage-advice-card">
+    <article class="stage-image-card stage-advice-card stage-advice-card-compact">
       <div class="stage-advice-head">
         <div>
           <span>师傅复核建议</span>
@@ -434,13 +504,15 @@ function renderAdviceCard({ stage = "luck", item = {}, report = {}, relationGrou
         </div>
         <strong>${escapeHtml(stageMarker(item, stage))}</strong>
       </div>
+
       ${advice.basis?.length ? `
         <div class="stage-advice-basis">
           ${advice.basis.map((basis) => `<span>${escapeHtml(basis)}</span>`).join("")}
         </div>
       ` : ""}
-      <ul class="stage-advice-list">
-        ${cards.map((card) => `
+
+      <ul class="stage-advice-list stage-advice-list-compact">
+        ${compactCards.map((card) => `
           <li>
             <b>${escapeHtml(card.title)}</b>
             <span>${escapeHtml(card.content)}</span>
@@ -450,6 +522,7 @@ function renderAdviceCard({ stage = "luck", item = {}, report = {}, relationGrou
     </article>
   `;
 }
+
 
 function renderTransitEvidenceCard({
   title,

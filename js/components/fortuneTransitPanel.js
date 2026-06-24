@@ -3,6 +3,9 @@ import { escapeHtml } from "../utils/html.js";
 
 let pendingRevealType = "";
 
+const initializedRevealRoots =
+  new WeakSet();
+
 export function renderFortuneTransitPanel(root, payload = {}) {
   if (!root) return;
   const { state } = payload ?? {};
@@ -68,10 +71,31 @@ export function renderFortuneTransitPanel(root, payload = {}) {
 
   pendingRevealType = "";
 
-  revealActiveTransitCards(
-    root,
-    revealType,
-  );
+  const isInitialReveal =
+    !initializedRevealRoots.has(
+      root,
+    );
+
+  if (isInitialReveal) {
+    initializedRevealRoots.add(
+      root,
+    );
+  }
+
+  /*
+  * 首次加载时定位三行。
+  * 用户点击时只定位被点击的一行。
+  * 普通重新渲染时不干涉手动滚动位置。
+  */
+  if (
+    revealType ||
+    isInitialReveal
+  ) {
+    revealActiveTransitCards(
+      root,
+      revealType,
+    );
+  }
 }
 
 function bindTransitEvents(
@@ -296,7 +320,7 @@ function revealActiveTransitCards(
                   safeLeft,
 
                 behavior:
-                  "smooth",
+                  "auto",
               });
             },
           );

@@ -2128,3 +2128,13 @@
     font-size: 16px;
   }
 }
+
+/* 手动滚动时不自动吸附卡片 */
+
+.transit-card-list {
+  scroll-snap-type: none;
+}
+
+.transit-select-card {
+  scroll-snap-align: none;
+}

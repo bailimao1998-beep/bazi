@@ -184,6 +184,13 @@ export function buildStagePresentationModel({
       .filter(Boolean),
   );
 
+  const triggeredImages =
+    buildTriggeredImageModel(
+      item?.triggerImages,
+      validIds,
+      normalizedStage,
+    );
+
   const target =
     buildTarget(
       normalizedStage,
@@ -272,6 +279,10 @@ export function buildStagePresentationModel({
         (entry) =>
           entry.evidenceRefs,
       ),
+      ...triggeredImages.threads.flatMap(
+        (entry) =>
+          entry.evidenceRefs,
+      ),
     ].filter((id) =>
       validIds.has(id),
     ));
@@ -289,6 +300,7 @@ export function buildStagePresentationModel({
     structureSummary:
       item?.transitStructure?.summary ?? null,
     structureFacts,
+    triggeredImages,
     aiPack: {
       stage: normalizedStage,
       target,
@@ -299,6 +311,9 @@ export function buildStagePresentationModel({
       structureSummary:
         item?.transitStructure?.summary ?? null,
       structureFacts,
+      triggeredImages,
+      storyBlueprint:
+        triggeredImages.storyBlueprint,
       hierarchyFacts:
         array(item?.transitStructure?.hierarchyFacts),
       convergenceFacts:
@@ -312,6 +327,178 @@ export function buildStagePresentationModel({
     },
   };
 }
+
+function buildTriggeredImageModel(
+  rawValue,
+  validIds,
+  stage,
+) {
+  const raw =
+    rawValue &&
+    typeof rawValue === "object"
+      ? rawValue
+      : {};
+
+  const threads = array(raw.threads)
+    .map((thread, index) => ({
+      id:
+        String(
+          thread?.id ||
+          `${stage}:trigger-image:${index}`,
+        ),
+      domain:
+        String(thread?.domain || ""),
+      domainLabel:
+        String(
+          thread?.domainLabel ||
+          "现实落点",
+        ),
+      label:
+        String(
+          thread?.label ||
+          "触发取象",
+        ),
+      certainty:
+        normalizeImageCertainty(
+          thread?.certainty,
+        ),
+      storyRole:
+        String(
+          thread?.storyRole ||
+          "trigger",
+        ),
+      strength:
+        Number(thread?.strength || 0),
+      trigger:
+        shortText(
+          thread?.trigger || "",
+          72,
+        ),
+      summary:
+        shortText(
+          thread?.summary || "",
+          150,
+        ),
+      possibleScenes:
+        unique(
+          array(
+            thread?.possibleScenes,
+          ),
+        ).slice(0, 4),
+      usefulDirections:
+        unique(
+          array(
+            thread?.usefulDirections,
+          ),
+        ).slice(0, 3),
+      pressureSignals:
+        unique(
+          array(
+            thread?.pressureSignals,
+          ),
+        ).slice(0, 3),
+      conditions:
+        unique(
+          array(thread?.conditions),
+        ).slice(0, 3),
+      evidenceRefs:
+        unique(
+          array(thread?.evidenceRefs)
+            .filter((id) =>
+              validIds.has(
+                String(id),
+              ),
+            ),
+        ),
+    }))
+    .filter((thread) =>
+      thread.summary ||
+      thread.possibleScenes.length,
+    );
+
+  const blueprint =
+    raw.storyBlueprint &&
+    typeof raw.storyBlueprint ===
+      "object"
+      ? {
+          opening:
+            shortText(
+              raw.storyBlueprint.opening ||
+              raw.headline ||
+              "",
+              100,
+            ),
+          development:
+            shortText(
+              raw.storyBlueprint.development ||
+              "",
+              130,
+            ),
+          turn:
+            shortText(
+              raw.storyBlueprint.turn ||
+              "",
+              120,
+            ),
+          landing:
+            shortText(
+              raw.storyBlueprint.landing ||
+              "",
+              120,
+            ),
+          threadIds:
+            unique(
+              array(
+                raw.storyBlueprint.threadIds,
+              ),
+            ),
+        }
+      : {
+          opening: "",
+          development: "",
+          turn: "",
+          landing: "",
+          threadIds: [],
+        };
+
+  return {
+    stage,
+    timeframe:
+      String(raw.timeframe || ""),
+    headline:
+      shortText(
+        raw.headline ||
+        blueprint.opening ||
+        "",
+        100,
+      ),
+    threads,
+    storyBlueprint: blueprint,
+    evidenceRefs:
+      unique(
+        threads.flatMap(
+          (thread) =>
+            thread.evidenceRefs,
+        ),
+      ),
+    boundaries:
+      unique(
+        array(raw.boundaries),
+      ).slice(0, 3),
+  };
+}
+
+function normalizeImageCertainty(value) {
+  return [
+    "direct",
+    "background",
+    "conditional",
+    "combined",
+  ].includes(value)
+    ? value
+    : "background";
+}
+
 
 function buildTarget(
   stage,

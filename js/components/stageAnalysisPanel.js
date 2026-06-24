@@ -166,6 +166,7 @@ function renderStageQuickSummary(model = {}) {
   const boundaries = Array.isArray(model.boundaries) ? model.boundaries : [];
   const structureFacts = Array.isArray(model.structureFacts) ? model.structureFacts : [];
   const structureSummary = model.structureSummary ?? null;
+  const triggeredImages = model.triggeredImages ?? {};
   const structureLabels = [...new Set(
     structureFacts
       .filter((fact) => Number(fact?.strength || 0) >= 3)
@@ -213,6 +214,8 @@ function renderStageQuickSummary(model = {}) {
           ` : ""}
         </section>
       ` : ""}
+
+      ${renderStageTriggeredImages(triggeredImages)}
 
       <section class="stage-focus-section">
         <h4>重点领域</h4>
@@ -280,6 +283,65 @@ function renderStageQuickSummary(model = {}) {
         </ul>
       </section>
     </article>
+  `;
+}
+
+
+function renderStageTriggeredImages(triggeredImages = {}) {
+  const threads = Array.isArray(triggeredImages?.threads)
+    ? triggeredImages.threads
+    : [];
+
+  if (!threads.length) {
+    return "";
+  }
+
+  const certaintyLabels = {
+    direct: "直接触发",
+    combined: "组合取象",
+    conditional: "条件取象",
+    background: "背景主题",
+  };
+
+  return `
+    <section class="stage-triggered-images">
+      <div class="stage-triggered-images-head">
+        <div>
+          <h4>触发取象</h4>
+          <p>${escapeHtml(
+            triggeredImages.headline ||
+            "把当前结构转成可供现实复核和 AI 讲述的场景线索。",
+          )}</p>
+        </div>
+        <span>${escapeHtml(triggeredImages.timeframe || "当前阶段")}</span>
+      </div>
+
+      <div class="stage-triggered-image-grid">
+        ${threads.map((thread) => `
+          <article class="stage-triggered-image-card">
+            <div class="stage-triggered-image-title">
+              <span>${escapeHtml(thread.domainLabel || "现实落点")}</span>
+              <em class="is-${escapeHtml(thread.certainty || "background")}">
+                ${escapeHtml(certaintyLabels[thread.certainty] || "背景主题")}
+              </em>
+            </div>
+
+            <h5>${escapeHtml(thread.label || "触发取象")}</h5>
+            <p>${escapeHtml(thread.summary || "")}</p>
+
+            ${thread.possibleScenes?.length ? `
+              <div class="stage-triggered-scene-list">
+                ${thread.possibleScenes.map((scene) => `
+                  <span>${escapeHtml(scene)}</span>
+                `).join("")}
+              </div>
+            ` : ""}
+
+            <small>${escapeHtml(thread.trigger || "")}</small>
+          </article>
+        `).join("")}
+      </div>
+    </section>
   `;
 }
 

@@ -135,17 +135,19 @@ const pressureLabels = new Set([
   "天克地冲",
 ]);
 
-const reinforceLabels = new Set([
+const repeatLabels = new Set([
   "伏吟",
   "天干同现",
   "地支同现",
+]);
+
+const connectionLabels = new Set([
   "天干五合",
   "六合",
   "半合条件",
   "三合局条件",
   "三会两支",
   "三会局条件",
-  "五行相承",
 ]);
 
 export function buildTransitStructureAnalysis({
@@ -256,14 +258,16 @@ function analyzePillarPair({
     ? `${source}${target.displayName}`
     : source;
 
-  if (
+  const isFullRepeat = Boolean(
     current.stem &&
     current.branch &&
     target.stem &&
     target.branch &&
     current.stem === target.stem &&
     current.branch === target.branch
-  ) {
+  );
+
+  if (isFullRepeat) {
     facts.push(createFact({
       stage,
       category: "direct",
@@ -279,7 +283,7 @@ function analyzePillarPair({
   }
 
   if (current.stem && target.stem) {
-    if (current.stem === target.stem) {
+    if (current.stem === target.stem && !isFullRepeat) {
       facts.push(createFact({
         stage,
         category: "direct",
@@ -345,7 +349,7 @@ function analyzePillarPair({
           domains,
           participants: [current.id, target.id],
         }));
-      } else {
+      } else if (!isFullRepeat) {
         branchPairFacts.push(createFact({
           stage,
           category: "direct",
@@ -520,9 +524,13 @@ function buildConvergenceFacts({
   const result = [];
 
   natal.forEach((natalPillar) => {
-    const activatedBy = activeLayers.filter((layer) =>
-      hasMeaningfulActivation(layer, natalPillar),
-    );
+    const activatedBy = activeLayers
+      .map((layer) => ({
+        layer,
+        strength: activationStrength(layer, natalPillar),
+      }))
+      .filter((entry) => entry.strength >= 3)
+      .map((entry) => entry.layer);
 
     if (activatedBy.length < 2) return;
 
@@ -532,7 +540,7 @@ function buildConvergenceFacts({
       type: "multi_layer_activation",
       label: "多层重复激活",
       source: "层级汇合",
-      text: `${activatedBy.map((pillar) => pillar.displayName).join("、")}同时牵动原局${natalPillar.displayName}，${pillarRoleText(natalPillar.key)}更容易成为当前阶段的共同落点。`,
+      text: `${activatedBy.map((pillar) => pillar.displayName).join("、")}同时以地支关系或整柱重复牵动原局${natalPillar.displayName}，${pillarRoleText(natalPillar.key)}更容易成为当前阶段的共同落点。`,
       strength: Math.min(5, 3 + activatedBy.length - 1),
       polarity: "mixed",
       domains: natalPillar.domains,
@@ -541,18 +549,19 @@ function buildConvergenceFacts({
   });
 
   const activatedPillars = natal.filter((natalPillar) =>
-    activeLayers.some((layer) => hasMeaningfulActivation(layer, natalPillar)),
+    activeLayers.some((layer) => activationStrength(layer, natalPillar) >= 3),
   );
 
-  if (activatedPillars.length >= 3) {
+  if (activatedPillars.length >= 2) {
+    const isMulti = activatedPillars.length >= 3;
     result.push(createFact({
       stage,
       category: "convergence",
-      type: "multi_domain_activation",
-      label: "多领域联动",
+      type: isMulti ? "multi_domain_activation" : "dual_domain_activation",
+      label: isMulti ? "多领域联动" : "双领域联动",
       source: "层级汇合",
-      text: `当前岁运同时牵动原局${activatedPillars.map((pillar) => pillar.displayName).join("、")}，说明变化不只集中在单一领域，需要按主次分层复核。`,
-      strength: 5,
+      text: `当前岁运以地支关系或整柱重复同时牵动原局${activatedPillars.map((pillar) => pillar.displayName).join("、")}，说明变化可能形成${isMulti ? "多领域" : "两个领域"}联动，需要按主次分层复核。`,
+      strength: isMulti ? 5 : 4,
       polarity: "mixed",
       domains: unique(activatedPillars.flatMap((pillar) => pillar.domains)),
       participants: activatedPillars.map((pillar) => pillar.id),
@@ -576,26 +585,33 @@ function buildHierarchyFacts({
       fact.participants?.includes(parent.id),
     );
 
-    const hasReinforce = pairFacts.some((fact) => reinforceLabels.has(fact.label));
+    const hasRepeat = pairFacts.some((fact) => repeatLabels.has(fact.label));
+    const hasConnection = pairFacts.some((fact) => connectionLabels.has(fact.label));
     const hasPressure = pairFacts.some((fact) => pressureLabels.has(fact.label));
 
     let tone = "parallel";
     let label = "层级并行";
-    let text = `${current.displayName}与${parent.displayName}暂未形成明显加力或牵制，先分别观察各自主题。`;
+    let text = `${current.displayName}与${parent.displayName}暂未形成明显加力、牵连或牵制，先分别观察各自主题。`;
     let strength = 2;
     let polarity = "neutral";
 
-    if (hasReinforce && hasPressure) {
+    if ((hasRepeat || hasConnection) && hasPressure) {
       tone = "mixed";
-      label = "一边加力一边牵制";
-      text = `${current.displayName}与${parent.displayName}同时存在重复、牵连与制约，阶段主题会被放大，但推进方式容易出现拉扯。`;
+      label = hasRepeat ? "一边加力一边牵制" : "牵连与制约并存";
+      text = `${current.displayName}与${parent.displayName}同时存在${hasRepeat ? "重复加力" : "连接牵连"}与冲克制约，阶段主题会被关注，但推进方式容易出现拉扯。`;
       strength = 5;
       polarity = "mixed";
-    } else if (hasReinforce) {
+    } else if (hasRepeat) {
       tone = "reinforce";
       label = "层级同向加力";
-      text = `${current.displayName}与${parent.displayName}存在重复或合象，当前主题更容易沿着上一层背景继续放大。`;
+      text = `${current.displayName}与${parent.displayName}存在整柱或干支重复，当前主题更容易沿着上一层背景继续放大。`;
       strength = 4;
+      polarity = "mixed";
+    } else if (hasConnection) {
+      tone = "connection";
+      label = "层级牵连";
+      text = `${current.displayName}与${parent.displayName}存在合象或组合条件，当前主题更容易被合作、关系或既有条件牵住，但不能直接按同向吉利处理。`;
+      strength = 3;
       polarity = "mixed";
     } else if (hasPressure) {
       tone = "conflict";
@@ -665,28 +681,52 @@ function buildSummary({
   };
 }
 
-function hasMeaningfulActivation(layer, natalPillar) {
-  if (!layer || !natalPillar) return false;
+function activationStrength(layer, natalPillar) {
+  if (!layer || !natalPillar) return 0;
 
   if (
     layer.stem && layer.branch &&
     natalPillar.stem && natalPillar.branch &&
     layer.stem === natalPillar.stem &&
     layer.branch === natalPillar.branch
-  ) return true;
+  ) {
+    return 5;
+  }
+
+  let strength = 0;
 
   if (layer.branch && natalPillar.branch) {
-    if (layer.branch === natalPillar.branch) return true;
-    if (findBranchRelations(layer.branch, natalPillar.branch).length) return true;
+    if (layer.branch === natalPillar.branch) {
+      strength = Math.max(strength, 4);
+    }
+
+    const branchFacts = findBranchRelations(
+      layer.branch,
+      natalPillar.branch,
+    );
+
+    if (branchFacts.some((fact) => ["冲", "刑", "害", "破"].includes(fact.label))) {
+      strength = Math.max(strength, 4);
+    } else if (branchFacts.length) {
+      strength = Math.max(strength, 3);
+    }
   }
 
+  /*
+   * 单独天干同现、五合或相克只作为背景关联，
+   * 不再直接把整柱计入多层重复激活。
+   */
   if (layer.stem && natalPillar.stem) {
-    if (layer.stem === natalPillar.stem) return true;
-    if (findStemCombination(layer.stem, natalPillar.stem)) return true;
-    if (findStemControl(layer.stem, natalPillar.stem)) return true;
+    if (layer.stem === natalPillar.stem) {
+      strength = Math.max(strength, 2);
+    } else if (findStemCombination(layer.stem, natalPillar.stem)) {
+      strength = Math.max(strength, 2);
+    } else if (findStemControl(layer.stem, natalPillar.stem)) {
+      strength = Math.max(strength, 1);
+    }
   }
 
-  return false;
+  return strength;
 }
 
 function normalizeNatalPillars(pillars) {

@@ -1,5 +1,6 @@
 import { branchMainStem, getTenGod } from "../bazi/tenGods.js";
 import { buildTransitStructureAnalysis } from "../transit/transitStructureAnalyzer.js";
+import { buildTransitTriggeredImages } from "../transit/transitImageComposer.js";
 
 const tenGodThemes = {
   比肩: "同辈、竞争、合作、自主",
@@ -166,6 +167,18 @@ function buildLuckItem(pillar, index, context) {
     natalPillars: context.natalPillars,
   });
 
+  const triggerImages = buildTransitTriggeredImages({
+    stage: "luck",
+    item: {
+      ganZhi: label,
+      stem,
+      branch,
+      tenGod,
+      branchTenGod,
+    },
+    structureAnalysis: transitStructure,
+  });
+
   return {
     index: pillar.index ?? index + 1,
     ageRange: `${pillar.startAge ?? ""}-${pillar.endAge ?? ""}岁`,
@@ -180,6 +193,7 @@ function buildLuckItem(pillar, index, context) {
     selectionMonth: selectionTarget.month,
     relationToNatal,
     transitStructure,
+    triggerImages,
     shortImage,
     image: shortImage,
     structureImage: `${label}大运天干为${tenGod}，阶段主题偏向${theme}；地支${branch}可看环境、落地场景与根气承接，地支主气十神为${branchTenGod}，偏向${branchTheme}。原局关系触发：${relationText} ${transitStructure.summary.text}`,

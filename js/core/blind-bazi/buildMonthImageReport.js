@@ -1,6 +1,7 @@
 import { createMonthPillar } from "../bazi/pillarMath.js";
 import { branchMainStem, getTenGod } from "../bazi/tenGods.js";
 import { buildTransitStructureAnalysis } from "../transit/transitStructureAnalyzer.js";
+import { buildTransitTriggeredImages } from "../transit/transitImageComposer.js";
 
 const tenGodThemes = {
   比肩: "竞争、同辈、自主、合作",
@@ -165,6 +166,22 @@ function buildMonthItem(context) {
     yearPillar: context.yearItem,
   });
 
+  const triggerImages = buildTransitTriggeredImages({
+    stage: "month",
+    item: {
+      year: context.targetYear,
+      month: context.selectedMonth,
+      ganZhi: pillar.label,
+      stem,
+      branch,
+      stemTenGod,
+      branchTenGod,
+      currentLuckItem: context.currentLuckItem,
+      yearItem: context.yearItem,
+    },
+    structureAnalysis: transitStructure,
+  });
+
   const natalText = relationToNatal.length
     ? relationToNatal.map((relation) => relation.description).join("；")
     : "流月与原局四支暂未命中基础冲、合、刑、害、破。";
@@ -203,6 +220,7 @@ function buildMonthItem(context) {
     relationToLuck,
     relationToYear,
     transitStructure,
+    triggerImages,
     image: `${context.targetYear}年 ${flowMonthLabel} ${pillar.label}流月，天干${stemTenGod}看当月外显主题，重点观察${stemTheme}；地支${branch}看当月环境、执行场景和触发点，地支主气十神${branchTenGod}偏向${branchTheme}。当前大运背景为${luckLabel}，当前流年背景为${yearLabel}，流月取象需放在这两层背景下复核。${transitStructure.summary.text}`,
     reality: [
       `观察主题：${stemTheme}是否在当月更集中。`,

@@ -2342,3 +2342,167 @@
 }
 
 /* ===== 岁运层级关系与组合事实 v3：结束 ===== */
+
+
+/* ===== 岁运触发取象与 AI 故事线索 v4：开始 ===== */
+
+.stage-triggered-images {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(226, 215, 200, 0.82);
+}
+
+.stage-triggered-images-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.stage-triggered-images-head > div {
+  min-width: 0;
+}
+
+.stage-triggered-images-head h4 {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.stage-triggered-images-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.stage-triggered-images-head > span {
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  border: 1px solid rgba(47, 111, 115, 0.2);
+  border-radius: 999px;
+  background: rgba(234, 247, 244, 0.45);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.stage-triggered-image-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stage-triggered-image-card {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  padding: 13px 14px;
+  border: 1px solid rgba(222, 208, 189, 0.88);
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.86);
+}
+
+.stage-triggered-image-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stage-triggered-image-title > span {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.stage-triggered-image-title em {
+  flex: 0 0 auto;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(109, 114, 110, 0.08);
+  color: var(--muted);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.stage-triggered-image-title em.is-direct {
+  background: rgba(47, 111, 115, 0.12);
+  color: var(--accent);
+}
+
+.stage-triggered-image-title em.is-combined {
+  background: rgba(161, 111, 41, 0.1);
+  color: #8c632c;
+}
+
+.stage-triggered-image-title em.is-conditional {
+  background: rgba(123, 101, 69, 0.08);
+  color: #78654d;
+}
+
+.stage-triggered-image-card h5 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 950;
+}
+
+.stage-triggered-image-card > p {
+  margin: 0;
+  color: #5f5a54;
+  font-size: 13px;
+  line-height: 1.62;
+}
+
+.stage-triggered-scene-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.stage-triggered-scene-list span {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 4px 7px;
+  border-radius: 5px;
+  background: rgba(234, 247, 244, 0.42);
+  color: #4f625f;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.stage-triggered-image-card > small {
+  color: #91887e;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+  .stage-triggered-image-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .stage-triggered-images-head {
+    display: grid;
+    gap: 8px;
+  }
+
+  .stage-triggered-images-head > span {
+    justify-self: start;
+  }
+
+  .stage-triggered-image-card {
+    padding: 12px;
+  }
+}
+
+/* ===== 岁运触发取象与 AI 故事线索 v4：结束 ===== */

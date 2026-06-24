@@ -3379,3 +3379,22 @@ li:last-child {
 }
 
 /* ===== 原局结构化章节 v9：结束 ===== */
+
+#natalAiNarrative
+.natal-ai-summary-advice > ol,
+#natalAiNarrative
+.natal-ai-review > ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#natalAiNarrative
+.natal-ai-summary-advice > ol > li,
+#natalAiNarrative
+.natal-ai-review > ol > li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}

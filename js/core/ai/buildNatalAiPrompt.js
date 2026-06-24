@@ -87,6 +87,8 @@ export function buildNatalAiPrompt({
       "12. 另外生成3至5条reviewQuestions，只用于复核证据互相牵制、存在两种可能表现或现实落点不明确的部分。",
       "13. reviewQuestions必须中性具体，普通用户可以回答，不得使用恐吓、诱导或预设结论的问法。",
       "14. reviewFocus说明师傅通过该问题需要区分哪两种表现，不得把内部证据ID直接写入问题。",
+      "15. reviewQuestions优先询问过去真实发生的行为和处理方式，少问抽象偏好、价值观或自我评价。",
+      "16. reviewFocus只能使用“用于区分A与B哪一种表现更明显”的中性表达，不得写成验证或确认某个预设结论。",
       "",
       "返回格式：",
       "必须只返回一个完整合法JSON对象，不使用Markdown代码块，不在JSON外添加文字。",

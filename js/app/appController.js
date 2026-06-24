@@ -193,7 +193,8 @@ export function createAppController({ roots, initialInput }) {
       luckAiState: store.luckAiState,
       yearAiState: store.yearAiState,
       monthAiState: store.monthAiState,
-      onSelectLuckYear: selectTargetYear,
+      onSelectLuck:
+        selectTargetLuck,
       onSelectYear: selectTargetYear,
       onSelectMonth: selectTargetMonth,
       onGenerateLuckAi: aiActions.generateLuckAiNarrative,

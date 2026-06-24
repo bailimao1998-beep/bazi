@@ -15,7 +15,21 @@ export function renderFortuneTransitPanel(root, payload = {}) {
   }
 
   const luckItems = state.luckImageReport?.luckItems ?? [];
-  const currentLuck = luckItems.find((item) => item.isCurrent) ?? luckItems[0] ?? {};
+  const selectedTargetYear =
+    Number(
+      state.input?.targetYear,
+    );
+  const currentLuck =
+    findLuckForYear(
+      luckItems,
+      selectedTargetYear,
+    ) ??
+    luckItems.find(
+      (item) =>
+        item.isCurrent,
+    ) ??
+    luckItems[0] ??
+    {};
   const yearItem = state.yearImageReport?.yearItem ?? {};
   const monthItem = state.monthImageReport?.monthItem ?? {};
   const selectedYear = Number(yearItem.year ?? state.input?.targetYear);
@@ -86,6 +100,60 @@ function bindTransitEvents(root, payload = {}) {
   });
 }
 
+function findLuckForYear(
+  luckItems = [],
+  targetYear,
+) {
+  const year =
+    Number(targetYear);
+
+  if (
+    !Number.isFinite(
+      year,
+    )
+  ) {
+    return null;
+  }
+
+  return (
+    (
+      Array.isArray(
+        luckItems,
+      )
+        ? luckItems
+        : []
+    )
+      .find(
+        (item) => {
+          const years =
+            String(
+              item?.yearRange ??
+              "",
+            )
+              .match(
+                /\d{3,4}/g,
+              )
+              ?.map(
+                Number,
+              ) ??
+            [];
+
+          if (
+            years.length < 2
+          ) {
+            return false;
+          }
+
+          return (
+            year >= years[0] &&
+            year <= years[1]
+          );
+        },
+      ) ??
+    null
+  );
+}
+
 function formatSelectionSummary(currentLuck = {}, yearItem = {}, monthItem = {}) {
   return [
     currentLuck.ganZhi ? `大运 ${currentLuck.ganZhi}` : "",
@@ -138,46 +206,18 @@ function revealActiveTransitCards(
                 return;
               }
 
-              const inset =
-                10;
-
-              const viewLeft =
-                list.scrollLeft;
-
-              const viewRight =
-                viewLeft +
-                list.clientWidth;
-
-              const cardLeft =
-                activeCard.offsetLeft;
-
-              const cardRight =
-                cardLeft +
-                activeCard.offsetWidth;
-
-              let targetLeft =
-                viewLeft;
-
               /*
-               * 只在当前卡片超出可见范围时移动。
-               * 不再强制把卡片居中，避免整排内容左右跳动。
+               * 只有存在横向滚动时，
+               * 才把选中卡片尽可能放在中间。
+               * 首尾卡片会受滚动边界限制。
                */
-              if (
-                cardLeft <
-                viewLeft + inset
-              ) {
-                targetLeft =
-                  cardLeft -
-                  inset;
-              } else if (
-                cardRight >
-                viewRight - inset
-              ) {
-                targetLeft =
-                  cardRight -
-                  list.clientWidth +
-                  inset;
-              }
+              const targetLeft =
+                activeCard.offsetLeft -
+                (
+                  list.clientWidth -
+                  activeCard.offsetWidth
+                ) /
+                  2;
 
               const maxLeft =
                 Math.max(
@@ -194,15 +234,6 @@ function revealActiveTransitCards(
                     targetLeft,
                   ),
                 );
-
-              if (
-                Math.abs(
-                  safeLeft -
-                  viewLeft,
-                ) < 2
-              ) {
-                return;
-              }
 
               list.scrollTo({
                 left:

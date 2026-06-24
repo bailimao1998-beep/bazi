@@ -5,12 +5,17 @@ export function detectChatIntent(question = "") {
     return "multiYear";
   }
 
-  if (/流年|今年|明年|后年|年份|哪一年|20\d{2}/.test(text)) {
-    return "yearTrend";
+  /*
+   * 月份意图必须先于年份意图判断。
+   * 例如“2027年哪几个月好”同时含年份和月份，
+   * 实际需要十二流月数据，而不是只加载流年。
+   */
+  if (/流月|月份|这个月|下个月|每个月|几月|哪月|哪几个月|哪些月|哪个月/.test(text)) {
+    return "monthTrend";
   }
 
-  if (/流月|月份|这个月|下个月|几月|哪月/.test(text)) {
-    return "monthTrend";
+  if (/流年|今年|明年|后年|年份|哪一年|20\d{2}/.test(text)) {
+    return "yearTrend";
   }
 
   if (/感情|婚姻|对象|正缘|桃花|恋爱|分手|复合|配偶/.test(text)) {
@@ -29,7 +34,17 @@ export function detectChatIntent(question = "") {
     return "health";
   }
 
-  if (/为什么|依据|证据|怎么看出来|哪里看/.test(text)) {
+  /*
+   * 不能把所有包含“为什么”的普通问题都识别成命盘证据问题。
+   * 只有同时出现命理对象与依据询问时，才进入 chartEvidence。
+   */
+  const hasFortuneSubject =
+    /八字|命盘|命局|命理|排盘|日主|四柱|五行|十神|藏干|格局|喜用|用神|忌神|旺衰|身强|身弱|做功|大运|流年|流月/.test(text);
+
+  const asksForEvidence =
+    /为什么|依据|证据|怎么看出来|哪里看|如何判断/.test(text);
+
+  if (hasFortuneSubject && asksForEvidence) {
     return "chartEvidence";
   }
 

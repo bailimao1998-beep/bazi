@@ -119,6 +119,51 @@ const tripleMeetingGroups = [
   { members: ["亥", "子", "丑"], element: "水" },
 ];
 
+/*
+ * 三合中的两支并不都按“半合”处理：
+ * - 中神参与：生地半合、墓地半合
+ * - 缺中神：只记拱合条件
+ */
+const halfHarmonyPairs = [
+  { members: ["申", "子"], element: "水", subtype: "生地半合" },
+  { members: ["子", "辰"], element: "水", subtype: "墓地半合" },
+  { members: ["亥", "卯"], element: "木", subtype: "生地半合" },
+  { members: ["卯", "未"], element: "木", subtype: "墓地半合" },
+  { members: ["寅", "午"], element: "火", subtype: "生地半合" },
+  { members: ["午", "戌"], element: "火", subtype: "墓地半合" },
+  { members: ["巳", "酉"], element: "金", subtype: "生地半合" },
+  { members: ["酉", "丑"], element: "金", subtype: "墓地半合" },
+];
+
+const archHarmonyPairs = [
+  { members: ["申", "辰"], element: "水" },
+  { members: ["亥", "未"], element: "木" },
+  { members: ["寅", "戌"], element: "火" },
+  { members: ["巳", "丑"], element: "金" },
+];
+
+/*
+ * 三会两支也区分相邻两支与首尾两支。
+ * 首尾两支只保留“拱会条件”，不与相邻两支同权。
+ */
+const partialMeetingPairs = [
+  { members: ["寅", "卯"], element: "木" },
+  { members: ["卯", "辰"], element: "木" },
+  { members: ["巳", "午"], element: "火" },
+  { members: ["午", "未"], element: "火" },
+  { members: ["申", "酉"], element: "金" },
+  { members: ["酉", "戌"], element: "金" },
+  { members: ["亥", "子"], element: "水" },
+  { members: ["子", "丑"], element: "水" },
+];
+
+const archMeetingPairs = [
+  { members: ["寅", "辰"], element: "木" },
+  { members: ["巳", "未"], element: "火" },
+  { members: ["申", "戌"], element: "金" },
+  { members: ["亥", "丑"], element: "水" },
+];
+
 const triplePunishmentGroups = [
   { members: ["寅", "巳", "申"], name: "恃势之刑" },
   { members: ["丑", "戌", "未"], name: "无恩之刑" },
@@ -145,8 +190,10 @@ const connectionLabels = new Set([
   "天干五合",
   "六合",
   "半合条件",
+  "拱合条件",
   "三合局条件",
   "三会两支",
+  "拱会条件",
   "三会局条件",
 ]);
 
@@ -230,7 +277,7 @@ export function buildTransitStructureAnalysis({
     hierarchyFacts: facts.filter((fact) => fact.category === "hierarchy"),
     summary,
     boundaries: [
-      "三合、三会和半合只表示组合条件，是否成局、化气仍需结合月令、透干、制化和全局承接。",
+      "三合、三会、半合与拱局只表示组合条件；是否成局、化气仍需结合月令、中神旺衰、透干、制化、冲破和全局承接。",
       "伏吟、天克地冲和多层重复激活只表示主题加重或变化集中，不直接等同具体事件。",
       "岁运结构事实必须结合原局强弱、喜忌和现实反馈复核。",
     ],
@@ -247,10 +294,15 @@ function analyzePillarPair({
   if (!current || !target) return [];
 
   const facts = [];
-  const domains = unique([
-    ...targetDomains,
-    ...domainsForTenGod(current.tenGod),
-  ]);
+  const domains =
+    target.level === "natal" &&
+    targetDomains.length
+      ? unique(targetDomains)
+      : unique([
+          ...targetDomains,
+          ...domainsForTenGod(current.tenGod),
+          ...domainsForTenGod(target.tenGod),
+        ]);
 
   const currentLabel = current.ganZhi || `${current.stem || ""}${current.branch || ""}` || current.displayName;
   const targetLabel = target.ganZhi || `${target.stem || ""}${target.branch || ""}` || target.displayName;
@@ -309,8 +361,13 @@ function analyzePillarPair({
         text: `${pairSource}：${current.stem}${target.stem}五合，具备向${combination.element}气牵连的条件，但是否化气仍需结合月令与全局。`,
         strength: 4,
         polarity: "mixed",
+        status: "direct",
         domains,
         participants: [current.id, target.id],
+        meta: {
+          transformationStatus: "unresolved",
+          targetElement: combination.element,
+        },
       }));
     }
 
@@ -327,8 +384,17 @@ function analyzePillarPair({
         text: `${pairSource}：${control.controller}克${control.controlled}，外显主题之间存在制约、压力或取舍。`,
         strength: 3,
         polarity: "pressure",
+        status: "direct",
         domains,
         participants: [current.id, target.id],
+        meta: {
+          controller: control.controller,
+          controlled: control.controlled,
+          direction:
+            control.controller === current.stem
+              ? "current_controls_target"
+              : "target_controls_current",
+        },
       }));
     }
   }
@@ -439,24 +505,78 @@ function buildCombinationFacts({
         type: "triple_harmony",
         label: "三合局条件",
         source: "多层组合",
-        text: `${group.members.join("")}三合${group.element}局三支已齐，但是否成局、化气仍需结合月令、透干与制化。`,
+        text: `${group.members.join("")}三合${group.element}局三支已齐，但这里只确认组合条件；是否成局、化气仍需结合月令、中神旺衰、透干、制化及是否被冲破。`,
         strength: 5,
         polarity: "mixed",
+        status: "condition_only",
         domains,
-        participants: participants.filter((pillar) => group.members.includes(pillar.branch)).map((pillar) => pillar.id),
+        participants: participants
+          .filter((pillar) => group.members.includes(pillar.branch))
+          .map((pillar) => pillar.id),
+        meta: {
+          element: group.element,
+          formationStatus: "unresolved",
+          conditionType: "triple_harmony",
+        },
       }));
-    } else if (present.length === 2) {
+      return;
+    }
+
+    if (present.length !== 2) return;
+
+    const halfPair = halfHarmonyPairs.find((pair) =>
+      samePair(pair.members, present),
+    );
+
+    if (halfPair) {
       result.push(createFact({
         stage,
         category: "combination",
         type: "half_harmony",
         label: "半合条件",
         source: "多层组合",
-        text: `${present.join("")}具备${group.element}局半合条件，主题存在牵连，但尚未齐三支，不能按成局处理。`,
+        text: `${present.join("")}为${halfPair.subtype}，具备${halfPair.element}局半合条件；中神已参与，但尚未齐三支，不能直接按成局或化气处理。`,
         strength: 3,
         polarity: "mixed",
+        status: "condition_only",
         domains,
-        participants: participants.filter((pillar) => present.includes(pillar.branch)).map((pillar) => pillar.id),
+        participants: participants
+          .filter((pillar) => present.includes(pillar.branch))
+          .map((pillar) => pillar.id),
+        meta: {
+          element: halfPair.element,
+          subtype: halfPair.subtype,
+          formationStatus: "unresolved",
+          conditionType: "half_harmony",
+        },
+      }));
+      return;
+    }
+
+    const archPair = archHarmonyPairs.find((pair) =>
+      samePair(pair.members, present),
+    );
+
+    if (archPair) {
+      result.push(createFact({
+        stage,
+        category: "combination",
+        type: "arch_harmony",
+        label: "拱合条件",
+        source: "多层组合",
+        text: `${present.join("")}缺${group.members.find((branch) => !present.includes(branch)) || "中神"}，只具备拱${archPair.element}条件；可作为主题牵连线索，但强度低于半合，不能按成局处理。`,
+        strength: 2,
+        polarity: "mixed",
+        status: "arch_condition",
+        domains,
+        participants: participants
+          .filter((pillar) => present.includes(pillar.branch))
+          .map((pillar) => pillar.id),
+        meta: {
+          element: archPair.element,
+          formationStatus: "unresolved",
+          conditionType: "arch_harmony",
+        },
       }));
     }
   });
@@ -472,24 +592,77 @@ function buildCombinationFacts({
         type: "triple_meeting",
         label: "三会局条件",
         source: "多层组合",
-        text: `${group.members.join("")}三会${group.element}局三支已齐，季节气势可能集中，但仍需结合月令与透干判断是否成势。`,
+        text: `${group.members.join("")}三会${group.element}局三支已齐，但这里只确认方气聚集条件；是否真正成势仍需结合月令、透干、制化和是否被冲散。`,
         strength: 5,
         polarity: "mixed",
+        status: "condition_only",
         domains,
-        participants: participants.filter((pillar) => group.members.includes(pillar.branch)).map((pillar) => pillar.id),
+        participants: participants
+          .filter((pillar) => group.members.includes(pillar.branch))
+          .map((pillar) => pillar.id),
+        meta: {
+          element: group.element,
+          formationStatus: "unresolved",
+          conditionType: "triple_meeting",
+        },
       }));
-    } else if (present.length === 2) {
+      return;
+    }
+
+    if (present.length !== 2) return;
+
+    const partialPair = partialMeetingPairs.find((pair) =>
+      samePair(pair.members, present),
+    );
+
+    if (partialPair) {
       result.push(createFact({
         stage,
         category: "combination",
         type: "partial_meeting",
         label: "三会两支",
         source: "多层组合",
-        text: `${present.join("")}具备${group.element}方两支相会条件，气势有集中倾向，但尚不能按完整三会局处理。`,
+        text: `${present.join("")}为相邻方气两支，具备${partialPair.element}方聚集条件；气势有靠拢倾向，但尚不能按完整三会局处理。`,
         strength: 3,
         polarity: "mixed",
+        status: "condition_only",
         domains,
-        participants: participants.filter((pillar) => present.includes(pillar.branch)).map((pillar) => pillar.id),
+        participants: participants
+          .filter((pillar) => present.includes(pillar.branch))
+          .map((pillar) => pillar.id),
+        meta: {
+          element: partialPair.element,
+          formationStatus: "unresolved",
+          conditionType: "partial_meeting",
+        },
+      }));
+      return;
+    }
+
+    const archPair = archMeetingPairs.find((pair) =>
+      samePair(pair.members, present),
+    );
+
+    if (archPair) {
+      result.push(createFact({
+        stage,
+        category: "combination",
+        type: "arch_meeting",
+        label: "拱会条件",
+        source: "多层组合",
+        text: `${present.join("")}隔位相见，只具备拱${archPair.element}方气条件；可观察环境趋向，但强度低于相邻两支，不能按三会局处理。`,
+        strength: 2,
+        polarity: "mixed",
+        status: "arch_condition",
+        domains,
+        participants: participants
+          .filter((pillar) => present.includes(pillar.branch))
+          .map((pillar) => pillar.id),
+        meta: {
+          element: archPair.element,
+          formationStatus: "unresolved",
+          conditionType: "arch_meeting",
+        },
       }));
     }
   });
@@ -505,11 +678,18 @@ function buildCombinationFacts({
       type: "triple_punishment",
       label: "三刑组合",
       source: "多层组合",
-      text: `${group.members.join("")}三刑条件齐全（${group.name}），规则压力、摩擦和内耗容易集中，需要结合全局制化复核。`,
+      text: `${group.members.join("")}三刑三支齐全（${group.name}），规则压力、摩擦和内耗容易集中；是否明显应事仍需结合原局承接和现实触发。`,
       strength: 5,
       polarity: "pressure",
+      status: "condition_only",
       domains,
-      participants: participants.filter((pillar) => group.members.includes(pillar.branch)).map((pillar) => pillar.id),
+      participants: participants
+        .filter((pillar) => group.members.includes(pillar.branch))
+        .map((pillar) => pillar.id),
+      meta: {
+        formationStatus: "unresolved",
+        conditionType: "triple_punishment",
+      },
     }));
   });
 
@@ -543,6 +723,7 @@ function buildConvergenceFacts({
       text: `${activatedBy.map((pillar) => pillar.displayName).join("、")}同时以地支关系或整柱重复牵动原局${natalPillar.displayName}，${pillarRoleText(natalPillar.key)}更容易成为当前阶段的共同落点。`,
       strength: Math.min(5, 3 + activatedBy.length - 1),
       polarity: "mixed",
+      status: "inferred",
       domains: natalPillar.domains,
       participants: [natalPillar.id, ...activatedBy.map((pillar) => pillar.id)],
     }));
@@ -563,6 +744,7 @@ function buildConvergenceFacts({
       text: `当前岁运以地支关系或整柱重复同时牵动原局${activatedPillars.map((pillar) => pillar.displayName).join("、")}，说明变化可能形成${isMulti ? "多领域" : "两个领域"}联动，需要按主次分层复核。`,
       strength: isMulti ? 5 : 4,
       polarity: "mixed",
+      status: "inferred",
       domains: unique(activatedPillars.flatMap((pillar) => pillar.domains)),
       participants: activatedPillars.map((pillar) => pillar.id),
     }));
@@ -585,46 +767,90 @@ function buildHierarchyFacts({
       fact.participants?.includes(parent.id),
     );
 
-    const hasRepeat = pairFacts.some((fact) => repeatLabels.has(fact.label));
-    const hasConnection = pairFacts.some((fact) => connectionLabels.has(fact.label));
-    const hasPressure = pairFacts.some((fact) => pressureLabels.has(fact.label));
+    const hasFullRepeat = pairFacts.some((fact) => fact.label === "伏吟");
+    const hasBranchRepeat = pairFacts.some((fact) =>
+      ["地支同现"].includes(fact.label),
+    );
+    const hasStemRepeat = pairFacts.some((fact) => fact.label === "天干同现");
+    const hasConnection = pairFacts.some((fact) =>
+      ["六合", "天干五合"].includes(fact.label),
+    );
+    const hasStrongPressure = pairFacts.some((fact) =>
+      ["冲", "刑", "害", "破", "自刑", "天克地冲"].includes(fact.label),
+    );
 
     let tone = "parallel";
     let label = "层级并行";
-    let text = `${current.displayName}与${parent.displayName}暂未形成明显加力、牵连或牵制，先分别观察各自主题。`;
-    let strength = 2;
+    let text = `${current.displayName}与${parent.displayName}暂未形成明显的重复、地支强关系或上下层制约，先分别观察各自主题。`;
+    let strength = 1.8;
     let polarity = "neutral";
+    let status = "inferred";
 
-    if ((hasRepeat || hasConnection) && hasPressure) {
+    if ((hasFullRepeat || hasBranchRepeat) && hasStrongPressure) {
       tone = "mixed";
-      label = hasRepeat ? "一边加力一边牵制" : "牵连与制约并存";
-      text = `${current.displayName}与${parent.displayName}同时存在${hasRepeat ? "重复加力" : "连接牵连"}与冲克制约，阶段主题会被关注，但推进方式容易出现拉扯。`;
+      label = "一边加力一边牵制";
+      text = `${current.displayName}与${parent.displayName}既有整柱或地支重复，又有冲刑害破等制约，主题会被放大，但推进方式容易拉扯、调整或反复。`;
       strength = 5;
       polarity = "mixed";
-    } else if (hasRepeat) {
+    } else if (hasFullRepeat || hasBranchRepeat) {
       tone = "reinforce";
       label = "层级同向加力";
-      text = `${current.displayName}与${parent.displayName}存在整柱或干支重复，当前主题更容易沿着上一层背景继续放大。`;
-      strength = 4;
+      text = `${current.displayName}与${parent.displayName}存在${hasFullRepeat ? "整柱重复" : "地支重复"}，现实落点更容易沿上一层背景继续放大。`;
+      strength = hasFullRepeat ? 4.5 : 4;
       polarity = "mixed";
+    } else if (hasStrongPressure) {
+      tone = "conflict";
+      label = "层级牵制转向";
+      text = `${current.displayName}与${parent.displayName}存在冲刑害破或天克地冲，当前阶段更可能对上一层背景形成调整、打断或转向。`;
+      strength = 4;
+      polarity = "pressure";
     } else if (hasConnection) {
       tone = "connection";
       label = "层级牵连";
-      text = `${current.displayName}与${parent.displayName}存在合象或组合条件，当前主题更容易被合作、关系或既有条件牵住，但不能直接按同向吉利处理。`;
+      text = `${current.displayName}与${parent.displayName}存在合象或五合牵连，当前主题更容易被合作、关系或既有条件连接；合化与吉凶仍未判定。`;
       strength = 3;
       polarity = "mixed";
-    } else if (hasPressure) {
-      tone = "conflict";
-      label = "层级牵制转向";
-      text = `${current.displayName}与${parent.displayName}存在冲克刑害破等制约，当前阶段可能对上一层背景形成调整、打断或转向。`;
-      strength = 4;
-      polarity = "pressure";
-    } else if (isGeneratingOrSameElement(current.stem, parent.stem)) {
-      tone = "reinforce";
-      label = "五行相承";
-      text = `${current.displayName}与${parent.displayName}天干五行同类或相生，外显主题存在承接关系，但仍需结合地支与原局判断强弱。`;
-      strength = 3;
+      status = "condition_only";
+    } else if (hasStemRepeat) {
+      tone = "stem_repeat";
+      label = "外显主线重复";
+      text = `${current.displayName}与${parent.displayName}天干相同，外显主题连续出现；这只说明主线重复，现实是否加重仍要看地支和原局承接。`;
+      strength = 2.5;
       polarity = "mixed";
+    } else {
+      const direction = findStemElementRelation(current.stem, parent.stem);
+
+      if (direction?.type === "parent_generates_current") {
+        tone = "support";
+        label = "上层生扶当前";
+        text = `${parent.displayName}天干五行生${current.displayName}天干五行，上层背景对当前主题形成生扶；是否真正有利仍需结合十神性质与原局喜忌。`;
+        strength = 3;
+        polarity = "mixed";
+      } else if (direction?.type === "current_generates_parent") {
+        tone = "output";
+        label = "当前向上输出";
+        text = `${current.displayName}天干五行生${parent.displayName}天干五行，当前层更像向上一层输出、泄化或提供条件，可能带来付出与承接并存。`;
+        strength = 3;
+        polarity = "mixed";
+      } else if (direction?.type === "current_controls_parent") {
+        tone = "current_controls";
+        label = "当前制约上层";
+        text = `${current.displayName}天干五行克${parent.displayName}天干五行，当前层对上一层背景形成制约或改造，可能表现为主动调整、挑战旧规则或改变推进方式。`;
+        strength = 3;
+        polarity = "mixed";
+      } else if (direction?.type === "parent_controls_current") {
+        tone = "parent_controls";
+        label = "上层约束当前";
+        text = `${parent.displayName}天干五行克${current.displayName}天干五行，上层背景对当前行动形成约束、筛选或压力，推进需要服从既有条件。`;
+        strength = 3;
+        polarity = "pressure";
+      } else if (direction?.type === "same_element") {
+        tone = "same_element";
+        label = "同气并行";
+        text = `${current.displayName}与${parent.displayName}天干同属${direction.element}，外显方向相近，但不等同整柱伏吟或现实必然加重。`;
+        strength = 2.2;
+        polarity = "mixed";
+      }
     }
 
     result.push(createFact({
@@ -636,12 +862,17 @@ function buildHierarchyFacts({
       text,
       strength,
       polarity,
+      status,
       domains: unique([
         ...domainsForTenGod(current.tenGod),
         ...domainsForTenGod(parent.tenGod),
       ]),
       participants: [current.id, parent.id],
-      meta: { tone, parentLevel: parent.level },
+      meta: {
+        tone,
+        parentLevel: parent.level,
+        stemDirection: findStemElementRelation(current.stem, parent.stem)?.type || "",
+      },
     }));
   });
 
@@ -657,18 +888,24 @@ function buildSummary({
 }) {
   const highFacts = facts.filter((fact) => Number(fact.strength || 0) >= 4);
   const pressureCount = facts.filter((fact) => fact.polarity === "pressure").length;
-  const reinforceCount = hierarchyFacts.filter((fact) => fact.meta?.tone === "reinforce").length;
-  const conflictCount = hierarchyFacts.filter((fact) => fact.meta?.tone === "conflict").length;
-  const mixedCount = hierarchyFacts.filter((fact) => fact.meta?.tone === "mixed").length;
+  const tones = hierarchyFacts.map((fact) => fact.meta?.tone).filter(Boolean);
 
   let tone = "平行观察";
-  if (mixedCount || (reinforceCount && conflictCount)) tone = "加力与牵制并存";
-  else if (conflictCount) tone = "牵制与转向较明显";
-  else if (reinforceCount) tone = "层级同向加力";
+  if (tones.includes("mixed")) tone = "加力与牵制并存";
+  else if (tones.includes("conflict")) tone = "层级牵制转向";
+  else if (tones.includes("reinforce")) tone = "层级重复加力";
+  else if (tones.includes("parent_controls")) tone = "上层约束当前";
+  else if (tones.includes("current_controls")) tone = "当前制约上层";
+  else if (tones.includes("support")) tone = "上层生扶当前";
+  else if (tones.includes("output")) tone = "当前向上输出";
   else if (convergenceFacts.some((fact) => fact.label === "多领域联动")) tone = "原局多点被牵动";
   else if (pressureCount >= 2) tone = "压力触发偏集中";
 
-  const topLabels = unique(highFacts.map((fact) => fact.label)).slice(0, 4);
+  const topLabels = unique(
+    highFacts
+      .filter((fact) => fact.status !== "arch_condition")
+      .map((fact) => fact.label),
+  ).slice(0, 4);
   const stageName = stageLabels[stage];
 
   return {
@@ -802,11 +1039,58 @@ function findStemControl(left, right) {
   return null;
 }
 
-function isGeneratingOrSameElement(leftStem, rightStem) {
-  const left = stemElements[leftStem];
-  const right = stemElements[rightStem];
-  if (!left || !right) return false;
-  return left === right || generatingElement[left] === right || generatingElement[right] === left;
+function findStemElementRelation(currentStem, parentStem) {
+  const currentElement = stemElements[currentStem];
+  const parentElement = stemElements[parentStem];
+
+  if (!currentElement || !parentElement) return null;
+
+  if (currentElement === parentElement) {
+    return {
+      type: "same_element",
+      currentElement,
+      parentElement,
+      element: currentElement,
+    };
+  }
+
+  if (generatingElement[parentElement] === currentElement) {
+    return {
+      type: "parent_generates_current",
+      currentElement,
+      parentElement,
+    };
+  }
+
+  if (generatingElement[currentElement] === parentElement) {
+    return {
+      type: "current_generates_parent",
+      currentElement,
+      parentElement,
+    };
+  }
+
+  if (controllingElement[currentElement] === parentElement) {
+    return {
+      type: "current_controls_parent",
+      currentElement,
+      parentElement,
+    };
+  }
+
+  if (controllingElement[parentElement] === currentElement) {
+    return {
+      type: "parent_controls_current",
+      currentElement,
+      parentElement,
+    };
+  }
+
+  return {
+    type: "unrelated",
+    currentElement,
+    parentElement,
+  };
 }
 
 function findBranchRelations(left, right) {
@@ -850,6 +1134,7 @@ function createFact({
   text,
   strength = 1,
   polarity = "neutral",
+  status = "direct",
   domains = [],
   participants = [],
   tags = [],
@@ -877,6 +1162,7 @@ function createFact({
     description: text,
     strength,
     polarity,
+    status,
     domains: unique(domains),
     participants: cleanParticipants,
     evidenceRefs: [id],

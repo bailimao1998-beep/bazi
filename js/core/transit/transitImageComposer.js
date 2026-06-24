@@ -16,6 +16,27 @@ const stageSceneLimits = {
   month: 4,
 };
 
+const stageRoleQuotas = {
+  luck: {
+    background: 2,
+    trigger: 1,
+    turn: 1,
+    landing: 1,
+  },
+  year: {
+    background: 2,
+    trigger: 2,
+    turn: 1,
+    landing: 1,
+  },
+  month: {
+    background: 1,
+    trigger: 1,
+    turn: 1,
+    landing: 1,
+  },
+};
+
 const domainGroups = {
   career: {
     label: "事业与规则",
@@ -328,6 +349,63 @@ const relationImages = {
     useful: ["保持连续性", "沿已有方向推进", "减少重复试错"],
     pressure: ["惯性过强", "忽略现实变化", "只看方向不看落地"],
   },
+
+  拱合条件: {
+    label: "主题拱合线索",
+    certainty: "conditional",
+    scenes: ["两端条件已出现，但关键中神尚未到位", "现实中可见主题牵连或预热，暂不宜按成局处理", "等待第三条件、月令或现实承接后再判断强度"],
+    useful: ["保留观察", "等待关键条件", "避免提前定性"],
+    pressure: ["趋势被高估", "过早押注", "牵连未能落地"],
+  },
+  拱会条件: {
+    label: "方气拱势线索",
+    certainty: "conditional",
+    scenes: ["首尾两支出现但中间支缺位", "环境方向可能靠拢，现实推动力仍不足", "可提前准备，但不宜把趋势当作已成形"],
+    useful: ["观察环境走向", "准备资源", "等待中间条件"],
+    pressure: ["趋势不完整", "误判环境", "过度提前布局"],
+  },
+  外显主线重复: {
+    label: "外显主线连续",
+    certainty: "background",
+    scenes: ["同类目标、表达方式或行动主题连续出现", "上一层主题在当前阶段继续被提到", "外在主线保持一致，但落地强度仍由地支决定"],
+    useful: ["保持连续性", "聚焦同类目标", "减少重复试错"],
+    pressure: ["重复用力", "主线过窄", "忽略现实承接"],
+  },
+  上层生扶当前: {
+    label: "上层背景提供支持",
+    certainty: "combined",
+    scenes: ["大运或流年背景为当前阶段提供资源、条件或推动", "当前主题更容易获得已有环境支持", "支持是否转成成果仍要看执行与原局承接"],
+    useful: ["借用已有条件", "顺势推进", "把支持转成具体成果"],
+    pressure: ["依赖背景", "支持未落地", "资源使用效率不足"],
+  },
+  当前向上输出: {
+    label: "当前层向上输出",
+    certainty: "combined",
+    scenes: ["当前阶段需要向上一层主线投入时间、精力或成果", "短期行动为长期目标提供内容和承接", "可能出现付出增加、成果逐步沉淀的过程"],
+    useful: ["持续输出", "形成成果", "服务长期主线"],
+    pressure: ["泄耗增加", "付出先于回报", "短期负担上升"],
+  },
+  当前制约上层: {
+    label: "当前层改造上层背景",
+    certainty: "combined",
+    scenes: ["当前行动对原有阶段安排形成挑战或修正", "旧规则、旧计划或长期路径需要调整", "主动改变能带来突破，也会产生协调成本"],
+    useful: ["主动修正", "打破旧路径", "建立新方案"],
+    pressure: ["冲突升级", "调整成本", "旧新目标拉扯"],
+  },
+  上层约束当前: {
+    label: "上层背景约束当前",
+    certainty: "combined",
+    scenes: ["长期环境、规则或已有责任限制当前行动", "当前阶段需要先满足既有条件再推进", "外部压力可能筛选掉不现实的方案"],
+    useful: ["接受筛选", "遵循条件", "在约束内优化"],
+    pressure: ["行动受限", "压力集中", "自主空间下降"],
+  },
+  同气并行: {
+    label: "同类方向并行",
+    certainty: "background",
+    scenes: ["上下层五行方向相近，主题容易保持连续", "同类目标或人物同时出现", "方向一致不等于现实必然加重，仍需看地支落点"],
+    useful: ["保持方向", "协同推进", "减少内耗"],
+    pressure: ["同质化", "缺少变化", "重复投入"],
+  },
   三会两支: {
     label: "环境聚集条件",
     certainty: "conditional",
@@ -353,11 +431,17 @@ export function buildTransitTriggeredImages({
   const facts = array(structureAnalysis?.facts);
   const candidates = [
     ...buildTenGodCandidates(normalizedStage, item),
-    ...facts.map((fact) => buildFactCandidate(normalizedStage, fact)).filter(Boolean),
+    ...facts
+      .map((fact) => buildFactCandidate(normalizedStage, fact))
+      .filter(Boolean),
   ];
 
-  const threads = mergeAndRankCandidates(candidates)
-    .slice(0, stageSceneLimits[normalizedStage]);
+  const ranked = mergeAndRankCandidates(candidates);
+  const threads = selectStageThreads(
+    ranked,
+    normalizedStage,
+    stageSceneLimits[normalizedStage],
+  );
 
   const storyBlueprint = buildStoryBlueprint({
     stage: normalizedStage,
@@ -366,17 +450,24 @@ export function buildTransitTriggeredImages({
     structureSummary: structureAnalysis?.summary,
   });
 
+  const storyPack = buildStoryPack({
+    stage: normalizedStage,
+    threads,
+    storyBlueprint,
+  });
+
   return {
     stage: normalizedStage,
     timeframe: stageTimeframes[normalizedStage],
     headline: storyBlueprint.opening,
     threads,
     storyBlueprint,
+    storyPack,
     evidenceRefs: unique(threads.flatMap((thread) => thread.evidenceRefs)),
     boundaries: [
       "触发取象只提供可能的现实承载场景，不把结构关系直接等同为具体事件。",
       "同一结构可通过工作、关系、财务、家庭或心理节奏等不同渠道表现，需结合现实反馈缩小范围。",
-      "半合、三合、三会、五合化气等条件事实只能作为趋势线索，不能按成局或必然应事处理。",
+      "半合、拱合、三合、三会、五合化气等条件事实只能作为趋势线索，不能按成局或必然应事处理。",
     ],
   };
 }
@@ -386,30 +477,78 @@ function buildTenGodCandidates(stage, item) {
   const branchTenGod = item?.branchTenGod || item?.branchMainTenGod || "";
   const result = [];
 
+  if (stemTenGod && stemTenGod === branchTenGod && tenGodImages[stemTenGod]) {
+    const image = tenGodImages[stemTenGod];
+    const groupedDomains = normalizeGroupedDomains(image.domains);
+    result.push({
+      id: `${stage}:image:tenGod:combined:${stemTenGod}`,
+      originType: "ten_god",
+      sourceLevel: "stem_and_branch",
+      domains: groupedDomains,
+      domain: groupedDomains[0] || "execution",
+      domainLabel: combinedDomainLabel(groupedDomains),
+      label: image.label,
+      certainty: "background",
+      status: "background",
+      polarity: "mixed",
+      storyRole: "background",
+      strength: 2.7,
+      trigger: `天干与地支主气同见${stemTenGod}`,
+      summary: `${stageLabels[stage]}天干与地支主气同见${stemTenGod}，${image.label}既是外显主线，也是现实承接背景。`,
+      possibleScenes: image.scenes,
+      usefulDirections: image.useful,
+      pressureSignals: image.pressure,
+      conditions: ["同一十神上下同现只说明主题集中，是否有利仍需结合原局强弱、喜忌和现实承接。"],
+      evidenceRefs: [],
+    });
+    return result;
+  }
+
   [
-    { tenGod: stemTenGod, source: "天干十神", strength: 2.4, role: "background" },
-    { tenGod: branchTenGod, source: "地支主气十神", strength: 2.2, role: "background" },
-  ].forEach(({ tenGod, source, strength, role }) => {
+    {
+      tenGod: stemTenGod,
+      source: "天干十神",
+      sourceLevel: "stem",
+      strength: 2.6,
+      description: "外显主题",
+    },
+    {
+      tenGod: branchTenGod,
+      source: "地支主气十神",
+      sourceLevel: "branch",
+      strength: 2.3,
+      description: "现实承接背景",
+    },
+  ].forEach(({ tenGod, source, sourceLevel, strength, description }) => {
     const image = tenGodImages[tenGod];
     if (!image) return;
 
-    image.domains.forEach((domain, index) => {
-      result.push({
-        id: `${stage}:image:tenGod:${source}:${tenGod}:${domain}`,
-        domain,
-        domainLabel: domainLabel(domain),
-        label: image.label,
-        certainty: "background",
-        storyRole: role,
-        strength: strength - index * 0.1,
-        trigger: `${source}见${tenGod}`,
-        summary: `${stageLabels[stage]}以${tenGod}为${source === "天干十神" ? "外显主题" : "现实承接背景"}，${image.label}更容易成为${stageTimeframes[stage]}的观察线索。`,
-        possibleScenes: image.scenes,
-        usefulDirections: image.useful,
-        pressureSignals: image.pressure,
-        conditions: [source === "地支主气十神" ? "需要结合地支与原局宫位关系判断具体落点。" : "需要结合地支承接和原局强弱判断是否能落地。"],
-        evidenceRefs: [],
-      });
+    const groupedDomains = normalizeGroupedDomains(image.domains);
+
+    result.push({
+      id: `${stage}:image:tenGod:${sourceLevel}:${tenGod}`,
+      originType: "ten_god",
+      sourceLevel,
+      domains: groupedDomains,
+      domain: groupedDomains[0] || "execution",
+      domainLabel: combinedDomainLabel(groupedDomains),
+      label: image.label,
+      certainty: "background",
+      status: "background",
+      polarity: "mixed",
+      storyRole: "background",
+      strength,
+      trigger: `${source}见${tenGod}`,
+      summary: `${stageLabels[stage]}以${tenGod}为${description}，${image.label}更容易成为${stageTimeframes[stage]}的观察线索。`,
+      possibleScenes: image.scenes,
+      usefulDirections: image.useful,
+      pressureSignals: image.pressure,
+      conditions: [
+        sourceLevel === "branch"
+          ? "需要结合地支与原局宫位关系判断具体落点。"
+          : "需要结合地支承接、原局强弱和喜忌判断能否落地。",
+      ],
+      evidenceRefs: [],
     });
   });
 
@@ -420,8 +559,8 @@ function buildFactCandidate(stage, fact) {
   const image = relationImages[fact?.label];
   if (!image) return null;
 
-  const rawDomains = array(fact?.domains);
-  const domain = selectDomain(rawDomains, fact?.label);
+  const groupedDomains = normalizeGroupedDomains(fact?.domains);
+  const domain = selectDomain(groupedDomains, fact?.label);
   const sourceText = String(fact?.source || "结构触发");
   const storyRole = fact?.category === "hierarchy"
     ? "turn"
@@ -431,16 +570,34 @@ function buildFactCandidate(stage, fact) {
         ? "turn"
         : "trigger";
 
+  const status = String(fact?.status || (
+    fact?.category === "combination"
+      ? "condition_only"
+      : fact?.category === "hierarchy" || fact?.category === "convergence"
+        ? "inferred"
+        : "direct"
+  ));
+
+  const certainty = ["condition_only", "arch_condition", "unresolved"].includes(status)
+    ? "conditional"
+    : image.certainty;
+
   return {
     id: String(fact?.id || `${stage}:image:${fact?.type || fact?.label || "fact"}`),
+    factId: String(fact?.id || ""),
+    originType: String(fact?.category || "direct"),
+    sourceLevel: inferSourceLevel(sourceText),
+    status,
+    polarity: String(fact?.polarity || "mixed"),
+    domains: groupedDomains.length ? groupedDomains : [domain],
     domain,
-    domainLabel: domainLabel(domain),
+    domainLabel: combinedDomainLabel(groupedDomains.length ? groupedDomains : [domain]),
     label: image.label,
-    certainty: image.certainty,
+    certainty,
     storyRole,
     strength: normalizeStrength(fact?.strength, fact?.category, fact?.label),
     trigger: `${humanSource(sourceText)}见${fact?.label || "结构触发"}`,
-    summary: shortText(fact?.text || `${fact?.label || "结构"}被触发。`, 92),
+    summary: shortText(fact?.text || `${fact?.label || "结构"}被触发。`, 110),
     possibleScenes: mergeSceneLists(
       image.scenes,
       domainGroups[domain]?.scenes || [],
@@ -457,13 +614,23 @@ function mergeAndRankCandidates(candidates) {
 
   candidates.forEach((candidate, index) => {
     if (!candidate) return;
-    const key = `${candidate.domain}|${candidate.storyRole}|${candidate.certainty}`;
+
+    const key = [
+      candidate.originType,
+      candidate.label,
+      candidate.domain,
+      candidate.storyRole,
+      candidate.certainty,
+      candidate.status,
+    ].join("|");
+
     const current = groups.get(key) || {
       ...candidate,
       order: index,
       labels: [],
       triggers: [],
       summaries: [],
+      domains: [],
       possibleScenes: [],
       usefulDirections: [],
       pressureSignals: [],
@@ -471,10 +638,14 @@ function mergeAndRankCandidates(candidates) {
       evidenceRefs: [],
     };
 
-    current.strength = Math.max(Number(current.strength || 0), Number(candidate.strength || 0));
+    current.strength = Math.max(
+      Number(current.strength || 0),
+      Number(candidate.strength || 0),
+    );
     current.labels.push(candidate.label);
     current.triggers.push(candidate.trigger);
     current.summaries.push(candidate.summary);
+    current.domains.push(...array(candidate.domains));
     current.possibleScenes.push(...array(candidate.possibleScenes));
     current.usefulDirections.push(...array(candidate.usefulDirections));
     current.pressureSignals.push(...array(candidate.pressureSignals));
@@ -484,28 +655,136 @@ function mergeAndRankCandidates(candidates) {
   });
 
   return [...groups.values()]
-    .map((entry) => ({
-      id: entry.id,
-      domain: entry.domain,
-      domainLabel: entry.domainLabel,
-      label: unique(entry.labels).slice(0, 2).join(" / ") || entry.label,
-      certainty: entry.certainty,
-      storyRole: entry.storyRole,
-      strength: Number(entry.strength.toFixed(2)),
-      trigger: unique(entry.triggers).slice(0, 2).join("；"),
-      summary: shortText(unique(entry.summaries).slice(0, 2).join(" "), 150),
-      possibleScenes: unique(entry.possibleScenes).slice(0, 4),
-      usefulDirections: unique(entry.usefulDirections).slice(0, 3),
-      pressureSignals: unique(entry.pressureSignals).slice(0, 3),
-      conditions: unique(entry.conditions).slice(0, 3),
-      evidenceRefs: unique(entry.evidenceRefs),
-      order: entry.order,
-    }))
+    .map((entry) => {
+      const domains = unique(entry.domains);
+      return {
+        id: entry.id,
+        factId: entry.factId || "",
+        originType: entry.originType,
+        sourceLevel: entry.sourceLevel,
+        status: entry.status,
+        polarity: entry.polarity,
+        domains,
+        domain: entry.domain,
+        domainLabel: combinedDomainLabel(domains.length ? domains : [entry.domain]),
+        label: unique(entry.labels).slice(0, 2).join(" / ") || entry.label,
+        certainty: entry.certainty,
+        storyRole: entry.storyRole,
+        strength: Number(entry.strength.toFixed(2)),
+        trigger: unique(entry.triggers).slice(0, 2).join("；"),
+        summary: shortText(unique(entry.summaries).slice(0, 2).join(" "), 170),
+        possibleScenes: unique(entry.possibleScenes).slice(0, 4),
+        usefulDirections: unique(entry.usefulDirections).slice(0, 3),
+        pressureSignals: unique(entry.pressureSignals).slice(0, 3),
+        conditions: unique(entry.conditions).slice(0, 3),
+        evidenceRefs: unique(entry.evidenceRefs),
+        order: entry.order,
+      };
+    })
     .sort((left, right) =>
-      Number(right.strength || 0) - Number(left.strength || 0) ||
       storyRoleOrder[left.storyRole] - storyRoleOrder[right.storyRole] ||
+      Number(right.strength || 0) - Number(left.strength || 0) ||
       left.order - right.order,
     );
+}
+
+
+function selectStageThreads(candidates, stage, limit) {
+  const quota = stageRoleQuotas[stage] || stageRoleQuotas.luck;
+  const selected = [];
+  const selectedIds = new Set();
+
+  ["background", "trigger", "turn", "landing"].forEach((role) => {
+    candidates
+      .filter((candidate) => candidate.storyRole === role)
+      .slice(0, quota[role] || 0)
+      .forEach((candidate) => {
+        if (selectedIds.has(candidate.id)) return;
+        selected.push(candidate);
+        selectedIds.add(candidate.id);
+      });
+  });
+
+  candidates.forEach((candidate) => {
+    if (selected.length >= limit) return;
+    if (selectedIds.has(candidate.id)) return;
+    selected.push(candidate);
+    selectedIds.add(candidate.id);
+  });
+
+  return selected
+    .slice(0, limit)
+    .sort((left, right) =>
+      storyRoleOrder[left.storyRole] - storyRoleOrder[right.storyRole] ||
+      Number(right.strength || 0) - Number(left.strength || 0),
+    );
+}
+
+function buildStoryPack({
+  stage,
+  threads,
+  storyBlueprint,
+}) {
+  const clone = (thread) => ({
+    id: thread.id,
+    factId: thread.factId || "",
+    label: thread.label,
+    domain: thread.domain,
+    domainLabel: thread.domainLabel,
+    domains: array(thread.domains),
+    certainty: thread.certainty,
+    status: thread.status,
+    polarity: thread.polarity,
+    trigger: thread.trigger,
+    summary: thread.summary,
+    possibleScenes: array(thread.possibleScenes),
+    usefulDirections: array(thread.usefulDirections),
+    pressureSignals: array(thread.pressureSignals),
+    conditions: array(thread.conditions),
+    evidenceRefs: array(thread.evidenceRefs),
+  });
+
+  return {
+    stage,
+    background: threads
+      .filter((thread) => thread.storyRole === "background")
+      .map(clone),
+    directTriggers: threads
+      .filter((thread) =>
+        thread.storyRole === "trigger" &&
+        thread.certainty === "direct",
+      )
+      .map(clone),
+    hierarchyInteractions: threads
+      .filter((thread) =>
+        thread.storyRole === "turn" &&
+        thread.originType === "hierarchy",
+      )
+      .map(clone),
+    convergence: threads
+      .filter((thread) => thread.storyRole === "landing")
+      .map(clone),
+    conditionalPatterns: threads
+      .filter((thread) => thread.certainty === "conditional")
+      .map(clone),
+    sceneThreads: threads.map(clone),
+    storyOrder: {
+      opening: array(storyBlueprint?.openingThreadIds),
+      development: array(storyBlueprint?.developmentThreadIds),
+      turn: array(storyBlueprint?.turnThreadIds),
+      landing: array(storyBlueprint?.landingThreadIds),
+    },
+    unknowns: [
+      "当前故事包未单独判断原局喜忌、调候和制化结果，不能把加力直接等同为吉，把冲克直接等同为凶。",
+      "合局、会局、半合、拱局和天干五合只记录条件，未确认化气。",
+      "具体事件领域仍需结合现实反馈，在多个可能场景中缩小范围。",
+    ],
+    forbiddenClaims: [
+      "不得把条件取象写成已经成局或已经化气",
+      "不得把关系触发写成必然发生的具体事件",
+      "不得脱离原局和大运背景单独解释流年或流月",
+    ],
+  };
 }
 
 function buildStoryBlueprint({
@@ -516,34 +795,54 @@ function buildStoryBlueprint({
 }) {
   const stageName = stageLabels[stage];
   const target = item?.ganZhi || stageName;
-  const top = threads[0] || null;
-  const direct = threads.find((thread) => thread.storyRole === "trigger") || top;
-  const turn = threads.find((thread) => thread.storyRole === "turn");
-  const landing = threads.find((thread) => thread.storyRole === "landing");
+
+  const stemBackground = threads.find((thread) =>
+    thread.storyRole === "background" &&
+    ["stem", "stem_and_branch"].includes(thread.sourceLevel),
+  );
+  const background = stemBackground ||
+    threads.find((thread) => thread.storyRole === "background") ||
+    null;
+  const direct = threads.find((thread) =>
+    thread.storyRole === "trigger" &&
+    thread.certainty === "direct",
+  ) || null;
+  const turn = threads.find((thread) => thread.storyRole === "turn") || null;
+  const landing = threads.find((thread) => thread.storyRole === "landing") || null;
 
   return {
     opening: shortText(
-      `${target}${stageName}先以${top?.domainLabel || "当前主题"}作为主线${structureSummary?.tone ? `，层级结构呈现“${structureSummary.tone}”` : ""}。`,
-      86,
+      background
+        ? `${target}${stageName}先以${background.label}为背景主线，${background.summary}`
+        : `${target}${stageName}先以当前十神和层级背景作为开场。`,
+      120,
     ),
     development: shortText(
       direct
-        ? `${direct.trigger}，现实可优先观察${direct.possibleScenes.slice(0, 2).join("、")}。`
-        : `当前以十神主题和现实反馈作为主要观察线索。`,
-      110,
+        ? `${direct.trigger}，现实发展可优先观察${direct.possibleScenes.slice(0, 2).join("、")}。`
+        : `当前未见足够强的直接关系触发，故事发展应以背景主题和现实反馈为主。`,
+      130,
     ),
     turn: shortText(
       turn
-        ? `${turn.label}提示事情推进过程中可能出现${turn.pressureSignals.slice(0, 2).join("、") || "牵连与调整"}。`
-        : `目前未见强烈层级转向，仍需观察现实承接。`,
-      100,
+        ? `${turn.label}构成中段转折：${turn.summary}`
+        : structureSummary?.tone
+          ? `层级关系目前呈现“${structureSummary.tone}”，但尚未形成需要单独放大的转折。`
+          : `目前未见明确层级转向。`,
+      130,
     ),
     landing: shortText(
       landing
-        ? `${landing.label}说明${landing.domainLabel}可能成为多个触发共同落点，应按主次处理。`
-        : `${stageTimeframes[stage]}取象只提供故事线索，具体事件仍需现实反馈确认。`,
-      100,
+        ? `${landing.label}提示${landing.domainLabel}可能成为多个触发共同落点，应按主次处理。`
+        : background
+          ? `最终落点先围绕${background.domainLabel}观察，并用现实反馈确认是否真正承接。`
+          : `${stageTimeframes[stage]}取象只提供故事线索，具体事件仍需现实反馈确认。`,
+      120,
     ),
+    openingThreadIds: background ? [background.id] : [],
+    developmentThreadIds: direct ? [direct.id] : [],
+    turnThreadIds: turn ? [turn.id] : [],
+    landingThreadIds: landing ? [landing.id] : [],
     threadIds: threads.map((thread) => thread.id),
   };
 }
@@ -551,37 +850,73 @@ function buildStoryBlueprint({
 function buildFactConditions(fact) {
   const result = [];
   const label = String(fact?.label || "");
+  const status = String(fact?.status || "");
 
-  if (/半合|三合|三会|五合/.test(label)) {
-    result.push("当前只具备组合或牵连条件，需结合月令、透干、制化和是否被冲破判断。 ");
+  if (
+    ["condition_only", "arch_condition", "unresolved"].includes(status) ||
+    /半合|拱合|三合|三会|拱会|五合/.test(label)
+  ) {
+    result.push("当前只确认组合、牵连或拱势条件，需结合月令、中神旺衰、透干、制化和是否被冲破判断。");
   }
 
   if (/伏吟|同现|重复激活/.test(label)) {
-    result.push("重复只代表主题加重或反复，需看现实是否已有同类事项承接。 ");
+    result.push("重复只代表主题加重或反复，需看现实是否已有同类事项承接。");
   }
 
   if (/冲|刑|害|破|天克地冲/.test(label)) {
-    result.push("压力关系不直接等同坏事，也可能表现为调整、制衡、退出或重新安排。 ");
+    result.push("压力关系不直接等同坏事，也可能表现为调整、制衡、退出或重新安排。");
   }
 
   if (fact?.category === "hierarchy") {
-    result.push("层级判断只说明大运、流年、流月之间的承接方式，不单独决定吉凶。 ");
+    result.push("层级判断只说明大运、流年、流月之间的承接方向，不单独决定吉凶。");
   }
 
-  return result.map((text) => text.trim());
+  return unique(result);
 }
 
 function selectDomain(rawDomains, label) {
   if (["多领域联动", "双领域联动"].includes(label)) return "multi";
 
-  for (const rawDomain of rawDomains) {
-    const group = rawDomainToGroup[rawDomain];
+  for (const domain of array(rawDomains)) {
+    if (domainGroups[domain]) return domain;
+    const group = rawDomainToGroup[domain];
     if (group) return group;
   }
 
   if (/冲|刑|害|破|天克地冲/.test(label)) return "execution";
-  if (/合|牵连|半合|三合|三会/.test(label)) return "relationship";
+  if (/合|牵连|半合|拱合|三合|三会|拱会/.test(label)) return "relationship";
   return "execution";
+}
+
+
+function normalizeGroupedDomains(rawDomains) {
+  return unique(
+    array(rawDomains)
+      .map((domain) => domainGroups[domain] ? domain : rawDomainToGroup[domain])
+      .filter(Boolean),
+  );
+}
+
+function combinedDomainLabel(domains) {
+  const labels = unique(
+    array(domains)
+      .map((domain) => domainLabel(domain))
+      .filter(Boolean),
+  );
+
+  if (!labels.length) return "现实落点";
+  if (labels.length === 1) return labels[0];
+  return labels.slice(0, 2).join(" / ");
+}
+
+function inferSourceLevel(source) {
+  const text = String(source || "");
+  if (text.includes("原局")) return "natal";
+  if (text.includes("大运")) return "luck";
+  if (text.includes("流年")) return "year";
+  if (text.includes("流月")) return "month";
+  if (text.includes("多层")) return "multi";
+  return "structure";
 }
 
 function domainLabel(domain) {

@@ -128,13 +128,14 @@ export function renderAiCollapse({ title, button, helper, state = {}, hasReport 
 }
 
 function renderStageImageCards(report = {}, item = {}, stage = "luck", evidenceContext = {}) {
-  const relationGroups = buildRelationGroups(item, stage);
   const evidencePack = buildStageEvidencePack({
     report,
     stage,
     evidenceContext,
   });
+
   const localNarrative = buildLocalNarrative(evidencePack);
+
   const model = buildStagePresentationModel({
     stage,
     item,
@@ -147,12 +148,6 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck", evidenceC
     <div class="stage-card-grid stage-card-grid-v2">
       ${renderStageQuickSummary(model)}
       ${renderStageEvidenceDetails(model, evidencePack)}
-      ${renderAdviceCard({
-        stage,
-        item,
-        report,
-        relationGroups,
-      })}
     </div>
   `;
 }
@@ -163,13 +158,17 @@ function renderStageQuickSummary(model = {}) {
   const keyFacts = Array.isArray(model.keyFacts) ? model.keyFacts : [];
   const advantages = Array.isArray(model.advantages) ? model.advantages : [];
   const pressures = Array.isArray(model.pressures) ? model.pressures : [];
-  const boundaries = Array.isArray(model.boundaries) ? model.boundaries : [];
   const structureFacts = Array.isArray(model.structureFacts) ? model.structureFacts : [];
   const structureSummary = model.structureSummary ?? null;
   const triggeredImages = model.triggeredImages ?? {};
+
   const structureLabels = [...new Set(
     structureFacts
-      .filter((fact) => Number(fact?.strength || 0) >= 3)
+      .filter((fact) =>
+        Number(fact?.strength || 0) >= 3 &&
+        fact?.label !== "层级并行" &&
+        fact?.status !== "arch_condition"
+      )
       .map((fact) => fact?.label)
       .filter(Boolean),
   )].slice(0, 6);
@@ -207,9 +206,12 @@ function renderStageQuickSummary(model = {}) {
               "当前阶段的层级关系和组合条件待复核。",
             )}</p>
           </div>
+
           ${structureLabels.length ? `
             <div class="stage-structure-tags">
-              ${structureLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("")}
+              ${structureLabels
+                .map((label) => `<span>${escapeHtml(label)}</span>`)
+                .join("")}
             </div>
           ` : ""}
         </section>
@@ -219,24 +221,31 @@ function renderStageQuickSummary(model = {}) {
 
       <section class="stage-focus-section">
         <h4>重点领域</h4>
+
         <div class="stage-focus-domains">
           ${focusDomains.length
             ? focusDomains.map((entry) => `
                 <span>
                   <span class="stage-focus-domain-head">
-                    <b>${escapeHtml(entry.label)}</b>
+                    <b>${escapeHtml(entry.label || "")}</b>
                     <em>${escapeHtml(entry.level || "关注")}</em>
                   </span>
                   <small>${escapeHtml(entry.reason || "由当前证据排序")}</small>
                 </span>
               `).join("")
-            : `<span><b>暂无明显集中领域</b><small>先结合现实反馈复核</small></span>`
+            : `
+              <span>
+                <b>暂无明显集中领域</b>
+                <small>先结合现实反馈复核</small>
+              </span>
+            `
           }
         </div>
       </section>
 
       <section class="stage-key-facts">
         <h4>关键事实</h4>
+
         <ol>
           ${keyFacts.length
             ? keyFacts.map((fact) => `
@@ -246,7 +255,11 @@ function renderStageQuickSummary(model = {}) {
                   <small>${escapeHtml(fact.source || "")}</small>
                 </li>
               `).join("")
-            : `<li><span>当前证据较少，先保留观察。</span></li>`
+            : `
+              <li>
+                <span>当前证据较少，先保留观察。</span>
+              </li>
+            `
           }
         </ol>
       </section>
@@ -254,9 +267,12 @@ function renderStageQuickSummary(model = {}) {
       <div class="stage-balance-grid">
         <section class="stage-advantages">
           <h4>可利用的力量</h4>
+
           <ul>
             ${advantages.length
-              ? advantages.map((entry) => `<li>${escapeHtml(entry.text)}</li>`).join("")
+              ? advantages
+                  .map((entry) => `<li>${escapeHtml(entry.text || "")}</li>`)
+                  .join("")
               : `<li>暂无稳定优势结论，先观察现实承接。</li>`
             }
           </ul>
@@ -264,28 +280,20 @@ function renderStageQuickSummary(model = {}) {
 
         <section class="stage-pressures">
           <h4>需要留意的压力</h4>
+
           <ul>
             ${pressures.length
-              ? pressures.map((entry) => `<li>${escapeHtml(entry.text)}</li>`).join("")
+              ? pressures
+                  .map((entry) => `<li>${escapeHtml(entry.text || "")}</li>`)
+                  .join("")
               : `<li>暂无明显关系压力，仍需结合现实反馈。</li>`
             }
           </ul>
         </section>
       </div>
-
-      <section class="stage-boundaries">
-        <h4>判断边界</h4>
-        <ul>
-          ${boundaries.length
-            ? boundaries.map((entry) => `<li>${escapeHtml(entry.text)}</li>`).join("")
-            : `<li>阶段取象只提示结构方向，不直接等同具体事件。</li>`
-          }
-        </ul>
-      </section>
     </article>
   `;
 }
-
 
 function renderStageTriggeredImages(triggeredImages = {}) {
   const threads = Array.isArray(triggeredImages?.threads)

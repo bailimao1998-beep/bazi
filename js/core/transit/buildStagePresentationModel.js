@@ -225,8 +225,7 @@ export function buildStagePresentationModel({
   const advantages =
     buildAdvantages({
       hits,
-      relations,
-      structureFacts,
+      triggeredImages,
       validIds,
       localNarrative,
       limit: limits.advantages,
@@ -235,14 +234,13 @@ export function buildStagePresentationModel({
   const pressures =
     buildPressures({
       hits,
-      relations,
-      structureFacts,
+      triggeredImages,
       validIds,
       item,
       limit: limits.pressures,
     });
 
-  const boundaries =
+  const safetyBoundaries =
     buildBoundaries({
       stage: normalizedStage,
       item,
@@ -296,7 +294,7 @@ export function buildStagePresentationModel({
     keyFacts,
     advantages,
     pressures,
-    boundaries,
+    safetyBoundaries,
     structureSummary:
       item?.transitStructure?.summary ?? null,
     structureFacts,
@@ -307,17 +305,36 @@ export function buildStagePresentationModel({
       headline,
       selectedFacts: keyFacts,
       focusDomains,
-      boundaries,
+      boundaries: safetyBoundaries,
+      safetyBoundaries,
       structureSummary:
         item?.transitStructure?.summary ?? null,
       structureFacts,
       triggeredImages,
       storyBlueprint:
         triggeredImages.storyBlueprint,
+      storyPack:
+        triggeredImages.storyPack,
       hierarchyFacts:
         array(item?.transitStructure?.hierarchyFacts),
       convergenceFacts:
         array(item?.transitStructure?.convergenceFacts),
+      conditionalFacts:
+        structureFacts.filter((fact) =>
+          ["condition_only", "arch_condition", "unresolved"].includes(
+            String(fact?.status || ""),
+          ),
+        ),
+      directFacts:
+        structureFacts.filter((fact) =>
+          String(fact?.status || "direct") === "direct" &&
+          fact?.category === "direct",
+        ),
+      unknowns: [
+        "尚未在岁运故事包内单独完成原局喜忌、调候与制化结果判定。",
+        "合局、会局、半合、拱局与天干五合均未自动判为化气。",
+        "具体事件需要结合现实反馈，在多个取象场景中继续缩小范围。",
+      ],
       allowedEvidenceRefs,
       forbiddenClaims: [
         "不得脱离证据重新排盘",
@@ -339,78 +356,86 @@ function buildTriggeredImageModel(
       ? rawValue
       : {};
 
-  const threads = array(raw.threads)
-    .map((thread, index) => ({
-      id:
-        String(
-          thread?.id ||
-          `${stage}:trigger-image:${index}`,
-        ),
-      domain:
-        String(thread?.domain || ""),
-      domainLabel:
-        String(
-          thread?.domainLabel ||
-          "现实落点",
-        ),
-      label:
-        String(
-          thread?.label ||
-          "触发取象",
-        ),
-      certainty:
-        normalizeImageCertainty(
-          thread?.certainty,
-        ),
-      storyRole:
-        String(
-          thread?.storyRole ||
-          "trigger",
-        ),
-      strength:
-        Number(thread?.strength || 0),
-      trigger:
-        shortText(
-          thread?.trigger || "",
-          72,
-        ),
-      summary:
-        shortText(
-          thread?.summary || "",
-          150,
-        ),
-      possibleScenes:
-        unique(
-          array(
-            thread?.possibleScenes,
-          ),
-        ).slice(0, 4),
-      usefulDirections:
-        unique(
-          array(
-            thread?.usefulDirections,
-          ),
-        ).slice(0, 3),
-      pressureSignals:
-        unique(
-          array(
-            thread?.pressureSignals,
-          ),
-        ).slice(0, 3),
-      conditions:
-        unique(
-          array(thread?.conditions),
-        ).slice(0, 3),
-      evidenceRefs:
-        unique(
-          array(thread?.evidenceRefs)
-            .filter((id) =>
-              validIds.has(
-                String(id),
-              ),
+  const normalizeThread = (thread, index = 0) => ({
+    id:
+      String(
+        thread?.id ||
+        `${stage}:trigger-image:${index}`,
+      ),
+    factId:
+      String(thread?.factId || ""),
+    originType:
+      String(thread?.originType || ""),
+    sourceLevel:
+      String(thread?.sourceLevel || ""),
+    status:
+      String(thread?.status || ""),
+    polarity:
+      String(thread?.polarity || "mixed"),
+    domains:
+      unique(array(thread?.domains)),
+    domain:
+      String(thread?.domain || ""),
+    domainLabel:
+      String(
+        thread?.domainLabel ||
+        "现实落点",
+      ),
+    label:
+      String(
+        thread?.label ||
+        "触发取象",
+      ),
+    certainty:
+      normalizeImageCertainty(
+        thread?.certainty,
+      ),
+    storyRole:
+      String(
+        thread?.storyRole ||
+        "trigger",
+      ),
+    strength:
+      Number(thread?.strength || 0),
+    trigger:
+      shortText(
+        thread?.trigger || "",
+        88,
+      ),
+    summary:
+      shortText(
+        thread?.summary || "",
+        180,
+      ),
+    possibleScenes:
+      unique(
+        array(thread?.possibleScenes),
+      ).slice(0, 4),
+    usefulDirections:
+      unique(
+        array(thread?.usefulDirections),
+      ).slice(0, 3),
+    pressureSignals:
+      unique(
+        array(thread?.pressureSignals),
+      ).slice(0, 3),
+    conditions:
+      unique(
+        array(thread?.conditions),
+      ).slice(0, 3),
+    evidenceRefs:
+      unique(
+        array(thread?.evidenceRefs)
+          .filter((id) =>
+            validIds.has(
+              String(id),
             ),
-        ),
-    }))
+          ),
+      ),
+  });
+
+  const threads = array(raw.threads)
+    .map(normalizeThread)
     .filter((thread) =>
       thread.summary ||
       thread.possibleScenes.length,
@@ -426,40 +451,121 @@ function buildTriggeredImageModel(
               raw.storyBlueprint.opening ||
               raw.headline ||
               "",
-              100,
+              130,
             ),
           development:
             shortText(
               raw.storyBlueprint.development ||
               "",
-              130,
+              150,
             ),
           turn:
             shortText(
               raw.storyBlueprint.turn ||
               "",
-              120,
+              150,
             ),
           landing:
             shortText(
               raw.storyBlueprint.landing ||
               "",
-              120,
+              140,
             ),
+          openingThreadIds:
+            unique(array(raw.storyBlueprint.openingThreadIds)),
+          developmentThreadIds:
+            unique(array(raw.storyBlueprint.developmentThreadIds)),
+          turnThreadIds:
+            unique(array(raw.storyBlueprint.turnThreadIds)),
+          landingThreadIds:
+            unique(array(raw.storyBlueprint.landingThreadIds)),
           threadIds:
-            unique(
-              array(
-                raw.storyBlueprint.threadIds,
-              ),
-            ),
+            unique(array(raw.storyBlueprint.threadIds)),
         }
       : {
           opening: "",
           development: "",
           turn: "",
           landing: "",
+          openingThreadIds: [],
+          developmentThreadIds: [],
+          turnThreadIds: [],
+          landingThreadIds: [],
           threadIds: [],
         };
+
+  const rawStoryPack =
+    raw.storyPack &&
+    typeof raw.storyPack === "object"
+      ? raw.storyPack
+      : {};
+
+  const threadById = new Map(
+    threads.map((thread) => [thread.id, thread]),
+  );
+
+  const normalizePackThreads = (values) =>
+    unique(
+      array(values)
+        .map((entry) =>
+          typeof entry === "string"
+            ? entry
+            : entry?.id,
+        )
+        .filter(Boolean),
+    )
+      .map((id) => threadById.get(id))
+      .filter(Boolean);
+
+  const storyPack = {
+    stage,
+    background:
+      normalizePackThreads(rawStoryPack.background)
+        .length
+        ? normalizePackThreads(rawStoryPack.background)
+        : threads.filter((thread) => thread.storyRole === "background"),
+    directTriggers:
+      normalizePackThreads(rawStoryPack.directTriggers)
+        .length
+        ? normalizePackThreads(rawStoryPack.directTriggers)
+        : threads.filter((thread) =>
+            thread.storyRole === "trigger" &&
+            thread.certainty === "direct",
+          ),
+    hierarchyInteractions:
+      normalizePackThreads(rawStoryPack.hierarchyInteractions)
+        .length
+        ? normalizePackThreads(rawStoryPack.hierarchyInteractions)
+        : threads.filter((thread) =>
+            thread.storyRole === "turn" &&
+            thread.originType === "hierarchy",
+          ),
+    convergence:
+      normalizePackThreads(rawStoryPack.convergence)
+        .length
+        ? normalizePackThreads(rawStoryPack.convergence)
+        : threads.filter((thread) => thread.storyRole === "landing"),
+    conditionalPatterns:
+      normalizePackThreads(rawStoryPack.conditionalPatterns)
+        .length
+        ? normalizePackThreads(rawStoryPack.conditionalPatterns)
+        : threads.filter((thread) => thread.certainty === "conditional"),
+    sceneThreads: threads,
+    storyOrder: {
+      opening:
+        unique(array(rawStoryPack?.storyOrder?.opening || blueprint.openingThreadIds)),
+      development:
+        unique(array(rawStoryPack?.storyOrder?.development || blueprint.developmentThreadIds)),
+      turn:
+        unique(array(rawStoryPack?.storyOrder?.turn || blueprint.turnThreadIds)),
+      landing:
+        unique(array(rawStoryPack?.storyOrder?.landing || blueprint.landingThreadIds)),
+    },
+    unknowns:
+      unique(array(rawStoryPack.unknowns)).slice(0, 6),
+    forbiddenClaims:
+      unique(array(rawStoryPack.forbiddenClaims)).slice(0, 6),
+  };
 
   return {
     stage,
@@ -470,10 +576,11 @@ function buildTriggeredImageModel(
         raw.headline ||
         blueprint.opening ||
         "",
-        100,
+        120,
       ),
     threads,
     storyBlueprint: blueprint,
+    storyPack,
     evidenceRefs:
       unique(
         threads.flatMap(
@@ -707,182 +814,134 @@ function buildKeyFacts({
   validIds,
   limit,
 }) {
-  const advancedFacts =
-    structureFacts.map(
-      (fact, index) => {
-        const evidenceId =
-          safeId(
-            fact?.id,
-            validIds,
-          );
+  const normalizedStructureFacts = structureFacts
+    .filter((fact) =>
+      fact &&
+      fact?.label !== "层级并行" &&
+      Number(fact?.strength || 0) >= 2,
+    )
+    .map((fact, index) => {
+      const evidenceId = safeId(fact?.id, validIds);
+      const status = String(fact?.status || (
+        fact?.category === "combination"
+          ? "condition_only"
+          : fact?.category === "hierarchy" || fact?.category === "convergence"
+            ? "inferred"
+            : "direct"
+      ));
 
-        return {
-          id:
-            evidenceId ||
-            `${stage}:structure:${index}`,
-          type:
-            fact?.category ||
-            fact?.type ||
-            "structure",
-          label:
-            fact?.label ||
-            "结构组合",
-          text:
-            shortText(
-              fact?.text ||
-              fact?.description ||
-              "结构事实待复核",
-              76,
-            ),
-          source:
-            humanSource(
-              fact?.source ||
-              "结构分析",
-            ),
-          strength:
-            Number(
-              fact?.strength,
-            ) || 3,
-          evidenceRefs:
-            evidenceId
-              ? [evidenceId]
-              : [],
-        };
-      },
-    );
-
-  const advancedLabels =
-    new Set(
-      structureFacts
-        .map((fact) =>
-          fact?.label === "六合"
-            ? "合"
-            : fact?.label,
-        )
-        .filter(Boolean),
-    );
-
-  const relationFacts =
-    relations
-      .filter((relation) =>
-        !advancedLabels.has(
-          relation?.label,
+      return {
+        id: evidenceId || `${stage}:structure:${index}`,
+        type: fact?.category || fact?.type || "structure",
+        status,
+        label: fact?.label || "结构组合",
+        text: shortText(
+          fact?.text ||
+          fact?.description ||
+          "结构事实待复核",
+          88,
         ),
-      )
-      .map(
-      (relation, index) => {
-        const evidenceId =
-          safeId(
-            relation?.id,
-            validIds,
-          );
+        source: humanSource(fact?.source || "结构分析"),
+        strength: Number(fact?.strength) || 3,
+        evidenceRefs: evidenceId ? [evidenceId] : [],
+      };
+    });
 
+  const directFacts = normalizedStructureFacts
+    .filter((fact) =>
+      fact.status === "direct" &&
+      fact.type === "direct",
+    )
+    .sort((left, right) => right.strength - left.strength);
+
+  const inferredFacts = normalizedStructureFacts
+    .filter((fact) =>
+      ["hierarchy", "convergence"].includes(fact.type) &&
+      fact.status !== "condition_only" &&
+      fact.status !== "arch_condition",
+    )
+    .sort((left, right) => right.strength - left.strength);
+
+  const conditionalFacts = normalizedStructureFacts
+    .filter((fact) =>
+      ["condition_only", "arch_condition", "unresolved"].includes(fact.status) ||
+      fact.type === "combination",
+    )
+    .sort((left, right) => right.strength - left.strength);
+
+  const advancedLabels = new Set(
+    structureFacts
+      .map((fact) =>
+        fact?.label === "六合"
+          ? "合"
+          : fact?.label,
+      )
+      .filter(Boolean),
+  );
+
+  const relationFacts = structureFacts.length
+    ? []
+    : relations
+      .filter((relation) =>
+        !advancedLabels.has(relation?.label),
+      )
+      .map((relation, index) => {
+        const evidenceId = safeId(relation?.id, validIds);
         return {
-          id:
-            evidenceId ||
-            `${stage}:relation:${index}`,
+          id: evidenceId || `${stage}:relation:${index}`,
           type: "relation",
-          label:
+          status: "direct",
+          label: relation?.label || "关系触发",
+          text: shortText(
+            relation?.description ||
+            relation?.effect ||
+            relation?.bookExplanation ||
             relation?.label ||
-            "关系触发",
-          text:
-            shortText(
-              relation?.description ||
-              relation?.effect ||
-              relation?.bookExplanation ||
-              relation?.label ||
-              "关系触发待复核",
-              64,
-            ),
-          source:
-            humanSource(
-              relation?.source ||
-              "关系触发",
-            ),
-          strength:
-            pressureRelations.has(
-              relation?.label,
-            )
-              ? 4
-              : 3,
-          evidenceRefs:
-            evidenceId
-              ? [evidenceId]
-              : [],
+            "关系触发待复核",
+            76,
+          ),
+          source: humanSource(relation?.source || "关系触发"),
+          strength: pressureRelations.has(relation?.label) ? 4 : 3,
+          evidenceRefs: evidenceId ? [evidenceId] : [],
         };
-      },
-    );
+      });
 
-  const hitFacts =
-    hits.map(
-      (hit, index) => {
-        const evidenceId =
-          safeId(
-            hit?.id,
-            validIds,
-          );
+  const hitFacts = hits.map((hit, index) => {
+    const evidenceId = safeId(hit?.id, validIds);
+    const strengthText = first(tenGodBalance[hit?.label]?.strengths);
 
-        const strengthText =
-          first(
-            tenGodBalance[
-              hit?.label
-            ]?.strengths,
-          );
+    return {
+      id: evidenceId || `${stage}:hit:${index}`,
+      type: "ten_god",
+      status: "background",
+      label: hit?.label || "十神主题",
+      text: shortText(
+        `${humanSource(hit?.source || "十神命中")}见${hit?.label || "待查"}${strengthText ? `，可先关注${strengthText}` : ""}。`,
+        68,
+      ),
+      source: humanSource(hit?.source || "十神命中"),
+      strength: 2,
+      evidenceRefs: evidenceId ? [evidenceId] : [],
+    };
+  });
 
-        return {
-          id:
-            evidenceId ||
-            `${stage}:hit:${index}`,
-          type: "ten_god",
-          label:
-            hit?.label ||
-            "十神主题",
-          text:
-            shortText(
-              `${humanSource(hit?.source || "十神命中")}见${hit?.label || "待查"}${strengthText ? `，可先关注${strengthText}` : ""}。`,
-              64,
-            ),
-          source:
-            humanSource(
-              hit?.source ||
-              "十神命中",
-            ),
-          strength: 2,
-          evidenceRefs:
-            evidenceId
-              ? [evidenceId]
-              : [],
-        };
-      },
-    );
+  const directLimit = stage === "luck" ? 2 : stage === "year" ? 3 : 2;
+  const inferredLimit = stage === "luck" ? 1 : 2;
+  const conditionalLimit = 1;
 
-  const contextFacts =
-    buildContextFacts(
-      stage,
-      item,
-    );
-
-  const advancedLimit =
-    stage === "month"
-      ? 4
-      : 5;
-
-  const selectedAdvanced =
-    [...advancedFacts]
-      .sort(
-        (left, right) =>
-          right.strength -
-          left.strength,
-      )
-      .slice(0, advancedLimit);
-
-  return uniqueObjects([
-    ...selectedAdvanced,
-    ...relationFacts,
+  const selected = uniqueObjects([
+    ...directFacts.slice(0, directLimit),
+    ...relationFacts.slice(0, directLimit),
+    ...inferredFacts.slice(0, inferredLimit),
     ...hitFacts.slice(0, 2),
-    ...contextFacts,
-  ])
-    .slice(0, limit);
+    ...conditionalFacts.slice(0, conditionalLimit),
+  ]);
+
+  if (selected.length) {
+    return selected.slice(0, limit);
+  }
+
+  return buildContextFacts(stage, item).slice(0, limit);
 }
 
 function buildContextFacts(
@@ -962,456 +1021,273 @@ function buildFocusDomains({
   const scoreMap = new Map();
   let order = 0;
 
-  function add(
-    rawDomain,
-    score,
-    reason,
-    evidenceId,
-  ) {
-    const groupKey =
-      rawDomainToGroup[
-        rawDomain
-      ];
-
-    const group =
-      domainGroups[groupKey];
-
-    if (!group) {
-      return;
-    }
-
-    const current =
-      scoreMap.get(groupKey) || {
-        key: groupKey,
-        label: group.label,
-        score: 0,
-        order: order++,
-        reasons: [],
-        evidenceRefs: [],
-      };
-
-    current.score += score;
-
-    if (reason) {
-      current.reasons.push(reason);
-    }
-
-    if (
-      evidenceId &&
-      validIds.has(evidenceId)
-    ) {
-      current.evidenceRefs.push(
-        evidenceId,
-      );
-    }
-
-    scoreMap.set(
-      groupKey,
-      current,
+  function normalizeGroupKeys(rawDomains) {
+    return unique(
+      array(rawDomains)
+        .map((rawDomain) =>
+          domainGroups[rawDomain]
+            ? rawDomain
+            : rawDomainToGroup[rawDomain],
+        )
+        .filter(Boolean),
     );
   }
 
+  function add(groupKey, score, reason, evidenceId) {
+    const group = domainGroups[groupKey];
+    if (!group) return;
 
-  structureFacts.forEach(
-    (fact) => {
-      const score =
-        Math.max(
-          1,
-          Math.min(
-            5,
-            Number(fact?.strength) || 2,
-          ),
-        );
+    const current = scoreMap.get(groupKey) || {
+      key: groupKey,
+      label: group.label,
+      score: 0,
+      order: order++,
+      reasons: [],
+      evidenceRefs: [],
+    };
 
-      array(fact?.domains)
-        .forEach((domain) => {
-          add(
-            domain,
-            score,
-            `${fact?.label || "结构"}：${humanSource(fact?.source || "层级关系")}`,
-            fact?.id,
-          );
-        });
-    },
-  );
-  hits.forEach((hit) => {
-    (
-      tenGodDomains[
-        hit?.label
-      ] || []
-    ).forEach((domain) => {
+    current.score += score;
+    if (reason) current.reasons.push(reason);
+
+    if (evidenceId && validIds.has(evidenceId)) {
+      current.evidenceRefs.push(evidenceId);
+    }
+
+    scoreMap.set(groupKey, current);
+  }
+
+  structureFacts.forEach((fact) => {
+    if (fact?.label === "层级并行") return;
+
+    const categoryWeight = {
+      direct: 1,
+      hierarchy: 0.75,
+      convergence: 0.8,
+      combination: 0.45,
+    }[fact?.category] ?? 0.6;
+
+    const statusWeight = {
+      direct: 1,
+      inferred: 0.8,
+      condition_only: 0.45,
+      arch_condition: 0.25,
+      unresolved: 0.4,
+    }[String(fact?.status || "direct")] ?? 0.7;
+
+    const baseStrength = Math.max(
+      1,
+      Math.min(5, Number(fact?.strength) || 2),
+    );
+    const score = baseStrength * categoryWeight * statusWeight;
+
+    normalizeGroupKeys(fact?.domains).forEach((groupKey) => {
       add(
-        domain,
-        1,
-        `${hit.label}主题`,
-        hit.id,
+        groupKey,
+        score,
+        `${fact?.label || "结构"}：${humanSource(fact?.source || "层级关系")}`,
+        fact?.id,
       );
     });
   });
 
-  relations.forEach(
-    (relation) => {
+  hits.forEach((hit) => {
+    normalizeGroupKeys(tenGodDomains[hit?.label] || [])
+      .forEach((groupKey) => {
+        add(
+          groupKey,
+          1,
+          `${hit.label}主题`,
+          hit.id,
+        );
+      });
+  });
+
+  /*
+   * 结构分析器已经把基础关系转成 structureFacts 时，
+   * 不再重复对 evidencePack.relations 计分，避免同一冲合被算两遍。
+   */
+  if (!structureFacts.length) {
+    relations.forEach((relation) => {
       const relationText = [
         relation?.description,
         relation?.natalPillar,
         relation?.source,
       ].filter(Boolean).join(" ");
 
-      const matchedDomains =
-        Object.entries(
-          pillarDomains,
-        )
-          .filter(([pillar]) =>
-            relationText.includes(
-              pillar,
-            ),
-          )
-          .flatMap(([, domains]) =>
-            domains,
-          );
+      const matchedDomains = Object.entries(pillarDomains)
+        .filter(([pillar]) => relationText.includes(pillar))
+        .flatMap(([, domains]) => domains);
 
-      const fallbackDomains =
-        relation?.source?.includes(
-          "原局",
-        )
-          ? [
-              "relationship",
-              "execution",
-            ]
-          : relation?.source?.includes(
-              "大运",
-            )
-            ? [
-                "career",
-                "foundation",
-              ]
-            : [
-                "execution",
-                "cooperation",
-              ];
+      const fallbackDomains = relation?.source?.includes("原局")
+        ? ["relationship", "execution"]
+        : relation?.source?.includes("大运")
+          ? ["career", "foundation"]
+          : ["execution", "cooperation"];
 
-      const score =
-        2 +
-        (
-          pressureRelations.has(
-            relation?.label,
-          )
-            ? 1
-            : 0
-        );
+      const score = 2 + (pressureRelations.has(relation?.label) ? 1 : 0);
 
-      (
+      normalizeGroupKeys(
         matchedDomains.length
           ? matchedDomains
-          : fallbackDomains
-      ).forEach((domain) => {
+          : fallbackDomains,
+      ).forEach((groupKey) => {
         add(
-          domain,
+          groupKey,
           score,
           `${humanSource(relation?.source || "关系触发")}见${relation?.label || "触发"}`,
           relation.id,
         );
       });
-    },
-  );
+    });
+  }
 
-  return [
-    ...scoreMap.values(),
-  ]
+  return [...scoreMap.values()]
     .sort(
       (left, right) =>
-        right.score -
-        left.score ||
-        left.order -
-        right.order,
+        right.score - left.score ||
+        left.order - right.order,
     )
     .slice(0, 3)
     .map((entry) => ({
       key: entry.key,
       label: entry.label,
-      score: entry.score,
+      score: Number(entry.score.toFixed(2)),
       level:
         entry.score >= 5
           ? "高"
           : entry.score >= 3
             ? "中"
             : "关注",
-      reason:
-        unique(entry.reasons)
-          .slice(0, 2)
-          .join("；"),
-      evidenceRefs:
-        unique(
-          entry.evidenceRefs,
-        ),
+      reason: unique(entry.reasons)
+        .slice(0, 2)
+        .join("；"),
+      evidenceRefs: unique(entry.evidenceRefs),
     }));
 }
 
 function buildAdvantages({
   hits,
-  relations,
-  structureFacts,
+  triggeredImages,
   validIds,
   localNarrative,
   limit,
 }) {
   const result = [];
+  const threads = array(triggeredImages?.threads);
 
-
-  structureFacts
-    .filter((fact) =>
-      [
-        "六合",
-        "天干五合",
-        "半合条件",
-        "三合局条件",
-        "三会两支",
-        "三会局条件",
-        "层级同向加力",
-        "五行相承",
-      ].includes(fact?.label),
+  threads
+    .filter((thread) =>
+      thread.certainty !== "conditional" &&
+      thread.polarity !== "pressure" &&
+      (
+        thread.storyRole === "background" ||
+        [
+          "上层生扶当前",
+          "层级同向加力",
+          "同气并行",
+          "外显主线重复",
+        ].includes(thread.label)
+      ),
     )
-    .forEach((fact) => {
-      const evidenceId =
-        safeId(
-          fact?.id,
-          validIds,
-        );
+    .forEach((thread) => {
+      const refs = array(thread.evidenceRefs)
+        .filter((id) => validIds.has(id));
 
-      result.push({
-        text:
-          shortText(
-            fact?.text ||
-            `${fact?.label || "结构"}可作为当前阶段的承接条件`,
-            72,
-          ),
-        evidenceRefs:
-          evidenceId
-            ? [evidenceId]
-            : [],
-      });
-    });
-  hits.forEach((hit) => {
-    const evidenceId =
-      safeId(
-        hit?.id,
-        validIds,
-      );
-
-    const strengths =
-      tenGodBalance[
-        hit?.label
-      ]?.strengths || [];
-
-    strengths
-      .slice(0, 2)
-      .forEach((text) => {
-        result.push({
-          text:
-            shortText(
-              text,
-              56,
-            ),
-          evidenceRefs:
-            evidenceId
-              ? [evidenceId]
-              : [],
+      array(thread.usefulDirections)
+        .slice(0, 2)
+        .forEach((text) => {
+          result.push({
+            text: shortText(text, 56),
+            evidenceRefs: refs,
+          });
         });
-      });
-  });
-
-  relations.forEach(
-    (relation) => {
-      const text =
-        relationStrengths[
-          relation?.label
-        ];
-
-      if (!text) {
-        return;
-      }
-
-      const evidenceId =
-        safeId(
-          relation?.id,
-          validIds,
-        );
-
-      result.push({
-        text:
-          shortText(
-            text,
-            64,
-          ),
-        evidenceRefs:
-          evidenceId
-            ? [evidenceId]
-            : [],
-      });
-    },
-  );
+    });
 
   if (!result.length) {
-    const realitySection =
-      array(
-        localNarrative?.sections,
-      ).find(
-        (section) =>
-          section?.title ===
-          "现实画面",
-      );
+    hits.forEach((hit) => {
+      const evidenceId = safeId(hit?.id, validIds);
+      (tenGodBalance[hit?.label]?.strengths || [])
+        .slice(0, 2)
+        .forEach((text) => {
+          result.push({
+            text: shortText(text, 56),
+            evidenceRefs: evidenceId ? [evidenceId] : [],
+          });
+        });
+    });
+  }
+
+  if (!result.length) {
+    const realitySection = array(localNarrative?.sections)
+      .find((section) => section?.title === "现实画面");
 
     if (realitySection?.text) {
       result.push({
-        text:
-          shortText(
-            realitySection.text,
-            64,
-          ),
+        text: shortText(realitySection.text, 64),
         evidenceRefs: [],
       });
     }
   }
 
-  return uniqueObjects(result)
-    .slice(0, limit);
+  return uniqueObjects(result).slice(0, limit);
 }
 
 function buildPressures({
   hits,
-  relations,
-  structureFacts,
+  triggeredImages,
   validIds,
   item,
   limit,
 }) {
   const result = [];
+  const threads = array(triggeredImages?.threads);
 
-
-  structureFacts
-    .filter((fact) =>
-      fact?.polarity ===
-        "pressure" ||
+  threads
+    .filter((thread) =>
+      thread.polarity === "pressure" ||
+      thread.certainty === "direct" ||
       [
-        "冲",
-        "刑",
-        "害",
-        "破",
-        "自刑",
-        "三刑组合",
-        "天干相克",
-        "天克地冲",
         "层级牵制转向",
-      ].includes(fact?.label),
+        "一边加力一边牵制",
+        "牵连与制约并存",
+        "上层约束当前",
+        "当前制约上层",
+      ].includes(thread.label),
     )
-    .forEach((fact) => {
-      const evidenceId =
-        safeId(
-          fact?.id,
-          validIds,
-        );
+    .forEach((thread) => {
+      const refs = array(thread.evidenceRefs)
+        .filter((id) => validIds.has(id));
 
-      result.push({
-        text:
-          shortText(
-            fact?.text ||
-            `${fact?.label || "结构压力"}需要留意`,
-            78,
-          ),
-        evidenceRefs:
-          evidenceId
-            ? [evidenceId]
-            : [],
-      });
+      array(thread.pressureSignals)
+        .slice(0, 2)
+        .forEach((text) => {
+          result.push({
+            text: shortText(text, 68),
+            evidenceRefs: refs,
+          });
+        });
     });
-  relations.forEach(
-    (relation) => {
-      const evidenceId =
-        safeId(
-          relation?.id,
-          validIds,
-        );
-
-      const mappedText =
-        relationPressures[
-          relation?.label
-        ];
-
-      const text =
-        mappedText ||
-        first(
-          relation?.counterEvidence,
-        ) ||
-        relation?.effect ||
-        "";
-
-      if (!text) {
-        return;
-      }
-
-      result.push({
-        text:
-          shortText(
-            text,
-            72,
-          ),
-        evidenceRefs:
-          evidenceId
-            ? [evidenceId]
-            : [],
-      });
-    },
-  );
 
   hits.forEach((hit) => {
-    const evidenceId =
-      safeId(
-        hit?.id,
-        validIds,
-      );
+    const evidenceId = safeId(hit?.id, validIds);
+    const pressureText = first(tenGodBalance[hit?.label]?.pressures);
 
-    const pressureText =
-      first(
-        tenGodBalance[
-          hit?.label
-        ]?.pressures,
-      );
-
-    if (!pressureText) {
-      return;
+    if (pressureText) {
+      result.push({
+        text: shortText(pressureText, 72),
+        evidenceRefs: evidenceId ? [evidenceId] : [],
+      });
     }
-
-    result.push({
-      text:
-        shortText(
-          pressureText,
-          72,
-        ),
-      evidenceRefs:
-        evidenceId
-          ? [evidenceId]
-          : [],
-    });
   });
 
-  if (
-    !result.length &&
-    item?.reality
-  ) {
+  if (!result.length && item?.reality) {
     result.push({
-      text:
-        shortText(
-          firstSentence(
-            item.reality,
-          ),
-          72,
-        ),
+      text: shortText(firstSentence(item.reality), 72),
       evidenceRefs: [],
     });
   }
 
-  return uniqueObjects(result)
-    .slice(0, limit);
+  return uniqueObjects(result).slice(0, limit);
 }
 
 function buildBoundaries({

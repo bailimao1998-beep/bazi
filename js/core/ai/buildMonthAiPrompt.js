@@ -1,13 +1,16 @@
 import { buildStageAiTrustedPack } from "./buildStageAiTrustedPack.js";
+import { buildStageAiPromptSource } from "./buildStageAiPromptSource.js";
 import { buildStageReportSystem } from "./stageReportPromptPolicy.js";
 
-export function buildMonthAiPrompt({
+export function buildMonthAiPrompt(
+{
   baseBaziViewModel,
   natalImageReport,
   luckImageReport,
   yearImageReport,
   monthImageReport,
-} = {}) {
+} = {}
+) {
   const monthItem =
     monthImageReport?.monthItem ??
     null;
@@ -47,6 +50,11 @@ export function buildMonthAiPrompt({
       natalImageReport,
     });
 
+  const promptSource =
+    buildStageAiPromptSource(
+      trustedPack,
+    );
+
   return {
     system:
       buildStageReportSystem(
@@ -54,10 +62,10 @@ export function buildMonthAiPrompt({
       ),
     user: JSON.stringify(
       {
-        task:
-          "生成当前流月正式报告。承接原局、大运和流年，通常提炼二至四个主要主题；比较多种现实落点，不要把全部信号压成合作、工作或财务一个主题。",
-        sourcePack:
-          trustedPack,
+        任务:
+          "生成当前流月正式报告。提炼二至三个主要主题，只保留本月最强现实落点；不要把同一信号在总断、主题、风险和验证中反复解释。",
+        资料包:
+          promptSource,
       },
       null,
       2,
@@ -66,6 +74,6 @@ export function buildMonthAiPrompt({
     evidenceIds:
       trustedPack
         .allowedEvidenceRefs,
-    maxTokens: 5500,
+    maxTokens: 2000,
   };
 }

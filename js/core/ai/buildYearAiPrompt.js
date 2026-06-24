@@ -1,12 +1,15 @@
 import { buildStageAiTrustedPack } from "./buildStageAiTrustedPack.js";
+import { buildStageAiPromptSource } from "./buildStageAiPromptSource.js";
 import { buildStageReportSystem } from "./stageReportPromptPolicy.js";
 
-export function buildYearAiPrompt({
+export function buildYearAiPrompt(
+{
   baseBaziViewModel,
   natalImageReport,
   luckImageReport,
   yearImageReport,
-} = {}) {
+} = {}
+) {
   const yearItem =
     yearImageReport?.yearItem ??
     null;
@@ -38,6 +41,11 @@ export function buildYearAiPrompt({
       natalImageReport,
     });
 
+  const promptSource =
+    buildStageAiPromptSource(
+      trustedPack,
+    );
+
   return {
     system:
       buildStageReportSystem(
@@ -45,10 +53,10 @@ export function buildYearAiPrompt({
       ),
     user: JSON.stringify(
       {
-        task:
-          "生成当前流年正式报告。将流年放在当前大运与原局中比较，通常提炼二至五个主要主题；不要默认工作场景，应同时比较学业资格、职业职责、手续规则、感情关系和成果变化等可能落点。",
-        sourcePack:
-          trustedPack,
+        任务:
+          "生成当前流年正式报告。提炼二至三个主要主题，必须比较学业资格、职业职责、手续规则、感情关系和计划成果，但只写证据最强的落点。",
+        资料包:
+          promptSource,
       },
       null,
       2,
@@ -57,6 +65,6 @@ export function buildYearAiPrompt({
     evidenceIds:
       trustedPack
         .allowedEvidenceRefs,
-    maxTokens: 7000,
+    maxTokens: 2400,
   };
 }

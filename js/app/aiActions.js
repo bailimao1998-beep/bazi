@@ -162,7 +162,30 @@ export function createAiActions({ store, renderBaseOnly }) {
   }
 
 async function generateLuckAiNarrative() {
-    store.luckAiState = { loading: true, text: "", error: "" };
+    const previousText =
+      String(
+        store.luckAiState
+          ?.text ??
+        "",
+      );
+
+    const previousWarnings =
+      Array.isArray(
+        store.luckAiState
+          ?.warnings,
+      )
+        ? store.luckAiState
+            .warnings
+        : [];
+
+    store.luckAiState = {
+      loading: true,
+      text: previousText,
+      error: "",
+      warnings:
+        previousWarnings,
+    };
+
     renderBaseOnly();
     try {
       const settings = readAiSettings({ includeSecret: true });
@@ -183,7 +206,15 @@ async function generateLuckAiNarrative() {
         warnings: outcome.validation.warnings,
       };
     } catch (error) {
-      store.luckAiState = { loading: false, text: "", error: error.message };
+      store.luckAiState = {
+        loading: false,
+        text: previousText,
+        error: previousText
+          ? `${error.message} 已保留上一次成功报告。`
+          : error.message,
+        warnings:
+          previousWarnings,
+      };
     }
     renderBaseOnly();
   }
@@ -191,7 +222,31 @@ async function generateLuckAiNarrative() {
   async function generateYearAiNarrative() {
     const generationId = ++store.yearAiGenerationId;
     const targetYear = store.state?.yearImageReport?.yearItem?.year;
-    store.yearAiState = { loading: true, text: "", error: "" };
+
+    const previousText =
+      String(
+        store.yearAiState
+          ?.text ??
+        "",
+      );
+
+    const previousWarnings =
+      Array.isArray(
+        store.yearAiState
+          ?.warnings,
+      )
+        ? store.yearAiState
+            .warnings
+        : [];
+
+    store.yearAiState = {
+      loading: true,
+      text: previousText,
+      error: "",
+      warnings:
+        previousWarnings,
+    };
+
     renderBaseOnly();
     try {
       const settings = readAiSettings({ includeSecret: true });
@@ -215,7 +270,16 @@ async function generateLuckAiNarrative() {
       };
     } catch (error) {
       if (generationId !== store.yearAiGenerationId || targetYear !== store.state?.yearImageReport?.yearItem?.year) return;
-      store.yearAiState = { loading: false, text: "", error: error.message };
+
+      store.yearAiState = {
+        loading: false,
+        text: previousText,
+        error: previousText
+          ? `${error.message} 已保留上一次成功报告。`
+          : error.message,
+        warnings:
+          previousWarnings,
+      };
     }
     renderBaseOnly();
   }
@@ -230,7 +294,30 @@ async function generateLuckAiNarrative() {
   }
 
   async function generateMonthAiNarrative() {
-    store.monthAiState = { loading: true, text: "", error: "" };
+    const previousText =
+      String(
+        store.monthAiState
+          ?.text ??
+        "",
+      );
+
+    const previousWarnings =
+      Array.isArray(
+        store.monthAiState
+          ?.warnings,
+      )
+        ? store.monthAiState
+            .warnings
+        : [];
+
+    store.monthAiState = {
+      loading: true,
+      text: previousText,
+      error: "",
+      warnings:
+        previousWarnings,
+    };
+
     renderBaseOnly();
     try {
       const settings = readAiSettings({ includeSecret: true });
@@ -253,7 +340,15 @@ async function generateLuckAiNarrative() {
         warnings: outcome.validation.warnings,
       };
     } catch (error) {
-      store.monthAiState = { loading: false, text: "", error: error.message };
+      store.monthAiState = {
+        loading: false,
+        text: previousText,
+        error: previousText
+          ? `${error.message} 已保留上一次成功报告。`
+          : error.message,
+        warnings:
+          previousWarnings,
+      };
     }
     renderBaseOnly();
   }
@@ -331,13 +426,18 @@ async function requestStageAiNarrativeWithRetry({
     validation: lastValidation,
   };
 
-  return {
-    result: lastResult,
-    validation: lastValidation,
-    attempts,
-    retried: true,
-    incomplete: true,
-  };
+  const qualityError =
+    new Error(
+      "本次AI报告未通过中文、精简或事实质量校验，系统已自动重试一次，请重新生成。",
+    );
+
+  qualityError.validation =
+    lastValidation;
+
+  qualityError.attempts =
+    attempts;
+
+  throw qualityError;
 }
 
 

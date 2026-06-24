@@ -88,6 +88,43 @@ const RELATION_TERM_PATTERNS = [
   ["合", /六合/],
 ];
 
+const INTERNAL_FIELD_PATTERNS = [
+  /\brelationFacts\b/i,
+  /\brelationWhitelist\b/i,
+  /\bmechanicalSignals\b/i,
+  /\bevidenceConvergences\b/i,
+  /\bmust_compare\b/i,
+  /\bstandardsReview\b/i,
+  /\bplanAndResults\b/i,
+  /\boutputAndRules\b/i,
+  /\bindependentEvidenceCount\b/i,
+  /\bsourcePack\b/i,
+  /\bcontroller\b/i,
+  /\bcontrolled\b/i,
+  /\bstage-ai-source\b/i,
+  /\b[A-Za-z][A-Za-z0-9_]{2,}\b/,
+];
+
+const META_OPENING_PATTERNS = [
+  /^好的[，,]/,
+  /^已收到/,
+  /^根据您提供的/,
+  /^作为传统命理分析师/,
+  /^以下是/,
+  /符合所有校验要求/,
+];
+
+const DISALLOWED_SECTION_PATTERNS = [
+  /^###\s*事情怎样发展\s*$/m,
+  /^###\s*其他较弱影响\s*$/m,
+];
+
+const MAX_REPORT_LENGTH = {
+  luck: 1900,
+  year: 1500,
+  month: 1200,
+};
+
 const FULL_PILLAR_REPEAT_PATTERNS = [
   /(?:流月|本月|流年|今年|大运)[^，。；\n]{0,36}(?:伏吟|整柱相同|干支完全相同|完全相同)/,
   /与原局(?:年|月|日|时)柱[^，。；\n]{0,24}(?:伏吟|整柱相同|干支完全相同|完全相同)/,
@@ -143,6 +180,75 @@ export function validateStageAiText({
     ).trim();
 
   const hardViolations = [];
+
+  const compactLength =
+    normalized
+      .replace(
+        /\s+/g,
+        "",
+      )
+      .length;
+
+  const maxLength =
+    MAX_REPORT_LENGTH[stage] ??
+    MAX_REPORT_LENGTH.year;
+
+  if (
+    compactLength >
+    maxLength
+  ) {
+    hardViolations.push(
+      `report_too_long:${compactLength}:${maxLength}`,
+    );
+  }
+
+  INTERNAL_FIELD_PATTERNS.forEach(
+    (pattern) => {
+      if (
+        pattern.test(
+          normalized,
+        )
+      ) {
+        hardViolations.push(
+          `non_chinese_or_internal_term:${pattern.source}`,
+        );
+      }
+    },
+  );
+
+  META_OPENING_PATTERNS.forEach(
+    (pattern) => {
+      if (
+        pattern.test(
+          normalized,
+        )
+      ) {
+        hardViolations.push(
+          `meta_opening:${pattern.source}`,
+        );
+      }
+    },
+  );
+
+  DISALLOWED_SECTION_PATTERNS.forEach(
+    (pattern) => {
+      if (
+        pattern.test(
+          normalized,
+        )
+      ) {
+        hardViolations.push(
+          `redundant_section:${pattern.source}`,
+        );
+      }
+    },
+  );
+
+  hardViolations.push(
+    ...detectRepetitiveContent(
+      normalized,
+    ),
+  );
 
   if (!normalized) {
     hardViolations.push(
@@ -401,6 +507,8 @@ export function validateStageAiText({
       uniqueViolations
         .length === 0,
     themeCount,
+    compactLength,
+    maxLength,
     hardViolations:
       uniqueViolations,
     violations:
@@ -436,8 +544,11 @@ export function buildStageAiRepairPrompt(
       `需要修复：${violations}`,
       "主要主题至少写两个，不要把全部结构压缩成工作、合作或财务一个主题。",
       "对同一结构比较不同现实落点：最强可能详写，第二可能有独立证据才写，最弱可能省略。",
-      "不要增加无依据的具体事件，必须服从 relationFacts、relationWhitelist、mechanicalSignals 与 evidenceConvergences。",
-      "不得发明暗合、六合、冲刑害破、三合或三会；只允许使用白名单已有关系。",
+      "重新生成时只使用简体中文，不得抄写任何英文内部字段、代码名或下划线名称。",
+      "删除寒暄、分析过程、“事情怎样发展”和“其他较弱影响”两节。",
+      "压缩重复内容：总断只下结论，每个主题只解释一次，依据最多两条。",
+      "不要增加无依据的具体事件，必须服从中文资料包中的确定关系、允许使用的关系、机械信号与证据汇合。",
+      "不得发明暗合、六合、冲刑害破、三合或三会；只允许使用资料包已有关系。",
       "只有日支是配偶宫；不得把地支合改写成食神合财等十神关系。",
       "同支不等于整柱伏吟；没有流日数据不得拆分月初、上旬、中旬或下旬。",
       "没有逐年事实不得拆分大运初中后期、前后半程或具体年龄段。",
@@ -448,6 +559,164 @@ export function buildStageAiRepairPrompt(
       "请重新生成报告，修复上述问题。",
     ].join("\n"),
   };
+}
+
+function detectRepetitiveContent(
+  text,
+) {
+  const sentences =
+    String(text || "")
+      .split(
+        /[。！？；\n]+/,
+      )
+      .map(
+        (entry) =>
+          normalizeSentence(
+            entry,
+          ),
+      )
+      .filter(
+        (entry) =>
+          entry.length >= 20,
+      );
+
+  for (
+    let leftIndex = 0;
+    leftIndex <
+    sentences.length;
+    leftIndex += 1
+  ) {
+    for (
+      let rightIndex =
+        leftIndex + 1;
+      rightIndex <
+        sentences.length;
+      rightIndex += 1
+    ) {
+      const left =
+        sentences[leftIndex];
+
+      const right =
+        sentences[rightIndex];
+
+      if (
+        left === right &&
+        left.length >= 16
+      ) {
+        return [
+          `repetitive_content:exact:${leftIndex + 1}:${rightIndex + 1}`,
+        ];
+      }
+
+      if (
+        left.length < 26 ||
+        right.length < 26
+      ) {
+        continue;
+      }
+
+      const similarity =
+        bigramJaccard(
+          left,
+          right,
+        );
+
+      if (
+        similarity.score >=
+          0.88 &&
+        similarity.common >=
+          12
+      ) {
+        return [
+          `repetitive_content:similar:${leftIndex + 1}:${rightIndex + 1}`,
+        ];
+      }
+    }
+  }
+
+  return [];
+}
+
+function normalizeSentence(
+  value,
+) {
+  return String(
+    value || "",
+  )
+    .replace(
+      /^#{1,6}\s*/,
+      "",
+    )
+    .replace(
+      /^(?:结论|依据|补充|主要表现|次要可能|有利|风险)[:：]*/,
+      "",
+    )
+    .replace(
+      /[\s#*_\-—，,、：:（）()“”"'《》【】\[\]\d]/g,
+      "",
+    )
+    .trim();
+}
+
+function bigramJaccard(
+  left,
+  right,
+) {
+  const leftSet =
+    makeBigrams(left);
+
+  const rightSet =
+    makeBigrams(right);
+
+  let common = 0;
+
+  leftSet.forEach(
+    (entry) => {
+      if (
+        rightSet.has(
+          entry,
+        )
+      ) {
+        common += 1;
+      }
+    },
+  );
+
+  const union =
+    leftSet.size +
+    rightSet.size -
+    common;
+
+  return {
+    common,
+    score:
+      union > 0
+        ? common / union
+        : 0,
+  };
+}
+
+function makeBigrams(
+  value,
+) {
+  const set =
+    new Set();
+
+  for (
+    let index = 0;
+    index <
+      value.length - 1;
+    index += 1
+  ) {
+    set.add(
+      value.slice(
+        index,
+        index + 2,
+      ),
+    );
+  }
+
+  return set;
 }
 
 function countPrimaryThemes(

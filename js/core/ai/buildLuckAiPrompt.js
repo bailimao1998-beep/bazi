@@ -1,11 +1,14 @@
 import { buildStageAiTrustedPack } from "./buildStageAiTrustedPack.js";
+import { buildStageAiPromptSource } from "./buildStageAiPromptSource.js";
 import { buildStageReportSystem } from "./stageReportPromptPolicy.js";
 
-export function buildLuckAiPrompt({
+export function buildLuckAiPrompt(
+{
   baseBaziViewModel,
   natalImageReport,
   luckImageReport,
-} = {}) {
+} = {}
+) {
   const luckItems =
     Array.isArray(
       luckImageReport?.luckItems,
@@ -30,6 +33,11 @@ export function buildLuckAiPrompt({
       natalImageReport,
     });
 
+  const promptSource =
+    buildStageAiPromptSource(
+      trustedPack,
+    );
+
   return {
     system:
       buildStageReportSystem(
@@ -37,10 +45,10 @@ export function buildLuckAiPrompt({
       ),
     user: JSON.stringify(
       {
-        task:
-          "生成当前大运正式报告。比较同一结构的不同现实落点，通常提炼三至五个主要主题；主要可能详写，次要可能有独立证据才写，最弱可能省略。",
-        sourcePack:
-          trustedPack,
+        任务:
+          "生成当前大运正式报告。提炼三至四个彼此不同的主要主题，先讲最强结论，再写必要补充；不得重复同一冲合、生克或现实判断。",
+        资料包:
+          promptSource,
       },
       null,
       2,
@@ -49,6 +57,6 @@ export function buildLuckAiPrompt({
     evidenceIds:
       trustedPack
         .allowedEvidenceRefs,
-    maxTokens: 7000,
+    maxTokens: 3000,
   };
 }

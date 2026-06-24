@@ -219,6 +219,7 @@ export function buildStagePresentationModel({
       hits,
       relations,
       structureFacts,
+      triggeredImages,
       validIds,
     });
 
@@ -299,6 +300,8 @@ export function buildStagePresentationModel({
       item?.transitStructure?.summary ?? null,
     structureFacts,
     triggeredImages,
+    themeHierarchy:
+      triggeredImages.themeHierarchy,
     aiPack: {
       stage: normalizedStage,
       target,
@@ -315,6 +318,8 @@ export function buildStagePresentationModel({
         triggeredImages.storyBlueprint,
       storyPack:
         triggeredImages.storyPack,
+      themeHierarchy:
+        triggeredImages.themeHierarchy,
       hierarchyFacts:
         array(item?.transitStructure?.hierarchyFacts),
       convergenceFacts:
@@ -368,6 +373,14 @@ function buildTriggeredImageModel(
       String(thread?.originType || ""),
     sourceLevel:
       String(thread?.sourceLevel || ""),
+    themeRank:
+      Number(thread?.themeRank || 99),
+    narrativePriority:
+      String(thread?.narrativePriority || "evidence"),
+    layerRole:
+      String(thread?.layerRole || "结构触发"),
+    tenGod:
+      String(thread?.tenGod || ""),
     status:
       String(thread?.status || ""),
     polarity:
@@ -441,6 +454,36 @@ function buildTriggeredImageModel(
       thread.possibleScenes.length,
     );
 
+  const threadById = new Map(
+    threads.map((thread) => [thread.id, thread]),
+  );
+
+  const normalizeThemeEntry = (entry) => {
+    if (!entry) return null;
+    if (typeof entry === "string") {
+      return threadById.get(entry) || null;
+    }
+    const id = String(entry?.id || "");
+    return threadById.get(id) || normalizeThread(entry, threads.length + 1);
+  };
+
+  const rawThemeHierarchy =
+    raw.themeHierarchy &&
+    typeof raw.themeHierarchy === "object"
+      ? raw.themeHierarchy
+      : raw.storyPack?.themeHierarchy || {};
+
+  const themeHierarchy = {
+    primary: normalizeThemeEntry(rawThemeHierarchy.primary),
+    supporting: normalizeThemeEntry(rawThemeHierarchy.supporting),
+    concentrated: Boolean(rawThemeHierarchy.concentrated),
+    instruction: shortText(
+      rawThemeHierarchy.instruction ||
+      "先讲天干外显主线，再讲地支现实承接，不得平均展开。",
+      120,
+    ),
+  };
+
   const blueprint =
     raw.storyBlueprint &&
     typeof raw.storyBlueprint ===
@@ -451,25 +494,25 @@ function buildTriggeredImageModel(
               raw.storyBlueprint.opening ||
               raw.headline ||
               "",
-              130,
+              150,
             ),
           development:
             shortText(
               raw.storyBlueprint.development ||
               "",
-              150,
+              160,
             ),
           turn:
             shortText(
               raw.storyBlueprint.turn ||
               "",
-              150,
+              160,
             ),
           landing:
             shortText(
               raw.storyBlueprint.landing ||
               "",
-              140,
+              150,
             ),
           openingThreadIds:
             unique(array(raw.storyBlueprint.openingThreadIds)),
@@ -500,25 +543,21 @@ function buildTriggeredImageModel(
       ? raw.storyPack
       : {};
 
-  const threadById = new Map(
-    threads.map((thread) => [thread.id, thread]),
-  );
-
   const normalizePackThreads = (values) =>
-    unique(
-      array(values)
-        .map((entry) =>
-          typeof entry === "string"
-            ? entry
-            : entry?.id,
-        )
-        .filter(Boolean),
-    )
-      .map((id) => threadById.get(id))
+    array(values)
+      .map((entry, index) => {
+        if (typeof entry === "string") {
+          return threadById.get(entry) || null;
+        }
+        const id = String(entry?.id || "");
+        return threadById.get(id) || normalizeThread(entry, index + threads.length + 2);
+      })
       .filter(Boolean);
 
   const storyPack = {
+    schemaVersion: String(rawStoryPack.schemaVersion || "stage-story-v2"),
     stage,
+    themeHierarchy,
     background:
       normalizePackThreads(rawStoryPack.background)
         .length
@@ -538,18 +577,21 @@ function buildTriggeredImageModel(
         ? normalizePackThreads(rawStoryPack.hierarchyInteractions)
         : threads.filter((thread) =>
             thread.storyRole === "turn" &&
-            thread.originType === "hierarchy",
+            thread.originType === "hierarchy" &&
+            thread.certainty !== "conditional",
           ),
     convergence:
       normalizePackThreads(rawStoryPack.convergence)
         .length
         ? normalizePackThreads(rawStoryPack.convergence)
-        : threads.filter((thread) => thread.storyRole === "landing"),
+        : threads.filter((thread) =>
+            thread.storyRole === "landing" &&
+            thread.certainty !== "conditional",
+          ),
     conditionalPatterns:
       normalizePackThreads(rawStoryPack.conditionalPatterns)
-        .length
-        ? normalizePackThreads(rawStoryPack.conditionalPatterns)
-        : threads.filter((thread) => thread.certainty === "conditional"),
+        .filter((thread) => thread.certainty === "conditional")
+        .slice(0, 3),
     sceneThreads: threads,
     storyOrder: {
       opening:
@@ -561,10 +603,12 @@ function buildTriggeredImageModel(
       landing:
         unique(array(rawStoryPack?.storyOrder?.landing || blueprint.landingThreadIds)),
     },
+    narrationRules:
+      unique(array(rawStoryPack.narrationRules)).slice(0, 8),
     unknowns:
       unique(array(rawStoryPack.unknowns)).slice(0, 6),
     forbiddenClaims:
-      unique(array(rawStoryPack.forbiddenClaims)).slice(0, 6),
+      unique(array(rawStoryPack.forbiddenClaims)).slice(0, 8),
   };
 
   return {
@@ -576,22 +620,23 @@ function buildTriggeredImageModel(
         raw.headline ||
         blueprint.opening ||
         "",
-        120,
+        140,
       ),
     threads,
+    themeHierarchy,
     storyBlueprint: blueprint,
     storyPack,
     evidenceRefs:
       unique(
-        threads.flatMap(
-          (thread) =>
-            thread.evidenceRefs,
-        ),
+        [
+          ...threads,
+          ...storyPack.conditionalPatterns,
+        ].flatMap((thread) => thread.evidenceRefs),
       ),
     boundaries:
       unique(
         array(raw.boundaries),
-      ).slice(0, 3),
+      ).slice(0, 4),
   };
 }
 
@@ -1016,7 +1061,170 @@ function buildFocusDomains({
   hits,
   relations,
   structureFacts,
+  triggeredImages,
   validIds,
+}) {
+  const scoreMap = new Map();
+  let order = 0;
+
+  function normalizeGroupKeys(rawDomains) {
+    return unique(
+      array(rawDomains)
+        .map((rawDomain) =>
+          domainGroups[rawDomain]
+            ? rawDomain
+            : rawDomainToGroup[rawDomain],
+        )
+        .filter(Boolean),
+    );
+  }
+
+  function add(groupKey, score, reason, evidenceId) {
+    const group = domainGroups[groupKey];
+    if (!group || score <= 0) return;
+
+    const current = scoreMap.get(groupKey) || {
+      key: groupKey,
+      label: group.label,
+      score: 0,
+      order: order++,
+      reasons: [],
+      evidenceRefs: [],
+    };
+
+    current.score += score;
+    if (reason) current.reasons.push(reason);
+
+    if (evidenceId && validIds.has(evidenceId)) {
+      current.evidenceRefs.push(evidenceId);
+    }
+
+    scoreMap.set(groupKey, current);
+  }
+
+  const themeHierarchy = triggeredImages?.themeHierarchy || {};
+  const primary = themeHierarchy.primary;
+  const supporting = themeHierarchy.supporting;
+
+  normalizeGroupKeys(primary?.domains || []).forEach((groupKey) => {
+    add(groupKey, 1.8, `${primary?.tenGod || primary?.label || "天干"}外显主线`, first(primary?.evidenceRefs));
+  });
+
+  normalizeGroupKeys(supporting?.domains || []).forEach((groupKey) => {
+    add(groupKey, 0.65, `${supporting?.tenGod || supporting?.label || "地支"}现实承接`, first(supporting?.evidenceRefs));
+  });
+
+  structureFacts.forEach((fact) => {
+    if (fact?.label === "层级并行") return;
+
+    const status = String(fact?.status || "direct");
+    const isConditional = ["condition_only", "arch_condition", "unresolved"].includes(status);
+
+    const categoryWeight = {
+      direct: 1,
+      hierarchy: 0.72,
+      convergence: 0.78,
+      combination: 0.18,
+    }[fact?.category] ?? 0.5;
+
+    const statusWeight = {
+      direct: 1,
+      inferred: 0.75,
+      condition_only: 0.2,
+      arch_condition: 0.08,
+      unresolved: 0.12,
+    }[status] ?? 0.5;
+
+    const baseStrength = Math.max(
+      1,
+      Math.min(5, Number(fact?.strength) || 2),
+    );
+
+    const rawScore = baseStrength * categoryWeight * statusWeight;
+    const score = isConditional ? Math.min(rawScore, 0.45) : rawScore;
+
+    normalizeGroupKeys(fact?.domains).forEach((groupKey) => {
+      add(
+        groupKey,
+        score,
+        `${fact?.label || "结构"}：${humanSource(fact?.source || "层级关系")}`,
+        fact?.id,
+      );
+    });
+  });
+
+  /* 没有主题层级时才使用旧十神命中，避免天干和地支被等权计算。 */
+  if (!primary && !supporting) {
+    hits.forEach((hit) => {
+      normalizeGroupKeys(tenGodDomains[hit?.label] || [])
+        .forEach((groupKey) => {
+          add(
+            groupKey,
+            1,
+            `${hit.label}主题`,
+            hit.id,
+          );
+        });
+    });
+  }
+
+  if (!structureFacts.length) {
+    relations.forEach((relation) => {
+      const relationText = [
+        relation?.description,
+        relation?.natalPillar,
+        relation?.source,
+      ].filter(Boolean).join(" ");
+
+      const matchedDomains = Object.entries(pillarDomains)
+        .filter(([pillar]) => relationText.includes(pillar))
+        .flatMap(([, domains]) => domains);
+
+      const fallbackDomains = relation?.source?.includes("原局")
+        ? ["relationship", "execution"]
+        : relation?.source?.includes("大运")
+          ? ["career", "foundation"]
+          : ["execution", "cooperation"];
+
+      const score = 2 + (pressureRelations.has(relation?.label) ? 1 : 0);
+
+      normalizeGroupKeys(
+        matchedDomains.length
+          ? matchedDomains
+          : fallbackDomains,
+      ).forEach((groupKey) => {
+        add(
+          groupKey,
+          score,
+          `${humanSource(relation?.source || "关系触发")}见${relation?.label || "触发"}`,
+          relation.id,
+        );
+      });
+    });
+  }
+
+  return [...scoreMap.values()]
+    .sort(
+      (left, right) =>
+        right.score - left.score ||
+        left.order - right.order,
+    )
+    .slice(0, 3)
+    .map((entry) => ({
+      key: entry.key,
+      label: entry.label,
+      score: Number(entry.score.toFixed(2)),
+      level:
+        entry.score >= 5
+          ? "高"
+          : entry.score >= 3
+            ? "中"
+            : "关注",
+      reason: unique(entry.reasons)
+        .slice(0, 2)
+        .join("；"),
+      evidenceRefs: unique(entry.evidenceRefs),
+    }));
 }) {
   const scoreMap = new Map();
   let order = 0;

@@ -443,16 +443,21 @@ export function buildTransitTriggeredImages({
     stageSceneLimits[normalizedStage],
   );
 
+  const themeHierarchy = buildThemeHierarchy(ranked);
+
   const storyBlueprint = buildStoryBlueprint({
     stage: normalizedStage,
     item,
     threads,
+    themeHierarchy,
     structureSummary: structureAnalysis?.summary,
   });
 
   const storyPack = buildStoryPack({
     stage: normalizedStage,
     threads,
+    ranked,
+    themeHierarchy,
     storyBlueprint,
   });
 
@@ -461,13 +466,17 @@ export function buildTransitTriggeredImages({
     timeframe: stageTimeframes[normalizedStage],
     headline: storyBlueprint.opening,
     threads,
+    themeHierarchy,
     storyBlueprint,
     storyPack,
-    evidenceRefs: unique(threads.flatMap((thread) => thread.evidenceRefs)),
+    evidenceRefs: unique([
+      ...threads.flatMap((thread) => thread.evidenceRefs),
+      ...storyPack.conditionalPatterns.flatMap((thread) => thread.evidenceRefs),
+    ]),
     boundaries: [
       "触发取象只提供可能的现实承载场景，不把结构关系直接等同为具体事件。",
-      "同一结构可通过工作、关系、财务、家庭或心理节奏等不同渠道表现，需结合现实反馈缩小范围。",
-      "半合、拱合、三合、三会、五合化气等条件事实只能作为趋势线索，不能按成局或必然应事处理。",
+      "天干十神作为外显主线，地支主气十神作为现实承接背景；两者不得无主次地平均展开。",
+      "半合、拱合、三合、三会、五合化气等条件事实只能作为辅助趋势，不能抢占主线或按成局应事。",
     ],
   };
 }
@@ -484,6 +493,10 @@ function buildTenGodCandidates(stage, item) {
       id: `${stage}:image:tenGod:combined:${stemTenGod}`,
       originType: "ten_god",
       sourceLevel: "stem_and_branch",
+      themeRank: 1,
+      narrativePriority: "primary",
+      layerRole: "外显主线兼现实承接",
+      tenGod: stemTenGod,
       domains: groupedDomains,
       domain: groupedDomains[0] || "execution",
       domainLabel: combinedDomainLabel(groupedDomains),
@@ -492,13 +505,13 @@ function buildTenGodCandidates(stage, item) {
       status: "background",
       polarity: "mixed",
       storyRole: "background",
-      strength: 2.7,
+      strength: 3.2,
       trigger: `天干与地支主气同见${stemTenGod}`,
-      summary: `${stageLabels[stage]}天干与地支主气同见${stemTenGod}，${image.label}既是外显主线，也是现实承接背景。`,
+      summary: `${stageLabels[stage]}天干与地支主气同见${stemTenGod}，${image.label}既是外显主线，也是现实承接背景，主题集中度较高。`,
       possibleScenes: image.scenes,
       usefulDirections: image.useful,
       pressureSignals: image.pressure,
-      conditions: ["同一十神上下同现只说明主题集中，是否有利仍需结合原局强弱、喜忌和现实承接。"],
+      conditions: ["同一十神上下同现只说明主题集中，是否有利仍需结合原局强弱、喜忌、制化与现实承接。"],
       evidenceRefs: [],
     });
     return result;
@@ -509,26 +522,36 @@ function buildTenGodCandidates(stage, item) {
       tenGod: stemTenGod,
       source: "天干十神",
       sourceLevel: "stem",
-      strength: 2.6,
-      description: "外显主题",
+      themeRank: 1,
+      narrativePriority: "primary",
+      layerRole: "外显主线",
+      strength: 3,
+      description: "外显主线",
     },
     {
       tenGod: branchTenGod,
       source: "地支主气十神",
       sourceLevel: "branch",
-      strength: 2.3,
+      themeRank: 2,
+      narrativePriority: "supporting",
+      layerRole: "现实承接背景",
+      strength: 1.9,
       description: "现实承接背景",
     },
-  ].forEach(({ tenGod, source, sourceLevel, strength, description }) => {
-    const image = tenGodImages[tenGod];
+  ].forEach((entry) => {
+    const image = tenGodImages[entry.tenGod];
     if (!image) return;
 
     const groupedDomains = normalizeGroupedDomains(image.domains);
 
     result.push({
-      id: `${stage}:image:tenGod:${sourceLevel}:${tenGod}`,
+      id: `${stage}:image:tenGod:${entry.sourceLevel}:${entry.tenGod}`,
       originType: "ten_god",
-      sourceLevel,
+      sourceLevel: entry.sourceLevel,
+      themeRank: entry.themeRank,
+      narrativePriority: entry.narrativePriority,
+      layerRole: entry.layerRole,
+      tenGod: entry.tenGod,
       domains: groupedDomains,
       domain: groupedDomains[0] || "execution",
       domainLabel: combinedDomainLabel(groupedDomains),
@@ -537,16 +560,18 @@ function buildTenGodCandidates(stage, item) {
       status: "background",
       polarity: "mixed",
       storyRole: "background",
-      strength,
-      trigger: `${source}见${tenGod}`,
-      summary: `${stageLabels[stage]}以${tenGod}为${description}，${image.label}更容易成为${stageTimeframes[stage]}的观察线索。`,
+      strength: entry.strength,
+      trigger: `${entry.source}见${entry.tenGod}`,
+      summary: entry.sourceLevel === "stem"
+        ? `${stageLabels[stage]}以${entry.tenGod}为外显主线，${image.label}优先决定这一阶段先讲什么。`
+        : `${stageLabels[stage]}地支主气见${entry.tenGod}，${image.label}作为现实环境、执行方式和落地场景的承接背景。`,
       possibleScenes: image.scenes,
       usefulDirections: image.useful,
       pressureSignals: image.pressure,
       conditions: [
-        sourceLevel === "branch"
-          ? "需要结合地支与原局宫位关系判断具体落点。"
-          : "需要结合地支承接、原局强弱和喜忌判断能否落地。",
+        entry.sourceLevel === "branch"
+          ? "地支主气是承接背景，不应与天干外显主线平均展开；需结合原局宫位关系判断具体落点。"
+          : "天干只定外显主线，仍需看地支承接、原局强弱、喜忌与制化决定落地方式。",
       ],
       evidenceRefs: [],
     });
@@ -578,15 +603,21 @@ function buildFactCandidate(stage, fact) {
         : "direct"
   ));
 
-  const certainty = ["condition_only", "arch_condition", "unresolved"].includes(status)
-    ? "conditional"
-    : image.certainty;
+  const isConditional = ["condition_only", "arch_condition", "unresolved"].includes(status);
+  const certainty = isConditional ? "conditional" : image.certainty;
+  const rawStrength = normalizeStrength(fact?.strength, fact?.category, fact?.label);
+  const strength = isConditional
+    ? Math.min(rawStrength, status === "arch_condition" ? 0.9 : 1.35)
+    : rawStrength;
 
   return {
     id: String(fact?.id || `${stage}:image:${fact?.type || fact?.label || "fact"}`),
     factId: String(fact?.id || ""),
     originType: String(fact?.category || "direct"),
     sourceLevel: inferSourceLevel(sourceText),
+    themeRank: isConditional ? 9 : 3,
+    narrativePriority: isConditional ? "conditional" : "evidence",
+    layerRole: isConditional ? "辅助趋势条件" : "结构触发",
     status,
     polarity: String(fact?.polarity || "mixed"),
     domains: groupedDomains.length ? groupedDomains : [domain],
@@ -595,15 +626,15 @@ function buildFactCandidate(stage, fact) {
     label: image.label,
     certainty,
     storyRole,
-    strength: normalizeStrength(fact?.strength, fact?.category, fact?.label),
+    strength,
     trigger: `${humanSource(sourceText)}见${fact?.label || "结构触发"}`,
     summary: shortText(fact?.text || `${fact?.label || "结构"}被触发。`, 110),
     possibleScenes: mergeSceneLists(
       image.scenes,
       domainGroups[domain]?.scenes || [],
     ),
-    usefulDirections: image.useful,
-    pressureSignals: image.pressure,
+    usefulDirections: isConditional ? [] : image.useful,
+    pressureSignals: isConditional ? ["条件尚未完整，避免提前按结果处理"] : image.pressure,
     conditions: buildFactConditions(fact),
     evidenceRefs: fact?.id ? [String(fact.id)] : [],
   };
@@ -622,6 +653,7 @@ function mergeAndRankCandidates(candidates) {
       candidate.storyRole,
       candidate.certainty,
       candidate.status,
+      candidate.sourceLevel,
     ].join("|");
 
     const current = groups.get(key) || {
@@ -641,6 +673,10 @@ function mergeAndRankCandidates(candidates) {
     current.strength = Math.max(
       Number(current.strength || 0),
       Number(candidate.strength || 0),
+    );
+    current.themeRank = Math.min(
+      Number(current.themeRank || 99),
+      Number(candidate.themeRank || 99),
     );
     current.labels.push(candidate.label);
     current.triggers.push(candidate.trigger);
@@ -662,6 +698,10 @@ function mergeAndRankCandidates(candidates) {
         factId: entry.factId || "",
         originType: entry.originType,
         sourceLevel: entry.sourceLevel,
+        themeRank: Number(entry.themeRank || 99),
+        narrativePriority: entry.narrativePriority || "evidence",
+        layerRole: entry.layerRole || "结构触发",
+        tenGod: entry.tenGod || "",
         status: entry.status,
         polarity: entry.polarity,
         domains,
@@ -683,6 +723,7 @@ function mergeAndRankCandidates(candidates) {
     })
     .sort((left, right) =>
       storyRoleOrder[left.storyRole] - storyRoleOrder[right.storyRole] ||
+      narrativePriorityWeight(left) - narrativePriorityWeight(right) ||
       Number(right.strength || 0) - Number(left.strength || 0) ||
       left.order - right.order,
     );
@@ -694,28 +735,51 @@ function selectStageThreads(candidates, stage, limit) {
   const selected = [];
   const selectedIds = new Set();
 
-  ["background", "trigger", "turn", "landing"].forEach((role) => {
-    candidates
-      .filter((candidate) => candidate.storyRole === role)
-      .slice(0, quota[role] || 0)
-      .forEach((candidate) => {
-        if (selectedIds.has(candidate.id)) return;
-        selected.push(candidate);
-        selectedIds.add(candidate.id);
-      });
-  });
-
-  candidates.forEach((candidate) => {
-    if (selected.length >= limit) return;
-    if (selectedIds.has(candidate.id)) return;
+  const add = (candidate) => {
+    if (!candidate || selectedIds.has(candidate.id) || selected.length >= limit) return;
     selected.push(candidate);
     selectedIds.add(candidate.id);
+  };
+
+  /* 十神主次固定：先天干主线，再地支承接。 */
+  candidates
+    .filter((candidate) =>
+      candidate.storyRole === "background" &&
+      candidate.originType === "ten_god",
+    )
+    .sort((left, right) =>
+      Number(left.themeRank || 99) - Number(right.themeRank || 99) ||
+      Number(right.strength || 0) - Number(left.strength || 0),
+    )
+    .slice(0, quota.background || 0)
+    .forEach(add);
+
+  /* 直接触发和层级转折优先，条件取象不得占用主要配额。 */
+  ["trigger", "turn", "landing"].forEach((role) => {
+    candidates
+      .filter((candidate) =>
+        candidate.storyRole === role &&
+        candidate.certainty !== "conditional",
+      )
+      .slice(0, quota[role] || 0)
+      .forEach(add);
   });
+
+  candidates
+    .filter((candidate) => candidate.certainty !== "conditional")
+    .forEach(add);
+
+  /* 条件取象最多保留一条，且只作为辅助趋势。 */
+  candidates
+    .filter((candidate) => candidate.certainty === "conditional")
+    .slice(0, 1)
+    .forEach(add);
 
   return selected
     .slice(0, limit)
     .sort((left, right) =>
       storyRoleOrder[left.storyRole] - storyRoleOrder[right.storyRole] ||
+      narrativePriorityWeight(left) - narrativePriorityWeight(right) ||
       Number(right.strength || 0) - Number(left.strength || 0),
     );
 }
@@ -723,12 +787,19 @@ function selectStageThreads(candidates, stage, limit) {
 function buildStoryPack({
   stage,
   threads,
+  ranked = [],
+  themeHierarchy = {},
   storyBlueprint,
 }) {
   const clone = (thread) => ({
     id: thread.id,
     factId: thread.factId || "",
     label: thread.label,
+    tenGod: thread.tenGod || "",
+    sourceLevel: thread.sourceLevel || "",
+    themeRank: Number(thread.themeRank || 99),
+    narrativePriority: thread.narrativePriority || "evidence",
+    layerRole: thread.layerRole || "结构触发",
     domain: thread.domain,
     domainLabel: thread.domainLabel,
     domains: array(thread.domains),
@@ -742,10 +813,24 @@ function buildStoryPack({
     pressureSignals: array(thread.pressureSignals),
     conditions: array(thread.conditions),
     evidenceRefs: array(thread.evidenceRefs),
+    strength: Number(thread.strength || 0),
   });
 
+  const conditionCandidates = ranked
+    .filter((thread) => thread.certainty === "conditional")
+    .sort((left, right) => Number(right.strength || 0) - Number(left.strength || 0))
+    .slice(0, 3)
+    .map(clone);
+
   return {
+    schemaVersion: "stage-story-v2",
     stage,
+    themeHierarchy: {
+      primary: themeHierarchy.primary ? clone(themeHierarchy.primary) : null,
+      supporting: themeHierarchy.supporting ? clone(themeHierarchy.supporting) : null,
+      concentrated: Boolean(themeHierarchy.concentrated),
+      instruction: themeHierarchy.instruction || "先讲天干外显主线，再讲地支现实承接，不得平均展开。",
+    },
     background: threads
       .filter((thread) => thread.storyRole === "background")
       .map(clone),
@@ -758,15 +843,17 @@ function buildStoryPack({
     hierarchyInteractions: threads
       .filter((thread) =>
         thread.storyRole === "turn" &&
-        thread.originType === "hierarchy",
+        thread.originType === "hierarchy" &&
+        thread.certainty !== "conditional",
       )
       .map(clone),
     convergence: threads
-      .filter((thread) => thread.storyRole === "landing")
+      .filter((thread) =>
+        thread.storyRole === "landing" &&
+        thread.certainty !== "conditional",
+      )
       .map(clone),
-    conditionalPatterns: threads
-      .filter((thread) => thread.certainty === "conditional")
-      .map(clone),
+    conditionalPatterns: conditionCandidates,
     sceneThreads: threads.map(clone),
     storyOrder: {
       opening: array(storyBlueprint?.openingThreadIds),
@@ -774,6 +861,12 @@ function buildStoryPack({
       turn: array(storyBlueprint?.turnThreadIds),
       landing: array(storyBlueprint?.landingThreadIds),
     },
+    narrationRules: [
+      "开头只用 primaryTheme 定主线；supportingTheme 只解释环境、执行方式和现实承接。",
+      "直接触发决定故事的发展段，层级关系决定转折段，多层汇合决定现实落点。",
+      "条件取象只允许放在辅助趋势或待验证部分，不得成为标题、主结论或主要事件。",
+      "同一事实只讲一次，不得在多个领域重复复述。",
+    ],
     unknowns: [
       "当前故事包未单独判断原局喜忌、调候和制化结果，不能把加力直接等同为吉，把冲克直接等同为凶。",
       "合局、会局、半合、拱局和天干五合只记录条件，未确认化气。",
@@ -783,6 +876,7 @@ function buildStoryPack({
       "不得把条件取象写成已经成局或已经化气",
       "不得把关系触发写成必然发生的具体事件",
       "不得脱离原局和大运背景单独解释流年或流月",
+      "不得把天干主线与地支承接无主次地平均展开",
     ],
   };
 }
@@ -791,37 +885,43 @@ function buildStoryBlueprint({
   stage,
   item,
   threads,
+  themeHierarchy = {},
   structureSummary,
 }) {
   const stageName = stageLabels[stage];
   const target = item?.ganZhi || stageName;
-
-  const stemBackground = threads.find((thread) =>
-    thread.storyRole === "background" &&
-    ["stem", "stem_and_branch"].includes(thread.sourceLevel),
-  );
-  const background = stemBackground ||
-    threads.find((thread) => thread.storyRole === "background") ||
-    null;
+  const primary = themeHierarchy.primary || null;
+  const supporting = themeHierarchy.supporting || null;
+  const background = primary || threads.find((thread) => thread.storyRole === "background") || null;
   const direct = threads.find((thread) =>
     thread.storyRole === "trigger" &&
     thread.certainty === "direct",
   ) || null;
-  const turn = threads.find((thread) => thread.storyRole === "turn") || null;
-  const landing = threads.find((thread) => thread.storyRole === "landing") || null;
+  const turn = threads.find((thread) =>
+    thread.storyRole === "turn" &&
+    thread.certainty !== "conditional",
+  ) || null;
+  const landing = threads.find((thread) =>
+    thread.storyRole === "landing" &&
+    thread.certainty !== "conditional",
+  ) || null;
+
+  const supportText = supporting
+    ? `；地支主气以${supporting.tenGod || supporting.label}作为现实承接背景，落点偏向${supporting.domainLabel}`
+    : "";
 
   return {
     opening: shortText(
       background
-        ? `${target}${stageName}先以${background.label}为背景主线，${background.summary}`
+        ? `${target}${stageName}先以${background.tenGod || background.label}所代表的${background.label}为外显主线${supportText}。`
         : `${target}${stageName}先以当前十神和层级背景作为开场。`,
-      120,
+      140,
     ),
     development: shortText(
       direct
-        ? `${direct.trigger}，现实发展可优先观察${direct.possibleScenes.slice(0, 2).join("、")}。`
-        : `当前未见足够强的直接关系触发，故事发展应以背景主题和现实反馈为主。`,
-      130,
+        ? `${direct.trigger}，故事发展优先观察${direct.possibleScenes.slice(0, 2).join("、")}。`
+        : `当前未见足够强的直接关系触发，故事发展应以主线的现实承接和反馈为主。`,
+      140,
     ),
     turn: shortText(
       turn
@@ -829,15 +929,17 @@ function buildStoryBlueprint({
         : structureSummary?.tone
           ? `层级关系目前呈现“${structureSummary.tone}”，但尚未形成需要单独放大的转折。`
           : `目前未见明确层级转向。`,
-      130,
+      140,
     ),
     landing: shortText(
       landing
         ? `${landing.label}提示${landing.domainLabel}可能成为多个触发共同落点，应按主次处理。`
-        : background
-          ? `最终落点先围绕${background.domainLabel}观察，并用现实反馈确认是否真正承接。`
-          : `${stageTimeframes[stage]}取象只提供故事线索，具体事件仍需现实反馈确认。`,
-      120,
+        : supporting
+          ? `最终先在${supporting.domainLabel}观察主线如何落地，再用现实反馈确认。`
+          : background
+            ? `最终落点先围绕${background.domainLabel}观察，并用现实反馈确认是否真正承接。`
+            : `${stageTimeframes[stage]}取象只提供故事线索，具体事件仍需现实反馈确认。`,
+      130,
     ),
     openingThreadIds: background ? [background.id] : [],
     developmentThreadIds: direct ? [direct.id] : [],
@@ -929,7 +1031,46 @@ function normalizeStrength(value, category, label) {
   if (category === "convergence") return 4;
   if (category === "hierarchy") return 3.6;
   if (/天克地冲|伏吟|三刑组合/.test(label || "")) return 5;
+  if (/半合|拱合|三合|三会|拱会|五合/.test(label || "")) return 1.2;
   return 3;
+}
+
+
+function buildThemeHierarchy(candidates = []) {
+  const tenGodCandidates = array(candidates)
+    .filter((candidate) => candidate?.originType === "ten_god")
+    .sort((left, right) =>
+      Number(left?.themeRank || 99) - Number(right?.themeRank || 99) ||
+      Number(right?.strength || 0) - Number(left?.strength || 0),
+    );
+
+  const primary = tenGodCandidates.find((candidate) =>
+    candidate?.narrativePriority === "primary",
+  ) || tenGodCandidates[0] || null;
+
+  const supporting = tenGodCandidates.find((candidate) =>
+    candidate?.narrativePriority === "supporting" &&
+    candidate?.id !== primary?.id,
+  ) || null;
+
+  return {
+    primary,
+    supporting,
+    concentrated: Boolean(primary?.sourceLevel === "stem_and_branch"),
+    instruction: primary?.sourceLevel === "stem_and_branch"
+      ? "天干与地支主气同见一神，先作为集中主线讲述，再用直接触发决定现实落点。"
+      : "先讲天干十神的外显主线，再讲地支主气十神的现实承接；地支不得与天干平均展开。",
+  };
+}
+
+function narrativePriorityWeight(candidate = {}) {
+  const priority = String(candidate?.narrativePriority || "evidence");
+  return {
+    primary: 0,
+    supporting: 1,
+    evidence: 2,
+    conditional: 9,
+  }[priority] ?? 5;
 }
 
 function mergeSceneLists(...lists) {

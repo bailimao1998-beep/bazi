@@ -1,3 +1,5 @@
+import { buildStageAiTrustedPack } from "./buildStageAiTrustedPack.js";
+
 export function buildYearAiPrompt({
   baseBaziViewModel,
   natalImageReport,
@@ -5,51 +7,51 @@ export function buildYearAiPrompt({
   yearImageReport,
 } = {}) {
   const yearItem = yearImageReport?.yearItem ?? null;
-  const luckItems = Array.isArray(luckImageReport?.luckItems) ? luckImageReport.luckItems : [];
-  const currentLuckItem = yearItem?.currentLuckItem ?? luckItems.find((item) => item?.isCurrent) ?? luckItems[0] ?? null;
-  const currentYearNotice = yearItem?.year
-    ? `当前只解释 ${yearItem.year} 这一年。`
-    : "未检测到目标流年取象，以下只能整理为需要验证的问题。";
+  const luckItems = Array.isArray(luckImageReport?.luckItems)
+    ? luckImageReport.luckItems
+    : [];
+  const currentLuckItem = yearItem?.currentLuckItem ??
+    luckItems.find((item) => item?.isCurrent) ??
+    luckItems[0] ??
+    null;
+
+  const trustedPack = buildStageAiTrustedPack({
+    stage: "year",
+    item: yearItem,
+    currentLuckItem,
+    yearItem,
+    baseBaziViewModel,
+    natalImageReport,
+  });
 
   return {
     system: [
-      "你是命理系统的解释层，不是排盘层。",
-      "基础排盘、原局取象、大运取象和流年取象已经由浏览器前端本地完成。",
-      "不能重新排盘，不能推翻原局取象、大运取象、流年取象。",
-      "只能解释当前 targetYear，不分析其他年份。",
-      "不分析流月，不做 AI 问答。",
-      "不能说一定、必然、注定。",
-      "每个判断必须引用 yearImageReport.yearItem 的 image、reality、boundary、relationToNatal、relationToLuck，或 natalImageReport/luckImageReport 的证据。",
-      "如果没有证据，只能写成需要验证的现实问题。",
-      "建议输出结构：",
-      "### 一句话总览",
-      "### 流年结构",
-      "### 这一年的事业/学习",
-      "### 这一年的财务与现实压力",
-      "### 这一年的感情与关系",
-      "### 这一年的迁动与环境变化",
-      "### 需要验证的现实问题",
-      "### 边界提醒",
+      "你是八字命理系统的岁运解释层，不是排盘层。",
+      "浏览器已经完成原局、大运、流年结构、层级关系和触发取象；你只能解释 trustedPack，不能重新排盘或补算。",
+      "本次只解释当前流年，不分析其他年份，不展开流月。",
+      "流年必须放在当前大运背景中讲，不能脱离大运单独断年。",
+      "讲述顺序必须读取 trustedPack.storyPack.storyOrder：opening → development → turn → landing。",
+      "十神主次必须读取 trustedPack.themeHierarchy：primary 是流年天干外显主线；supporting 是流年地支现实承接背景。不得平均展开。",
+      "directTriggers 用于说明今年哪些位置真正被牵动；hierarchyInteractions 用于说明流年怎样承接、加力或调整大运；convergence 用于说明多个触发的共同落点。",
+      "conditionalPatterns 必须降级，只能写成趋势、牵连或待验证条件；不得进入一句话总览，不得写成已成局、已化气或确定事件。",
+      "只展开证据最强的二至三个领域，不要机械覆盖事业、财务、感情、家庭全部领域。",
+      "同一条冲、害、重复或层级关系只能讲一次；不要在多个章节反复复述。",
+      "如果没有足够强的直接触发，应写成年度背景延续或主题浮现，不得硬造转折。",
+      "不得使用一定、必然、注定；不得凭空断具体职业、金额、疾病、婚期、灾祸。",
+      "输出结构固定为：",
+      "### 一句话主线",
+      "### 今年怎样展开",
+      "### 大运背景下的转折与联动",
+      "### 主要现实落点",
+      "### 可利用的力量与代价",
+      "### 需要核实的现实问题",
+      "每个结论都必须来自 trustedPack；不要展示 JSON、字段名或内部证据 ID。",
     ].join("\n"),
     user: JSON.stringify({
-      baseBaziViewModel: compactBaseBaziViewModel(baseBaziViewModel),
-      natalImageReport,
-      currentLuckItem,
-      luckSummary: luckImageReport?.summary ?? null,
-      yearItem,
-      yearSummary: yearImageReport?.summary ?? null,
-      currentYearNotice,
+      task: "根据可信事实包讲清当前流年在大运背景中的发展、转折、现实落点与代价。",
+      trustedPack,
     }, null, 2),
-  };
-}
-
-function compactBaseBaziViewModel(viewModel = {}) {
-  return {
-    birthInfo: viewModel.birthInfo,
-    pillars: viewModel.pillars,
-    fiveElements: viewModel.fiveElements,
-    tenGods: viewModel.tenGods,
-    relations: viewModel.relations,
-    structureAnalysis: viewModel.structureAnalysis,
+    trustedPack,
+    evidenceIds: trustedPack.allowedEvidenceRefs,
   };
 }

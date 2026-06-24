@@ -2,7 +2,6 @@ import { readAiSettings } from "../core/ai/aiSettingsClient.js?v=20260613c";
 import { buildChatPrompt } from "../core/ai/buildChatPrompt.js";
 import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260613b";
 import { buildLuckImageReport } from "../core/blind-bazi/buildLuckImageReport.js";
-import { buildMonthImageReport } from "../core/blind-bazi/buildMonthImageReport.js";
 import { buildYearImageReport } from "../core/blind-bazi/buildYearImageReport.js";
 import {
   buildRequestedYearReports,
@@ -19,27 +18,12 @@ export function createChatActions({ store, renderBaseOnly }) {
     try {
       const settings = readAiSettings({ includeSecret: true });
       const chatIntent = detectChatIntent(trimmedQuestion);
-      const needsTimeReports = [
-        "multiYear",
-        "yearTrend",
-        "monthTrend",
-      ].includes(chatIntent);
-      const requestedYears =
-        needsTimeReports
-          ? extractYearsFromQuestion(
-              trimmedQuestion,
-              store.currentInput.targetYear,
-            )
-          : [];
+      const requestedYears = extractYearsFromQuestion(trimmedQuestion, store.currentInput.targetYear);
       const requestedYearReports = buildRequestedYearReports({
         years: requestedYears,
         state: store.state,
         buildLuckImageReport,
         buildYearImageReport,
-        buildMonthImageReport:
-          chatIntent === "monthTrend"
-            ? buildMonthImageReport
-            : undefined,
       });
 
       const prompt = buildChatPrompt({

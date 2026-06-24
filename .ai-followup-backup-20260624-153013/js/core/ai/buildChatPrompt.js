@@ -37,7 +37,6 @@ const DATA_USAGE_RULES = [
   "用户问多年走势时，优先使用系统预先生成的各年份大运与流年取象数据。",
   "用户问某一年时，必须把该流年放在当时的大运背景中解释。",
   "用户问月份差异时，优先使用系统预先生成的十二流月取象数据。",
-  "用户明确写出年份时，以问题中指定年份对应的报告为准，不得用页面当前选中的年份替代。",
   "命理数据不足以确认现实细节时，可以给出最可能的几种场景，并明确需要用户提供哪些现实反馈来继续缩小范围。",
   "用户问普通问题时，作为通用AI助手直接回答；除非用户明确要求结合命盘，否则不要提八字。",
 ];
@@ -105,14 +104,6 @@ export function buildChatPrompt({
   const normalizedIntent =
     normalizeChatIntent(chatIntent);
 
-  const normalizedRequestedYears =
-    normalizeYears(requestedYears);
-
-  const compactRequestedReports =
-    compactRequestedYearReports(
-      requestedYearReports,
-    );
-
   const userPayload = {
     question:
       normalizedQuestion,
@@ -145,50 +136,44 @@ export function buildChatPrompt({
 
   if (normalizedIntent === "multiYear") {
     userPayload.requestedYears =
-      normalizedRequestedYears;
+      normalizeYears(requestedYears);
 
     userPayload.requestedYearReports =
-      compactRequestedReports;
+      compactRequestedYearReports(
+        requestedYearReports,
+      );
   }
 
   if (normalizedIntent === "yearTrend") {
-    if (compactRequestedReports.length) {
-      userPayload.requestedYears =
-        normalizedRequestedYears;
+    userPayload.requestedYears =
+      normalizeYears(requestedYears);
 
-      userPayload.requestedYearReports =
-        compactRequestedReports;
-    } else {
-      userPayload.luckImageReport =
-        compactReport(luckImageReport);
+    userPayload.luckImageReport =
+      compactReport(luckImageReport);
 
-      userPayload.yearImageReport =
-        compactReport(yearImageReport);
-    }
+    userPayload.yearImageReport =
+      compactReport(yearImageReport);
+
+    userPayload.requestedYearReports =
+      compactRequestedYearReports(
+        requestedYearReports,
+      );
   }
 
   if (normalizedIntent === "monthTrend") {
-    if (compactRequestedReports.length) {
-      userPayload.requestedYears =
-        normalizedRequestedYears;
+    userPayload.luckImageReport =
+      compactReport(luckImageReport);
 
-      userPayload.requestedYearReports =
-        compactRequestedReports;
-    } else {
-      userPayload.luckImageReport =
-        compactReport(luckImageReport);
+    userPayload.yearImageReport =
+      compactReport(yearImageReport);
 
-      userPayload.yearImageReport =
-        compactReport(yearImageReport);
+    userPayload.monthImageReport =
+      compactReport(monthImageReport);
 
-      userPayload.monthImageReport =
-        compactReport(monthImageReport);
-
-      userPayload.monthImageReports =
-        compactMonthReports(
-          monthImageReports,
-        );
-    }
+    userPayload.monthImageReports =
+      compactMonthReports(
+        monthImageReports,
+      );
   }
 
   return {
@@ -274,26 +259,11 @@ function compactMonthReports(reports = []) {
 }
 
 function compactRequestedYearReports(reports = []) {
-  return (Array.isArray(reports) ? reports : []).map((item) => {
-    const monthReports =
-      compactMonthReports(
-        item.monthImageReports,
-      );
-
-    return {
-      year: item.year,
-      luckImageReport:
-        compactReport(item.luckImageReport),
-      yearImageReport:
-        compactReport(item.yearImageReport),
-      ...(monthReports.length
-        ? {
-            monthImageReports:
-              monthReports,
-          }
-        : {}),
-    };
-  });
+  return (Array.isArray(reports) ? reports : []).map((item) => ({
+    year: item.year,
+    luckImageReport: compactReport(item.luckImageReport),
+    yearImageReport: compactReport(item.yearImageReport),
+  }));
 }
 
 function normalizeChatIntent(value) {

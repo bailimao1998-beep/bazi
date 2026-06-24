@@ -8,41 +8,64 @@ export function buildMonthAiPrompt({
   yearImageReport,
   monthImageReport,
 } = {}) {
-  const monthItem = monthImageReport?.monthItem ?? null;
-  const yearItem =
-    monthItem?.yearItem ??
-    yearImageReport?.yearItem ??
+  const monthItem =
+    monthImageReport?.monthItem ??
     null;
 
-  const luckItems = Array.isArray(luckImageReport?.luckItems)
-    ? luckImageReport.luckItems
-    : [];
+  const yearItem =
+    monthItem?.yearItem ??
+    yearImageReport
+      ?.yearItem ??
+    null;
+
+  const luckItems =
+    Array.isArray(
+      luckImageReport?.luckItems,
+    )
+      ? luckImageReport.luckItems
+      : [];
 
   const currentLuckItem =
-    monthItem?.currentLuckItem ??
-    yearItem?.currentLuckItem ??
-    luckItems.find((item) => item?.isCurrent) ??
+    monthItem
+      ?.currentLuckItem ??
+    yearItem
+      ?.currentLuckItem ??
+    luckItems.find(
+      (item) =>
+        item?.isCurrent,
+    ) ??
     luckItems[0] ??
     null;
 
-  const trustedPack = buildStageAiTrustedPack({
-    stage: "month",
-    item: monthItem,
-    currentLuckItem,
-    yearItem,
-    baseBaziViewModel,
-    natalImageReport,
-  });
+  const trustedPack =
+    buildStageAiTrustedPack({
+      stage: "month",
+      item: monthItem,
+      currentLuckItem,
+      yearItem,
+      baseBaziViewModel,
+      natalImageReport,
+    });
 
   return {
-    system: buildStageReportSystem("month"),
-    user: JSON.stringify({
-      task:
-        "生成当前流月正式报告。承接原局、大运和流年，只讲本月真正明显且有依据的事情。",
-      sourcePack: trustedPack,
-    }, null, 2),
+    system:
+      buildStageReportSystem(
+        "month",
+      ),
+    user: JSON.stringify(
+      {
+        task:
+          "生成当前流月正式报告。承接原局、大运和流年，通常提炼二至四个主要主题；比较多种现实落点，不要把全部信号压成合作、工作或财务一个主题。",
+        sourcePack:
+          trustedPack,
+      },
+      null,
+      2,
+    ),
     trustedPack,
-    evidenceIds: trustedPack.allowedEvidenceRefs,
-    maxTokens: 5000,
+    evidenceIds:
+      trustedPack
+        .allowedEvidenceRefs,
+    maxTokens: 5500,
   };
 }

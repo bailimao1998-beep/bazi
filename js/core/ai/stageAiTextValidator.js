@@ -16,6 +16,22 @@ const YEAR_TIMING_PATTERNS = [
   /(?:正|二|三|四|五|六|七|八|九|十|冬|腊)月/,
 ];
 
+const MONTH_TIMING_PATTERNS = [
+  /月初/,
+  /月末/,
+  /月底/,
+  /上旬/,
+  /中旬/,
+  /下旬/,
+  /具体日期/,
+  /\d{1,2}日(?:前后|左右)?/,
+];
+
+const FULL_PILLAR_REPEAT_PATTERNS = [
+  /(?:流月|本月|流年|今年|大运)[^，。；\n]{0,36}(?:伏吟|整柱相同|干支完全相同|完全相同)/,
+  /与原局(?:年|月|日|时)柱[^，。；\n]{0,24}(?:伏吟|整柱相同|干支完全相同|完全相同)/,
+];
+
 const HEALTH_PATTERNS = [
   /循环系统/,
   /内分泌/,
@@ -60,94 +76,211 @@ export function validateStageAiText({
   stage = "luck",
   trustedPack = null,
 } = {}) {
-  const normalized = String(text || "").trim();
+  const normalized =
+    String(
+      text || "",
+    ).trim();
+
   const hardViolations = [];
 
   if (!normalized) {
-    hardViolations.push("empty_response");
+    hardViolations.push(
+      "empty_response",
+    );
   }
 
-  ABSOLUTE_PATTERNS.forEach((pattern) => {
-    if (pattern.test(normalized)) {
-      hardViolations.push(`absolute_claim:${pattern.source}`);
-    }
-  });
-
-  HEALTH_PATTERNS.forEach((pattern) => {
-    if (
-      pattern.test(normalized) &&
-      !sourceMaterialIncludes(trustedPack, pattern)
-    ) {
-      hardViolations.push(
-        `unsupported_health_claim:${pattern.source}`,
-      );
-    }
-  });
+  const themeCount =
+    countPrimaryThemes(
+      normalized,
+    );
 
   if (
-    normalized.includes("财库") &&
-    !sourceMaterialIncludes(trustedPack, /财库/)
+    normalized &&
+    themeCount < 2
   ) {
-    hardViolations.push("unsupported_treasury_claim");
+    hardViolations.push(
+      `insufficient_primary_themes:${themeCount}`,
+    );
+  }
+
+  ABSOLUTE_PATTERNS.forEach(
+    (pattern) => {
+      if (
+        pattern.test(
+          normalized,
+        )
+      ) {
+        hardViolations.push(
+          `absolute_claim:${pattern.source}`,
+        );
+      }
+    },
+  );
+
+  HEALTH_PATTERNS.forEach(
+    (pattern) => {
+      if (
+        pattern.test(
+          normalized,
+        ) &&
+        !sourceMaterialIncludes(
+          trustedPack,
+          pattern,
+        )
+      ) {
+        hardViolations.push(
+          `unsupported_health_claim:${pattern.source}`,
+        );
+      }
+    },
+  );
+
+  if (
+    normalized.includes(
+      "财库",
+    ) &&
+    !sourceMaterialIncludes(
+      trustedPack,
+      /财库/,
+    )
+  ) {
+    hardViolations.push(
+      "unsupported_treasury_claim",
+    );
   }
 
   if (
-    USE_GOD_PATTERNS.some((pattern) => pattern.test(normalized)) &&
-    !hasConfirmedUseGod(trustedPack)
+    USE_GOD_PATTERNS.some(
+      (pattern) =>
+        pattern.test(
+          normalized,
+        ),
+    ) &&
+    !hasConfirmedUseGod(
+      trustedPack,
+    )
   ) {
-    hardViolations.push("unsupported_use_god_claim");
+    hardViolations.push(
+      "unsupported_use_god_claim",
+    );
   }
 
   if (
-    FORMED_PATTERNS.some((pattern) => pattern.test(normalized)) &&
-    !hasFormedTransformation(trustedPack)
+    FORMED_PATTERNS.some(
+      (pattern) =>
+        pattern.test(
+          normalized,
+        ),
+    ) &&
+    !hasFormedTransformation(
+      trustedPack,
+    )
   ) {
-    hardViolations.push("unsupported_formed_transformation");
+    hardViolations.push(
+      "unsupported_formed_transformation",
+    );
   }
 
   hardViolations.push(
-    ...detectReversedControls(normalized, trustedPack),
+    ...detectReversedControls(
+      normalized,
+      trustedPack,
+    ),
+  );
+
+  hardViolations.push(
+    ...detectUnsupportedFullPillarRepeat(
+      normalized,
+      stage,
+      trustedPack,
+    ),
   );
 
   if (stage === "year") {
-    YEAR_TIMING_PATTERNS.forEach((pattern) => {
-      if (pattern.test(normalized)) {
-        hardViolations.push(
-          `unsupported_year_timing:${pattern.source}`,
-        );
-      }
-    });
+    YEAR_TIMING_PATTERNS.forEach(
+      (pattern) => {
+        if (
+          pattern.test(
+            normalized,
+          )
+        ) {
+          hardViolations.push(
+            `unsupported_year_timing:${pattern.source}`,
+          );
+        }
+      },
+    );
+  }
+
+  if (stage === "month") {
+    MONTH_TIMING_PATTERNS.forEach(
+      (pattern) => {
+        if (
+          pattern.test(
+            normalized,
+          )
+        ) {
+          hardViolations.push(
+            `unsupported_month_timing:${pattern.source}`,
+          );
+        }
+      },
+    );
   }
 
   if (stage === "luck") {
-    const ageRanges = normalized.match(
-      /\d{1,2}\s*(?:[-—至~～到])\s*\d{1,2}\s*岁/g,
-    ) || [];
+    const ageRanges =
+      normalized.match(
+        /\d{1,2}\s*(?:[-—至~～到])\s*\d{1,2}\s*岁/g,
+      ) || [];
 
-    if (ageRanges.length > 1) {
+    if (
+      ageRanges.length > 1
+    ) {
       hardViolations.push(
         `unsupported_luck_age_segments:${ageRanges.join(",")}`,
       );
     }
   }
 
-  const uniqueViolations = [...new Set(hardViolations)];
+  const uniqueViolations = [
+    ...new Set(
+      hardViolations,
+    ),
+  ];
 
   return {
     valid:
-      Boolean(normalized) &&
-      uniqueViolations.length === 0,
-    hardViolations: uniqueViolations,
-    violations: uniqueViolations,
-    warnings: uniqueViolations,
+      Boolean(
+        normalized,
+      ) &&
+      uniqueViolations
+        .length === 0,
+    themeCount,
+    hardViolations:
+      uniqueViolations,
+    violations:
+      uniqueViolations,
+    warnings:
+      uniqueViolations,
   };
 }
 
-export function buildStageAiRepairPrompt(prompt, validation) {
+export function buildStageAiRepairPrompt(
+  prompt,
+  validation,
+) {
   const violations =
-    Array.isArray(validation?.hardViolations) &&
-    validation.hardViolations.length
-      ? validation.hardViolations.join("；")
+    Array.isArray(
+      validation
+        ?.hardViolations,
+    ) &&
+    validation
+      .hardViolations
+      .length
+      ? validation
+          .hardViolations
+          .join("；")
       : "未知硬事实错误";
 
   return {
@@ -155,109 +288,337 @@ export function buildStageAiRepairPrompt(prompt, validation) {
     system: [
       prompt?.system || "",
       "",
-      "上一版报告存在硬事实错误，请重新生成完整报告。",
+      "上一版报告未通过校验，请重新生成完整报告。",
       `需要修复：${violations}`,
-      "不要补固定领域，不要扩大篇幅，只修正事实错误并保留真正明显的内容。",
-      "必须服从 relationFacts 中的关系方向和成立状态。",
+      "主要主题至少写两个，不要把全部结构压缩成工作、合作或财务一个主题。",
+      "对同一结构比较不同现实落点：最强可能详写，第二可能有独立证据才写，最弱可能省略。",
+      "不要增加无依据的具体事件，必须服从 relationFacts 与 mechanicalSignals。",
+      "同支不等于整柱伏吟；没有流日数据不得拆分月初、上旬、中旬或下旬。",
     ].join("\n"),
     user: [
       prompt?.user || "",
       "",
-      "请重新生成报告，修复上述硬事实错误。",
+      "请重新生成报告，修复上述问题。",
     ].join("\n"),
   };
 }
 
-function detectReversedControls(text, trustedPack) {
-  return array(trustedPack?.relationFacts)
-    .filter((fact) =>
-      fact?.meta?.controller &&
-      fact?.meta?.controlled
+function countPrimaryThemes(
+  text,
+) {
+  const section =
+    extractSection(
+      text,
+      "主要主题",
+    );
+
+  if (!section) {
+    return 0;
+  }
+
+  const headingCount =
+    (
+      section.match(
+        /^####\s+/gm,
+      ) ||
+      []
+    ).length;
+
+  if (
+    headingCount > 0
+  ) {
+    return headingCount;
+  }
+
+  return (
+    section.match(
+      /^(?:\d+[.、]|[-*])\s+/gm,
+    ) ||
+    []
+  ).length;
+}
+
+function extractSection(
+  text,
+  heading,
+) {
+  const startMarker =
+    `### ${heading}`;
+
+  const startIndex =
+    text.indexOf(
+      startMarker,
+    );
+
+  if (
+    startIndex < 0
+  ) {
+    return "";
+  }
+
+  const contentStart =
+    startIndex +
+    startMarker.length;
+
+  const remainder =
+    text.slice(
+      contentStart,
+    );
+
+  const nextSection =
+    remainder.search(
+      /\n###\s+/,
+    );
+
+  return nextSection >= 0
+    ? remainder.slice(
+        0,
+        nextSection,
+      )
+    : remainder;
+}
+
+function detectReversedControls(
+  text,
+  trustedPack,
+) {
+  return array(
+    trustedPack
+      ?.relationFacts,
+  )
+    .filter(
+      (fact) =>
+        fact?.meta
+          ?.controller &&
+        fact?.meta
+          ?.controlled,
     )
     .flatMap((fact) => {
-      const controller = String(fact.meta.controller);
-      const controlled = String(fact.meta.controlled);
-      const controllerElement = STEM_ELEMENT[controller] || "";
-      const controlledElement = STEM_ELEMENT[controlled] || "";
+      const controller =
+        String(
+          fact.meta
+            .controller,
+        );
 
-      const reversed = new RegExp(
-        `${escapeRegExp(controlled)}${controlledElement}?` +
-        `[^，。；\\n]{0,10}(?:克制|克|制约)` +
-        `[^，。；\\n]{0,10}` +
-        `${escapeRegExp(controller)}${controllerElement}?`,
-      );
+      const controlled =
+        String(
+          fact.meta
+            .controlled,
+        );
 
-      return reversed.test(text)
-        ? [`reversed_control:${controlled}->${controller}`]
+      const controllerElement =
+        STEM_ELEMENT[
+          controller
+        ] ||
+        "";
+
+      const controlledElement =
+        STEM_ELEMENT[
+          controlled
+        ] ||
+        "";
+
+      const reversed =
+        new RegExp(
+          `${escapeRegExp(controlled)}${controlledElement}?` +
+          `[^，。；\\n]{0,10}(?:克制|克|制约)` +
+          `[^，。；\\n]{0,10}` +
+          `${escapeRegExp(controller)}${controllerElement}?`,
+        );
+
+      return reversed.test(
+        text,
+      )
+        ? [
+            `reversed_control:${controlled}->${controller}`,
+          ]
         : [];
     });
 }
 
-function hasConfirmedUseGod(trustedPack) {
+function detectUnsupportedFullPillarRepeat(
+  text,
+  stage,
+  trustedPack,
+) {
+  const mentionsFullRepeat =
+    FULL_PILLAR_REPEAT_PATTERNS.some(
+      (pattern) =>
+        pattern.test(
+          text,
+        ),
+    );
+
+  if (
+    !mentionsFullRepeat
+  ) {
+    return [];
+  }
+
+  const targetGanZhi =
+    String(
+      trustedPack
+        ?.target
+        ?.ganZhi ||
+      "",
+    ).trim();
+
+  const natalGanZhi =
+    array(
+      trustedPack
+        ?.factualContext
+        ?.natal
+        ?.pillars,
+    )
+      .map(
+        (pillar) =>
+          String(
+            pillar
+              ?.ganZhi ||
+            "",
+          ).trim(),
+      )
+      .filter(Boolean);
+
+  if (
+    targetGanZhi &&
+    natalGanZhi.includes(
+      targetGanZhi,
+    )
+  ) {
+    return [];
+  }
+
+  return [
+    `unsupported_full_pillar_repeat:${stage}:${targetGanZhi || "unknown"}`,
+  ];
+}
+
+function hasConfirmedUseGod(
+  trustedPack,
+) {
   const material = [
-    trustedPack?.candidateInterpretations?.natalStructure,
-    trustedPack?.candidateInterpretations?.natalSummary,
-    ...array(trustedPack?.candidateInterpretations?.natalImages),
+    trustedPack
+      ?.candidateInterpretations
+      ?.natalStructure,
+    trustedPack
+      ?.candidateInterpretations
+      ?.natalSummary,
+    ...array(
+      trustedPack
+        ?.candidateInterpretations
+        ?.natalImages,
+    ),
   ];
 
-  const serialized = JSON.stringify(material);
+  const serialized =
+    JSON.stringify(
+      material,
+    );
 
-  if (/尚未确认|未确认|待确认|证据不足/.test(serialized)) {
+  if (
+    /尚未确认|未确认|待确认|证据不足/.test(
+      serialized,
+    )
+  ) {
     return false;
   }
 
-  return /用神|喜用|喜神|忌神/.test(serialized);
+  return /用神|喜用|喜神|忌神/.test(
+    serialized,
+  );
 }
 
-function hasFormedTransformation(trustedPack) {
-  return array(trustedPack?.relationFacts).some((fact) => {
-    const formation = String(
-      fact?.meta?.formationStatus || "",
-    );
-    const transformation = String(
-      fact?.meta?.transformationStatus || "",
-    );
+function hasFormedTransformation(
+  trustedPack,
+) {
+  return array(
+    trustedPack
+      ?.relationFacts,
+  ).some((fact) => {
+    const formation =
+      String(
+        fact?.meta
+          ?.formationStatus ||
+        "",
+      );
+
+    const transformation =
+      String(
+        fact?.meta
+          ?.transformationStatus ||
+        "",
+      );
 
     return (
-      formation === "formed" ||
-      transformation === "formed"
+      formation ===
+        "formed" ||
+      transformation ===
+        "formed"
     );
   });
 }
 
-function sourceMaterialIncludes(trustedPack, pattern) {
+function sourceMaterialIncludes(
+  trustedPack,
+  pattern,
+) {
   const material = [
-    ...array(trustedPack?.relationFacts).map(
-      (fact) => fact?.rawText,
+    ...array(
+      trustedPack
+        ?.relationFacts,
     ),
-    trustedPack?.candidateInterpretations?.natalStructure,
-    trustedPack?.candidateInterpretations?.natalSummary,
-    ...array(trustedPack?.candidateInterpretations?.natalImages),
-    ...array(trustedPack?.candidateInterpretations?.stageImages),
+    trustedPack
+      ?.mechanicalSignals,
+    trustedPack
+      ?.candidateInterpretations
+      ?.natalStructure,
+    trustedPack
+      ?.candidateInterpretations
+      ?.natalSummary,
+    ...array(
+      trustedPack
+        ?.candidateInterpretations
+        ?.natalImages,
+    ),
   ]
     .filter(Boolean)
     .map((entry) =>
-      typeof entry === "string"
+      typeof entry ===
+      "string"
         ? entry
-        : JSON.stringify(entry),
+        : JSON.stringify(
+            entry,
+          ),
     )
     .join("\n");
 
   pattern.lastIndex = 0;
-  return pattern.test(material);
+
+  return pattern.test(
+    material,
+  );
 }
 
-function escapeRegExp(value) {
-  return String(value).replace(
+function escapeRegExp(
+  value,
+) {
+  return String(
+    value,
+  ).replace(
     /[.*+?^${}()|[\]\\]/g,
     "\\$&",
   );
 }
 
 function array(value) {
-  return Array.isArray(value)
+  return Array.isArray(
+    value,
+  )
     ? value
-    : value === undefined || value === null
+    : value ===
+          undefined ||
+        value === null
       ? []
       : [value];
 }

@@ -1,3 +1,7 @@
+import {
+  buildStagePageDigest,
+} from "./buildStagePageDigest.js";
+
 const stageLabels = {
   luck: "大运",
   year: "流年",
@@ -260,6 +264,26 @@ export function buildStagePresentationModel({
       report,
     });
 
+  const pageDigest =
+    buildStagePageDigest({
+      stage:
+        normalizedStage,
+
+      evidencePack,
+
+      focusDomains,
+
+      keyFacts,
+
+      advantages,
+
+      pressures,
+
+      triggeredImages,
+
+      structureFacts,
+    });
+
   const allowedEvidenceRefs =
     unique([
       ...keyFacts.flatMap(
@@ -290,6 +314,7 @@ export function buildStagePresentationModel({
     stage: normalizedStage,
     target,
     headline,
+    pageDigest,
     contextChain,
     focusDomains,
     keyFacts,

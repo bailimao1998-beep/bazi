@@ -153,60 +153,41 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck", evidenceC
 }
 
 function renderStageQuickSummary(model = {}) {
+  const digest =
+    model.pageDigest ?? {};
+
   const contextChain =
     Array.isArray(model.contextChain)
       ? model.contextChain
       : [];
 
-  const focusDomains =
-    Array.isArray(model.focusDomains)
-      ? model.focusDomains
+  const theme =
+    digest.theme ?? {};
+
+  const structures =
+    Array.isArray(digest.structures)
+      ? digest.structures
       : [];
 
-  const keyFacts =
-    Array.isArray(model.keyFacts)
-      ? model.keyFacts
+  const triggers =
+    Array.isArray(digest.triggers)
+      ? digest.triggers
+      : [];
+
+  const observations =
+    Array.isArray(digest.observations)
+      ? digest.observations
       : [];
 
   const advantages =
-    Array.isArray(model.advantages)
-      ? model.advantages
+    Array.isArray(digest.advantages)
+      ? digest.advantages
       : [];
 
   const pressures =
-    Array.isArray(model.pressures)
-      ? model.pressures
+    Array.isArray(digest.pressures)
+      ? digest.pressures
       : [];
-
-  const structureFacts =
-    Array.isArray(model.structureFacts)
-      ? model.structureFacts
-      : [];
-
-  const structureSummary =
-    model.structureSummary ?? null;
-
-  const triggeredImages =
-    model.triggeredImages ?? {};
-
-  const themeHierarchy =
-    model.themeHierarchy ??
-    triggeredImages.themeHierarchy ??
-    {};
-
-  const structureLabels = [
-    ...new Set(
-      structureFacts
-        .filter(
-          (fact) =>
-            Number(fact?.strength || 0) >= 3 &&
-            fact?.label !== "层级并行" &&
-            fact?.status !== "arch_condition",
-        )
-        .map((fact) => fact?.label)
-        .filter(Boolean),
-    ),
-  ].slice(0, 6);
 
   const targetText =
     [
@@ -218,29 +199,26 @@ function renderStageQuickSummary(model = {}) {
     "待查";
 
   return `
-    <article class="stage-image-card stage-quick-summary stage-quick-summary-v2">
-      <header class="stage-quick-head stage-quick-head-v2">
-        <div class="stage-quick-title">
-          <span class="stage-section-kicker">阶段速断</span>
+    <article class="stage-image-card stage-quick-summary stage-quick-summary-compact">
+      <header class="stage-compact-head">
+        <div>
+          <span>阶段速断</span>
           <h3>${escapeHtml(
             model.headline ||
             "当前阶段结构待复核。",
           )}</h3>
         </div>
 
-        <strong class="stage-target-pill">
-          ${escapeHtml(targetText)}
-        </strong>
+        <strong>${escapeHtml(targetText)}</strong>
       </header>
 
       ${contextChain.length
         ? `
-          <div class="stage-context-chain stage-context-chain-v2">
+          <div class="stage-compact-context">
             ${contextChain
               .map(
-                (entry, index) => `
+                (entry) => `
                   <span>
-                    <em>${String(index + 1).padStart(2, "0")}</em>
                     <b>${escapeHtml(entry.label || "")}</b>
                     <small>${escapeHtml(entry.value || "待复核")}</small>
                   </span>
@@ -252,191 +230,142 @@ function renderStageQuickSummary(model = {}) {
         : ""
       }
 
-      ${themeHierarchy.primary || themeHierarchy.supporting
-        ? `
-          <section class="stage-theme-hierarchy">
-            ${renderStageThemeCard(
-              themeHierarchy.primary,
-              "primary",
-            )}
+      <section class="stage-compact-digest">
+        ${stageCompactDigestRow(
+          "外显主线",
+          theme.primary?.tenGod ||
+            theme.primary?.label ||
+            "待复核",
+          theme.primary?.summary ||
+            "",
+        )}
 
-            ${renderStageThemeCard(
-              themeHierarchy.supporting,
-              "supporting",
-            )}
-          </section>
-        `
-        : ""
-      }
+        ${stageCompactDigestRow(
+          "现实承接",
+          theme.supporting?.tenGod ||
+            theme.supporting?.label ||
+            "待复核",
+          theme.supporting?.summary ||
+            "",
+        )}
 
-      ${structureSummary || structureLabels.length
-        ? `
-          <section class="stage-structure-overview stage-structure-overview-v2">
-            <div>
-              <span class="stage-mini-label">结构总览</span>
-              <h4>层级与组合</h4>
-              <p>${escapeHtml(
-                structureSummary?.text ||
-                "当前阶段的层级关系和组合条件待复核。",
-              )}</p>
+        ${stageCompactDigestRow(
+          "主要结构",
+          structures.length
+            ? structures.join("、")
+            : "暂无强结构",
+          "",
+        )}
+
+        ${stageCompactDigestRow(
+          "现实落点",
+          observations.length
+            ? observations
+                .map((entry) => entry.label)
+                .join("、")
+            : "暂无明显集中领域",
+          "",
+        )}
+      </section>
+
+      <section class="stage-compact-block">
+        <header>
+          <h4>主要触发</h4>
+          <span>${triggers.length} 条</span>
+        </header>
+
+        ${triggers.length
+          ? `
+            <div class="stage-compact-trigger-table">
+              ${triggers
+                .map(
+                  (entry, index) => `
+                    <div class="stage-compact-trigger-row">
+                      <span class="stage-compact-index">
+                        ${String(index + 1).padStart(2, "0")}
+                      </span>
+
+                      <div class="stage-compact-trigger-main">
+                        <b>${escapeHtml(entry.title || "结构触发")}</b>
+                        <small>${escapeHtml(entry.type || "结构触发")}</small>
+                      </div>
+
+                      <div class="stage-compact-trigger-domains">
+                        ${escapeHtml(
+                          Array.isArray(entry.domains) &&
+                          entry.domains.length
+                            ? entry.domains.join("、")
+                            : "现实落点待复核",
+                        )}
+                      </div>
+
+                      <p>${escapeHtml(entry.summary || "")}</p>
+                    </div>
+                  `,
+                )
+                .join("")}
             </div>
+          `
+          : `
+            <p class="stage-compact-empty">
+              当前没有需要单独放大的强触发，先看十神主线与现实承接。
+            </p>
+          `
+        }
+      </section>
 
-            ${structureLabels.length
-              ? `
-                <div class="stage-structure-tags">
-                  ${structureLabels
-                    .map(
-                      (label) =>
-                        `<span>${escapeHtml(label)}</span>`,
-                    )
-                    .join("")}
-                </div>
-              `
-              : ""
-            }
-          </section>
-        `
-        : ""
-      }
+      <section class="stage-compact-block">
+        <header>
+          <h4>重点观察</h4>
+          <span>${observations.length} 项</span>
+        </header>
 
-      ${renderStageTriggeredImages(triggeredImages)}
+        ${observations.length
+          ? `
+            <ol class="stage-compact-observations">
+              ${observations
+                .map(
+                  (entry) => `
+                    <li>
+                      <b>${escapeHtml(entry.label || "待复核")}</b>
+                      <span>${escapeHtml(entry.reason || "")}</span>
+                    </li>
+                  `,
+                )
+                .join("")}
+            </ol>
+          `
+          : `
+            <p class="stage-compact-empty">
+              暂无明显集中领域，先结合现实反馈缩小范围。
+            </p>
+          `
+        }
+      </section>
 
-      <div class="stage-summary-grid">
-        <section class="stage-focus-section stage-summary-panel">
-          <div class="stage-summary-panel-head">
-            <div>
-              <span>优先顺序</span>
-              <h4>重点领域</h4>
-            </div>
-            <b>${focusDomains.length}</b>
-          </div>
+      <section class="stage-compact-balance">
+        <p>
+          <b>可利用：</b>
+          <span>${escapeHtml(
+            advantages.length
+              ? advantages.join("、")
+              : "暂无稳定优势结论",
+          )}</span>
+        </p>
 
-          <div class="stage-focus-domains stage-focus-domains-v2">
-            ${focusDomains.length
-              ? focusDomains
-                  .map(
-                    (entry) => `
-                      <article>
-                        <span class="stage-focus-domain-head">
-                          <b>${escapeHtml(entry.label || "")}</b>
-                          <em>${escapeHtml(entry.level || "关注")}</em>
-                        </span>
-
-                        <small>${escapeHtml(
-                          entry.reason ||
-                          "由当前证据排序",
-                        )}</small>
-                      </article>
-                    `,
-                  )
-                  .join("")
-              : `
-                <article class="is-empty">
-                  <span class="stage-focus-domain-head">
-                    <b>暂无明显集中领域</b>
-                    <em>待复核</em>
-                  </span>
-                  <small>先结合现实反馈复核。</small>
-                </article>
-              `
-            }
-          </div>
-        </section>
-
-        <section class="stage-key-facts stage-summary-panel">
-          <div class="stage-summary-panel-head">
-            <div>
-              <span>证据主干</span>
-              <h4>关键事实</h4>
-            </div>
-            <b>${keyFacts.length}</b>
-          </div>
-
-          <ol class="stage-key-fact-list">
-            ${keyFacts.length
-              ? keyFacts
-                  .map(
-                    (fact, index) => `
-                      <li>
-                        <span class="stage-fact-index">
-                          ${String(index + 1).padStart(2, "0")}
-                        </span>
-
-                        <div>
-                          <b>${escapeHtml(
-                            fact.label ||
-                            "阶段事实",
-                          )}</b>
-
-                          <p>${escapeHtml(fact.text || "")}</p>
-
-                          ${fact.source
-                            ? `
-                              <small>${escapeHtml(fact.source)}</small>
-                            `
-                            : ""
-                          }
-                        </div>
-                      </li>
-                    `,
-                  )
-                  .join("")
-              : `
-                <li class="is-empty">
-                  <span class="stage-fact-index">--</span>
-                  <div>
-                    <b>当前证据较少</b>
-                    <p>先保留观察，不扩大解释。</p>
-                  </div>
-                </li>
-              `
-            }
-          </ol>
-        </section>
-      </div>
-
-      <div class="stage-balance-grid stage-balance-grid-v2">
-        <section class="stage-advantages">
-          <div class="stage-balance-head">
-            <span>顺势使用</span>
-            <h4>可利用的力量</h4>
-          </div>
-
-          <ul>
-            ${advantages.length
-              ? advantages
-                  .map(
-                    (entry) =>
-                      `<li>${escapeHtml(entry.text || "")}</li>`,
-                  )
-                  .join("")
-              : `<li>暂无稳定优势结论，先观察现实承接。</li>`
-            }
-          </ul>
-        </section>
-
-        <section class="stage-pressures">
-          <div class="stage-balance-head">
-            <span>需要控制</span>
-            <h4>需要留意的压力</h4>
-          </div>
-
-          <ul>
-            ${pressures.length
-              ? pressures
-                  .map(
-                    (entry) =>
-                      `<li>${escapeHtml(entry.text || "")}</li>`,
-                  )
-                  .join("")
-              : `<li>暂无明显关系压力，仍需结合现实反馈。</li>`
-            }
-          </ul>
-        </section>
-      </div>
+        <p>
+          <b>需留意：</b>
+          <span>${escapeHtml(
+            pressures.length
+              ? pressures.join("、")
+              : "暂无明显关系压力",
+          )}</span>
+        </p>
+      </section>
     </article>
   `;
 }
+
 
 function renderStageThemeCard(entry, role = "primary") {
   if (!entry) {
@@ -536,261 +465,84 @@ function renderStageTriggeredImages(triggeredImages = {}) {
   `;
 }
 
-
 function renderStageEvidenceDetails(
   model = {},
   evidencePack = {},
 ) {
-  const hits =
-    Array.isArray(evidencePack?.hits)
-      ? evidencePack.hits
+  const evidence =
+    model.pageDigest?.evidence ?? {};
+
+  const baseRows =
+    Array.isArray(evidence.base)
+      ? evidence.base
       : [];
 
-  const relations =
-    Array.isArray(evidencePack?.relations)
-      ? evidencePack.relations
+  const structureRows =
+    Array.isArray(evidence.structure)
+      ? evidence.structure
       : [];
-
-  const structureFacts =
-    Array.isArray(model?.structureFacts)
-      ? model.structureFacts
-      : [];
-
-  const explanations =
-    evidencePack?.explanations ?? {};
 
   const conditions =
-    compactEvidenceTextItems(
-      explanations.conditions,
-      6,
-    );
+    Array.isArray(evidence.conditions)
+      ? evidence.conditions
+      : [];
 
   const counterEvidence =
-    compactEvidenceTextItems(
-      explanations.counterEvidence,
-      6,
-    );
-
-  const realityImages =
-    compactEvidenceTextItems(
-      explanations.realityImages,
-      6,
-    );
-
-  const visibleStructureFacts =
-    structureFacts
-      .filter(
-        (fact) =>
-          fact?.text ||
-          fact?.description,
-      )
-      .slice(0, 12);
+    Array.isArray(evidence.counterEvidence)
+      ? evidence.counterEvidence
+      : [];
 
   return `
-    <details class="stage-evidence-details stage-evidence-details-v2">
+    <details class="stage-evidence-details stage-evidence-details-compact">
       <summary>
-        <span class="stage-evidence-summary-title">
+        <span>
           <b>详细证据与复核</b>
-          <small>展开查看证据链、成立条件与反证。</small>
-        </span>
-
-        <span class="stage-evidence-summary-metrics">
-          ${renderEvidenceMetric("十神", hits.length)}
-          ${renderEvidenceMetric("基础关系", relations.length)}
-          ${renderEvidenceMetric("层级组合", visibleStructureFacts.length)}
-          ${renderEvidenceMetric("成立条件", conditions.length)}
-          ${renderEvidenceMetric("反证", counterEvidence.length)}
+          <small>
+            十神与基础关系 ${baseRows.length} ·
+            层级组合 ${structureRows.length} ·
+            条件与反证 ${conditions.length + counterEvidence.length}
+          </small>
         </span>
       </summary>
 
-      <div class="stage-evidence-details-body stage-evidence-details-body-v2">
-        <div class="stage-evidence-primary-grid">
-          <section class="stage-evidence-group is-ten-god">
-            <header>
-              <div>
-                <span>基础主题</span>
-                <h4>十神命中</h4>
-              </div>
-              <b>${hits.length}</b>
-            </header>
-
-            ${hits.length
-              ? `
-                <ul class="stage-evidence-list">
-                  ${hits
-                    .map(
-                      (hit) => `
-                        <li>
-                          <div class="stage-evidence-item-head">
-                            <b>${escapeHtml(
-                              hit.source ||
-                              "十神命中",
-                            )}</b>
-                            <em>${escapeHtml(
-                              hit.label ||
-                              "待查",
-                            )}</em>
-                          </div>
-
-                          <p>${escapeHtml(
-                            hit.bookExplanation ||
-                            hit.masterTalk ||
-                            "暂无资料解释。",
-                          )}</p>
-                        </li>
-                      `,
-                    )
-                    .join("")}
-                </ul>
-              `
-              : `<p class="stage-evidence-empty">暂无十神证据。</p>`
-            }
-          </section>
-
-          <section class="stage-evidence-group is-relation">
-            <header>
-              <div>
-                <span>直接作用</span>
-                <h4>基础关系触发</h4>
-              </div>
-              <b>${relations.length}</b>
-            </header>
-
-            ${relations.length
-              ? `
-                <ul class="stage-evidence-list">
-                  ${relations
-                    .map(
-                      (relation) => `
-                        <li>
-                          <div class="stage-evidence-item-head">
-                            <b>${escapeHtml(
-                              relation.source ||
-                              "关系触发",
-                            )}</b>
-                            <em>${escapeHtml(
-                              relation.label ||
-                              "待查",
-                            )}</em>
-                          </div>
-
-                          <p>${escapeHtml(
-                            relation.description ||
-                            relation.bookExplanation ||
-                            "暂无关系说明。",
-                          )}</p>
-                        </li>
-                      `,
-                    )
-                    .join("")}
-                </ul>
-              `
-              : `
-                <p class="stage-evidence-empty">
-                  暂未命中基础冲、合、刑、害、破。
-                </p>
-              `
-            }
-          </section>
-        </div>
-
-        <section class="stage-evidence-group stage-structure-evidence is-structure">
+      <div class="stage-compact-evidence-body">
+        <section>
           <header>
-            <div>
-              <span>多层判断</span>
-              <h4>层级与组合证据</h4>
-            </div>
-            <b>${visibleStructureFacts.length}</b>
+            <h4>十神与基础关系</h4>
+            <span>${baseRows.length}</span>
           </header>
 
-          ${visibleStructureFacts.length
-            ? `
-              <ul class="stage-evidence-list stage-structure-evidence-list">
-                ${visibleStructureFacts
-                  .map(
-                    (fact) => `
-                      <li>
-                        <div class="stage-evidence-item-head">
-                          <b>${escapeHtml(
-                            fact.label ||
-                            "结构事实",
-                          )}</b>
-                          <em class="is-structure">
-                            ${escapeHtml(
-                              evidenceStatusLabel(
-                                fact.status,
-                              ),
-                            )}
-                          </em>
-                        </div>
-
-                        <p>${escapeHtml(
-                          fact.text ||
-                          fact.description ||
-                          "",
-                        )}</p>
-
-                        ${fact.source
-                          ? `
-                            <small>${escapeHtml(
-                              fact.source,
-                            )}</small>
-                          `
-                          : ""
-                        }
-                      </li>
-                    `,
-                  )
-                  .join("")}
-              </ul>
-            `
-            : `
-              <p class="stage-evidence-empty">
-                暂无伏吟、天干关系、三合三会、多层激活或层级转向等附加结构。
-              </p>
-            `
-          }
+          ${stageCompactEvidenceList(
+            baseRows,
+          )}
         </section>
 
-        <div class="stage-evidence-note-grid">
-          ${renderEvidenceTextGroup(
+        <section>
+          <header>
+            <h4>层级与组合</h4>
+            <span>${structureRows.length}</span>
+          </header>
+
+          ${stageCompactEvidenceList(
+            structureRows,
+          )}
+        </section>
+
+        <section class="stage-compact-condition-grid">
+          ${stageCompactTextList(
             "成立条件",
             conditions,
-            {
-              subtitle:
-                "这些条件决定取象能否进一步落实。",
-              tone:
-                "condition",
-            },
           )}
 
-          ${renderEvidenceTextGroup(
+          ${stageCompactTextList(
             "反证",
             counterEvidence,
-            {
-              subtitle:
-                "出现这些情况时，应降低原判断权重。",
-              tone:
-                "counter",
-            },
           )}
-
-          ${renderEvidenceTextGroup(
-            "现实取象",
-            realityImages,
-            {
-              subtitle:
-                "用于把结构对应到可观察的现实线索。",
-              tone:
-                "reality",
-            },
-          )}
-        </div>
+        </section>
       </div>
     </details>
   `;
 }
-
 
 function renderEvidenceMetric(
   label,
@@ -1342,4 +1094,83 @@ function confidenceLabel(value) {
 function hasFactValue(entry) {
   const [, value] = entry;
   return value !== undefined && value !== null && String(value).trim();
+}
+
+
+function stageCompactDigestRow(
+  label,
+  value,
+  detail = "",
+) {
+  return `
+    <div>
+      <b>${escapeHtml(label)}</b>
+      <span>${escapeHtml(value || "待复核")}</span>
+      ${detail
+        ? `<small>${escapeHtml(detail)}</small>`
+        : ""
+      }
+    </div>
+  `;
+}
+
+function stageCompactEvidenceList(
+  rows = [],
+) {
+  if (!rows.length) {
+    return `
+      <p class="stage-compact-empty">
+        暂无明确证据。
+      </p>
+    `;
+  }
+
+  return `
+    <ul class="stage-compact-evidence-list">
+      ${rows
+        .map(
+          (row) => `
+            <li>
+              <div>
+                <b>${escapeHtml(row.label || row.kind || "证据")}</b>
+                <span>${escapeHtml(row.kind || row.status || "")}</span>
+              </div>
+
+              <p>${escapeHtml(row.text || "")}</p>
+
+              ${row.source
+                ? `<small>${escapeHtml(row.source)}</small>`
+                : ""
+              }
+            </li>
+          `,
+        )
+        .join("")}
+    </ul>
+  `;
+}
+
+function stageCompactTextList(
+  title,
+  items = [],
+) {
+  return `
+    <div>
+      <h5>${escapeHtml(title)}</h5>
+
+      ${items.length
+        ? `
+          <ul>
+            ${items
+              .map(
+                (item) =>
+                  `<li>${escapeHtml(item)}</li>`,
+              )
+              .join("")}
+          </ul>
+        `
+        : `<p>暂无明确内容。</p>`
+      }
+    </div>
+  `;
 }

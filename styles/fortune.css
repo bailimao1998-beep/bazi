@@ -3358,3 +3358,422 @@
 
 /* ===== 岁运阶段速断与证据可读性 v7：结束 ===== */
 
+
+/* ===== 岁运证据页精简 v8：开始 ===== */
+
+.stage-quick-summary-compact {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(222, 208, 189, 0.92);
+  border-radius: 14px;
+  background: #fffdf8;
+  box-shadow: none;
+}
+
+.stage-compact-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(226, 215, 200, 0.82);
+}
+
+.stage-compact-head > div > span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.stage-compact-head h3 {
+  margin: 0;
+  color: #27343a;
+  font-size: 18px;
+  line-height: 1.58;
+}
+
+.stage-compact-head > strong {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 5px 11px;
+  border: 1px solid rgba(47, 111, 115, 0.16);
+  border-radius: 999px;
+  background: rgba(234, 247, 244, 0.42);
+  color: var(--accent);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.stage-compact-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 8px 0;
+}
+
+.stage-compact-context > span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.stage-compact-context b {
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.stage-compact-context small {
+  color: #5f6668;
+  font-size: 12px;
+}
+
+.stage-compact-digest {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid rgba(226, 215, 200, 0.72);
+  border-left: 1px solid rgba(226, 215, 200, 0.72);
+}
+
+.stage-compact-digest > div {
+  min-width: 0;
+  padding: 11px 12px;
+  border-right: 1px solid rgba(226, 215, 200, 0.72);
+  border-bottom: 1px solid rgba(226, 215, 200, 0.72);
+}
+
+.stage-compact-digest b,
+.stage-compact-digest span,
+.stage-compact-digest small {
+  display: block;
+}
+
+.stage-compact-digest b {
+  margin-bottom: 4px;
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.stage-compact-digest span {
+  color: #2f3b40;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.stage-compact-digest small {
+  margin-top: 4px;
+  color: #767872;
+  font-size: 11px;
+  line-height: 1.48;
+}
+
+.stage-compact-block {
+  display: grid;
+  gap: 10px;
+}
+
+.stage-compact-block > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stage-compact-block > header h4 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.stage-compact-block > header span {
+  color: #8a8c86;
+  font-size: 11px;
+}
+
+.stage-compact-trigger-table {
+  border-top: 1px solid rgba(226, 215, 200, 0.78);
+}
+
+.stage-compact-trigger-row {
+  display: grid;
+  grid-template-columns:
+    30px
+    minmax(120px, 0.7fr)
+    minmax(150px, 0.8fr)
+    minmax(0, 1.6fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(226, 215, 200, 0.72);
+}
+
+.stage-compact-index {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: rgba(47, 111, 115, 0.08);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.stage-compact-trigger-main b,
+.stage-compact-trigger-main small {
+  display: block;
+}
+
+.stage-compact-trigger-main b {
+  color: #2d383d;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.stage-compact-trigger-main small {
+  margin-top: 3px;
+  color: #91918a;
+  font-size: 10px;
+}
+
+.stage-compact-trigger-domains {
+  color: #4f5d61;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.stage-compact-trigger-row p {
+  margin: 0;
+  color: #5f6668;
+  font-size: 12px;
+  line-height: 1.58;
+}
+
+.stage-compact-observations {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.stage-compact-observations li {
+  color: #596164;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.stage-compact-observations b {
+  margin-right: 7px;
+  color: #2e3a3f;
+}
+
+.stage-compact-balance {
+  display: grid;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(226, 215, 200, 0.76);
+}
+
+.stage-compact-balance p {
+  margin: 0;
+  color: #586063;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.stage-compact-balance b {
+  color: var(--accent);
+}
+
+.stage-compact-empty {
+  margin: 0;
+  color: #8c8c84;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* 详细证据 */
+.stage-evidence-details-compact {
+  overflow: hidden;
+  border: 1px solid rgba(222, 208, 189, 0.92);
+  border-radius: 12px;
+  background: #fffdf8;
+  box-shadow: none;
+}
+
+.stage-evidence-details-compact > summary {
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.stage-evidence-details-compact > summary span,
+.stage-evidence-details-compact > summary b,
+.stage-evidence-details-compact > summary small {
+  display: block;
+}
+
+.stage-evidence-details-compact > summary b {
+  color: #29363c;
+  font-size: 14px;
+}
+
+.stage-evidence-details-compact > summary small {
+  margin-top: 3px;
+  color: #7d7e78;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.stage-evidence-details-compact[open] > summary {
+  border-bottom: 1px solid rgba(226, 215, 200, 0.8);
+}
+
+.stage-compact-evidence-body {
+  display: grid;
+  gap: 16px;
+  padding: 14px;
+}
+
+.stage-compact-evidence-body > section {
+  display: grid;
+  gap: 8px;
+}
+
+.stage-compact-evidence-body > section > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stage-compact-evidence-body > section > header h4 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 13px;
+}
+
+.stage-compact-evidence-body > section > header span {
+  color: #8b8c86;
+  font-size: 10px;
+}
+
+.stage-compact-evidence-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid rgba(226, 215, 200, 0.76);
+}
+
+.stage-compact-evidence-list > li {
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(226, 215, 200, 0.68);
+}
+
+.stage-compact-evidence-list > li > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stage-compact-evidence-list b {
+  color: #2e3a3f;
+  font-size: 12px;
+}
+
+.stage-compact-evidence-list span {
+  flex: 0 0 auto;
+  color: #8b8c86;
+  font-size: 10px;
+}
+
+.stage-compact-evidence-list p {
+  margin: 4px 0 0;
+  color: #5c6467;
+  font-size: 11px;
+  line-height: 1.56;
+}
+
+.stage-compact-evidence-list small {
+  display: block;
+  margin-top: 4px;
+  color: #99978f;
+  font-size: 10px;
+}
+
+.stage-compact-condition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.stage-compact-condition-grid > div {
+  min-width: 0;
+}
+
+.stage-compact-condition-grid h5 {
+  margin: 0 0 7px;
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.stage-compact-condition-grid ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.stage-compact-condition-grid li,
+.stage-compact-condition-grid p {
+  color: #5d6568;
+  font-size: 11px;
+  line-height: 1.52;
+}
+
+@media (max-width: 900px) {
+  .stage-compact-trigger-row {
+    grid-template-columns:
+      30px
+      minmax(120px, 0.8fr)
+      minmax(0, 1.2fr);
+  }
+
+  .stage-compact-trigger-row p {
+    grid-column: 2 / -1;
+  }
+}
+
+@media (max-width: 680px) {
+  .stage-compact-head {
+    grid-template-columns: 1fr;
+  }
+
+  .stage-compact-head > strong {
+    justify-self: start;
+  }
+
+  .stage-compact-digest,
+  .stage-compact-condition-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stage-compact-trigger-row {
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+
+  .stage-compact-trigger-domains,
+  .stage-compact-trigger-row p {
+    grid-column: 2;
+  }
+}
+
+/* ===== 岁运证据页精简 v8：结束 ===== */
+

@@ -287,6 +287,7 @@ async function requestStageAiNarrativeWithRetry({
     const validation = validateStageAiText({
       text: result.text,
       stage,
+      trustedPack: prompt?.trustedPack ?? null,
     });
 
     attempts.push({
@@ -330,12 +331,13 @@ async function requestStageAiNarrativeWithRetry({
     validation: lastValidation,
   };
 
-  throw new Error(
-    `AI报告未完整覆盖十二领域：${
-      lastValidation?.missingDomains?.join("、") ||
-      "存在格式或越界问题"
-    }`,
-  );
+  return {
+    result: lastResult,
+    validation: lastValidation,
+    attempts,
+    retried: true,
+    incomplete: true,
+  };
 }
 
 

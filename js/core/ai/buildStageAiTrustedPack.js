@@ -49,7 +49,7 @@ export function buildStageAiTrustedPack({
       statusOrder[left.status] - statusOrder[right.status] ||
       Number(right.strength || 0) - Number(left.strength || 0),
     )
-    .slice(0, 20);
+    .slice(0, 80);
 
   const domainEvidenceCandidates = compactDomainEvidenceCandidates(
     item?.domainSignals,
@@ -97,7 +97,6 @@ export function buildStageAiTrustedPack({
 
   const allowedEvidenceRefs = unique([
     ...evidenceFacts.map((fact) => fact.id),
-    ...collectThreadRefs(compactStoryPack),
     ...collectDomainEvidenceRefs(domainEvidenceCandidates),
   ]);
 
@@ -122,21 +121,20 @@ export function buildStageAiTrustedPack({
         ? compactMonth(item)
         : null,
     },
-    themeHierarchy: compactStoryPack.themeHierarchy,
-    storyPack: compactStoryPack,
     domainEvidenceCandidates,
     evidenceFacts,
     allowedEvidenceRefs,
     outputRules: [
-      "所有判断必须能回指 themeHierarchy、storyPack、domainEvidenceCandidates 或 evidenceFacts。",
-      "主线、发展、转折、落点必须按 storyOrder 组织。",
-      "domainEvidenceCandidates 只是浏览器收集的候选证据索引，不是领域排名、吉凶评分或最终结论。",
-      "必须由 AI 独立逐项分析十二领域，不得照搬前端旧分数、旧主线或旧副线。",
-      "候选领域没有直接证据时，可以结合原局和上下层背景写为证据较弱，但不得虚构事实。",
-      "桃花、贵人、驿马、藏干等辅助事实不能单独推出确定事件。",
-      "具体场景只能写成较可能、容易表现为、可观察，不得写成必然发生。",
-      "条件组合不得进入一句话总览和主要结论。",
-      "没有直接触发时，应明确写成背景延续或证据不足，不得硬造事件。",
+      "context.natal 中的排盘、十神和藏干属于基础数据；evidenceFacts 中的关系方向属于硬事实。",
+      "context.natal.imageCards 与 domainEvidenceCandidates 只是候选取象和候选落点，不是最终结论。",
+      "必须先横向比较十二领域，再分成重点主线、次要领域和当前不突出。",
+      "不得使用前端分数、旧主线、故事顺序或可能场景替代独立判断。",
+      "同一事实只能作为一个主要落点，其他领域只能说明延伸关系，不能重复放大。",
+      "当前不突出领域只说明证据不足，不得补写买房、结婚、生子、升职、搬家等具体场景。",
+      "关系方向必须严格服从 evidenceFacts.meta，不得把谁克谁、谁生谁写反。",
+      "藏财不等于财库，时柱触发不等于实际子女事件，神煞不能单独推出确定事件。",
+      "条件组合不得写成已经成局、已经化气或确定事件。",
+      "没有逐年或逐月事实时，不得自行划分年龄段或具体应期。",
     ],
   };
 }
@@ -199,15 +197,45 @@ function compactThread(thread) {
 function compactFact(fact) {
   return {
     id: text(fact?.id),
+    type: text(fact?.type),
     label: text(fact?.label),
-    text: shortText(fact?.text, 180),
+    text: shortText(fact?.text, 260),
     category: text(fact?.category || "direct"),
     status: text(fact?.status || "direct"),
     source: text(fact?.source),
     polarity: text(fact?.polarity || "mixed"),
     strength: Number(fact?.strength || 0),
     domains: unique(array(fact?.domains)),
+    participants: unique(array(fact?.participants)),
+    tags: unique(array(fact?.tags)),
+    meta: compactFactMeta(fact?.meta),
   };
+}
+
+function compactFactMeta(value) {
+  const meta = object(value);
+  const result = {
+    controller: text(meta?.controller),
+    controlled: text(meta?.controlled),
+    direction: text(meta?.direction),
+    targetElement: text(meta?.targetElement),
+    transformationStatus: text(meta?.transformationStatus),
+    formationStatus: text(meta?.formationStatus),
+    conditionType: text(meta?.conditionType),
+    parentLevel: text(meta?.parentLevel),
+    stemDirection: text(meta?.stemDirection),
+    tone: text(meta?.tone),
+    subtype: text(meta?.subtype),
+    element: text(meta?.element),
+  };
+
+  return Object.fromEntries(
+    Object.entries(result).filter(([, entry]) =>
+      entry !== "" &&
+      entry !== null &&
+      entry !== undefined
+    ),
+  );
 }
 
 function buildTarget(stage, item) {
@@ -292,12 +320,11 @@ function compactNatalContext(viewModel, natalReport) {
     structureAnalysis: viewModel?.structureAnalysis || null,
     summary: natalReport?.summary || null,
     imageCards: array(natalReport?.imageCards)
-      .slice(0, 10)
       .map((card) => ({
         id: text(card?.id),
         title: text(card?.title),
         image: shortText(card?.image || card?.summary, 150),
-        evidence: unique(array(card?.evidence)).slice(0, 5),
+        evidence: unique(array(card?.evidence)),
       })),
   };
 }
@@ -305,12 +332,12 @@ function compactNatalContext(viewModel, natalReport) {
 function compactDomainEvidenceCandidates(value) {
   const source = object(value);
   const domains = array(source?.domains).map((entry) => {
-    const directFacts = compactDomainEvidence(entry?.directFacts, 5);
-    const supportingFacts = compactDomainEvidence(entry?.supportingFacts, 5);
-    const counterFacts = compactDomainEvidence(entry?.counterFacts, 4);
-    const hiddenStemSignals = compactDomainEvidence(entry?.hiddenStemSignals, 4);
-    const auxiliarySignals = compactDomainEvidence(entry?.auxiliarySignals, 4);
-    const palaceTriggers = compactDomainEvidence(entry?.palaceTriggers, 4);
+    const directFacts = compactDomainEvidence(entry?.directFacts);
+    const supportingFacts = compactDomainEvidence(entry?.supportingFacts);
+    const counterFacts = compactDomainEvidence(entry?.counterFacts);
+    const hiddenStemSignals = compactDomainEvidence(entry?.hiddenStemSignals);
+    const auxiliarySignals = compactDomainEvidence(entry?.auxiliarySignals);
+    const palaceTriggers = compactDomainEvidence(entry?.palaceTriggers);
     const evidenceIds = unique([
       ...array(entry?.evidenceIds),
       ...directFacts.map((fact) => fact.id),
@@ -354,15 +381,14 @@ function compactDomainEvidenceCandidates(value) {
   };
 }
 
-function compactDomainEvidence(values, limit) {
-  return array(values).slice(0, limit).map((entry) => ({
+function compactDomainEvidence(values) {
+  return array(values).map((entry) => ({
     id: text(entry?.id),
     type: text(entry?.type),
     source: text(entry?.source),
     status: text(entry?.status),
     polarity: text(entry?.polarity),
-    strength: Number(entry?.strength || 0),
-    text: shortText(entry?.text, 200),
+    text: shortText(entry?.text, 240),
     originalFactId: text(entry?.originalFactId),
   }));
 }

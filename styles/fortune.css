@@ -1867,39 +1867,31 @@
   max-width: 100%;
   box-sizing: border-box;
 }
-
 .transit-card-list {
-  width: 100%;
-  padding:
-    1px
-    2px
-    7px !important;
-  scroll-padding-inline:
-    8px !important;
+  overflow-x: scroll;
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color:
-    rgba(47, 111, 115, 0.35)
-    transparent;
-  overscroll-behavior-x: contain;
+    rgba(47, 111, 115, 0.3)
+    rgba(47, 111, 115, 0.06);
 }
 
 .transit-card-list::-webkit-scrollbar {
-  height: 7px;
+  height: 4px;
 }
 
 .transit-card-list::-webkit-scrollbar-track {
-  background: transparent;
+  border-radius: 999px;
+  background: rgba(47, 111, 115, 0.06);
 }
 
 .transit-card-list::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background:
-    rgba(47, 111, 115, 0.28);
+  background: rgba(47, 111, 115, 0.3);
 }
 
 .transit-card-list::-webkit-scrollbar-thumb:hover {
-  background:
-    rgba(47, 111, 115, 0.46);
+  background: rgba(47, 111, 115, 0.46);
 }
 
 /*
@@ -2058,3 +2050,81 @@
 }
 
 /* ===== 岁运选择交互与流月标题修复 v14：结束 ===== */
+
+/* ===== 流月标题最终覆盖：日期与干支同行 ===== */
+
+.transit-select-card.is-month-card {
+  flex: 0 0 190px;
+  min-width: 190px;
+}
+
+.transit-select-card.is-month-card .transit-card-title {
+  display: flex;
+  grid-template-columns: none;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.transit-select-card.is-month-card .transit-card-primary {
+  display: inline;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: #686158;
+  font-size: 14px;
+  font-weight: 820;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+.transit-select-card.is-month-card .transit-card-dot {
+  display: inline;
+  flex: 0 0 auto;
+  color: #b9ac99;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.transit-select-card.is-month-card .transit-card-ganzhi {
+  display: inline;
+  flex: 0 0 auto;
+  color: #34444b;
+  font-size: 17px;
+  font-weight: 950;
+  line-height: 1.18;
+  white-space: nowrap;
+}
+
+.transit-select-card.is-month-card.is-active
+.transit-card-ganzhi {
+  color: var(--accent);
+}
+
+@media (max-width: 900px) {
+  .transit-select-card.is-month-card {
+    flex: 0 0 180px;
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 600px) {
+  .transit-select-card.is-month-card {
+    flex: 0 0 172px;
+    min-width: 172px;
+  }
+
+  .transit-select-card.is-month-card
+  .transit-card-primary {
+    font-size: 12px;
+  }
+
+  .transit-select-card.is-month-card
+  .transit-card-ganzhi {
+    font-size: 16px;
+  }
+}

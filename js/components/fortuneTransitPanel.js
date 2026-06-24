@@ -1,6 +1,8 @@
 import { renderTransitHierarchyPanel } from "./transitHierarchyPanel.js";
 import { escapeHtml } from "../utils/html.js";
 
+let pendingRevealType = "";
+
 export function renderFortuneTransitPanel(root, payload = {}) {
   if (!root) return;
   const { state } = payload ?? {};
@@ -60,12 +62,22 @@ export function renderFortuneTransitPanel(root, payload = {}) {
         `;
 
   bindTransitEvents(root, payload);
+
+  const revealType =
+    pendingRevealType;
+
+  pendingRevealType = "";
+
   revealActiveTransitCards(
     root,
+    revealType,
   );
 }
 
-function bindTransitEvents(root, payload = {}) {
+function bindTransitEvents(
+  root,
+  payload = {},
+) {
   root
     .querySelectorAll(
       "[data-luck-year]",
@@ -75,6 +87,9 @@ function bindTransitEvents(root, payload = {}) {
         button.addEventListener(
           "click",
           () => {
+            pendingRevealType =
+              "luck";
+
             payload.onSelectLuck?.({
               year:
                 Number(
@@ -92,12 +107,52 @@ function bindTransitEvents(root, payload = {}) {
         );
       },
     );
-  root.querySelectorAll("[data-year-step]").forEach((button) => {
-    button.addEventListener("click", () => payload.onSelectYear?.(Number(button.dataset.yearStep)));
-  });
-  root.querySelectorAll("[data-month-select]").forEach((button) => {
-    button.addEventListener("click", () => payload.onSelectMonth?.(Number(button.dataset.monthSelect)));
-  });
+
+  root
+    .querySelectorAll(
+      "[data-year-step]",
+    )
+    .forEach(
+      (button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            pendingRevealType =
+              "year";
+
+            payload.onSelectYear?.(
+              Number(
+                button.dataset
+                  .yearStep,
+              ),
+            );
+          },
+        );
+      },
+    );
+
+  root
+    .querySelectorAll(
+      "[data-month-select]",
+    )
+    .forEach(
+      (button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            pendingRevealType =
+              "month";
+
+            payload.onSelectMonth?.(
+              Number(
+                button.dataset
+                  .monthSelect,
+              ),
+            );
+          },
+        );
+      },
+    );
 }
 
 function findLuckForYear(
@@ -177,6 +232,7 @@ function formatSelectionSummary(currentLuck = {}, yearItem = {}, monthItem = {})
 
 function revealActiveTransitCards(
   root,
+  revealType = "",
 ) {
   if (!root) {
     return;
@@ -186,9 +242,14 @@ function revealActiveTransitCards(
     () => {
       requestAnimationFrame(
         () => {
+          const selector =
+            revealType
+              ? `.transit-card-list.is-${revealType}-row`
+              : ".transit-card-list";
+
           const lists =
             root.querySelectorAll(
-              ".transit-card-list",
+              selector,
             );
 
           lists.forEach(
@@ -206,11 +267,6 @@ function revealActiveTransitCards(
                 return;
               }
 
-              /*
-               * 只有存在横向滚动时，
-               * 才把选中卡片尽可能放在中间。
-               * 首尾卡片会受滚动边界限制。
-               */
               const targetLeft =
                 activeCard.offsetLeft -
                 (

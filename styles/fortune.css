@@ -4120,3 +4120,141 @@
 
 /* ===== 岁运证据页排版紧凑与字号修正 v9：结束 ===== */
 
+
+/* ===== 岁运详细证据留白与灰字修正 v10：开始 ===== */
+
+/*
+ * 基于 main:
+ * e02ea9e0187c9d07b30023683ea8b7b796b89e25
+ *
+ * 只修正详细证据区域的可读性与布局：
+ * - 不改岁运计算
+ * - 不改 pageDigest
+ * - 不改 AI storyPack
+ * - 不改 AI Prompt
+ */
+
+/*
+ * v9 把“十神与基础关系”和“层级与组合”放在同一行两列。
+ * 流月中经常出现左侧只有 2 条、右侧有 7 条的情况，
+ * 两栏高度差会造成明显空白。
+ *
+ * 改回单列，但保留每条证据内部的横向结构。
+ */
+.stage-compact-evidence-body {
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding: 12px 15px 15px;
+}
+
+.stage-compact-evidence-body > section {
+  align-self: start;
+  align-content: start;
+  gap: 6px;
+}
+
+.stage-compact-evidence-list {
+  align-content: start;
+}
+
+/* 成立条件与反证仍然可以左右并排 */
+.stage-compact-condition-grid {
+  grid-column: auto;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+/*
+ * 详细证据使用整行宽度后，左侧名称区固定得更合理，
+ * 右侧解释获得更多可读空间。
+ */
+.stage-compact-evidence-list > li {
+  grid-template-columns:
+    minmax(190px, 0.34fr)
+    minmax(0, 1.66fr);
+  gap: 3px 18px;
+  padding: 9px 0;
+}
+
+/* 小灰字提高对比度 */
+.stage-evidence-details-compact > summary small {
+  color: #5f6968;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.stage-compact-evidence-body > section > header span {
+  color: #5f6968;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stage-compact-evidence-list span {
+  color: #5f6968;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.stage-compact-evidence-list small {
+  color: #687170;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+/* 正文保持比来源文字更醒目 */
+.stage-compact-evidence-list b {
+  color: #26363b;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.stage-compact-evidence-list p {
+  color: #485457;
+  font-size: 13px;
+  line-height: 1.62;
+}
+
+/* 阶段速断中同类辅助文字也一并提高对比度 */
+.stage-compact-context small,
+.stage-compact-digest small,
+.stage-compact-trigger-main small,
+.stage-compact-block > header span,
+.stage-compact-empty {
+  color: #626c6b;
+  font-weight: 600;
+}
+
+.stage-compact-context small,
+.stage-compact-digest small {
+  font-size: 12px;
+}
+
+.stage-compact-trigger-main small,
+.stage-compact-block > header span {
+  font-size: 12px;
+}
+
+/* 窄屏恢复自然上下排列 */
+@media (max-width: 680px) {
+  .stage-compact-condition-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stage-compact-evidence-list > li {
+    display: block;
+  }
+
+  .stage-compact-evidence-list p {
+    margin-top: 5px;
+  }
+
+  .stage-compact-evidence-list small {
+    margin-top: 4px;
+  }
+}
+
+/* ===== 岁运详细证据留白与灰字修正 v10：结束 ===== */
+

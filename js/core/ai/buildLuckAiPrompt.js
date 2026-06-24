@@ -9,7 +9,11 @@ export function buildLuckAiPrompt({
   const luckItems = Array.isArray(luckImageReport?.luckItems)
     ? luckImageReport.luckItems
     : [];
-  const currentLuckItem = luckItems.find((item) => item?.isCurrent) ?? luckItems[0] ?? null;
+
+  const currentLuckItem =
+    luckItems.find((item) => item?.isCurrent) ??
+    luckItems[0] ??
+    null;
 
   const trustedPack = buildStageAiTrustedPack({
     stage: "luck",
@@ -23,11 +27,11 @@ export function buildLuckAiPrompt({
     system: buildStageReportSystem("luck"),
     user: JSON.stringify({
       task:
-        "生成当前大运的正式综合报告。先比较十二领域，再分为重点主线、次要领域和当前不突出；不要平均展开。",
-      trustedPack,
+        "生成当前大运正式报告。只讲真正明显且有依据的内容，不按固定领域填表，不明显的内容可以不写。",
+      sourcePack: trustedPack,
     }, null, 2),
     trustedPack,
     evidenceIds: trustedPack.allowedEvidenceRefs,
-    maxTokens: 7000,
+    maxTokens: 6500,
   };
 }

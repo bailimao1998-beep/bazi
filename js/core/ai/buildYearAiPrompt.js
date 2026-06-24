@@ -11,7 +11,9 @@ export function buildYearAiPrompt({
   const luckItems = Array.isArray(luckImageReport?.luckItems)
     ? luckImageReport.luckItems
     : [];
-  const currentLuckItem = yearItem?.currentLuckItem ??
+
+  const currentLuckItem =
+    yearItem?.currentLuckItem ??
     luckItems.find((item) => item?.isCurrent) ??
     luckItems[0] ??
     null;
@@ -29,11 +31,11 @@ export function buildYearAiPrompt({
     system: buildStageReportSystem("year"),
     user: JSON.stringify({
       task:
-        "生成当前流年的正式综合报告。必须放在当前大运背景中比较十二领域，再分为重点主线、次要领域和当前不突出。",
-      trustedPack,
+        "生成当前流年正式报告。将流年放在当前大运与原局中综合判断，只讲真正明显且有依据的内容。",
+      sourcePack: trustedPack,
     }, null, 2),
     trustedPack,
     evidenceIds: trustedPack.allowedEvidenceRefs,
-    maxTokens: 7000,
+    maxTokens: 6500,
   };
 }

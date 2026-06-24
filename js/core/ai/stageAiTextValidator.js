@@ -1,34 +1,9 @@
-export const STAGE_AI_DOMAIN_LABELS = [
-  "事业与工作",
-  "学业与资格",
-  "财富与资源",
-  "感情与婚姻",
-  "家庭与父母",
-  "兄弟朋友",
-  "子女与成果",
-  "身心与健康",
-  "迁移与出行",
-  "住房与资产",
-  "合作与人际",
-  "精神状态",
-];
-
-const REQUIRED_SECTIONS = [
-  "重点主线",
-  "次要领域",
-  "当前不突出",
-  "事情发展逻辑",
-  "有利与风险",
-  "现实验证点",
-];
-
 const ABSOLUTE_PATTERNS = [
   /百分之百/,
   /注定/,
-  /必然会/,
-  /必然结婚/,
   /一定会/,
-  /一定发生/,
+  /必然发生/,
+  /必然结婚/,
 ];
 
 const YEAR_TIMING_PATTERNS = [
@@ -38,34 +13,33 @@ const YEAR_TIMING_PATTERNS = [
   /上半年/,
   /下半年/,
   /农历[一二三四五六七八九十冬腊\d]+月/,
-  /最后一个月/,
-  /项目最后(?:阶段|部分|\s*20%)/,
+  /(?:正|二|三|四|五|六|七|八|九|十|冬|腊)月/,
 ];
 
-const QUIET_OVERREACH_PATTERNS = [
-  /买房/,
-  /换房/,
-  /装修/,
-  /结婚/,
-  /生子/,
-  /怀孕/,
-  /升职/,
-  /创业/,
-  /搬家/,
-  /疾病/,
-  /炎症/,
-  /投资/,
-  /收入增加/,
-  /协议签署/,
-];
-
-const HEALTH_SPECIFIC_PATTERNS = [
+const HEALTH_PATTERNS = [
   /循环系统/,
   /内分泌/,
   /炎症/,
   /下焦/,
   /肠胃不适/,
-  /具体疾病/,
+  /心脏问题/,
+  /肝脏问题/,
+  /肾脏问题/,
+];
+
+const USE_GOD_PATTERNS = [
+  /为用/,
+  /用神/,
+  /喜神/,
+  /忌神/,
+  /喜用/,
+];
+
+const FORMED_PATTERNS = [
+  /已经合化/,
+  /合化为[木火土金水]/,
+  /已经成局/,
+  /形成(?:三合|三会|六合)?局/,
 ];
 
 const STEM_ELEMENT = {
@@ -87,101 +61,60 @@ export function validateStageAiText({
   trustedPack = null,
 } = {}) {
   const normalized = String(text || "").trim();
-  const violations = [];
+  const hardViolations = [];
 
-  REQUIRED_SECTIONS.forEach((section) => {
-    if (!normalized.includes(`### ${section}`)) {
-      violations.push(`missing_section:${section}`);
-    }
-  });
-
-  const grouped = extractDomainGroups(normalized);
-  const domainCounts = new Map(
-    STAGE_AI_DOMAIN_LABELS.map((label) => [
-      label,
-      [grouped.primary, grouped.secondary, grouped.quiet]
-        .filter((section) => section.includes(label))
-        .length,
-    ]),
-  );
-
-  const missingDomains = STAGE_AI_DOMAIN_LABELS.filter(
-    (label) => domainCounts.get(label) === 0,
-  );
-  const duplicateDomains = STAGE_AI_DOMAIN_LABELS.filter(
-    (label) => domainCounts.get(label) > 1,
-  );
-
-  if (duplicateDomains.length) {
-    violations.push(
-      `duplicate_domains:${duplicateDomains.join(",")}`,
-    );
+  if (!normalized) {
+    hardViolations.push("empty_response");
   }
-
-  const primaryDomains = STAGE_AI_DOMAIN_LABELS.filter(
-    (label) => grouped.primary.includes(label),
-  );
-  const quietDomains = STAGE_AI_DOMAIN_LABELS.filter(
-    (label) => grouped.quiet.includes(label),
-  );
-
-  const primaryMax = stage === "month" ? 2 : 4;
-  if (primaryDomains.length < 1 || primaryDomains.length > primaryMax) {
-    violations.push(
-      `invalid_primary_count:${primaryDomains.length}`,
-    );
-  }
-
-  if (quietDomains.length < 1) {
-    violations.push("missing_quiet_domain");
-  }
-
-  QUIET_OVERREACH_PATTERNS.forEach((pattern) => {
-    if (pattern.test(grouped.quiet)) {
-      violations.push(`quiet_domain_overreach:${pattern.source}`);
-    }
-  });
 
   ABSOLUTE_PATTERNS.forEach((pattern) => {
     if (pattern.test(normalized)) {
-      violations.push(`absolute_claim:${pattern.source}`);
+      hardViolations.push(`absolute_claim:${pattern.source}`);
     }
   });
 
-  HEALTH_SPECIFIC_PATTERNS.forEach((pattern) => {
+  HEALTH_PATTERNS.forEach((pattern) => {
     if (
       pattern.test(normalized) &&
-      !trustedMaterialIncludes(trustedPack, pattern)
+      !sourceMaterialIncludes(trustedPack, pattern)
     ) {
-      violations.push(`unsupported_health_specific:${pattern.source}`);
+      hardViolations.push(
+        `unsupported_health_claim:${pattern.source}`,
+      );
     }
   });
 
   if (
     normalized.includes("财库") &&
-    !trustedMaterialIncludes(trustedPack, /财库/)
+    !sourceMaterialIncludes(trustedPack, /财库/)
   ) {
-    violations.push("unsupported_treasury_claim");
+    hardViolations.push("unsupported_treasury_claim");
   }
 
   if (
-    normalized.includes("年柱驿马") &&
-    !trustedMaterialIncludes(
-      trustedPack,
-      /年柱[^。；\n]{0,12}驿马|驿马[^。；\n]{0,12}年柱/,
-    )
+    USE_GOD_PATTERNS.some((pattern) => pattern.test(normalized)) &&
+    !hasConfirmedUseGod(trustedPack)
   ) {
-    violations.push("unsupported_year_pillar_horse");
+    hardViolations.push("unsupported_use_god_claim");
   }
 
-  violations.push(
+  if (
+    FORMED_PATTERNS.some((pattern) => pattern.test(normalized)) &&
+    !hasFormedTransformation(trustedPack)
+  ) {
+    hardViolations.push("unsupported_formed_transformation");
+  }
+
+  hardViolations.push(
     ...detectReversedControls(normalized, trustedPack),
   );
 
   if (stage === "year") {
     YEAR_TIMING_PATTERNS.forEach((pattern) => {
       if (pattern.test(normalized)) {
-        violations.push(`unsupported_year_timing:${pattern.source}`);
+        hardViolations.push(
+          `unsupported_year_timing:${pattern.source}`,
+        );
       }
     });
   }
@@ -192,148 +125,51 @@ export function validateStageAiText({
     ) || [];
 
     if (ageRanges.length > 1) {
-      violations.push(
+      hardViolations.push(
         `unsupported_luck_age_segments:${ageRanges.join(",")}`,
       );
     }
   }
 
-  const warnings = [];
-  if (missingDomains.length) {
-    warnings.push(
-      `missing_domains:${missingDomains.join(",")}`,
-    );
-  }
-  warnings.push(...violations);
+  const uniqueViolations = [...new Set(hardViolations)];
 
   return {
     valid:
       Boolean(normalized) &&
-      missingDomains.length === 0 &&
-      violations.length === 0,
-    missingDomains,
-    duplicateDomains,
-    primaryDomains,
-    quietDomains,
-    violations: [...new Set(violations)],
-    warnings: [...new Set(warnings)],
+      uniqueViolations.length === 0,
+    hardViolations: uniqueViolations,
+    violations: uniqueViolations,
+    warnings: uniqueViolations,
   };
 }
 
-export function buildStageAiRepairPrompt(
-  prompt,
-  validation,
-) {
-  const missing = validation?.missingDomains?.length
-    ? validation.missingDomains.join("、")
-    : "无";
-
-  const duplicates = validation?.duplicateDomains?.length
-    ? validation.duplicateDomains.join("、")
-    : "无";
-
-  const violations = validation?.violations?.length
-    ? validation.violations.join("；")
-    : "无";
+export function buildStageAiRepairPrompt(prompt, validation) {
+  const violations =
+    Array.isArray(validation?.hardViolations) &&
+    validation.hardViolations.length
+      ? validation.hardViolations.join("；")
+      : "未知硬事实错误";
 
   return {
     ...prompt,
     system: [
       prompt?.system || "",
       "",
-      "上一版报告未通过校验，请完整重写，不要只局部补充。",
-      `遗漏领域：${missing}`,
-      `重复归类领域：${duplicates}`,
-      `其他违规项：${violations}`,
-      "十二领域必须分别归入重点主线、次要领域、当前不突出，而且每个领域只出现一次。",
-      "当前不突出领域只能写证据不足原因，禁止补具体事件。",
-      "必须服从事实包中的生克方向，禁止使用没有依据的财库、年柱驿马和具体健康诊断。",
+      "上一版报告存在硬事实错误，请重新生成完整报告。",
+      `需要修复：${violations}`,
+      "不要补固定领域，不要扩大篇幅，只修正事实错误并保留真正明显的内容。",
+      "必须服从 relationFacts 中的关系方向和成立状态。",
     ].join("\n"),
     user: [
       prompt?.user || "",
       "",
-      "请重新生成完整正式报告，并修复上述遗漏、重复归类、事实方向或过度推断问题。",
+      "请重新生成报告，修复上述硬事实错误。",
     ].join("\n"),
   };
 }
 
-function extractDomainGroups(text) {
-  return {
-    primary: extractSection(
-      text,
-      "重点主线",
-      "次要领域",
-    ),
-    secondary: extractSection(
-      text,
-      "次要领域",
-      "当前不突出",
-    ),
-    quiet: extractSection(
-      text,
-      "当前不突出",
-      "事情发展逻辑",
-    ),
-  };
-}
-
-function extractSection(text, start, end) {
-  const startMarker = `### ${start}`;
-  const endMarker = `### ${end}`;
-  const startIndex = text.indexOf(startMarker);
-
-  if (startIndex < 0) return "";
-
-  const contentStart = startIndex + startMarker.length;
-  const endIndex = text.indexOf(endMarker, contentStart);
-
-  return text.slice(
-    contentStart,
-    endIndex >= 0 ? endIndex : undefined,
-  );
-}
-
-function trustedMaterialIncludes(trustedPack, pattern) {
-  const material = collectTrustedMaterial(trustedPack);
-  pattern.lastIndex = 0;
-  return pattern.test(material);
-}
-
-function collectTrustedMaterial(trustedPack) {
-  const factTexts = array(trustedPack?.evidenceFacts)
-    .map((fact) => fact?.text);
-
-  const candidateTexts = array(
-    trustedPack?.domainEvidenceCandidates?.domains,
-  ).flatMap((entry) => [
-    ...array(entry?.directFacts),
-    ...array(entry?.supportingFacts),
-    ...array(entry?.counterFacts),
-    ...array(entry?.hiddenStemSignals),
-    ...array(entry?.auxiliarySignals),
-    ...array(entry?.palaceTriggers),
-  ]).map((entry) => entry?.text);
-
-  const natalImages = array(
-    trustedPack?.context?.natal?.imageCards,
-  ).flatMap((entry) => [
-    entry?.title,
-    entry?.image,
-    ...array(entry?.evidence),
-  ]);
-
-  return [
-    ...factTexts,
-    ...candidateTexts,
-    ...natalImages,
-    trustedPack?.context?.natal?.summary,
-  ]
-    .filter(Boolean)
-    .join("\n");
-}
-
 function detectReversedControls(text, trustedPack) {
-  return array(trustedPack?.evidenceFacts)
+  return array(trustedPack?.relationFacts)
     .filter((fact) =>
       fact?.meta?.controller &&
       fact?.meta?.controlled
@@ -346,8 +182,8 @@ function detectReversedControls(text, trustedPack) {
 
       const reversed = new RegExp(
         `${escapeRegExp(controlled)}${controlledElement}?` +
-        `[^，。；\\n]{0,8}(?:克制|克|制约)` +
-        `[^，。；\\n]{0,8}` +
+        `[^，。；\\n]{0,10}(?:克制|克|制约)` +
+        `[^，。；\\n]{0,10}` +
         `${escapeRegExp(controller)}${controllerElement}?`,
       );
 
@@ -355,6 +191,60 @@ function detectReversedControls(text, trustedPack) {
         ? [`reversed_control:${controlled}->${controller}`]
         : [];
     });
+}
+
+function hasConfirmedUseGod(trustedPack) {
+  const material = [
+    trustedPack?.candidateInterpretations?.natalStructure,
+    trustedPack?.candidateInterpretations?.natalSummary,
+    ...array(trustedPack?.candidateInterpretations?.natalImages),
+  ];
+
+  const serialized = JSON.stringify(material);
+
+  if (/尚未确认|未确认|待确认|证据不足/.test(serialized)) {
+    return false;
+  }
+
+  return /用神|喜用|喜神|忌神/.test(serialized);
+}
+
+function hasFormedTransformation(trustedPack) {
+  return array(trustedPack?.relationFacts).some((fact) => {
+    const formation = String(
+      fact?.meta?.formationStatus || "",
+    );
+    const transformation = String(
+      fact?.meta?.transformationStatus || "",
+    );
+
+    return (
+      formation === "formed" ||
+      transformation === "formed"
+    );
+  });
+}
+
+function sourceMaterialIncludes(trustedPack, pattern) {
+  const material = [
+    ...array(trustedPack?.relationFacts).map(
+      (fact) => fact?.rawText,
+    ),
+    trustedPack?.candidateInterpretations?.natalStructure,
+    trustedPack?.candidateInterpretations?.natalSummary,
+    ...array(trustedPack?.candidateInterpretations?.natalImages),
+    ...array(trustedPack?.candidateInterpretations?.stageImages),
+  ]
+    .filter(Boolean)
+    .map((entry) =>
+      typeof entry === "string"
+        ? entry
+        : JSON.stringify(entry),
+    )
+    .join("\n");
+
+  pattern.lastIndex = 0;
+  return pattern.test(material);
 }
 
 function escapeRegExp(value) {

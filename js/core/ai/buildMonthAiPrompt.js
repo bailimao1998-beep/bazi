@@ -9,11 +9,17 @@ export function buildMonthAiPrompt({
   monthImageReport,
 } = {}) {
   const monthItem = monthImageReport?.monthItem ?? null;
-  const yearItem = monthItem?.yearItem ?? yearImageReport?.yearItem ?? null;
+  const yearItem =
+    monthItem?.yearItem ??
+    yearImageReport?.yearItem ??
+    null;
+
   const luckItems = Array.isArray(luckImageReport?.luckItems)
     ? luckImageReport.luckItems
     : [];
-  const currentLuckItem = monthItem?.currentLuckItem ??
+
+  const currentLuckItem =
+    monthItem?.currentLuckItem ??
     yearItem?.currentLuckItem ??
     luckItems.find((item) => item?.isCurrent) ??
     luckItems[0] ??
@@ -32,11 +38,11 @@ export function buildMonthAiPrompt({
     system: buildStageReportSystem("month"),
     user: JSON.stringify({
       task:
-        "生成当前流月的正式综合报告。承接大运和流年，比较十二领域，只展开本月最明显的一至两个主线。",
-      trustedPack,
+        "生成当前流月正式报告。承接原局、大运和流年，只讲本月真正明显且有依据的事情。",
+      sourcePack: trustedPack,
     }, null, 2),
     trustedPack,
     evidenceIds: trustedPack.allowedEvidenceRefs,
-    maxTokens: 6000,
+    maxTokens: 5000,
   };
 }

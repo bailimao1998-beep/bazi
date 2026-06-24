@@ -3076,10 +3076,10 @@ li:last-child {
   }
 }
 
-/* ===== 原局AI稳定输出与阅读优化 v7：开始 ===== */
+/* ===== 原局AI标题与三行展示修复 v8：开始 ===== */
 
 /*
- * 仅负责展示，不改写AI正文。
+ * 只控制展示，不修改AI原文、提示词或JSON逻辑。
  */
 
 #natalAiNarrative,
@@ -3098,23 +3098,13 @@ li:last-child {
 }
 
 #natalAiNarrative
-.natal-ai-deep-report.is-article-mode {
-  margin: 0 !important;
-  padding:
-    0
-    clamp(12px, 2vw, 26px)
-    28px !important;
-}
-
-#natalAiNarrative
 .natal-ai-overview h3,
 #natalAiNarrative
 .natal-ai-overview-headline {
-  margin-top: 10px;
   font-size:
     clamp(
       19px,
-      1.55vw,
+      1.5vw,
       24px
     ) !important;
   font-weight: 800 !important;
@@ -3124,7 +3114,6 @@ li:last-child {
 
 #natalAiNarrative
 .natal-ai-continuous-text.ai-narrative-output {
-  display: block !important;
   margin: 0 !important;
   padding: 0 !important;
   border: 0 !important;
@@ -3153,13 +3142,20 @@ li:last-child {
 
 #natalAiNarrative
 .natal-ai-continuous-text
+.ai-output-section h4 {
+  margin: 0 0 13px;
+  color: var(--accent);
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+#natalAiNarrative
+.natal-ai-continuous-text
 .ai-output-section p {
   width: 100%;
   max-width: none;
-  margin:
-    0
-    0
-    12px;
+  margin: 0 0 12px;
   color: #313b43;
   font-size: 15px;
   line-height: 1.9;
@@ -3170,21 +3166,21 @@ li:last-child {
 .ai-insight-line {
   display: grid;
   grid-template-columns:
-    112px
+    128px
     minmax(0, 1fr);
   gap: 12px;
   align-items: start;
   box-sizing: border-box;
   margin:
-    9px
+    8px
     0 !important;
   padding:
-    10px
-    13px;
+    9px
+    12px;
   border-left:
     3px solid
     rgba(47, 111, 115, 0.55);
-  border-radius: 7px;
+  border-radius: 6px;
 }
 
 #natalAiNarrative
@@ -3211,7 +3207,7 @@ li:last-child {
   border-left-color:
     rgba(62, 128, 96, 0.72);
   background:
-    rgba(238, 248, 242, 0.68);
+    rgba(238, 248, 242, 0.62);
 }
 
 #natalAiNarrative
@@ -3220,7 +3216,7 @@ li:last-child {
   border-left-color:
     rgba(178, 126, 58, 0.72);
   background:
-    rgba(255, 248, 237, 0.74);
+    rgba(255, 248, 237, 0.68);
 }
 
 #natalAiNarrative
@@ -3229,18 +3225,10 @@ li:last-child {
   border-left-color:
     rgba(56, 112, 142, 0.7);
   background:
-    rgba(239, 247, 250, 0.72);
+    rgba(239, 247, 250, 0.66);
 }
 
 @media (max-width: 640px) {
-  #natalAiNarrative
-  .natal-ai-deep-report.is-article-mode {
-    padding:
-      0
-      10px
-      22px !important;
-  }
-
   #natalAiNarrative
   .natal-ai-continuous-text
   .ai-insight-line {
@@ -3248,9 +3236,9 @@ li:last-child {
       1fr;
     gap: 3px;
     padding:
-      10px
-      11px;
+      9px
+      10px;
   }
 }
 
-/* ===== 原局AI稳定输出与阅读优化 v7：结束 ===== */
+/* ===== 原局AI标题与三行展示修复 v8：结束 ===== */

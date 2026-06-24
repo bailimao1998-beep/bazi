@@ -89,8 +89,8 @@ function renderParagraph(
       >
         <strong>
           ${escapeHtml(
-            insight.label,
-          )}：
+            insight.labelText,
+          )}
         </strong>
 
         <span>
@@ -113,7 +113,9 @@ function parseInsightLine(
   value = "",
 ) {
   const match =
-    /^\*{0,2}(优势|容易付出的代价|代价|建议)[：:]\*{0,2}\s*(.*)$/
+    /^\*{0,2}(优势|容易付出的代价|代价|劣势)([：:]|是)\*{0,2}\s*(.*)$/
+      .exec(value) ??
+    /^\*{0,2}(建议)([：:])\*{0,2}\s*(.*)$/
       .exec(value);
 
   if (!match) {
@@ -123,8 +125,12 @@ function parseInsightLine(
   const label =
     match[1];
 
+  const separator =
+    match[2];
+
   return {
-    label,
+    labelText:
+      `${label}${separator}`,
 
     type: {
       优势:
@@ -136,12 +142,15 @@ function parseInsightLine(
       代价:
         "cost",
 
+      劣势:
+        "cost",
+
       建议:
         "advice",
     }[label],
 
     content:
-      match[2].trim(),
+      match[3].trim(),
   };
 }
 

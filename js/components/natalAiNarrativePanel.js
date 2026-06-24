@@ -502,32 +502,83 @@ function collectReadableReportText(
 function normalizeReportMarkdown(
   text = "",
 ) {
-  return String(text)
-    .replace(
-      /\r\n?/g,
-      "\n",
-    )
-    /*
-     * 这里只调整换行，不改动任何AI文字。
-     * 单换行可以让三项仍留在同一个主题章节中。
-     */
-    .replace(
-      /\s*(\*{0,2}(?:优势|容易付出的代价|代价|建议)[：:]\*{0,2})\s*/g,
-      "\n$1 ",
-    )
-    .replace(
-      /([。！？；])\s*##\s*/g,
-      "$1\n\n## ",
-    )
-    .replace(
-      /([^\n])\s*##\s*/g,
-      "$1\n\n## ",
-    )
+  const normalized =
+    String(text)
+      .replace(
+        /\r\n?/g,
+        "\n",
+      )
+      .replace(
+        /\\n/g,
+        "\n",
+      )
+      .replace(
+        /＃/g,
+        "#",
+      );
+
+  return splitInsightLabels(
+    normalizeMarkdownHeadings(
+      normalized,
+    ),
+  )
     .replace(
       /\n{3,}/g,
       "\n\n",
     )
     .trim();
+}
+
+function normalizeMarkdownHeadings(
+  text = "",
+) {
+  let value =
+    String(text);
+
+  value =
+    value.replace(
+      /^[ \t]*#{1,6}[ \t]*$/gm,
+      "",
+    );
+
+  value =
+    value.replace(
+      /^[ \t]*#{1,6}[ \t]+(.+)$/gm,
+      (_match, title) =>
+        `## ${String(title).trim()}`,
+    );
+
+  value =
+    value.replace(
+      /([。！？；])[\t ]*#{1,6}[\t ]+(?=\S)/g,
+      "$1\n\n## ",
+    );
+
+  value =
+    value.replace(
+      /([^\n#])[\t ]+#{1,6}[\t ]+(?=\S)/g,
+      "$1\n\n## ",
+    );
+
+  return value;
+}
+
+function splitInsightLabels(
+  text = "",
+) {
+  return String(text)
+    .replace(
+      /[ \t]*(\*{0,2}(?:优势|容易付出的代价|代价|劣势)(?:[：:]|是)\*{0,2})[ \t]*/g,
+      "\n$1 ",
+    )
+    .replace(
+      /[ \t]*(\*{0,2}建议[：:]\*{0,2})[ \t]*/g,
+      "\n$1 ",
+    )
+    .replace(
+      /\n{2,}(?=\*{0,2}(?:优势|容易付出的代价|代价|劣势|建议)(?:[：:]|是))/g,
+      "\n",
+    );
 }
 
 function bindGenerate(

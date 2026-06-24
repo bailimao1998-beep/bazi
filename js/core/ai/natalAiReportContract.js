@@ -1,3 +1,12 @@
+export const SUMMARY_PRIORITY_COUNT =
+  3;
+
+export const REVIEW_QUESTION_LIMITS =
+  Object.freeze({
+    min: 3,
+    max: 5,
+  });
+
 export const NATAL_SECTION_DEFINITIONS =
   Object.freeze([
     {
@@ -61,7 +70,7 @@ export function normalizeNatalAiReport(
       textValue(
         source.version,
       ) ||
-      "bazi-natal-report-v3",
+      "bazi-natal-report-v4",
 
     scope:
       "natal",
@@ -81,6 +90,15 @@ export function normalizeNatalAiReport(
 
     sections,
 
+    summaryAdvice:
+    normalizeSummaryAdvice(
+        source.summaryAdvice,
+    ),
+
+    reviewQuestions:
+    normalizeReviewQuestions(
+        source.reviewQuestions,
+    ),
     boundaries:
       normalizeTextRows(
         source.boundaries,
@@ -165,7 +183,15 @@ export function validateNatalAiReport(
       }
     }
   }
+    validateSummaryAdvice(
+    report.summaryAdvice,
+    errors,
+    );
 
+    validateReviewQuestions(
+    report.reviewQuestions,
+    errors,
+    );
   return {
     ok:
       errors.length === 0,
@@ -280,6 +306,265 @@ function normalizeSections(
       },
     )
     .filter(Boolean);
+}
+
+function normalizeSummaryAdvice(
+  value,
+) {
+  const source =
+    isPlainObject(value)
+      ? value
+      : {};
+
+  const priorities =
+    (
+      Array.isArray(
+        source.priorities,
+      )
+        ? source.priorities
+        : []
+    )
+      .filter(
+        isPlainObject,
+      )
+      .map(
+        (item) => ({
+          title:
+            textValue(
+              item.title,
+            ),
+
+          action:
+            textValue(
+              item.action,
+            ),
+
+          reason:
+            textValue(
+              item.reason,
+            ),
+
+          evidenceRefs:
+            normalizeTextRows(
+              item.evidenceRefs,
+            ),
+        }),
+      )
+      .slice(
+        0,
+        SUMMARY_PRIORITY_COUNT,
+      );
+
+  return {
+    headline:
+      textValue(
+        source.headline,
+      ),
+
+    summary:
+      textValue(
+        source.summary,
+      ),
+
+    priorities,
+
+    caution:
+      textValue(
+        source.caution,
+      ),
+
+    evidenceRefs:
+      normalizeTextRows(
+        source.evidenceRefs,
+      ),
+  };
+}
+
+function normalizeReviewQuestions(
+  value,
+) {
+  return (
+    Array.isArray(value)
+      ? value
+      : []
+  )
+    .filter(
+      isPlainObject,
+    )
+    .map(
+      (item) => ({
+        domain:
+          textValue(
+            item.domain,
+          ),
+
+        question:
+          normalizeQuestion(
+            item.question,
+          ),
+
+        reviewFocus:
+          textValue(
+            item.reviewFocus,
+          ),
+
+        evidenceRefs:
+          normalizeTextRows(
+            item.evidenceRefs,
+          ),
+      }),
+    )
+    .filter(
+      (item) =>
+        item.domain &&
+        item.question &&
+        item.reviewFocus,
+    )
+    .slice(
+      0,
+      REVIEW_QUESTION_LIMITS.max,
+    );
+}
+
+function normalizeQuestion(
+  value,
+) {
+  const text =
+    textValue(value)
+      .replace(
+        /[。！!]+$/,
+        "",
+      );
+
+  if (!text) {
+    return "";
+  }
+
+  return /[？?]$/.test(text)
+    ? text
+    : `${text}？`;
+}
+
+function validateSummaryAdvice(
+  value,
+  errors,
+) {
+  if (
+    !textValue(
+      value?.headline,
+    )
+  ) {
+    errors.push(
+      "summary_advice_headline_missing",
+    );
+  }
+
+  if (
+    !textValue(
+      value?.summary,
+    )
+  ) {
+    errors.push(
+      "summary_advice_summary_missing",
+    );
+  }
+
+  if (
+    !textValue(
+      value?.caution,
+    )
+  ) {
+    errors.push(
+      "summary_advice_caution_missing",
+    );
+  }
+
+  const priorities =
+    Array.isArray(
+      value?.priorities,
+    )
+      ? value.priorities
+      : [];
+
+  if (
+    priorities.length !==
+    SUMMARY_PRIORITY_COUNT
+  ) {
+    errors.push(
+      "summary_advice_priorities_count_invalid",
+    );
+  }
+
+  priorities.forEach(
+    (
+      item,
+      index,
+    ) => {
+      for (
+        const field of [
+          "title",
+          "action",
+          "reason",
+        ]
+      ) {
+        if (
+          !textValue(
+            item?.[field],
+          )
+        ) {
+          errors.push(
+            `summary_advice_priority_field_missing:${index}.${field}`,
+          );
+        }
+      }
+    },
+  );
+}
+
+function validateReviewQuestions(
+  value,
+  errors,
+) {
+  const questions =
+    Array.isArray(value)
+      ? value
+      : [];
+
+  if (
+    questions.length <
+      REVIEW_QUESTION_LIMITS.min ||
+    questions.length >
+      REVIEW_QUESTION_LIMITS.max
+  ) {
+    errors.push(
+      "review_questions_count_invalid",
+    );
+  }
+
+  questions.forEach(
+    (
+      item,
+      index,
+    ) => {
+      for (
+        const field of [
+          "domain",
+          "question",
+          "reviewFocus",
+        ]
+      ) {
+        if (
+          !textValue(
+            item?.[field],
+          )
+        ) {
+          errors.push(
+            `review_question_field_missing:${index}.${field}`,
+          );
+        }
+      }
+    },
+  );
 }
 
 function normalizeConfidence(

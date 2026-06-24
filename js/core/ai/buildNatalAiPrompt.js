@@ -75,13 +75,18 @@ export function buildNatalAiPrompt({
       "表达规则：",
       "1. 多项证据一致时可以较明确表达；一般支持时使用容易、倾向于、较可能、在某些情况下等措辞。",
       "2. 不使用注定、必然、一定会、一生必有、绝对等夸张表达。",
-      "3. 不向用户提问，不输出现实验证问题，不出现你是否之类问句。",
-      "4. 不逐字段复述，不罗列本地依据数量，不展示内部字段名。",
-      "5. 面向普通用户，命理术语出现后应立即解释其行为含义。",
-      "6. 不得依赖Markdown标题组织正文；所有分析领域必须分别写入sections数组。",
-      "7. sections必须严格按照总体判断、性格与能力、学习与思维、事业与工作方式、财富与资源处理、感情互动、家庭与人际、表达与成果、身心节奏的顺序返回。",
-      "8. 每个section必须分别填写summary、advantage、cost和advice；证据较少时可以写得简短温和，但不得留空。",
-      "9. overview.summary只写120至220字的全局总览，不得再塞入整篇报告。",
+      "3. 不逐字段复述，不罗列本地依据数量，不展示内部字段名。",
+      "4. 面向普通用户，命理术语出现后应立即解释其行为含义。",
+      "5. 不得依赖Markdown标题组织正文；所有分析领域必须分别写入sections数组。",
+      "6. sections必须严格按照总体判断、性格与能力、学习与思维、事业与工作方式、财富与资源处理、感情互动、家庭与人际、表达与成果、身心节奏的顺序返回。",
+      "7. 每个section必须分别填写summary、advantage、cost和advice；证据较少时可以写得简短温和，但不得留空。",
+      "8. overview.summary只写120至220字的全局总览，不得再塞入整篇报告。",
+      "9. summaryAdvice必须综合九个领域，提炼一个总方向、三条有优先级的行动建议和一个需要避免的误区。",
+      "10. summaryAdvice不能简单复制各section的advice，也不能增加大运、流年、具体年份或系统未提供的新判断。",
+      "11. 三条priorities必须按照重要程度排列，每条包含title、action和reason，action必须现实可执行。",
+      "12. 另外生成3至5条reviewQuestions，只用于复核证据互相牵制、存在两种可能表现或现实落点不明确的部分。",
+      "13. reviewQuestions必须中性具体，普通用户可以回答，不得使用恐吓、诱导或预设结论的问法。",
+      "14. reviewFocus说明师傅通过该问题需要区分哪两种表现，不得把内部证据ID直接写入问题。",
       "",
       "返回格式：",
       "必须只返回一个完整合法JSON对象，不使用Markdown代码块，不在JSON外添加文字。",
@@ -89,6 +94,9 @@ export function buildNatalAiPrompt({
       "sections中的key、title、summary、advantage、cost、advice和evidenceRefs必须完整。",
       "所有字段使用普通中文文本，不在字段中使用Markdown标题。",
       "overview.evidenceRefs只引用真正支持总体判断的有效证据ID，不为凑数量而引用。",
+      "summaryAdvice必须包含headline、summary、priorities、caution和evidenceRefs。",
+      "summaryAdvice.priorities必须正好返回3条，每条包含title、action、reason和evidenceRefs。",
+      "reviewQuestions必须返回3至5条，每条包含domain、question、reviewFocus和evidenceRefs。",
     ].join("\n"),
 
     user: JSON.stringify(
@@ -131,7 +139,7 @@ export function buildNatalAiPrompt({
 function buildOutputContract() {
   return {
     version:
-      "bazi-natal-report-v3",
+      "bazi-natal-report-v4",
 
     scope:
       "natal",
@@ -190,7 +198,72 @@ function buildOutputContract() {
         "身心节奏",
       ),
     ],
+summaryAdvice: {
+  headline:
+    "一句概括最重要发展方向的总结",
 
+  summary:
+    "120至200字，综合九个领域说明长期策略，不重复逐项结论",
+
+  priorities: [
+    {
+      title:
+        "第一优先事项",
+
+      action:
+        "具体、现实、可以执行的行动",
+
+      reason:
+        "说明该行动对应哪些主要结构和现实代价",
+
+      evidenceRefs: [],
+    },
+    {
+      title:
+        "第二优先事项",
+
+      action:
+        "具体、现实、可以执行的行动",
+
+      reason:
+        "说明该行动主要改善什么",
+
+      evidenceRefs: [],
+    },
+    {
+      title:
+        "第三优先事项",
+
+      action:
+        "具体、现实、可以执行的行动",
+
+      reason:
+        "说明该行动为什么排在第三位",
+
+      evidenceRefs: [],
+    },
+  ],
+
+  caution:
+    "最需要避免的一种用力方式或重复模式",
+
+  evidenceRefs: [],
+},
+
+reviewQuestions: [
+  {
+    domain:
+      "对应的分析领域",
+
+    question:
+      "师傅可以直接询问用户的中性问题？",
+
+    reviewFocus:
+      "用于区分哪两种可能表现",
+
+    evidenceRefs: [],
+  },
+],
     boundaries: [],
     warnings: [],
   };

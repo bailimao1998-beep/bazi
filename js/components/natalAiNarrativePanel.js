@@ -270,9 +270,224 @@ function renderContinuousReport({
                     `
                 )
           }
+          ${renderSummaryAdvice(
+            report.summaryAdvice,
+          )}
+
+          ${renderReviewQuestions(
+            report.reviewQuestions,
+          )}
         </article>
       </div>
     </details>
+  `;
+}
+
+function renderSummaryAdvice(
+  value = {},
+) {
+  const priorities =
+    Array.isArray(
+      value?.priorities,
+    )
+      ? value.priorities
+      : [];
+
+  if (
+    !value?.headline &&
+    !value?.summary &&
+    !priorities.length
+  ) {
+    return "";
+  }
+
+  return `
+    <section
+      class="
+        natal-ai-summary-advice
+      "
+    >
+      <header>
+        <span>
+          总结建议
+        </span>
+
+        ${
+          value.headline
+            ? `
+              <h4>
+                ${escapeHtml(
+                  value.headline,
+                )}
+              </h4>
+            `
+            : ""
+        }
+
+        ${
+          value.summary
+            ? `
+              <p>
+                ${escapeHtml(
+                  value.summary,
+                )}
+              </p>
+            `
+            : ""
+        }
+      </header>
+
+      <ol>
+        ${priorities
+          .slice(
+            0,
+            3,
+          )
+          .map(
+            (
+              item,
+              index,
+            ) => `
+              <li>
+                <b>
+                  ${index + 1}
+                </b>
+
+                <div>
+                  <strong>
+                    ${escapeHtml(
+                      item.title,
+                    )}
+                  </strong>
+
+                  <p>
+                    ${escapeHtml(
+                      item.action,
+                    )}
+                  </p>
+
+                  <small>
+                    ${escapeHtml(
+                      item.reason,
+                    )}
+                  </small>
+                </div>
+              </li>
+            `,
+          )
+          .join("")}
+      </ol>
+
+      ${
+        value.caution
+          ? `
+            <div
+              class="
+                natal-ai-summary-caution
+              "
+            >
+              <b>
+                需要避免
+              </b>
+
+              <p>
+                ${escapeHtml(
+                  value.caution,
+                )}
+              </p>
+            </div>
+          `
+          : ""
+      }
+    </section>
+  `;
+}
+
+function renderReviewQuestions(
+  questions = [],
+) {
+  const rows =
+    (
+      Array.isArray(questions)
+        ? questions
+        : []
+    )
+      .filter(
+        (item) =>
+          item?.question,
+      )
+      .slice(
+        0,
+        5,
+      );
+
+  if (!rows.length) {
+    return "";
+  }
+
+  return `
+    <section
+      class="
+        natal-ai-review
+      "
+    >
+      <header>
+        <div>
+          <span>
+            师傅复核问题
+          </span>
+
+          <p>
+            用于确认命盘中存在多种可能解释的部分，不代表前文判断错误。
+          </p>
+        </div>
+
+        <b>
+          ${rows.length} 条
+        </b>
+      </header>
+
+      <ol>
+        ${rows
+          .map(
+            (
+              item,
+              index,
+            ) => `
+              <li>
+                <b>
+                  ${index + 1}
+                </b>
+
+                <div>
+                  <small>
+                    ${escapeHtml(
+                      item.domain,
+                    )}
+                  </small>
+
+                  <p>
+                    ${escapeHtml(
+                      item.question,
+                    )}
+                  </p>
+
+                  <span>
+                    <strong>
+                      复核重点
+                    </strong>
+
+                    ${escapeHtml(
+                      item.reviewFocus,
+                    )}
+                  </span>
+                </div>
+              </li>
+            `,
+          )
+          .join("")}
+      </ol>
+    </section>
   `;
 }
 

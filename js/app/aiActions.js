@@ -388,6 +388,10 @@ function buildNatalRetryPrompt(
       "sections必须包含overall、personality、learning、career、wealth、relationship、family、expression、wellbeing九个固定key。",
       "每个section必须包含title、summary、advantage、cost、advice和evidenceRefs。",
       "不得把完整报告重新塞入overview.summary。",
+      "必须完整提供summaryAdvice和reviewQuestions。",
+      "summaryAdvice必须包含headline、summary、正好3条priorities、caution和evidenceRefs。",
+      "每条priority必须包含title、action、reason和evidenceRefs。",
+      "reviewQuestions必须包含3至5条，每条具有domain、question、reviewFocus和evidenceRefs。",
     ].join("\n"),
   };
 }

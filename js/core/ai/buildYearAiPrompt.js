@@ -54,7 +54,7 @@ export function buildYearAiPrompt(
     user: JSON.stringify(
       {
         任务:
-          "生成当前流年正式报告。提炼二至三个主要主题，必须比较学业资格、职业职责、手续规则、感情关系和计划成果，但只写证据最强的落点。",
+          "生成当前流年正式报告。提炼二至四个主要主题，比较学业资格、职业职责、手续规则、感情关系和计划成果；讲清最可能的发展剧本、替代剧本和现实建议。",
         资料包:
           promptSource,
       },
@@ -65,6 +65,6 @@ export function buildYearAiPrompt(
     evidenceIds:
       trustedPack
         .allowedEvidenceRefs,
-    maxTokens: 2400,
+    maxTokens: 4800,
   };
 }

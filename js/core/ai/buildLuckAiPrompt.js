@@ -46,7 +46,7 @@ export function buildLuckAiPrompt(
     user: JSON.stringify(
       {
         任务:
-          "生成当前大运正式报告。提炼三至四个彼此不同的主要主题，先讲最强结论，再写必要补充；不得重复同一冲合、生克或现实判断。",
+          "生成当前大运正式报告。提炼三至四个主要主题，讲清每条主题最可能的现实剧本、另一种可能和可执行建议；保持内容丰富，但不重复同一依据。",
         资料包:
           promptSource,
       },
@@ -57,6 +57,6 @@ export function buildLuckAiPrompt(
     evidenceIds:
       trustedPack
         .allowedEvidenceRefs,
-    maxTokens: 3000,
+    maxTokens: 6000,
   };
 }

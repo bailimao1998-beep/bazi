@@ -280,7 +280,7 @@ test(
 );
 
 test(
-  "流年请求使用中文资料包并降低输出上限",
+  "流年请求使用中文资料包并保留充足输出空间",
   () => {
     const prompt =
       buildYearAiPrompt({
@@ -321,7 +321,7 @@ test(
 
     assert.equal(
       prompt.maxTokens,
-      2400,
+      4800,
     );
   },
 );
@@ -434,7 +434,7 @@ test(
     const text =
       conciseReport() +
       "补充说明".repeat(
-        400,
+        1000,
       );
 
     const result =

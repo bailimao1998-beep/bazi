@@ -426,9 +426,55 @@ async function requestStageAiNarrativeWithRetry({
     validation: lastValidation,
   };
 
+  if (
+    lastResult?.text &&
+    lastValidation
+      ?.safeToDisplay
+  ) {
+    globalThis.__lastStageAiDebug = {
+      stage,
+      trustedPack:
+        prompt?.trustedPack ??
+        null,
+      attempts,
+      rawResponse:
+        lastResult.text,
+      validation:
+        lastValidation,
+      displayedWithQualityWarnings:
+        true,
+    };
+
+    return {
+      result:
+        lastResult,
+      validation:
+        lastValidation,
+      attempts,
+      retried:
+        true,
+      incomplete:
+        true,
+      displayedWithQualityWarnings:
+        true,
+    };
+  }
+
+  const blockingSummary =
+    Array.isArray(
+      lastValidation
+        ?.blockingViolations,
+    )
+      ? lastValidation
+          .blockingViolations
+          .join("；")
+      : "";
+
   const qualityError =
     new Error(
-      "本次AI报告未通过中文、精简或事实质量校验，系统已自动重试一次，请重新生成。",
+      blockingSummary
+        ? `本次AI报告仍存在无法自动修复的命理事实错误：${blockingSummary}`
+        : "本次AI报告仍存在无法自动修复的命理事实错误，请重新生成。",
     );
 
   qualityError.validation =

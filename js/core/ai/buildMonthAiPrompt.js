@@ -63,7 +63,7 @@ export function buildMonthAiPrompt(
     user: JSON.stringify(
       {
         任务:
-          "生成当前流月正式报告。提炼二至三个主要主题，只保留本月最强现实落点；不要把同一信号在总断、主题、风险和验证中反复解释。",
+          "生成当前流月正式报告。提炼二至三个主要主题，讲清本月最可能出现的现实过程、次要落点和具体建议；可以展开有价值的故事，但不得重复或编造关系。",
         资料包:
           promptSource,
       },
@@ -74,6 +74,6 @@ export function buildMonthAiPrompt(
     evidenceIds:
       trustedPack
         .allowedEvidenceRefs,
-    maxTokens: 2000,
+    maxTokens: 3800,
   };
 }

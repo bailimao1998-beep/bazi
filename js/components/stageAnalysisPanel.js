@@ -147,7 +147,6 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck", evidenceC
   return `
     <div class="stage-card-grid stage-card-grid-v2">
       ${renderStageQuickSummary(model)}
-      ${renderStageEvidenceDetails(model, evidencePack)}
     </div>
   `;
 }

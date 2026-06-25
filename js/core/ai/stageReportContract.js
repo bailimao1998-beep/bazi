@@ -3,11 +3,11 @@ const STAGE_CONFIG = {
     heading:
       "十年总断",
     themeHeading:
-      "十年主要结构",
+      "十年突出领域",
     minThemes:
       2,
     maxThemes:
-      4,
+      5,
     summaryMax:
       520,
     judgmentMax:
@@ -38,14 +38,20 @@ const STAGE_CONFIG = {
       4,
     verificationLimit:
       4,
+    displayTargetThemes:
+      3,
+    currentEvidenceRatio:
+      0,
+    evidenceDisplayLimit:
+      8,
   },
   year: {
     heading:
       "今年总断",
     themeHeading:
-      "年度重点",
+      "本年主要显像",
     minThemes:
-      2,
+      1,
     maxThemes:
       3,
     summaryMax:
@@ -78,14 +84,20 @@ const STAGE_CONFIG = {
       3,
     verificationLimit:
       3,
+    displayTargetThemes:
+      1,
+    currentEvidenceRatio:
+      0.34,
+    evidenceDisplayLimit:
+      7,
   },
   month: {
     heading:
       "本月总断",
     themeHeading:
-      "本月触发",
+      "本月主要触发",
     minThemes:
-      1,
+      0,
     maxThemes:
       2,
     summaryMax:
@@ -118,6 +130,12 @@ const STAGE_CONFIG = {
       2,
     verificationLimit:
       2,
+    displayTargetThemes:
+      0,
+    currentEvidenceRatio:
+      0.5,
+    evidenceDisplayLimit:
+      6,
   },
 };
 
@@ -460,6 +478,18 @@ export function validateStageReportContract({
           )
           .filter(Boolean);
 
+      validateCurrentStageEvidence({
+        evidenceFacts,
+        stage,
+        minimumRatio:
+          config.currentEvidenceRatio,
+      }).forEach(
+        (code) =>
+          errors.push(
+            `${prefix}:${code}`,
+          ),
+      );
+
       validateTechnicalTokenCoverage({
         authoredText,
         evidenceTexts,
@@ -591,8 +621,32 @@ export function validateStageReportContract({
       allEvidenceTexts,
   }).forEach(
     (code) =>
-      errors.push(
-        `top_level:${code}`,
+      warnings.push(
+        `top_level_removed:${code}`,
+      ),
+  );
+
+  validateTechnicalTokenCoverage({
+    authoredText:
+      summaryAndLists,
+    evidenceTexts:
+      allEvidenceTexts,
+  }).forEach(
+    (code) =>
+      warnings.push(
+        `top_level_removed:${code}`,
+      ),
+  );
+
+  validateBranchRelationTokenCoverage({
+    authoredText:
+      summaryAndLists,
+    evidenceTexts:
+      allEvidenceTexts,
+  }).forEach(
+    (code) =>
+      warnings.push(
+        `top_level_removed:${code}`,
       ),
   );
 
@@ -603,8 +657,8 @@ export function validateStageReportContract({
       allEvidenceTexts,
   }).forEach(
     (code) =>
-      errors.push(
-        `top_level:${code}`,
+      warnings.push(
+        `top_level_removed:${code}`,
       ),
   );
 
@@ -688,69 +742,74 @@ export function renderStageReport({
       verifiedFacts,
     );
 
-  const allFactTexts =
-    array(
+  const compiledThemes =
+    compileThemesForDisplay({
+      report,
+      stage,
       verifiedFacts,
-    )
-      .map(
-        (fact) =>
-          fact?.text ||
-          "",
-      )
-      .filter(Boolean);
+      factMap,
+      lifeContext,
+      config,
+    });
 
-  const themes =
-    array(
-      report?.themes,
-    )
-      .filter(
+  const themeEvidenceTexts =
+    unique(
+      compiledThemes.flatMap(
         (theme) =>
-          text(
-            theme?.title,
-          ) &&
-          text(
-            theme?.judgment,
-          ).length >=
-            8 &&
-          text(
-            theme?.story,
-          ).length >=
-            20 &&
-          array(
-            theme?.evidenceIds,
-          ).length >
-            0,
-      )
-      .slice(
-        0,
-        config.maxThemes,
-      );
+          theme.evidenceTexts,
+      ),
+    );
+
+  let summary =
+    cleanupDisplayText(
+      sanitizeRenderedText({
+        value:
+          compactParagraph(
+            report?.summary,
+            config.summaryMax,
+          ),
+        evidenceTexts:
+          themeEvidenceTexts,
+        lifeContext,
+        stage,
+      }),
+    );
+
+  if (
+    summary.length <
+    20
+  ) {
+    summary =
+      buildFallbackSummary({
+        themes:
+          compiledThemes,
+        stage,
+      });
+  }
 
   const lines = [
     `### ${config.heading}`,
-    sanitizeRenderedText({
-      value:
-        compactParagraph(
-          report?.summary,
-          config.summaryMax,
-        ),
-      evidenceTexts:
-        allFactTexts,
-      lifeContext,
-      stage,
-    }),
-    "",
-    `### ${config.themeHeading}`,
+    summary,
   ];
 
-  themes.forEach(
+  if (
+    compiledThemes.length >
+    0
+  ) {
+    lines.push(
+      "",
+      `### ${config.themeHeading}`,
+    );
+  }
+
+  compiledThemes.forEach(
     (
       theme,
       index,
     ) => {
       const isLastMinor =
         index ===
-          themes.length -
+          compiledThemes.length -
           1 &&
         index >
           0 &&
@@ -758,109 +817,21 @@ export function renderStageReport({
           ?.importance !==
           "高";
 
-      const themeEvidenceTexts =
-        unique(
-          array(
-            theme
-              ?.evidenceIds,
-          )
-            .map(
-              (id) =>
-                factMap.get(
-                  id,
-                )
-                  ?.text ||
-                "",
-            )
-            .filter(Boolean),
-        );
-
-      const safeTitle =
-        sanitizeRenderedText({
-          value:
-            text(theme?.title) ||
-            `主题${index + 1}`,
-          evidenceTexts:
-            themeEvidenceTexts,
-          lifeContext,
-          stage,
-        });
-
-      const safeJudgment =
-        sanitizeRenderedText({
-          value:
-            compactParagraph(
-              theme?.judgment,
-              config.judgmentMax,
-            ),
-          evidenceTexts:
-            themeEvidenceTexts,
-          lifeContext,
-          stage,
-        });
-
-      const safeStory =
-        sanitizeRenderedText({
-          value:
-            compactParagraph(
-              theme?.story,
-              isLastMinor
-                ? config.minorStoryMax
-                : config.primaryStoryMax,
-            ),
-          evidenceTexts:
-            themeEvidenceTexts,
-          lifeContext,
-          stage,
-        });
-
-      if (
-        !safeTitle ||
-        !safeJudgment ||
-        !safeStory ||
-        themeEvidenceTexts.length ===
-          0
-      ) {
-        return;
-      }
-
       lines.push(
         "",
-        `#### ${safeTitle}`,
-        `**判断：**${safeJudgment}`,
+        `#### ${theme.title}`,
+        `**判断：**${theme.judgment}`,
         "",
-        `**现实剧本：**${safeStory}`,
+        `**现实剧本：**${theme.story}`,
       );
 
       const possibilities =
-        unique(
-          array(
-            theme?.possibilities,
-          )
-            .map(
-              text,
-            )
-            .filter(Boolean),
-        )
-          .slice(
-            0,
-            config.possibilityLimit,
-          )
-          .map(
-            (item) =>
-              sanitizeRenderedText({
-                value:
-                  compactParagraph(
-                    item,
-                    config.possibilityTextMax,
-                  ),
-                evidenceTexts:
-                  themeEvidenceTexts,
-                lifeContext,
-                stage,
-              }),
-          )
-          .filter(Boolean);
+        array(
+          theme?.possibilities,
+        ).slice(
+          0,
+          config.possibilityLimit,
+        );
 
       if (
         possibilities.length >
@@ -888,17 +859,7 @@ export function renderStageReport({
       ) {
         lines.push(
           "",
-          `**补充可能：**${sanitizeRenderedText({
-            value:
-              compactParagraph(
-                theme.alternative,
-                config.alternativeMax,
-              ),
-            evidenceTexts:
-              themeEvidenceTexts,
-            lifeContext,
-            stage,
-          })}`,
+          `**补充可能：**${theme.alternative}`,
         );
       }
 
@@ -922,11 +883,7 @@ export function renderStageReport({
         )
           .slice(
             0,
-            theme
-              ?.importance ===
-              "高"
-              ? config.highEvidenceLimit
-              : config.normalEvidenceLimit,
+            config.evidenceDisplayLimit,
           );
 
       if (
@@ -947,21 +904,14 @@ export function renderStageReport({
       }
 
       const advice =
-        unique(
-          array(
-            theme?.advice,
-          )
-            .map(
-              text,
-            )
-            .filter(Boolean),
-        )
-          .slice(
-            0,
-            isLastMinor
-              ? config.minorAdviceLimit
-              : config.advicePerTheme,
-          );
+        array(
+          theme?.advice,
+        ).slice(
+          0,
+          isLastMinor
+            ? config.minorAdviceLimit
+            : config.advicePerTheme,
+        );
 
       if (
         advice.length >
@@ -975,60 +925,62 @@ export function renderStageReport({
               item,
               adviceIndex,
             ) =>
-              `${adviceIndex + 1}. ${sanitizeRenderedText({
-                value:
-                  compactParagraph(
-                    item,
-                    120,
-                  ),
-                evidenceTexts:
-                  themeEvidenceTexts,
-                lifeContext,
-                stage,
-              })}`,
+              `${adviceIndex + 1}. ${item}`,
           ),
         );
       }
     },
   );
 
-  const opportunities =
-    listItems(
-      array(
-        report?.opportunities,
-      ).map(
+  const secondaryOverview =
+    compileStageSecondaryOverview({
+      stage,
+      verifiedFacts,
+      themes:
+        compiledThemes,
+    });
+
+  if (
+    secondaryOverview.length >
+    0
+  ) {
+    lines.push(
+      "",
+      `### ${secondaryOverviewHeading(stage)}`,
+      ...secondaryOverview.map(
         (item) =>
-          sanitizeRenderedText({
-            value:
-              item,
-            evidenceTexts:
-              allFactTexts,
-            lifeContext,
-            stage,
-          }),
+          `- ${item}`,
       ),
-      config.opportunityLimit,
-      150,
     );
+  }
+
+  const opportunities =
+    compileAnchoredTopLevelList({
+      items:
+        report?.opportunities,
+      kind:
+        "opportunities",
+      themes:
+        compiledThemes,
+      limit:
+        config.opportunityLimit,
+      lifeContext,
+      stage,
+    });
 
   const risks =
-    listItems(
-      array(
+    compileAnchoredTopLevelList({
+      items:
         report?.risks,
-      ).map(
-        (item) =>
-          sanitizeRenderedText({
-            value:
-              item,
-            evidenceTexts:
-              allFactTexts,
-            lifeContext,
-            stage,
-          }),
-      ),
-      config.riskLimit,
-      150,
-    );
+      kind:
+        "risks",
+      themes:
+        compiledThemes,
+      limit:
+        config.riskLimit,
+      lifeContext,
+      stage,
+    });
 
   if (
     opportunities.length ||
@@ -1066,23 +1018,18 @@ export function renderStageReport({
   }
 
   const actions =
-    listItems(
-      array(
+    compileAnchoredTopLevelList({
+      items:
         report?.actions,
-      ).map(
-        (item) =>
-          sanitizeRenderedText({
-            value:
-              item,
-            evidenceTexts:
-              allFactTexts,
-            lifeContext,
-            stage,
-          }),
-      ),
-      config.actionLimit,
-      150,
-    );
+      kind:
+        "actions",
+      themes:
+        compiledThemes,
+      limit:
+        config.actionLimit,
+      lifeContext,
+      stage,
+    });
 
   if (
     actions.length
@@ -1101,23 +1048,18 @@ export function renderStageReport({
   }
 
   const verification =
-    listItems(
-      array(
+    compileAnchoredTopLevelList({
+      items:
         report?.verification,
-      ).map(
-        (item) =>
-          sanitizeRenderedText({
-            value:
-              item,
-            evidenceTexts:
-              allFactTexts,
-            lifeContext,
-            stage,
-          }),
-      ),
-      config.verificationLimit,
-      180,
-    );
+      kind:
+        "verification",
+      themes:
+        compiledThemes,
+      limit:
+        config.verificationLimit,
+      lifeContext,
+      stage,
+    });
 
   if (
     verification.length
@@ -1135,21 +1077,2040 @@ export function renderStageReport({
     );
   }
 
-  return lines
-    .filter(
-      (line) =>
-        line !==
-        null &&
-        line !==
-        undefined,
+  return cleanupFinalRenderedReport(
+    lines
+      .filter(
+        (line) =>
+          line !==
+          null &&
+          line !==
+          undefined,
+      )
+      .join("\n"),
+  );
+}
+
+function compileThemesForDisplay({
+  report,
+  stage,
+  verifiedFacts,
+  factMap,
+  lifeContext,
+  config,
+} = {}) {
+  const availableDomainIds =
+    new Set(
+      array(
+        verifiedFacts,
+      )
+        .flatMap(
+          (fact) =>
+            array(
+              fact
+                ?.meta
+                ?.domains,
+            ),
+        )
+        .filter(Boolean),
+    );
+
+  const compiled = [];
+  const usedDomains =
+    new Set();
+  const usedTitles =
+    new Set();
+
+  array(
+    report?.themes,
+  ).forEach(
+    (theme) => {
+      const safeTheme =
+        compileAiThemeForDisplay({
+          theme,
+          stage,
+          verifiedFacts,
+          factMap,
+          lifeContext,
+          availableDomainIds,
+          config,
+        });
+
+      if (
+        !safeTheme
+      ) {
+        return;
+      }
+
+      const titleKey =
+        normalizeForCompare(
+          safeTheme.title,
+        );
+
+      if (
+        usedTitles.has(
+          titleKey,
+        ) ||
+        (
+          safeTheme.domainId &&
+          usedDomains.has(
+            safeTheme.domainId,
+          )
+        )
+      ) {
+        return;
+      }
+
+      compiled.push(
+        safeTheme,
+      );
+
+      usedTitles.add(
+        titleKey,
+      );
+
+      if (
+        safeTheme.domainId
+      ) {
+        usedDomains.add(
+          safeTheme.domainId,
+        );
+      }
+    },
+  );
+
+  const preferredTarget =
+    stage ===
+      "luck"
+      ? config.displayTargetThemes
+      : config.minThemes;
+
+  const target =
+    Math.min(
+      config.maxThemes,
+      Math.max(
+        config.minThemes,
+        preferredTarget,
+      ),
+    );
+
+  if (
+    compiled.length <
+    target
+  ) {
+    const fallbackThemes =
+      buildDeterministicFallbackThemes({
+        stage,
+        verifiedFacts,
+        lifeContext,
+        usedDomains,
+        needed:
+          target -
+          compiled.length,
+        config,
+      });
+
+    fallbackThemes.forEach(
+      (theme) => {
+        const titleKey =
+          normalizeForCompare(
+            theme.title,
+          );
+
+        if (
+          compiled.length >=
+            config.maxThemes ||
+          usedTitles.has(
+            titleKey,
+          )
+        ) {
+          return;
+        }
+
+        compiled.push(
+          theme,
+        );
+
+        usedTitles.add(
+          titleKey,
+        );
+
+        if (
+          theme.domainId
+        ) {
+          usedDomains.add(
+            theme.domainId,
+          );
+        }
+      },
+    );
+  }
+
+  if (
+    compiled.length ===
+    0 &&
+    (
+      stage ===
+        "luck" ||
+      hasCurrentStageEvidence(
+        verifiedFacts,
+        stage,
+      )
     )
-    .join("\n")
+  ) {
+    const emergency =
+      buildEmergencyFallbackTheme({
+        stage,
+        verifiedFacts,
+        lifeContext,
+        config,
+      });
+
+    if (
+      emergency
+    ) {
+      compiled.push(
+        emergency,
+      );
+    }
+  }
+
+  return compiled.slice(
+    0,
+    config.maxThemes,
+  );
+}
+
+function compileAiThemeForDisplay({
+  theme,
+  stage,
+  verifiedFacts,
+  factMap,
+  lifeContext,
+  availableDomainIds,
+  config,
+} = {}) {
+  const evidenceIds =
+    unique(
+      array(
+        theme?.evidenceIds,
+      )
+        .map(
+          text,
+        )
+        .filter(
+          (id) =>
+            factMap.has(
+              id,
+            ),
+        ),
+    )
+      .slice(
+        0,
+        config.evidenceDisplayLimit,
+      );
+
+  if (
+    evidenceIds.length ===
+    0
+  ) {
+    return null;
+  }
+
+  const evidenceFacts =
+    evidenceIds
+      .map(
+        (id) =>
+          factMap.get(
+            id,
+          ),
+      )
+      .filter(Boolean);
+
+  const evidenceTexts =
+    evidenceFacts
+      .map(
+        (fact) =>
+          fact?.text ||
+          "",
+      )
+      .filter(Boolean);
+
+  const domainId =
+    inferDisplayDomainId({
+      preferred:
+        theme?.domainId,
+      evidenceFacts,
+    });
+
+  const title =
+    cleanupDisplayText(
+      sanitizeRenderedText({
+        value:
+          compactParagraph(
+            theme?.title,
+            80,
+          ),
+        evidenceTexts,
+        lifeContext,
+        stage,
+      }),
+    );
+
+  const judgment =
+    cleanupDisplayText(
+      sanitizeRenderedText({
+        value:
+          compactParagraph(
+            theme?.judgment,
+            config.judgmentMax,
+          ),
+        evidenceTexts,
+        lifeContext,
+        stage,
+      }),
+    );
+
+  const story =
+    cleanupDisplayText(
+      sanitizeRenderedText({
+        value:
+          compactParagraph(
+            theme?.story,
+            config.primaryStoryMax,
+          ),
+        evidenceTexts,
+        lifeContext,
+        stage,
+      }),
+    );
+
+  const possibilities =
+    unique(
+      array(
+        theme?.possibilities,
+      )
+        .map(
+          (item) =>
+            cleanupDisplayText(
+              sanitizeRenderedText({
+                value:
+                  compactParagraph(
+                    item,
+                    config.possibilityTextMax,
+                  ),
+                evidenceTexts,
+                lifeContext,
+                stage,
+              }),
+            ),
+        )
+        .filter(Boolean),
+    )
+      .slice(
+        0,
+        config.possibilityLimit,
+      );
+
+  const alternative =
+    cleanupDisplayText(
+      sanitizeRenderedText({
+        value:
+          compactParagraph(
+            theme?.alternative,
+            config.alternativeMax,
+          ),
+        evidenceTexts,
+        lifeContext,
+        stage,
+      }),
+    );
+
+  const advice =
+    unique(
+      array(
+        theme?.advice,
+      )
+        .map(
+          (item) =>
+            cleanupDisplayText(
+              sanitizeRenderedText({
+                value:
+                  compactParagraph(
+                    item,
+                    140,
+                  ),
+                evidenceTexts,
+                lifeContext,
+                stage,
+              }),
+            ),
+        )
+        .filter(Boolean),
+    );
+
+  if (
+    !title ||
+    judgment.length <
+      8 ||
+    story.length <
+      20
+  ) {
+    return null;
+  }
+
+  const authoredText = [
+    title,
+    judgment,
+    story,
+    alternative,
+    ...possibilities,
+    ...advice,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const hardErrors = [
+    ...validateTechnicalClaims({
+      authoredText,
+      evidenceTexts,
+    }),
+    ...validateTechnicalTokenCoverage({
+      authoredText,
+      evidenceTexts,
+    }),
+    ...validateBranchRelationTokenCoverage({
+      authoredText,
+      evidenceTexts,
+    }),
+    ...validateNegativeTechnicalClaims({
+      authoredText,
+      evidenceTexts,
+    }),
+    ...validateThemeDomainBinding({
+      domainId,
+      evidenceFacts,
+      availableDomainIds,
+    }),
+    ...validateCurrentStageEvidence({
+      evidenceFacts,
+      stage,
+      minimumRatio:
+        config.currentEvidenceRatio,
+    }),
+  ];
+
+  if (
+    hardErrors.length >
+    0
+  ) {
+    return null;
+  }
+
+  return {
+    domainId,
+    title,
+    importance:
+      normalizeImportance(
+        theme?.importance,
+      ),
+    judgment,
+    story,
+    possibilities,
+    alternative,
+    evidenceIds,
+    evidenceTexts,
+    advice,
+    authoredText,
+    isFallback:
+      false,
+    fallbackLists:
+      buildDomainFallbackLists({
+        domainId,
+        stage,
+        lifeContext,
+      }),
+  };
+}
+
+function buildDeterministicFallbackThemes({
+  stage,
+  verifiedFacts,
+  lifeContext,
+  usedDomains,
+  needed,
+  config,
+} = {}) {
+  const buckets =
+    new Map();
+
+  array(
+    verifiedFacts,
+  )
+    .filter(
+      (fact) =>
+        fact?.evidenceEligible !==
+        false &&
+        text(
+          fact?.id,
+        ) &&
+        text(
+          fact?.text,
+        ),
+    )
+    .forEach(
+      (fact) => {
+        array(
+          fact
+            ?.meta
+            ?.domains,
+        ).forEach(
+          (domainId) => {
+            if (
+              !domainId
+            ) {
+              return;
+            }
+
+            if (
+              !buckets.has(
+                domainId,
+              )
+            ) {
+              buckets.set(
+                domainId,
+                [],
+              );
+            }
+
+            buckets
+              .get(
+                domainId,
+              )
+              .push(
+                fact,
+              );
+          },
+        );
+      },
+    );
+
+  const candidates =
+    [
+      ...buckets.entries(),
+    ]
+      .filter(
+        (
+          [
+            domainId,
+          ],
+        ) =>
+          !usedDomains.has(
+            domainId,
+          ),
+      )
+      .map(
+        (
+          [
+            domainId,
+            facts,
+          ],
+        ) => ({
+          domainId,
+          facts:
+            uniqueFacts(
+              facts,
+            ),
+          currentFacts:
+            uniqueFacts(
+              facts.filter(
+                (fact) =>
+                  isCurrentStageFact(
+                    fact,
+                    stage,
+                  ),
+              ),
+            ),
+          score:
+            displayDomainScore({
+              domainId,
+              facts,
+              stage,
+            }),
+        }),
+      )
+      .filter(
+        (item) =>
+          item.facts.length >
+            0 &&
+          (
+            stage ===
+              "luck" ||
+            item.currentFacts.length >
+              0
+          ),
+      )
+      .sort(
+        (left, right) =>
+          right.score -
+          left.score,
+      );
+
+  const result = [];
+
+  candidates.forEach(
+    (candidate) => {
+      if (
+        result.length >=
+        needed
+      ) {
+        return;
+      }
+
+      const fallback =
+        buildFallbackThemeForDomain({
+          domainId:
+            candidate.domainId,
+          facts:
+            stage ===
+              "luck"
+              ? candidate.facts
+              : prioritizeCurrentFacts(
+                  candidate.facts,
+                  stage,
+                ),
+          stage,
+          lifeContext,
+          config,
+        });
+
+      if (
+        fallback
+      ) {
+        result.push(
+          fallback,
+        );
+      }
+    },
+  );
+
+  return result;
+}
+
+function buildFallbackThemeForDomain({
+  domainId,
+  facts,
+  stage,
+  lifeContext,
+  config,
+} = {}) {
+  const copy =
+    fallbackDomainCopy({
+      domainId,
+      stage,
+      lifeContext,
+    });
+
+  if (
+    !copy
+  ) {
+    return null;
+  }
+
+  const evidenceFacts =
+    uniqueFacts(
+      facts,
+    )
+      .slice(
+        0,
+        config.evidenceDisplayLimit,
+      );
+
+  if (
+    evidenceFacts.length ===
+    0
+  ) {
+    return null;
+  }
+
+  return {
+    domainId,
+    title:
+      copy.title,
+    importance:
+      evidenceFacts.length >=
+        2
+        ? "高"
+        : "中",
+    judgment:
+      copy.judgment,
+    story:
+      copy.story,
+    possibilities:
+      copy.possibilities.slice(
+        0,
+        config.possibilityLimit,
+      ),
+    alternative:
+      "",
+    evidenceIds:
+      evidenceFacts.map(
+        (fact) =>
+          fact.id,
+      ),
+    evidenceTexts:
+      evidenceFacts.map(
+        (fact) =>
+          fact.text,
+      ),
+    advice:
+      copy.advice,
+    authoredText: [
+      copy.title,
+      copy.judgment,
+      copy.story,
+      ...copy.possibilities,
+      ...copy.advice,
+    ].join("\n"),
+    isFallback:
+      true,
+    fallbackLists:
+      copy.lists,
+  };
+}
+
+function buildEmergencyFallbackTheme({
+  stage,
+  verifiedFacts,
+  lifeContext,
+  config,
+} = {}) {
+  const evidenceFacts =
+    uniqueFacts(
+      array(
+        verifiedFacts,
+      ).filter(
+        (fact) =>
+          fact?.evidenceEligible !==
+            false &&
+          text(
+            fact?.id,
+          ) &&
+          text(
+            fact?.text,
+          ) &&
+          (
+            stage ===
+              "luck" ||
+            isCurrentStageFact(
+              fact,
+              stage,
+            )
+          ),
+      ),
+    )
+      .slice(
+        0,
+        Math.min(
+          3,
+          config.evidenceDisplayLimit,
+        ),
+      );
+
+  if (
+    evidenceFacts.length ===
+    0
+  ) {
+    return null;
+  }
+
+  const older =
+    Number(
+      lifeContext?.age,
+    ) >=
+    70;
+
+  const stageText =
+    stage ===
+      "month"
+      ? "本月"
+      : stage ===
+          "year"
+        ? "本年"
+        : "此运";
+
+  return {
+    domainId:
+      "general_stage_overview",
+    title:
+      "阶段重点与现实调整",
+    importance:
+      "中",
+    judgment:
+      `${stageText}已有若干确定信号，但不足以支持过细的单一事件判断。`,
+    story:
+      older
+        ? "更稳妥的看法是，先观察家庭、亲友、日常安排与身心节奏中是否出现需要重新协调的事项；没有明显事件时，也可能只是处理方式和关注重点发生变化。"
+        : "更稳妥的看法是，先观察当前计划、关系边界和执行方式中是否出现需要重新协调的事项；没有明显事件时，也可能只是处理节奏和关注重点发生变化。",
+    possibilities: [
+      "已有事务需要重新排序或补充沟通。",
+      "某些想法开始进入实践，但仍需现实反馈确认。",
+    ],
+    alternative:
+      "",
+    evidenceIds:
+      evidenceFacts.map(
+        (fact) =>
+          fact.id,
+      ),
+    evidenceTexts:
+      evidenceFacts.map(
+        (fact) =>
+          fact.text,
+      ),
+    advice: [
+      "先确认现实条件，再做可逆的小幅调整。",
+    ],
+    authoredText:
+      "阶段重点与现实调整",
+    isFallback:
+      true,
+    fallbackLists:
+      {
+        opportunities:
+          "已有经验和现实反馈可以帮助你减少重复试错。",
+        risks:
+          "若急于把条件性信号当成确定结果，容易造成误判。",
+        actions:
+          "先处理最直接、最可验证的事项，再决定是否扩大调整。",
+        verification:
+          "当前是否出现需要重新排序、沟通或调整处理方式的事情",
+      },
+  };
+}
+
+function fallbackDomainCopy({
+  domainId,
+  stage,
+  lifeContext,
+} = {}) {
+  const older =
+    Number(
+      lifeContext?.age,
+    ) >=
+    70;
+
+  const stageText =
+    stage ===
+      "month"
+      ? "本月"
+      : stage ===
+          "year"
+        ? "本年"
+        : "此运";
+
+  const longTerm =
+    stage ===
+    "luck";
+
+  const shortTerm =
+    stage ===
+    "month";
+
+  const copies = {
+    relation_environment_change: {
+      title:
+        "关系与环境结构调整",
+      judgment:
+        `${stageText}关系、安排或互动方式更容易出现重新协调。`,
+      story:
+        older
+          ? "更常见的现实落点，是家庭、亲友、固定团体或日常安排中的边界和分工需要重新确认。既可能有靠近和配合，也可能有牵制和反复；这不等于必然发生重大关系事件，重点在于如何减少无效消耗。"
+          : longTerm
+            ? "这更适合看作长期结构变化：关系、计划和生活环境可能在靠近、牵制与调整之间反复，最终促使你重新确定边界和优先级。它不直接等于感情成败或重大变动。"
+            : "更常见的现实落点，是已有关系、合作安排或生活计划需要重新确认边界和处理方式。它不直接等于分离或重大变化，重点在于及时沟通和调整顺序。",
+      possibilities: [
+        "已有安排需要重新沟通、分工或排序。",
+        older
+          ? "家庭、亲友或固定团体中的责任边界需要再次确认。"
+          : "重要关系或合作中的节奏需要重新磨合。",
+        shortTerm
+          ? "没有明显关系事件时，也可能只是本月计划和生活节奏发生小幅调整。"
+          : "没有明显关系事件时，也可能表现为环境、计划或关注重点逐步变化。",
+      ],
+      advice: [
+        "先确认各方真实需求和边界，再决定如何调整。",
+        "对尚未明确的事项保留缓冲，不急于作不可逆决定。",
+      ],
+      lists: {
+        opportunities:
+          "重新梳理关系和安排，有助于减少长期反复。",
+        risks:
+          "靠近与牵制同时存在时，容易因猜测或反复沟通而消耗精力。",
+        actions:
+          "把责任、边界和下一步安排说清楚，再观察现实反馈。",
+        verification:
+          "关系、家庭或固定安排中是否出现需要重新确认边界和分工的事情",
+      },
+    },
+
+    ability_output: {
+      title:
+        "能力输出与经验运用",
+      judgment:
+        `${stageText}更重视把兴趣、经验或技能转化为可观察的成果。`,
+      story:
+        older
+          ? "现实中可以落在兴趣整理、经验分享、资料归纳、日常技能或帮助身边人解决问题上。重点不是一定从事某种职业或参加考试，而是把已有经验用得更顺、更有条理，并从反馈中判断哪些方向值得继续。"
+          : longTerm
+            ? "长期看，更愿意通过实践、表达和成果反馈验证能力，逐步形成自己的处理方式。具体可以落在学习、工作、兴趣或日常技能，但不能仅凭这一信号断定具体职业、考试或收入结果。"
+            : "现实中更容易出现需要表达、整理、讲解或实际操作的事务。重点是通过反馈改进方法，而不是把某一种具体场景当成必然结果。",
+      possibilities: [
+        older
+          ? "整理旧经验、兴趣或资料，形成更清楚的做法。"
+          : "把已有想法转化为可以展示、验证或复盘的成果。",
+        older
+          ? "在家庭、亲友或熟人圈中提供经验和实际帮助。"
+          : "尝试新的方法，并根据现实反馈决定是否继续。",
+        "若仍有工作或学习事务，可能更愿意使用自己熟悉的方法完成。",
+      ],
+      advice: [
+        "保留简单记录，比较哪些做法真正有效。",
+        "先稳定一个方向，再决定是否增加新的尝试。",
+      ],
+      lists: {
+        opportunities:
+          "经验、兴趣和技能更容易通过实际运用得到反馈。",
+        risks:
+          "方向过多或只停留在想法层面，会削弱持续积累。",
+        actions:
+          "选择一个当前最有现实反馈的方向持续推进。",
+        verification:
+          "近期是否更愿意整理经验、分享方法或完成可观察的成果",
+      },
+    },
+
+    resource_accumulation: {
+      title:
+        "资源安排与现实回报",
+      judgment:
+        `${stageText}对资源配置、日常投入和现实回报更为敏感。`,
+      story:
+        older
+          ? "更稳妥的现实落点是既有资源、家庭安排、日常收支和物品使用方式需要更清楚。它不等于一定投资或增加收入，重点是减少浪费、安排优先级，并观察哪些投入真正改善生活。"
+          : longTerm
+            ? "长期看，资源意识会逐步增强，更关注投入是否产生持续回报。它可以涉及收入、时间、机会或家庭资源，但不能仅凭财星信号断定兼职、副业或具体金额。"
+            : "现实中更容易注意到时间、金钱、机会或物品安排是否合理。回报需要持续经营，不能把条件性信号直接写成收入必然增加。",
+      possibilities: [
+        older
+          ? "重新整理日常收支、物品使用或家庭资源安排。"
+          : "开始更清楚地比较投入、成本和实际回报。",
+        "某项已有资源可能需要重新分配或提高使用效率。",
+        "若现实中存在收入或合作机会，仍需先确认条件和持续性。",
+      ],
+      advice: [
+        "先梳理已有资源和固定支出，再考虑新增投入。",
+        "涉及风险和金额的决定，以现实数据和专业意见为准。",
+      ],
+      lists: {
+        opportunities:
+          "更清楚地安排已有资源，有助于提高使用效率。",
+        risks:
+          "把条件性机会当成确定收益，容易造成不必要投入。",
+        actions:
+          "先核对已有资源、固定支出和真实需求。",
+        verification:
+          "近期是否更关注日常资源、收支或投入回报的安排",
+      },
+    },
+
+    rules_responsibility: {
+      title:
+        "规则责任与现实要求",
+      judgment:
+        `${stageText}正式要求、责任边界或被评价感更容易进入关注范围。`,
+      story:
+        older
+          ? "现实中更可能落在手续、约定、家庭责任、医疗生活安排或相关机构要求上。它不自动等于上级、考试或重大压力，重点是先看清要求，再决定哪些需要配合、哪些可以沟通调整。"
+          : longTerm
+            ? "长期看，个人做法需要不断与外部标准和责任要求协调。它可以落在工作、学习、合作或手续，但具体场景必须结合现实，不应自动推成上级、审核或考试。"
+            : "现实中可能出现标准更明确、责任需要落实或结果需要被检验的事务。先理解规则，再保留合理表达空间，通常比直接对抗更有效。",
+      possibilities: [
+        "某项正式事务需要补充材料、明确责任或按标准处理。",
+        older
+          ? "家庭约定或相关机构要求需要更清楚地确认。"
+          : "个人方式与外部标准之间需要重新协调。",
+        "没有明显正式事务时，也可能只是对责任和边界的感受增强。",
+      ],
+      advice: [
+        "先弄清实际要求和可调整范围，再安排下一步。",
+        "重要约定尽量留下清楚记录，减少误解。",
+      ],
+      lists: {
+        opportunities:
+          "明确标准和责任，有助于减少反复与误解。",
+        risks:
+          "不理解要求就急于回应，容易增加返工或摩擦。",
+        actions:
+          "先确认规则、责任和可协商部分，再采取行动。",
+        verification:
+          "近期是否出现需要明确标准、责任或手续的事务",
+      },
+    },
+
+    learning_support: {
+      title:
+        "经验复盘与支持结构",
+      judgment:
+        `${stageText}理解、复盘和借助既有经验的重要性上升。`,
+      story:
+        older
+          ? "现实中可以表现为回顾经验、整理资料、学习兴趣内容，或更愿意听取可靠建议。它不等于一定获得学历或证书，重点是利用已有知识和支持，降低重复试错。"
+          : "现实中更适合通过资料、经验、复盘和可靠支持提高判断质量。它不自动等于学历、老师或考试结果，重点在于吸收后能否转化为实际做法。",
+      possibilities: [
+        "重新整理过去经验，并形成更稳定的处理方法。",
+        "从可靠资料、专业意见或熟悉的人那里获得帮助。",
+        "某项兴趣或知识需要慢慢理解，而不是急于求成。",
+      ],
+      advice: [
+        "优先选择来源清楚、可以验证的信息。",
+        "把得到的建议转化成一两个可执行步骤。",
+      ],
+      lists: {
+        opportunities:
+          "复盘经验和借助可靠支持，可以减少重复试错。",
+        risks:
+          "信息过多但缺少筛选，反而容易犹豫。",
+        actions:
+          "先确认信息来源，再把建议转化为小步骤。",
+        verification:
+          "近期是否更需要整理经验、查找资料或听取可靠建议",
+      },
+    },
+
+    peer_boundary: {
+      title:
+        "共同参与与边界分配",
+      judgment:
+        `${stageText}共同参与、分工和自主边界更容易成为现实议题。`,
+      story:
+        older
+          ? "现实中可以落在亲友、邻里、固定团体或共同处理事务的人之间。它不自动等于竞争或破财，重点是把谁负责什么、资源如何使用、意见如何表达说清楚。"
+          : "现实中更容易出现共同参与、协作分工或资源边界需要确认的情况。它不自动等于竞争或争夺，重点是减少含糊和重复投入。",
+      possibilities: [
+        older
+          ? "亲友或共同参与者之间需要重新确认分工。"
+          : "合作或共同事务中的分工和边界需要明确。",
+        "某项资源、时间或责任安排需要重新协调。",
+        "没有明显冲突时，也可能只是更重视自主空间。",
+      ],
+      advice: [
+        "提前说清分工、责任和可接受的边界。",
+        "出现分歧时先回到具体事项，不扩大到人身评价。",
+      ],
+      lists: {
+        opportunities:
+          "分工和边界更清楚后，共同事务更容易推进。",
+        risks:
+          "责任含糊或重复投入，容易造成不满和消耗。",
+        actions:
+          "把共同事务的分工和边界提前说明。",
+        verification:
+          "共同事务中是否出现需要重新确认分工或自主边界的情况",
+      },
+    },
+  };
+
+  return copies[
+    domainId
+  ] || null;
+}
+
+function buildDomainFallbackLists({
+  domainId,
+  stage,
+  lifeContext,
+} = {}) {
+  return fallbackDomainCopy({
+    domainId,
+    stage,
+    lifeContext,
+  })?.lists || {
+    opportunities:
+      "现实反馈有助于判断哪些方向值得继续。",
+    risks:
+      "条件尚未明确时，过早下结论容易造成误判。",
+    actions:
+      "先确认事实，再做可逆调整。",
+    verification:
+      "当前是否出现可以直接验证的现实变化",
+  };
+}
+
+function compileAnchoredTopLevelList({
+  items,
+  kind,
+  themes,
+  limit,
+  lifeContext,
+  stage,
+} = {}) {
+  const safeItems =
+    unique(
+      array(
+        items,
+      )
+        .map(
+          (item) =>
+            cleanupDisplayText(
+              sanitizeRenderedText({
+                value:
+                  compactParagraph(
+                    item,
+                    kind ===
+                      "verification"
+                      ? 180
+                      : 150,
+                  ),
+                evidenceTexts:
+                  unique(
+                    themes.flatMap(
+                      (theme) =>
+                        theme.evidenceTexts,
+                    ),
+                  ),
+                lifeContext,
+                stage,
+              }),
+            ),
+        )
+        .filter(Boolean)
+        .filter(
+          (item) =>
+            topLevelItemIsAnchored({
+              item,
+              themes,
+            }),
+        ),
+    );
+
+  const fallbackItems =
+    unique(
+      themes
+        .map(
+          (theme) =>
+            text(
+              theme
+                ?.fallbackLists
+                ?.[
+                  kind
+                ],
+            ),
+        )
+        .filter(Boolean),
+    );
+
+  return listItems(
+    [
+      ...safeItems,
+      ...fallbackItems,
+    ],
+    limit,
+    kind ===
+      "verification"
+      ? 180
+      : 150,
+  );
+}
+
+function topLevelItemIsAnchored({
+  item,
+  themes,
+} = {}) {
+  const technical =
+    TECHNICAL_PATTERN.test(
+      item,
+    ) ||
+    /大运|流年|流月|年柱|月柱|日柱|时柱|夫妻宫|配偶宫|子女宫/.test(
+      item,
+    );
+
+  const itemDomains =
+    inferTextDomainsForDisplay(
+      item,
+    );
+
+  if (
+    !technical
+  ) {
+    if (
+      itemDomains.length ===
+      0
+    ) {
+      return true;
+    }
+
+    return themes.some(
+      (theme) =>
+        itemDomains.includes(
+          theme.domainId,
+        ),
+    );
+  }
+
+  return themes.some(
+    (theme) => {
+      const technicalErrors = [
+        ...validateTechnicalClaims({
+          authoredText:
+            item,
+          evidenceTexts:
+            theme.evidenceTexts,
+        }),
+        ...validateTechnicalTokenCoverage({
+          authoredText:
+            item,
+          evidenceTexts:
+            theme.evidenceTexts,
+        }),
+        ...validateBranchRelationTokenCoverage({
+          authoredText:
+            item,
+          evidenceTexts:
+            theme.evidenceTexts,
+        }),
+        ...validateNegativeTechnicalClaims({
+          authoredText:
+            item,
+          evidenceTexts:
+            theme.evidenceTexts,
+        }),
+      ];
+
+      if (
+        technicalErrors.length >
+        0
+      ) {
+        return false;
+      }
+
+      if (
+        itemDomains.length >
+        0 &&
+        !itemDomains.includes(
+          theme.domainId,
+        )
+      ) {
+        return false;
+      }
+
+      const tokens =
+        technicalTokensForDisplay(
+          item,
+        );
+
+      return tokens.every(
+        (token) =>
+          theme.authoredText.includes(
+            token,
+          ),
+      );
+    },
+  );
+}
+
+function technicalTokensForDisplay(
+  value,
+) {
+  const matches =
+    text(
+      value,
+    ).match(
+      /食神|伤官|正官|七杀|正印|偏印|正财|偏财|比肩|劫财|伏吟|反吟|三合|三会|六合|暗合|半合|相冲|冲|相刑|刑|相害|害|相破|破|夫妻宫|配偶宫|子女宫|年柱|月柱|日柱|时柱|大运|流年|流月/g,
+    ) ||
+    [];
+
+  return unique(
+    matches,
+  );
+}
+
+function inferTextDomainsForDisplay(
+  value,
+) {
+  const textValue =
+    text(
+      value,
+    );
+
+  const domains = [];
+
+  if (
+    /食神|伤官|表达|输出|技能|经验|兴趣|成果/.test(
+      textValue,
+    )
+  ) {
+    domains.push(
+      "ability_output",
+    );
+  }
+
+  if (
+    /正财|偏财|资源|收入|收支|回报|投入/.test(
+      textValue,
+    )
+  ) {
+    domains.push(
+      "resource_accumulation",
+    );
+  }
+
+  if (
+    /正官|七杀|规则|责任|标准|手续|要求/.test(
+      textValue,
+    )
+  ) {
+    domains.push(
+      "rules_responsibility",
+    );
+  }
+
+  if (
+    /正印|偏印|学习|资料|复盘|支持/.test(
+      textValue,
+    )
+  ) {
+    domains.push(
+      "learning_support",
+    );
+  }
+
+  if (
+    /比肩|劫财|同辈|分工|边界|共同参与/.test(
+      textValue,
+    )
+  ) {
+    domains.push(
+      "peer_boundary",
+    );
+  }
+
+  if (
+    /天干五合|地支六合|三合|三会|冲|刑|害|破|同支重复|伏吟|关系|环境结构/.test(
+      textValue,
+    )
+  ) {
+    domains.push(
+      "relation_environment_change",
+    );
+  }
+
+  return unique(
+    domains,
+  );
+}
+
+function inferDisplayDomainId({
+  preferred,
+  evidenceFacts,
+} = {}) {
+  const preferredValue =
+    text(
+      preferred,
+    );
+
+  if (
+    preferredValue &&
+    evidenceFacts.some(
+      (fact) =>
+        array(
+          fact
+            ?.meta
+            ?.domains,
+        ).includes(
+          preferredValue,
+        ),
+    )
+  ) {
+    return preferredValue;
+  }
+
+  const counts =
+    new Map();
+
+  evidenceFacts.forEach(
+    (fact) => {
+      array(
+        fact
+          ?.meta
+          ?.domains,
+      ).forEach(
+        (domainId) => {
+          counts.set(
+            domainId,
+            (
+              counts.get(
+                domainId,
+              ) ||
+              0
+            ) +
+            1,
+          );
+        },
+      );
+    },
+  );
+
+  return [
+    ...counts.entries(),
+  ]
+    .sort(
+      (left, right) =>
+        right[1] -
+        left[1],
+    )
+    ?.[0]
+    ?.[0] ||
+    "";
+}
+
+function currentStageLabel(
+  stage,
+) {
+  return stage ===
+    "month"
+    ? "流月"
+    : stage ===
+        "year"
+      ? "流年"
+      : "大运";
+}
+
+function isCurrentStageFact(
+  fact,
+  stage,
+) {
+  if (
+    fact
+      ?.meta
+      ?.temporalRole ===
+    "current"
+  ) {
+    return true;
+  }
+
+  const label =
+    currentStageLabel(
+      stage,
+    );
+
+  return text(
+    fact?.text,
+  ).includes(
+    label,
+  );
+}
+
+function hasCurrentStageEvidence(
+  verifiedFacts,
+  stage,
+) {
+  return array(
+    verifiedFacts,
+  ).some(
+    (fact) =>
+      fact?.evidenceEligible !==
+        false &&
+      isCurrentStageFact(
+        fact,
+        stage,
+      ),
+  );
+}
+
+function validateCurrentStageEvidence({
+  evidenceFacts,
+  stage,
+  minimumRatio = 0,
+} = {}) {
+  if (
+    stage ===
+    "luck"
+  ) {
+    return [];
+  }
+
+  const facts =
+    array(
+      evidenceFacts,
+    );
+
+  const currentFacts =
+    facts.filter(
+      (fact) =>
+        isCurrentStageFact(
+          fact,
+          stage,
+        ),
+    );
+
+  const errors = [];
+
+  if (
+    currentFacts.length ===
+    0
+  ) {
+    errors.push(
+      "missing_current_stage_evidence",
+    );
+
+    return errors;
+  }
+
+  const ratio =
+    currentFacts.length /
+    Math.max(
+      1,
+      facts.length,
+    );
+
+  if (
+    Number(
+      minimumRatio,
+    ) >
+      0 &&
+    ratio <
+      Number(
+        minimumRatio,
+      )
+  ) {
+    errors.push(
+      `current_stage_evidence_ratio_low:${ratio.toFixed(2)}`,
+    );
+  }
+
+  return errors;
+}
+
+function prioritizeCurrentFacts(
+  facts,
+  stage,
+) {
+  const current =
+    uniqueFacts(
+      array(
+        facts,
+      ).filter(
+        (fact) =>
+          isCurrentStageFact(
+            fact,
+            stage,
+          ),
+      ),
+    );
+
+  const background =
+    uniqueFacts(
+      array(
+        facts,
+      ).filter(
+        (fact) =>
+          !isCurrentStageFact(
+            fact,
+            stage,
+          ),
+      ),
+    );
+
+  return [
+    ...current,
+    ...background.slice(
+      0,
+      Math.max(
+        1,
+        current.length,
+      ),
+    ),
+  ];
+}
+
+function countCurrentEligibleDomains({
+  verifiedFacts,
+  stage,
+} = {}) {
+  if (
+    stage ===
+    "luck"
+  ) {
+    return new Set(
+      array(
+        verifiedFacts,
+      )
+        .filter(
+          (fact) =>
+            fact?.evidenceEligible !==
+            false,
+        )
+        .flatMap(
+          (fact) =>
+            array(
+              fact
+                ?.meta
+                ?.domains,
+            ),
+        )
+        .filter(Boolean),
+    ).size;
+  }
+
+  return new Set(
+    array(
+      verifiedFacts,
+    )
+      .filter(
+        (fact) =>
+          fact?.evidenceEligible !==
+            false &&
+          isCurrentStageFact(
+            fact,
+            stage,
+          ),
+      )
+      .flatMap(
+        (fact) =>
+          array(
+            fact
+              ?.meta
+              ?.domains,
+          ),
+      )
+      .filter(Boolean),
+  ).size;
+}
+
+function compileStageSecondaryOverview({
+  stage,
+  verifiedFacts,
+  themes,
+} = {}) {
+  const usedDomains =
+    new Set(
+      array(
+        themes,
+      )
+        .map(
+          (theme) =>
+            theme?.domainId,
+        )
+        .filter(Boolean),
+    );
+
+  const buckets =
+    new Map();
+
+  array(
+    verifiedFacts,
+  )
+    .filter(
+      (fact) =>
+        fact?.evidenceEligible !==
+          false &&
+        (
+          stage ===
+            "luck" ||
+          isCurrentStageFact(
+            fact,
+            stage,
+          )
+        ),
+    )
+    .forEach(
+      (fact) => {
+        array(
+          fact
+            ?.meta
+            ?.domains,
+        ).forEach(
+          (domainId) => {
+            if (
+              !domainId ||
+              usedDomains.has(
+                domainId,
+              )
+            ) {
+              return;
+            }
+
+            if (
+              !buckets.has(
+                domainId,
+              )
+            ) {
+              buckets.set(
+                domainId,
+                [],
+              );
+            }
+
+            buckets
+              .get(
+                domainId,
+              )
+              .push(
+                fact,
+              );
+          },
+        );
+      },
+    );
+
+  const limit =
+    stage ===
+      "luck"
+      ? 4
+      : stage ===
+          "year"
+        ? 2
+        : 1;
+
+  return [
+    ...buckets.entries(),
+  ]
+    .map(
+      (
+        [
+          domainId,
+          facts,
+        ],
+      ) => ({
+        domainId,
+        facts:
+          uniqueFacts(
+            facts,
+          ),
+        score:
+          displayDomainScore({
+            domainId,
+            facts,
+            stage,
+          }),
+      }),
+    )
+    .sort(
+      (left, right) =>
+        right.score -
+        left.score,
+    )
+    .slice(
+      0,
+      limit,
+    )
+    .map(
+      (item) => {
+        const copy =
+          fallbackDomainCopy({
+            domainId:
+              item.domainId,
+            stage,
+            lifeContext:
+              extractLifeContext(
+                verifiedFacts,
+              ),
+          });
+
+        const title =
+          copy?.title ||
+          item.domainId;
+
+        if (
+          stage ===
+          "luck"
+        ) {
+          return `${title}：有一定长期线索，但证据强度低于上述突出领域，作为十年辅助方向观察。`;
+        }
+
+        if (
+          stage ===
+          "year"
+        ) {
+          return `${title}：本年存在条件性信号，但汇合程度不足，不作为主要显像。`;
+        }
+
+        return `${title}：本月只有单一或较弱触发，暂不展开成独立事件。`;
+      },
+    );
+}
+
+function secondaryOverviewHeading(
+  stage,
+) {
+  return stage ===
+    "luck"
+    ? "十年其他领域概览"
+    : stage ===
+        "year"
+      ? "本年次级可能"
+      : "本月次级提醒";
+}
+
+function displayDomainScore({
+  domainId,
+  facts,
+  stage,
+} = {}) {
+  const stageOrder = {
+    luck: [
+      "relation_environment_change",
+      "ability_output",
+      "resource_accumulation",
+      "rules_responsibility",
+      "learning_support",
+      "peer_boundary",
+    ],
+    year: [
+      "relation_environment_change",
+      "rules_responsibility",
+      "ability_output",
+      "resource_accumulation",
+      "peer_boundary",
+      "learning_support",
+    ],
+    month: [
+      "relation_environment_change",
+      "rules_responsibility",
+      "peer_boundary",
+      "ability_output",
+      "resource_accumulation",
+      "learning_support",
+    ],
+  };
+
+  const order =
+    stageOrder[
+      stage
+    ] ||
+    stageOrder.year;
+
+  const orderIndex =
+    order.indexOf(
+      domainId,
+    );
+
+  const activeLabel =
+    stage ===
+      "month"
+      ? "流月"
+      : stage ===
+          "year"
+        ? "流年"
+        : "大运";
+
+  const activeCount =
+    array(
+      facts,
+    ).filter(
+      (fact) =>
+        text(
+          fact?.text,
+        ).includes(
+          activeLabel,
+        ),
+    ).length;
+
+  return (
+    activeCount *
+      160 +
+    uniqueFacts(
+      facts,
+    ).length *
+      (
+        stage ===
+          "luck"
+          ? 100
+          : 30
+      ) +
+    (
+      orderIndex >=
+        0
+        ? order.length -
+          orderIndex
+        : 0
+    )
+  );
+}
+
+function uniqueFacts(
+  facts,
+) {
+  const seen =
+    new Set();
+
+  return array(
+    facts,
+  ).filter(
+    (fact) => {
+      const key =
+        text(
+          fact?.sourceRef,
+        ) ||
+        text(
+          fact?.id,
+        ) ||
+        text(
+          fact?.text,
+        );
+
+      if (
+        !key ||
+        seen.has(
+          key,
+        )
+      ) {
+        return false;
+      }
+
+      seen.add(
+        key,
+      );
+
+      return true;
+    },
+  );
+}
+
+function buildFallbackSummary({
+  themes,
+  stage,
+} = {}) {
+  const titles =
+    unique(
+      array(
+        themes,
+      )
+        .map(
+          (theme) =>
+            theme.title,
+        )
+        .filter(Boolean),
+    )
+      .slice(
+        0,
+        3,
+      );
+
+  const joined =
+    titles.join(
+      "、",
+    ) ||
+    "现实安排与处理方式";
+
+  if (
+    stage ===
+    "month"
+  ) {
+    if (
+      array(
+        themes,
+      ).length ===
+      0
+    ) {
+      return "本月未见足以单独展开的新增强信号，主要延续流年已有安排。适合处理细节、维持节奏，并根据现实反馈做小幅调整。";
+    }
+
+    return `本月重点集中在${joined}。先处理最直接、最可验证的事情，再根据反馈调整，不把短期信号扩大成长期结论。`;
+  }
+
+  if (
+    stage ===
+    "luck"
+  ) {
+    return `此运的长期重点集中在${joined}。这些主题会通过不同现实事务逐步显现，宜先看持续出现的模式，再判断具体落点。`;
+  }
+
+  return `本年的主要焦点集中在${joined}。具体表现取决于现实基础，宜先确认已经发生的变化，再调整关系、计划和执行方式。`;
+}
+
+function cleanupDisplayText(
+  value,
+) {
+  return text(
+    value,
+  )
+    .replace(
+      /大此运/g,
+      "此运",
+    )
+    .replace(
+      /大此运/g,
+      "此运",
+    )
+    .replace(
+      /本月流月/g,
+      "本月",
+    )
+    .replace(
+      /本本月/g,
+      "本月",
+    )
+    .replace(
+      /此此运/g,
+      "此运",
+    )
+    .replace(
+      /^(?:同时|此外|另外|并且|而且|不过|但是|但)[，、：\s]*/,
+      "",
+    )
+    .replace(
+      /([。！？；])(?:同时|此外|另外|并且|而且)[，、：\s]*(?=$)/g,
+      "$1",
+    )
+    .replace(
+      /[；，、：\s]+$/g,
+      "",
+    )
+    .replace(
+      /\s{2,}/g,
+      " ",
+    )
+    .trim();
+}
+
+function cleanupFinalRenderedReport(
+  value,
+) {
+  return text(
+    value,
+  )
     .replace(
       /\n{3,}/g,
       "\n\n",
     )
+    .replace(
+      /### (?:十年主要结构|十年突出领域|年度重点|本年主要显像|本月触发|本月主要触发)\n(?=### )/g,
+      "",
+    )
+    .replace(
+      /[。！；]+？/g,
+      "？",
+    )
+    .replace(
+      /？？+/g,
+      "？",
+    )
+    .replace(
+      /大此运/g,
+      "此运",
+    )
+    .replace(
+      /本月流月/g,
+      "本月",
+    )
+    .replace(
+      /本本月/g,
+      "本月",
+    )
     .trim();
 }
+
 
 export function buildStageStructuredRepairPrompt(
   prompt,
@@ -1722,6 +3683,22 @@ function translateValidationError(
 
   if (
     value.includes(
+      "missing_current_stage_evidence",
+    )
+  ) {
+    return "流年或流月主题必须引用本层新增事实，不能只重复大运和原局背景";
+  }
+
+  if (
+    value.includes(
+      "current_stage_evidence_ratio_low",
+    )
+  ) {
+    return "本层新增事实占比过低，需要减少上层背景依据，突出当前流年或流月";
+  }
+
+  if (
+    value.includes(
       "unbound_branch_relation",
     )
   ) {
@@ -1957,6 +3934,10 @@ function sanitizeAuthorText(
 
   output =
     output
+      .replace(
+        /大此运/g,
+        "此运",
+      )
       .replace(
         /本本月/g,
         "本月",
@@ -2928,7 +4909,9 @@ function validateTechnicalClaims({
     "月柱",
     "日柱",
     "时柱",
+    "夫妻宫",
     "配偶宫",
+    "子女宫",
   ];
 
   layerLabels.forEach(
@@ -3278,7 +5261,9 @@ function sanitizeRenderedText({
         "月柱",
         "日柱",
         "时柱",
+        "夫妻宫",
         "配偶宫",
+        "子女宫",
       ].forEach(
         (label) => {
           if (
@@ -3339,6 +5324,34 @@ function sanitizeRenderedText({
         .replace(
           /学校或单位/g,
           "相关机构",
+        )
+        .replace(
+          /换学校\/?工作环境|换学校或工作环境/g,
+          "调整居住、活动或固定关系环境",
+        )
+        .replace(
+          /学业或职业基础|职业\/?学业基础|学业、职业基础/g,
+          "日常能力与生活安排基础",
+        )
+        .replace(
+          /项目、作品或比赛|作品或比赛|比赛等形式/g,
+          "兴趣实践、经验整理或日常活动",
+        )
+        .replace(
+          /商业化/g,
+          "转化为可持续的实际用途",
+        )
+        .replace(
+          /兼职、副业|兼职或副业|副业或兼职/g,
+          "日常资源补充",
+        )
+        .replace(
+          /职业发展|后续职业/g,
+          "后续生活安排",
+        )
+        .replace(
+          /优先完成学业或职业基础/g,
+          "优先稳定日常安排与既有责任",
         );
   }
 
@@ -3385,6 +5398,20 @@ function sanitizeRenderedText({
     .replace(
       /近一两年|近两年|最近一两年/g,
       "近期",
+    )
+    .replace(
+      /(?:观察|留意|注意)?\s*\d{1,2}\s*[-—至]\s*\d{1,2}月/g,
+      "观察本年过程中",
+    )
+    .replace(
+      /三年内|两年内|一年内/g,
+      stage ===
+        "luck"
+        ? "此运过程中"
+        : stage ===
+            "year"
+          ? "本年过程中"
+          : "本月过程中",
     )
     .replace(
       /隔天再回应|第二天再回应/g,

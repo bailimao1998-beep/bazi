@@ -9,7 +9,10 @@ import {
   renderStageReport,
   validateStageReportContract,
 } from "../core/ai/stageReportContract.js";
-import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260613b";
+import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260624e";
+import {
+  generateStageRawWithTransportRetry,
+} from "../core/ai/stageAiTransportRetry.js?v=20260624a";
 import {
   guardNatalAiContent,
 } from "../core/ai/natalAiContentGuard.js";
@@ -391,16 +394,102 @@ async function requestStageAiNarrativeWithRetry({
     [];
 
   for (
-    let attempt = 0;
-    attempt < 2;
-    attempt += 1
+    let validationAttempt = 0;
+    validationAttempt < 2;
+    validationAttempt += 1
   ) {
+    let transportOutcome;
+
+    try {
+      transportOutcome =
+        await generateStageRawWithTransportRetry({
+          settings,
+
+          prompt:
+            currentPrompt,
+
+          stage,
+
+          generate:
+            generateWithDeepSeek,
+        });
+    } catch (error) {
+      const transportAttempts =
+        Array.isArray(
+          error?.attempts,
+        )
+          ? error.attempts
+          : [];
+
+      attempts.push(
+        ...transportAttempts.map(
+          (item) => ({
+            ...item,
+            validationAttempt:
+              validationAttempt + 1,
+            kind:
+              "transport",
+          }),
+        ),
+      );
+
+      globalThis
+        .__lastStageAiDebug = {
+          stage,
+          trustedPack:
+            prompt
+              ?.trustedPack ??
+            null,
+          verifiedFactPack:
+            prompt
+              ?.verifiedFactPack ??
+            null,
+          attempts,
+          rawResponse:
+            lastRawResult
+              ?.text ??
+            "",
+          structuredReport:
+            lastNormalized
+              ?.report ??
+            null,
+          renderedReport:
+            "",
+          validation:
+            lastValidation,
+          transportError: {
+            code:
+              error?.code ??
+              "",
+            message:
+              error?.message ??
+              "",
+            meta:
+              error?.meta ??
+              null,
+          },
+        };
+
+      throw error;
+    }
+
+    attempts.push(
+      ...transportOutcome
+        .attempts
+        .map(
+          (item) => ({
+            ...item,
+            validationAttempt:
+              validationAttempt + 1,
+            kind:
+              "transport",
+          }),
+        ),
+    );
+
     const rawResult =
-      await generateWithDeepSeek({
-        settings,
-        prompt:
-          currentPrompt,
-      });
+      transportOutcome
+        .result;
 
     const normalized =
       normalizeStageReportResponse({
@@ -431,7 +520,9 @@ async function requestStageAiNarrativeWithRetry({
 
     attempts.push({
       attempt:
-        attempt + 1,
+        validationAttempt + 1,
+      kind:
+        "validation",
       finishReason:
         rawResult
           .finishReason,
@@ -445,6 +536,13 @@ async function requestStageAiNarrativeWithRetry({
         renderedText
           .length,
       validation,
+      providerModel:
+        rawResult
+          .model ??
+        "",
+      transportRetried:
+        transportOutcome
+          .retried,
     });
 
     lastRawResult =
@@ -479,6 +577,13 @@ async function requestStageAiNarrativeWithRetry({
           renderedReport:
             renderedText,
           validation,
+          providerModel:
+            rawResult
+              .model ??
+            "",
+          transportRetried:
+            transportOutcome
+              .retried,
         };
 
       return {
@@ -492,12 +597,15 @@ async function requestStageAiNarrativeWithRetry({
         validation,
         attempts,
         retried:
-          attempt > 0,
+          validationAttempt >
+            0 ||
+          transportOutcome
+            .retried,
       };
     }
 
     if (
-      attempt ===
+      validationAttempt ===
       0
     ) {
       currentPrompt =
@@ -549,6 +657,10 @@ async function requestStageAiNarrativeWithRetry({
             lastValidation,
           displayedWithWarnings:
             true,
+          providerModel:
+            lastRawResult
+              ?.model ??
+            "",
         };
 
       return {
@@ -624,6 +736,10 @@ async function requestStageAiNarrativeWithRetry({
           fallbackValidation,
         displayedRawFallback:
           true,
+        providerModel:
+          lastRawResult
+            ?.model ??
+          "",
       };
 
     return {

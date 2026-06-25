@@ -340,6 +340,12 @@ export function buildStageVerifiedFactPack(
           fact,
         );
 
+      const temporalMeta =
+        inferFactTemporalMeta(
+          fact,
+          stage,
+        );
+
       fact.meta = {
         ...(
           fact?.meta &&
@@ -349,6 +355,7 @@ export function buildStageVerifiedFactPack(
             : {}
         ),
         domains,
+        ...temporalMeta,
       };
     },
   );
@@ -356,6 +363,12 @@ export function buildStageVerifiedFactPack(
   const domainFactCards =
     buildDomainFactCards(
       facts,
+      stage,
+    );
+
+  const stageLandscape =
+    buildStageLandscape(
+      domainFactCards,
       stage,
     );
 
@@ -409,6 +422,8 @@ export function buildStageVerifiedFactPack(
     domainEvidenceOverview,
 
     domainFactCards,
+
+    stageLandscape,
 
     factIds:
       facts
@@ -472,6 +487,12 @@ export function buildStageStructuredPromptSource(
       array(
         verifiedFactPack
           ?.domainEvidenceOverview,
+      ),
+
+    阶段显像排序:
+      array(
+        verifiedFactPack
+          ?.stageLandscape,
       ),
 
     领域事实卡:
@@ -1977,6 +1998,89 @@ function inferFactDomains(
   );
 }
 
+function inferFactTemporalMeta(
+  fact,
+  stage,
+) {
+  const value =
+    text(
+      fact?.text,
+    );
+
+  const sourceRef =
+    text(
+      fact?.sourceRef,
+    );
+
+  const layerMentions =
+    [];
+
+  [
+    [
+      "luck",
+      "大运",
+    ],
+    [
+      "year",
+      "流年",
+    ],
+    [
+      "month",
+      "流月",
+    ],
+  ].forEach(
+    (
+      [
+        key,
+        label,
+      ],
+    ) => {
+      if (
+        value.includes(
+          label,
+        ) ||
+        sourceRef.startsWith(
+          `${key}:`,
+        )
+      ) {
+        layerMentions.push(
+          key,
+        );
+      }
+    },
+  );
+
+  const currentLayer =
+    stage ===
+      "month"
+      ? "month"
+      : stage ===
+          "year"
+        ? "year"
+        : "luck";
+
+  const temporalRole =
+    layerMentions.includes(
+      currentLayer,
+    )
+      ? "current"
+      : fact?.evidenceEligible
+        ? "background"
+        : "context";
+
+  return {
+    currentLayer,
+    layerMentions:
+      unique(
+        layerMentions,
+      ),
+    temporalRole,
+    isCurrentStageEvidence:
+      temporalRole ===
+      "current",
+  };
+}
+
 function buildDomainFactCards(
   facts,
   stage,
@@ -2004,14 +2108,25 @@ function buildDomainFactCards(
               ),
           );
 
-        if (
-          matchedFacts.length ===
-            0
-        ) {
-          return null;
-        }
+        const currentFacts =
+          matchedFacts.filter(
+            (fact) =>
+              fact
+                ?.meta
+                ?.temporalRole ===
+              "current",
+          );
 
-        const independentSources =
+        const backgroundFacts =
+          matchedFacts.filter(
+            (fact) =>
+              fact
+                ?.meta
+                ?.temporalRole !==
+              "current",
+          );
+
+        const allSources =
           unique(
             matchedFacts.map(
               (fact) =>
@@ -2022,24 +2137,62 @@ function buildDomainFactCards(
             ),
           );
 
-        const strength =
-          independentSources.length >=
-            3
-            ? "主线候选"
-            : independentSources.length >=
-                2
-              ? "次线候选"
-              : "辅助线索";
+        const currentSources =
+          unique(
+            currentFacts.map(
+              (fact) =>
+                text(
+                  fact?.sourceRef,
+                ) ||
+                fact.id,
+            ),
+          );
+
+        const backgroundSources =
+          unique(
+            backgroundFacts.map(
+              (fact) =>
+                text(
+                  fact?.sourceRef,
+                ) ||
+                fact.id,
+            ),
+          );
+
+        const visibility =
+          stageDomainVisibility({
+            stage,
+            currentCount:
+              currentSources.length,
+            totalCount:
+              allSources.length,
+          });
 
         return {
           领域编号:
             definition.id,
           领域:
             definition.label,
-          证据等级:
-            strength,
+          阶段显像:
+            visibility.label,
+          主题资格:
+            visibility.qualification,
+          当前层独立证据数:
+            currentSources.length,
+          背景独立证据数:
+            backgroundSources.length,
           独立证据数:
-            independentSources.length,
+            allSources.length,
+          当前层依据编号:
+            currentFacts.map(
+              (fact) =>
+                fact.id,
+            ),
+          背景依据编号:
+            backgroundFacts.map(
+              (fact) =>
+                fact.id,
+            ),
           依据编号:
             matchedFacts.map(
               (fact) =>
@@ -2052,29 +2205,202 @@ function buildDomainFactCards(
           阶段说明:
             stage ===
               "luck"
-              ? "可作为长期主题展开"
+              ? "先全面扫描十年领域，再把证据最强的领域展开为长期主线；其他领域只作概览。"
               : stage ===
                   "year"
-                ? "只说明本年新增或强化部分"
-                : "只说明本月短期触发",
+                ? "只有包含流年新增事实的领域才能成为本年主要显像；大运事实只能作背景。"
+                : "只有包含流月新增事实的领域才能成为本月触发；大运和流年事实只能解释背景。",
         };
       },
     )
-    .filter(Boolean)
     .sort(
       (left, right) =>
-        Number(
-          right
-            .独立证据数 ||
-          0,
-        ) -
-        Number(
-          left
-            .独立证据数 ||
-          0,
+        (
+          Number(
+            right
+              .当前层独立证据数 ||
+            0,
+          ) -
+          Number(
+            left
+              .当前层独立证据数 ||
+            0,
+          )
+        ) ||
+        (
+          Number(
+            right
+              .独立证据数 ||
+            0,
+          ) -
+          Number(
+            left
+              .独立证据数 ||
+            0,
+          )
         ),
     );
 }
+
+function buildStageLandscape(
+  domainFactCards,
+  stage,
+) {
+  return array(
+    domainFactCards,
+  ).map(
+    (card) => ({
+      领域编号:
+        card.领域编号,
+      领域:
+        card.领域,
+      阶段显像:
+        card.阶段显像,
+      主题资格:
+        card.主题资格,
+      当前层独立证据数:
+        card.当前层独立证据数,
+      背景独立证据数:
+        card.背景独立证据数,
+      说明:
+        stage ===
+          "luck"
+          ? card.主题资格 ===
+              "突出领域候选"
+            ? "可在十年突出领域中展开"
+            : card.独立证据数 >
+                0
+              ? "放入十年其他领域概览"
+              : "当前事实不足，不作为十年重点"
+          : stage ===
+              "year"
+            ? card.主题资格 ===
+                "年度主要显像候选"
+              ? "可作为本年主要显像"
+              : card.当前层独立证据数 >
+                  0
+                ? "只列为本年次级可能"
+                : "只是大运背景，本年不重复展开"
+            : card.主题资格 ===
+                "月度主要触发候选"
+              ? "可作为本月主要触发"
+              : card.当前层独立证据数 >
+                  0
+                ? "只列为本月次级提醒"
+                : "本月没有新增触发，不重复上层内容",
+    }),
+  );
+}
+
+function stageDomainVisibility({
+  stage,
+  currentCount,
+  totalCount,
+} = {}) {
+  if (
+    stage ===
+    "luck"
+  ) {
+    if (
+      totalCount >=
+      3
+    ) {
+      return {
+        label:
+          "十年突出",
+        qualification:
+          "突出领域候选",
+      };
+    }
+
+    if (
+      totalCount >
+      0
+    ) {
+      return {
+        label:
+          "十年辅助",
+        qualification:
+          "其他领域概览",
+      };
+    }
+
+    return {
+      label:
+        "证据不足",
+      qualification:
+        "不展开",
+    };
+  }
+
+  if (
+    stage ===
+    "year"
+  ) {
+    if (
+      currentCount >=
+      2
+    ) {
+      return {
+        label:
+          "本年强显像",
+        qualification:
+          "年度主要显像候选",
+      };
+    }
+
+    if (
+      currentCount ===
+      1
+    ) {
+      return {
+        label:
+          "本年条件显像",
+        qualification:
+          "年度次级可能",
+      };
+    }
+
+    return {
+      label:
+        "仅背景延续",
+      qualification:
+        "不作为年度主题",
+    };
+  }
+
+  if (
+    currentCount >=
+    2
+  ) {
+    return {
+      label:
+        "本月主要触发",
+      qualification:
+        "月度主要触发候选",
+    };
+  }
+
+  if (
+    currentCount ===
+    1
+  ) {
+    return {
+      label:
+        "本月弱触发",
+      qualification:
+        "月度次级提醒",
+    };
+  }
+
+  return {
+    label:
+      "本月未触发",
+    qualification:
+      "不作为月度主题",
+  };
+}
+
 
 function addComparisonFacts(
   collector,

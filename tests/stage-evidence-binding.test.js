@@ -300,10 +300,10 @@ test(
       });
 
     assert.ok(
-      validation.errors.some(
-        (error) =>
-          error.includes(
-            "unsupported_negative_relation",
+      validation.warnings.some(
+        (warning) =>
+          warning.includes(
+            "top_level_removed:unsupported_negative_relation",
           ),
       ),
     );

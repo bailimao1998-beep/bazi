@@ -113,86 +113,23 @@ export function getStageAiOutputContract(stage = "luck") {
     };
   }
 
-  if (normalizedStage === "year") {
-    return {
-      stage: "year",
-      overallJudgment: "年度总断；说明大运背景下今年哪里有动静，不写死具体结果",
-      luckOverlay: {
-        alignment: "same | supportive | conflicting | mixed",
-        title: "叠加大运",
-        summary: "流年五行与大运同向、相生、相克或混合",
-        evidenceIds: ["可引用大运与流年层事实"],
-        ruleIds: ["可引用匹配规则"],
-        keyPoints: ["0至3条"],
-      },
-      natalInteraction: {
-        title: "冲合原局",
-        summary: "流年干支冲合原局哪些柱，以及触发的结构轮廓",
-        evidenceIds: ["可引用冲合刑害破事实"],
-        ruleIds: ["可引用匹配规则"],
-        keyPoints: ["0至4条"],
-      },
-      tenGodActivation: {
-        title: "十神引动",
-        summary: "流年天干对日主是什么十神，年度外显主题是什么",
-        evidenceIds: ["至少引用流年十神事实"],
-        ruleIds: ["可引用匹配规则"],
-        keyPoints: ["0至3条"],
-      },
-      forceAssessment: {
-        verdict: "strong_favorable | favorable_with_pressure | pressure_with_opportunity | strong_pressure | mixed",
-        label: "string",
-        summary: "综合大运基调和流年触发判断年度力度",
-        evidenceIds: ["可综合引用"],
-        ruleIds: ["可综合引用"],
-        basis: ["0至4条"],
-      },
-      eventOutline: {
-        summary: "只说哪些领域有动静和事件轮廓，不断具体结果",
-        domains: ["0至4个领域"],
-        evidenceIds: ["可为空"],
-        ruleIds: ["可为空"],
-        positive: ["0至3条"],
-        risks: ["0至3条"],
-        advice: ["0至3条"],
-      },
-      selectedImages: [],
-      finalAdvice: ["0至5条"],
-      verificationQuestions: ["0至5条"],
-    };
-  }
-
   return {
-    stage: "month",
-    overallJudgment: "流月主线；只讲本月节奏，不写具体结果",
-    threeLayerOverlay: {
-      title: "三层叠加",
-      summary: "大运底色、流年气场与流月五行如何叠加",
-      evidenceIds: ["可引用大运、流年、流月事实"],
-      ruleIds: ["可引用匹配规则"],
-      keyPoints: ["0至4条"],
-    },
-    rhythmAssessment: {
-      mode: "advance | wait | close | adjust | mixed",
-      label: "推进 | 等待 | 收尾整理 | 调整节奏 | 边走边看",
-      summary: "说明为什么形成这个节奏",
-      evidenceIds: ["可为空"],
-      ruleIds: ["可为空"],
-    },
-    localTrigger: {
-      title: "小触发点",
-      summary: "流月冲合原局哪一柱，只说局部触发方向",
-      evidenceIds: ["可引用流月直接事实"],
-      ruleIds: ["可引用匹配规则"],
-      keyPoints: ["0至3条"],
-    },
-    actionAdvice: {
-      do: ["本月适合做什么"],
-      avoid: ["本月不宜做什么"],
-      pace: ["节奏如何拿"],
-    },
-    rhythmSummary: "只总结本月节奏感与适合往哪里使力",
-    selectedImages: [],
+    stage: normalizedStage,
+    overallJudgment: "string",
+    selectedImages: [
+      {
+        title: "string",
+        evidenceIds: ["必须来自rawFactPack.facts"],
+        ruleIds: ["必须来自candidatePack.candidateImages.ruleId"],
+        analysis: "string",
+        positive: ["至少一条"],
+        risks: ["至少一条"],
+        advice: ["至少一条"],
+        confidence: "strong | medium | weak",
+      },
+    ],
+    finalAdvice: ["string"],
+    verificationQuestions: ["string"],
   };
 }
 
@@ -237,12 +174,11 @@ export function validateStageAiReport({
     }
 
     validateLuckCore(normalized, refs, fatalIssues, warnings);
-  } else if (normalizedStage === "year") {
-    if (normalized.overallJudgment.length < 16) warnings.push("年度总断较短，报告仍照常展示");
-    validateYearFlowReport(normalized, refs, warnings);
   } else {
-    if (normalized.overallJudgment.length < 12) warnings.push("流月主线较短，报告仍照常展示");
-    validateMonthFlowReport(normalized, refs, warnings);
+    if (normalized.overallJudgment.length < (normalizedStage === "month" ? 20 : 25)) {
+      fatalIssues.push("总断过短，没有形成完整主线");
+    }
+    validateSelectedImagesReport(normalized, normalizedStage, refs, fatalIssues);
   }
 
   const visibleText = collectVisibleText(normalized);
@@ -327,47 +263,29 @@ export function renderStageAiReportMarkdown(report, stage = "luck") {
 
   if (normalizedStage === "year") {
     return [
-      "### 年度总断｜流年：事件触发层",
+      "### 年度总断",
       value.overallJudgment,
       "",
-      renderFlowSection("① 叠加大运", value.luckOverlay),
+      "### 今年明显取象",
+      renderImages(value.selectedImages),
       "",
-      renderFlowSection("② 冲合原局", value.natalInteraction),
-      "",
-      renderFlowSection("③ 十神引动", value.tenGodActivation),
-      "",
-      "### ④ 力度评价",
-      `**${value.forceAssessment.label || value.forceAssessment.verdict}**`,
-      value.forceAssessment.summary,
-      ...value.forceAssessment.basis.map((item) => `- ${item}`),
-      "",
-      "### 事件轮廓",
-      value.eventOutline.summary,
-      ...value.eventOutline.advice.map((item) => `- ${item}`),
-      "",
-      "### 本年建议",
+      "### 年度建议",
       ...value.finalAdvice.map((item) => `- ${item}`),
+      "",
+      "### 现实验证点",
+      ...value.verificationQuestions.map((item) => `- ${item}`),
     ].join("\n").trim();
   }
 
   return [
-    "### 流月主线｜流月：节奏细化层",
+    "### 流月主线",
     value.overallJudgment,
     "",
-    renderFlowSection("① 三层叠加", value.threeLayerOverlay),
+    "### 本月明显取象",
+    renderImages(value.selectedImages),
     "",
-    "### ② 节奏判断",
-    `**${value.rhythmAssessment.label || value.rhythmAssessment.mode}**`,
-    value.rhythmAssessment.summary,
-    "",
-    renderFlowSection("③ 小触发点", value.localTrigger),
-    "",
-    "### ④ 行动建议",
-    ...value.actionAdvice.do.map((item) => `- 适合做：${item}`),
-    ...value.actionAdvice.avoid.map((item) => `- 不宜做：${item}`),
-    ...value.actionAdvice.pace.map((item) => `- 节奏拿法：${item}`),
-    "",
-    value.rhythmSummary,
+    "### 本月建议",
+    ...value.finalAdvice.map((item) => `- ${item}`),
   ].join("\n").trim();
 }
 
@@ -670,121 +588,13 @@ function normalizeReport(value, stage) {
   const report = value && typeof value === "object" && !Array.isArray(value) ? value : {};
   if (stage === "luck") return normalizeLuckReport(report);
 
-  if (stage === "year") return normalizeYearFlowReport(report);
-  return normalizeMonthFlowReport(report);
-}
-
-
-function normalizeYearFlowReport(report) {
-  const legacyImages = array(report?.selectedImages).map(normalizeImage);
-  const luckOverlay = normalizeFlowStep(report?.luckOverlay, "叠加大运");
-  const natalInteraction = normalizeFlowStep(report?.natalInteraction, "冲合原局");
-  const tenGodActivation = normalizeFlowStep(report?.tenGodActivation, "十神引动");
-  if (!luckOverlay.summary && legacyImages[0]?.analysis) luckOverlay.summary = legacyImages[0].analysis;
-  if (!natalInteraction.summary && legacyImages[1]?.analysis) natalInteraction.summary = legacyImages[1].analysis;
-  if (!tenGodActivation.summary && legacyImages[2]?.analysis) tenGodActivation.summary = legacyImages[2].analysis;
   return {
-    stage: text(report?.stage || "year"),
+    stage: text(report?.stage || stage),
     overallJudgment: text(report?.overallJudgment),
-    luckOverlay,
-    natalInteraction,
-    tenGodActivation,
-    forceAssessment: {
-      verdict: text(report?.forceAssessment?.verdict || "mixed"),
-      label: text(report?.forceAssessment?.label),
-      summary: text(report?.forceAssessment?.summary),
-      evidenceIds: unique(array(report?.forceAssessment?.evidenceIds)),
-      ruleIds: unique(array(report?.forceAssessment?.ruleIds)),
-      basis: unique(array(report?.forceAssessment?.basis)).slice(0, 4),
-    },
-    eventOutline: {
-      summary: text(report?.eventOutline?.summary),
-      domains: unique(array(report?.eventOutline?.domains)).slice(0, 4),
-      evidenceIds: unique(array(report?.eventOutline?.evidenceIds)),
-      ruleIds: unique(array(report?.eventOutline?.ruleIds)),
-      positive: unique(array(report?.eventOutline?.positive)).slice(0, 3),
-      risks: unique(array(report?.eventOutline?.risks)).slice(0, 3),
-      advice: unique(array(report?.eventOutline?.advice)).slice(0, 3),
-    },
-    selectedImages: legacyImages,
-    finalAdvice: unique(array(report?.finalAdvice)).slice(0, 5),
-    verificationQuestions: unique(array(report?.verificationQuestions)).slice(0, 5),
+    selectedImages: array(report?.selectedImages).map(normalizeImage),
+    finalAdvice: unique(array(report?.finalAdvice)).slice(0, 8),
+    verificationQuestions: unique(array(report?.verificationQuestions)).slice(0, 6),
   };
-}
-
-function normalizeMonthFlowReport(report) {
-  const legacyImages = array(report?.selectedImages).map(normalizeImage);
-  const threeLayerOverlay = normalizeFlowStep(report?.threeLayerOverlay, "三层叠加");
-  const localTrigger = normalizeFlowStep(report?.localTrigger, "小触发点");
-  if (!threeLayerOverlay.summary && legacyImages[0]?.analysis) threeLayerOverlay.summary = legacyImages[0].analysis;
-  if (!localTrigger.summary && legacyImages[1]?.analysis) localTrigger.summary = legacyImages[1].analysis;
-  return {
-    stage: text(report?.stage || "month"),
-    overallJudgment: text(report?.overallJudgment),
-    threeLayerOverlay,
-    rhythmAssessment: {
-      mode: text(report?.rhythmAssessment?.mode || "mixed"),
-      label: text(report?.rhythmAssessment?.label),
-      summary: text(report?.rhythmAssessment?.summary),
-      evidenceIds: unique(array(report?.rhythmAssessment?.evidenceIds)),
-      ruleIds: unique(array(report?.rhythmAssessment?.ruleIds)),
-    },
-    localTrigger,
-    actionAdvice: {
-      do: unique(array(report?.actionAdvice?.do)).slice(0, 4),
-      avoid: unique(array(report?.actionAdvice?.avoid)).slice(0, 4),
-      pace: unique(array(report?.actionAdvice?.pace)).slice(0, 4),
-    },
-    rhythmSummary: text(report?.rhythmSummary),
-    selectedImages: legacyImages,
-  };
-}
-
-function normalizeFlowStep(value, defaultTitle) {
-  const entry = value && typeof value === "object" ? value : {};
-  return {
-    title: text(entry?.title || defaultTitle),
-    alignment: text(entry?.alignment),
-    summary: text(entry?.summary),
-    evidenceIds: unique(array(entry?.evidenceIds)),
-    ruleIds: unique(array(entry?.ruleIds)),
-    keyPoints: unique(array(entry?.keyPoints)).slice(0, 4),
-  };
-}
-
-function validateYearFlowReport(report, refs, warnings) {
-  [
-    [report.luckOverlay, "叠加大运"],
-    [report.natalInteraction, "冲合原局"],
-    [report.tenGodActivation, "十神引动"],
-    [report.forceAssessment, "力度评价"],
-  ].forEach(([entry, label]) => {
-    if (!entry?.summary) warnings.push(`${label}内容缺失，报告仍照常展示`);
-    validateReferences(entry, label, refs, warnings, { required: false });
-  });
-  if (!report.eventOutline?.summary) warnings.push("事件轮廓缺失，报告仍照常展示");
-}
-
-function validateMonthFlowReport(report, refs, warnings) {
-  [
-    [report.threeLayerOverlay, "三层叠加"],
-    [report.rhythmAssessment, "节奏判断"],
-    [report.localTrigger, "小触发点"],
-  ].forEach(([entry, label]) => {
-    if (!entry?.summary) warnings.push(`${label}内容缺失，报告仍照常展示`);
-    validateReferences(entry, label, refs, warnings, { required: false });
-  });
-  if (!report.actionAdvice.do.length && !report.actionAdvice.avoid.length && !report.actionAdvice.pace.length) {
-    warnings.push("流月行动建议为空，报告仍照常展示");
-  }
-}
-
-function renderFlowSection(title, section) {
-  return [
-    `### ${title}`,
-    section.summary,
-    ...section.keyPoints.map((item) => `- ${item}`),
-  ].filter(Boolean).join("\n");
 }
 
 function normalizeLuckReport(report) {

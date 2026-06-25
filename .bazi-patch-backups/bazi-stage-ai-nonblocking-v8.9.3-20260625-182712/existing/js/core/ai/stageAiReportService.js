@@ -14,94 +14,110 @@ export async function generateStageAiReport({
     throw new TypeError("generateStageAiReport requires a generate function.");
   }
 
+  if (prompt?.preflight?.usable === false) {
+    return {
+      text: renderPreflightFailure(prompt, stage),
+      structured: null,
+      fallbackUsed: true,
+      attempts: [],
+      result: null,
+      warning: `岁运硬事实或规则资格校验未通过：${array(prompt?.preflight?.errors).join("；")}`,
+      warnings: array(prompt?.preflight?.warnings),
+      preflightBlocked: true,
+    };
+  }
+
   const attempts = [];
-  const preflightWarnings = [
-    ...array(prompt?.preflight?.errors).map((item) => `前置校验：${item}`),
-    ...array(prompt?.preflight?.warnings),
-  ];
+  let lastError = null;
+  let previousIssues = [];
+  let lastValidation = null;
+  let lastParsed = null;
 
-  let result;
-  try {
-    result = await generate({ settings, prompt });
-  } catch (error) {
-    attempts.push({
-      attempt: 1,
-      error: error?.message || "unknown_error",
-      usable: false,
-    });
-    throw error;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const result = await generate({
+        settings,
+        prompt: attempt === 0 ? prompt : buildRetryPrompt(prompt, previousIssues, stage),
+      });
+      const rawText = String(result?.text || "").trim();
+      const parsed = parseStageAiReport(rawText);
+      const validation = validateStageAiReport({
+        report: parsed,
+        stage,
+        rawFactPack: prompt?.rawFactPack,
+        candidatePack: prompt?.candidatePack,
+      });
+
+      lastParsed = parsed;
+      lastValidation = validation;
+
+      attempts.push({
+        attempt: attempt + 1,
+        finishReason: result?.finishReason ?? null,
+        textLength: rawText.length,
+        usable: validation.usable,
+        issues: validation.issues,
+        warnings: validation.warnings,
+      });
+
+      if (validation.usable) {
+        return {
+          text: renderStageAiReportMarkdown(validation.structured, stage),
+          structured: validation.structured,
+          fallbackUsed: false,
+          attempts,
+          result,
+          validation,
+          warnings: validation.warnings || [],
+        };
+      }
+
+      previousIssues = validation.issues;
+      lastError = new Error(`AI阶段报告未通过证据契约：${validation.issues.join("；")}`);
+    } catch (error) {
+      lastError = error;
+      previousIssues = [error?.message || "结构化报告解析失败"];
+      attempts.push({
+        attempt: attempt + 1,
+        error: error?.message || "unknown_error",
+        usable: false,
+      });
+      if (isFatalConfigurationError(error)) break;
+    }
   }
 
-  const rawText = String(result?.text || "").trim();
-  attempts.push({
-    attempt: 1,
-    finishReason: result?.finishReason ?? null,
-    textLength: rawText.length,
-    usable: null,
-  });
-
-  if (!rawText) {
-    throw new Error("AI未返回任何内容。");
-  }
-
-  try {
-    const parsed = parseStageAiReport(rawText);
-    const validation = validateStageAiReport({
-      report: parsed,
-      stage,
-      rawFactPack: prompt?.rawFactPack,
-      candidatePack: prompt?.candidatePack,
-    });
-    const structured = validation?.structured || parsed;
-    const warnings = uniqueText([
-      ...preflightWarnings,
-      ...array(validation?.warnings),
-      ...array(validation?.issues),
-    ]);
-
-    attempts[0] = {
-      ...attempts[0],
-      usable: validation?.usable !== false,
-      issues: array(validation?.issues),
-      warnings: array(validation?.warnings),
-    };
-
+  if (stage === "luck" && prompt?.rawFactPack?.validation?.usable !== false) {
+    const safeStructured = lastValidation?.structured || buildLuckFlowSkeleton(prompt?.rawFactPack);
     return {
-      text: renderStageAiReportMarkdown(structured, stage),
-      structured,
-      fallbackUsed: validation?.usable === false,
+      text: renderStageAiReportMarkdown(safeStructured, "luck"),
+      structured: safeStructured,
+      fallbackUsed: true,
       attempts,
-      result,
-      validation,
-      warnings,
-      warning: "",
-      advisoryOnly: true,
+      result: null,
+      warning: "AI部分内容未通过强证据校验，系统已保留大运九步流程，并将缺证据栏目降级为保守表述。",
+      warnings: [
+        ...(lastValidation?.warnings || []),
+        ...(lastValidation?.issues || previousIssues),
+      ],
+      validation: lastValidation,
+      rawParsed: lastParsed,
     };
-  } catch (error) {
-    const warnings = uniqueText([
-      ...preflightWarnings,
-      `结构化解析提醒：${error?.message || "无法解析JSON"}`,
-    ]);
-    attempts[0] = {
-      ...attempts[0],
-      usable: false,
-      error: error?.message || "structured_parse_failed",
-    };
+  }
 
-    // 即使不是有效JSON，也照常展示模型原文；校验只做诊断，不再吞掉结果。
+  const fallbackText = renderFactOnlyFallback(prompt?.rawFactPack, stage);
+  if (fallbackText) {
     return {
-      text: rawText,
+      text: fallbackText,
       structured: null,
       fallbackUsed: true,
       attempts,
-      result,
-      validation: null,
-      warnings,
-      warning: "",
-      advisoryOnly: true,
-      rawResponseUsed: true,
+      result: null,
+      warning: lastError?.message || "AI报告未返回，已仅展示基础事实。",
+      warnings: previousIssues,
     };
   }
+
+  throw lastError || new Error("阶段AI报告生成失败。");
 }
 
 function buildRetryPrompt(prompt, issues = [], stage = "luck") {
@@ -256,8 +272,4 @@ function isFatalConfigurationError(error) {
 
 function array(value) {
   return Array.isArray(value) ? value : value === undefined || value === null ? [] : [value];
-}
-
-function uniqueText(values) {
-  return [...new Set(array(values).map((item) => String(item || "").trim()).filter(Boolean))];
 }

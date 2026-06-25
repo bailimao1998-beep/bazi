@@ -1339,6 +1339,21 @@ function compactRule(
         rule.scopes,
       ),
 
+    genderScope:
+      array(
+        rule.genderScope ?? rule.genders,
+      ),
+
+    ageScope:
+      rule.ageScope ?? null,
+
+    trigger:
+      compactValue(
+        rule.trigger,
+        0,
+        3,
+      ),
+
     priority:
       rule.priority,
 

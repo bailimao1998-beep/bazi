@@ -129,16 +129,12 @@ export function renderAiCollapse({
         : renderAiText(state.text);
 
   return `
-    <details class="ai-collapse-card stage-ai-result-details stage-ai-result-${escapeHtml(stage)}" open>
-      <summary class="stage-ai-result-summary">
-        <span>
-          <strong>${escapeHtml(aiResultTitle(title))}</strong>
-          <small>点击标题可展开或收起完整分析</small>
-        </span>
-        <b>展开 / 收起</b>
-      </summary>
+    <div class="ai-collapse-card ai-collapse-expanded">
+      <div class="ai-collapse-expanded-head">
+        <span>${escapeHtml(aiResultTitle(title))}</span>
+      </div>
       <div class="ai-collapse-body">
-        <div class="ai-collapse-toolbar stage-ai-result-toolbar">
+        <div class="ai-collapse-toolbar">
           <span class="ai-collapse-status">
             <b>${escapeHtml(statusLabel)}</b>
             <small>${escapeHtml(helperText)}</small>
@@ -152,7 +148,7 @@ export function renderAiCollapse({
         ${renderAiWarnings(state.warnings)}
         <div class="ai-collapse-output">${output}</div>
       </div>
-    </details>
+    </div>
   `;
 }
 

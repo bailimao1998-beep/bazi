@@ -66,7 +66,7 @@ export function buildStageRawFactPack({
   const structureFacts = array(item?.transitStructure?.facts)
     .map(compactStructureFact)
     .map(canonicalizeStructureFact)
-    .filter((fact) => fact.id && fact.relation && fact.hardFact !== false);
+    .filter((fact) => fact.id && fact.relation);
 
   const tenGodFacts = [
     createTenGodFact(current, "stem"),

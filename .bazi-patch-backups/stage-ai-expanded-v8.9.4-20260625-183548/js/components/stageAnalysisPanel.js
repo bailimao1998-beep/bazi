@@ -1,6 +1,5 @@
 import { renderAiText } from "./aiTextRenderer.js";
 import { renderLuckFlowReport } from "./luckFlowRenderer.js";
-import { renderMonthFlowReport, renderYearFlowReport } from "./yearMonthFlowRenderer.js";
 import { buildStageAdvice as buildStageAdviceResult } from "../core/advice/stageAdviceEngine.js";
 import {
   buildLuckEvidencePack,
@@ -95,12 +94,10 @@ export function renderAiCollapse({
     ? "正在生成 AI 分析..."
     : (helper || "基础数据与结构事实由前端确定，AI只能从规则库候选象中选择和分析。");
   const statusLabel = state.loading ? "生成中" : hasReport ? "AI 辅助" : "等待排盘";
-  const hasStructured = state.structured
+  const structuredLuck = stage === "luck"
+    && state.structured
     && typeof state.structured === "object";
-  const structuredLuck = stage === "luck" && hasStructured;
-  const structuredYear = stage === "year" && hasStructured;
-  const structuredMonth = stage === "month" && hasStructured;
-  const hasOutput = Boolean(state.text || hasStructured);
+  const hasOutput = Boolean(state.text || structuredLuck);
 
   if (!hasOutput) {
     return `
@@ -122,23 +119,16 @@ export function renderAiCollapse({
 
   const output = structuredLuck
     ? renderLuckFlowReport(state.structured)
-    : structuredYear
-      ? renderYearFlowReport(state.structured)
-      : structuredMonth
-        ? renderMonthFlowReport(state.structured)
-        : renderAiText(state.text);
+    : renderAiText(state.text);
 
   return `
-    <details class="ai-collapse-card stage-ai-result-details stage-ai-result-${escapeHtml(stage)}" open>
-      <summary class="stage-ai-result-summary">
-        <span>
-          <strong>${escapeHtml(aiResultTitle(title))}</strong>
-          <small>点击标题可展开或收起完整分析</small>
-        </span>
-        <b>展开 / 收起</b>
+    <details class="ai-collapse-card" open>
+      <summary>
+        <span>${escapeHtml(aiResultTitle(title))}</span>
+        <b class="ai-collapse-summary-action">展开 / 收起</b>
       </summary>
       <div class="ai-collapse-body">
-        <div class="ai-collapse-toolbar stage-ai-result-toolbar">
+        <div class="ai-collapse-toolbar">
           <span class="ai-collapse-status">
             <b>${escapeHtml(statusLabel)}</b>
             <small>${escapeHtml(helperText)}</small>

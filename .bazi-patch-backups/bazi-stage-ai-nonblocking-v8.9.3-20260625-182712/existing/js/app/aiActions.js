@@ -194,7 +194,7 @@ async function generateLuckAiNarrative() {
       store.luckAiState = {
         loading: false,
         text: outcome.text,
-        error: "",
+        error: outcome.preflightBlocked ? (outcome.warning || "") : "",
         structured: outcome.structured ?? null,
         warnings: outcome.warnings || [],
       };
@@ -212,7 +212,7 @@ async function generateLuckAiNarrative() {
   async function generateYearAiNarrative() {
     const generationId = ++store.yearAiGenerationId;
     const targetYear = store.state?.yearImageReport?.yearItem?.year;
-    store.yearAiState = { loading: true, text: "", error: "", warnings: [] };
+    store.yearAiState = { loading: true, text: "", error: "" };
     renderBaseOnly();
     try {
       const settings = readAiSettings({ includeSecret: true });
@@ -236,7 +236,7 @@ async function generateLuckAiNarrative() {
         rawFactPack: prompt.rawFactPack,
         candidatePack: prompt.candidatePack,
       };
-      store.yearAiState = { loading: false, text: outcome.text, error: "", structured: outcome.structured ?? null, warnings: outcome.warnings || [] };
+      store.yearAiState = { loading: false, text: outcome.text, error: "" };
     } catch (error) {
       if (generationId !== store.yearAiGenerationId || targetYear !== store.state?.yearImageReport?.yearItem?.year) return;
       store.yearAiState = { loading: false, text: "", error: error.message };
@@ -254,7 +254,7 @@ async function generateLuckAiNarrative() {
   }
 
   async function generateMonthAiNarrative() {
-    store.monthAiState = { loading: true, text: "", error: "", warnings: [] };
+    store.monthAiState = { loading: true, text: "", error: "" };
     renderBaseOnly();
     try {
       const settings = readAiSettings({ includeSecret: true });
@@ -278,7 +278,7 @@ async function generateLuckAiNarrative() {
         rawFactPack: prompt.rawFactPack,
         candidatePack: prompt.candidatePack,
       };
-      store.monthAiState = { loading: false, text: outcome.text, error: "", structured: outcome.structured ?? null, warnings: outcome.warnings || [] };
+      store.monthAiState = { loading: false, text: outcome.text, error: "" };
     } catch (error) {
       store.monthAiState = { loading: false, text: "", error: error.message };
     }

@@ -1,3 +1,8 @@
+import {
+  filterEligibleRules,
+  sanitizeCandidateForProfile,
+} from "./stageFactRuleGuard.js";
+
 const STAGE_LIMITS = {
   luck: 16,
   year: 12,
@@ -6,7 +11,8 @@ const STAGE_LIMITS = {
 
 const RELATION_TERMS = [
   "天干五合", "六合", "冲", "刑", "自刑", "害", "穿", "破",
-  "半合", "拱合", "三合", "三会", "伏吟", "反吟", "天干相克", "天克地冲",
+  "半合", "半合条件", "拱合", "拱合条件", "三合", "三合局条件",
+  "三会", "三会两支", "三会局条件", "伏吟", "反吟", "天干相克", "天克地冲",
 ];
 
 const TEN_GODS = [
@@ -19,22 +25,39 @@ export function buildStageImageCandidatePack({
   stageRulePack = {},
 } = {}) {
   const facts = array(rawFactPack?.facts);
-  const rules = array(stageRulePack?.matchedRules)
+  const initialRules = array(stageRulePack?.matchedRules)
     .filter((rule) => rule?.claimSupportAllowed !== false);
+  const eligibility = filterEligibleRules(initialRules, { rawFactPack, stage });
 
-  const candidateImages = rules
+  const candidateImages = eligibility.eligible
     .map((rule) => compactCandidate(rule, facts, rawFactPack))
     .filter((candidate) => candidate && candidate.evidenceIds.length)
+    .map((candidate) => sanitizeCandidateForProfile(candidate, rawFactPack))
+    .filter(hasUsableCandidateContent)
     .slice(0, STAGE_LIMITS[stage] || STAGE_LIMITS.luck);
 
   return {
-    schemaVersion: "stage-image-candidates-v8.7.0",
+    schemaVersion: "stage-image-candidates-v8.8.0",
     stage,
     candidateImages,
     candidateRuleIds: candidateImages.map((candidate) => candidate.ruleId),
     selectionLimits: {
       min: candidateImages.length ? 1 : 0,
       max: stage === "luck" ? 6 : stage === "year" ? 4 : 3,
+    },
+    eligibility: {
+      inputRuleCount: initialRules.length,
+      eligibleRuleCount: eligibility.eligible.length,
+      candidateCount: candidateImages.length,
+      excludedRules: eligibility.excluded,
+      profile: {
+        gender: rawFactPack?.natal?.gender || "unknown",
+        ageAtTarget: rawFactPack?.natal?.ageAtTarget ?? null,
+        stage,
+      },
+      warnings: eligibility.excluded.length
+        ? [`已按性别、年龄与时间层排除${eligibility.excluded.length}条不适用规则`]
+        : [],
     },
     selectionContract: [
       "只能从candidateImages中选择当前阶段主象，不得自行创建规则库之外的新象。",
@@ -43,6 +66,9 @@ export function buildStageImageCandidatePack({
       "允许用自然语言概括规则意义，但不得扩展到allowedDomains与allowedScenes之外的新事件类别。",
       "原局取象只说明底色，必须有当前阶段事实触发后才能进入本阶段主结论。",
       "条件事实只能成为弱象、替代分支或成立条件，不能压过直接事实。",
+      "男命不得使用女命夫星规则；女命不得使用男命妻星规则。",
+      "青年阶段不能仅凭时柱优先扩写晚年、子女、孙辈或下属场景。",
+      "没有专门规则支持时，不得扩写具体器官、疾病、祖产、祖业或长辈资源。",
     ],
     methodologyRules: array(stageRulePack?.methodologyRules)
       .map((rule) => ({
@@ -77,6 +103,9 @@ function compactCandidate(rule, facts, rawFactPack) {
     weakeningConditions: unique(array(rule?.weakeningConditions)).slice(0, 4),
     prohibitions: unique(array(rule?.prohibitions)).slice(0, 4),
     sourceRefs: array(rule?.sourceRefs).slice(0, 3),
+    scopes: unique(array(rule?.scopes)),
+    genderScope: unique(array(rule?.genderScope || rule?.genders)),
+    ageScope: rule?.ageScope ?? null,
   };
 }
 
@@ -92,8 +121,8 @@ function resolveEvidenceIds(rule, facts, rawFactPack) {
   array(facts).forEach((fact) => {
     if (fact.kind === "ten_god") {
       if (
-        explicitTerms.tenGods.includes(fact.tenGod) ||
-        (!explicitTerms.tenGods.length && TEN_GODS.some((name) => name === fact.tenGod && ruleText.includes(name)))
+        explicitTerms.tenGods.includes(fact.tenGod)
+        || (!explicitTerms.tenGods.length && TEN_GODS.some((name) => name === fact.tenGod && ruleText.includes(name)))
       ) {
         ids.push(fact.id);
       }
@@ -110,7 +139,6 @@ function resolveEvidenceIds(rule, facts, rawFactPack) {
     }
   });
 
-  // 只命中十神但没有结构事实时，允许使用本层十神事实；不使用前端领域命中作为证据。
   return unique(ids).slice(0, 10);
 }
 
@@ -141,10 +169,11 @@ function relationMatches(fact, term) {
   const relation = text(fact?.relation);
   const type = text(fact?.type);
   if (relation === term || relation.includes(term) || term.includes(relation)) return true;
-  if (term === "半合" && type.includes("half_harmony")) return true;
-  if (term === "拱合" && type.includes("arch_harmony")) return true;
-  if (term === "三合" && type.includes("triple_harmony")) return true;
-  if (term === "三会" && (type.includes("meeting") || relation.includes("三会"))) return true;
+  if (["半合", "半合条件"].includes(term) && type.includes("half_harmony")) return true;
+  if (["拱合", "拱合条件"].includes(term) && type.includes("arch_harmony")) return true;
+  if (["三合", "三合局条件"].includes(term) && type.includes("triple_harmony")) return true;
+  if (["三会", "三会两支", "三会局条件"].includes(term)
+    && (type.includes("meeting") || relation.includes("三会"))) return true;
   if (term === "反吟" && (relation === "天克地冲" || array(fact?.tags).includes("反吟倾向"))) return true;
   return false;
 }
@@ -157,6 +186,20 @@ function factSearchText(fact) {
     tags: fact?.tags,
     meta: fact?.meta,
   });
+}
+
+function hasUsableCandidateContent(candidate) {
+  return Boolean(
+    candidate?.title
+    && candidate?.ruleId
+    && array(candidate?.evidenceIds).length
+    && (
+      array(candidate?.allowedMeanings).length
+      || array(candidate?.positive).length
+      || array(candidate?.risks).length
+      || array(candidate?.allowedScenes).length
+    )
+  );
 }
 
 function slug(value) {

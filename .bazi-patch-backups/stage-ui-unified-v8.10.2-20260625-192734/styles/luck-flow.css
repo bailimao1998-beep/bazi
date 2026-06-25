@@ -1,0 +1,243 @@
+.luck-flow-report {
+  display: grid;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.luck-flow-overview,
+.luck-flow-card,
+.luck-flow-assessment,
+.luck-flow-direction,
+.luck-flow-year-trigger,
+.luck-flow-action,
+.luck-flow-transition,
+.luck-flow-verification {
+  border-radius: 14px;
+  padding: 18px;
+  color: #f7f4ed;
+  box-shadow: 0 10px 24px rgba(19, 23, 31, 0.12);
+}
+
+.luck-flow-overview {
+  border: 1px solid #8a8172;
+  background: linear-gradient(135deg, #4f4c45, #3f3d38);
+}
+
+.luck-flow-overview > span,
+.luck-flow-card > span,
+.luck-flow-assessment > span,
+.luck-flow-direction > span,
+.luck-flow-year-trigger > span,
+.luck-flow-action > span,
+.luck-flow-transition > span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.luck-flow-overview p,
+.luck-flow-card p,
+.luck-flow-assessment p,
+.luck-flow-direction p,
+.luck-flow-year-trigger p,
+.luck-flow-action p,
+.luck-flow-transition p {
+  margin: 0;
+  color: inherit;
+  line-height: 1.75;
+}
+
+.luck-flow-dual {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.luck-flow-card.is-stem,
+.luck-flow-direction.is-career {
+  border: 1px solid #7f78dd;
+  background: linear-gradient(145deg, #4d459b, #3e3785);
+}
+
+.luck-flow-card.is-branch,
+.luck-flow-direction.is-relationship {
+  border: 1px solid #3bb890;
+  background: linear-gradient(145deg, #0d6857, #095649);
+}
+
+.luck-flow-card h4,
+.luck-flow-assessment h4 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.luck-flow-card small {
+  display: block;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.76);
+  line-height: 1.55;
+}
+
+.luck-flow-detail-grid,
+.luck-flow-gain-cost,
+.luck-flow-action-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.luck-flow-detail-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.luck-flow-detail,
+.luck-flow-gain-cost section,
+.luck-flow-action-grid section {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.luck-flow-detail b,
+.luck-flow-gain-cost b,
+.luck-flow-action-grid b {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+
+.luck-flow-detail p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.luck-flow-arrow,
+.luck-flow-caption {
+  color: #8c877d;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.luck-flow-caption {
+  font-size: 15px;
+}
+
+.luck-flow-merge {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  color: #8c877d;
+}
+
+.luck-flow-merge span {
+  height: 1px;
+  background: #d2cabd;
+}
+
+.luck-flow-assessment {
+  border: 1px solid #cc7f09;
+  background: linear-gradient(145deg, #7c4704, #673a03);
+}
+
+.luck-flow-assessment.is-favorable {
+  border-color: #5c9f32;
+  background: linear-gradient(145deg, #2f6417, #244f12);
+}
+
+.luck-flow-assessment.is-pressure {
+  border-color: #bd5c42;
+  background: linear-gradient(145deg, #78331f, #5f2718);
+}
+
+.luck-flow-gain-cost {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.luck-flow-directions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.luck-flow-direction.is-health {
+  border: 1px solid #d27150;
+  background: linear-gradient(145deg, #85351e, #6d2a18);
+}
+
+.luck-flow-direction .luck-flow-detail {
+  margin-top: 10px;
+}
+
+.luck-flow-year-trigger,
+.luck-flow-transition {
+  border: 1px solid #918d83;
+  background: linear-gradient(145deg, #55534e, #45433f);
+}
+
+.luck-flow-action {
+  border: 1px solid #77a837;
+  background: linear-gradient(145deg, #2d6411, #234d0d);
+}
+
+.luck-flow-action-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.luck-flow-report ul {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.luck-flow-report li {
+  line-height: 1.55;
+}
+
+.luck-flow-verification {
+  border: 1px solid #d9c9ad;
+  background: #fffaf0;
+  color: #4c4234;
+}
+
+.luck-flow-verification summary {
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.luck-flow-verification ul {
+  margin-top: 12px;
+}
+
+.luck-flow-empty {
+  color: rgba(255, 255, 255, 0.72) !important;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .luck-flow-dual,
+  .luck-flow-directions,
+  .luck-flow-detail-grid,
+  .luck-flow-action-grid,
+  .luck-flow-gain-cost {
+    grid-template-columns: 1fr;
+  }
+
+  .luck-flow-overview,
+  .luck-flow-card,
+  .luck-flow-assessment,
+  .luck-flow-direction,
+  .luck-flow-year-trigger,
+  .luck-flow-action,
+  .luck-flow-transition,
+  .luck-flow-verification {
+    padding: 15px;
+  }
+}

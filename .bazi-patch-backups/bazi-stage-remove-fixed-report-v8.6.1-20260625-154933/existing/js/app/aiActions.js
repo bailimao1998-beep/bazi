@@ -4,7 +4,7 @@ import { buildMonthAiPrompt } from "../core/ai/buildMonthAiPrompt.js";
 import { buildNatalAiPrompt } from "../core/ai/buildNatalAiPrompt.js";
 import { buildYearAiPrompt } from "../core/ai/buildYearAiPrompt.js";
 import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260613b";
-import { generateStageAiReport } from "../core/ai/stageAiReportService.js";
+import { generateStageFixedNarrative } from "../core/ai/stageFixedNarrativeService.js";
 import {
   guardNatalAiContent,
 } from "../core/ai/natalAiContentGuard.js";
@@ -168,7 +168,7 @@ async function generateLuckAiNarrative() {
         natalImageReport: store.state.natalImageReport,
         luckImageReport: store.state.luckImageReport,
       });
-      const outcome = await generateStageAiReport({
+      const outcome = await generateStageFixedNarrative({
         settings,
         prompt,
         stage: "luck",
@@ -178,8 +178,8 @@ async function generateLuckAiNarrative() {
         stage: "luck",
         fallbackUsed: outcome.fallbackUsed,
         attempts: outcome.attempts,
-        rawFactPack: prompt.rawFactPack,
-        candidatePack: prompt.candidatePack,
+        fixedReportModel: prompt.fixedReportModel,
+        stageRulePack: prompt.stageRulePack,
       };
       store.luckAiState = { loading: false, text: outcome.text, error: "" };
     } catch (error) {
@@ -201,7 +201,7 @@ async function generateLuckAiNarrative() {
         luckImageReport: store.state.luckImageReport,
         yearImageReport: store.state.yearImageReport,
       });
-      const outcome = await generateStageAiReport({
+      const outcome = await generateStageFixedNarrative({
         settings,
         prompt,
         stage: "year",
@@ -212,8 +212,8 @@ async function generateLuckAiNarrative() {
         stage: "year",
         fallbackUsed: outcome.fallbackUsed,
         attempts: outcome.attempts,
-        rawFactPack: prompt.rawFactPack,
-        candidatePack: prompt.candidatePack,
+        fixedReportModel: prompt.fixedReportModel,
+        stageRulePack: prompt.stageRulePack,
       };
       store.yearAiState = { loading: false, text: outcome.text, error: "" };
     } catch (error) {
@@ -244,7 +244,7 @@ async function generateLuckAiNarrative() {
         yearImageReport: store.state.yearImageReport,
         monthImageReport: store.state.monthImageReport,
       });
-      const outcome = await generateStageAiReport({
+      const outcome = await generateStageFixedNarrative({
         settings,
         prompt,
         stage: "month",
@@ -254,8 +254,8 @@ async function generateLuckAiNarrative() {
         stage: "month",
         fallbackUsed: outcome.fallbackUsed,
         attempts: outcome.attempts,
-        rawFactPack: prompt.rawFactPack,
-        candidatePack: prompt.candidatePack,
+        fixedReportModel: prompt.fixedReportModel,
+        stageRulePack: prompt.stageRulePack,
       };
       store.monthAiState = { loading: false, text: outcome.text, error: "" };
     } catch (error) {

@@ -83,7 +83,7 @@ export function renderAiCollapse({ title, button, helper, state = {}, hasReport 
   const buttonText = state.loading ? "生成中..." : escapeHtml(button || "生成 AI 分析");
   const helperText = state.loading
     ? "正在生成 AI 分析..."
-    : (helper || "基础数据与结构事实由前端确定，AI只能从规则库候选象中选择和分析。");
+    : (helper || "基础排盘与结构事实由前端计算，AI负责综合判断；AI失败时只保留基础事实。");
   const statusLabel = state.loading ? "生成中" : hasReport ? "AI 辅助" : "等待排盘";
 
   if (!state.text) {

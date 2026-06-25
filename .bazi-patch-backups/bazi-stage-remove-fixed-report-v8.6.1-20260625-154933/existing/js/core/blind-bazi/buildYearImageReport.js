@@ -2,6 +2,7 @@ import { createPillarFromYear } from "../bazi/pillarMath.js";
 import { branchMainStem, getTenGod } from "../bazi/tenGods.js";
 import { buildTransitStructureAnalysis } from "../transit/transitStructureAnalyzer.js";
 import { buildTransitTriggeredImages } from "../transit/transitImageComposer.js";
+import { buildStageFixedReportModel } from "../transit/buildStageFixedReportModel.js";
 
 const tenGodThemes = {
   比肩: "竞争、同辈、自主、合作",
@@ -79,7 +80,20 @@ export function buildYearImageReport({
     luckImageReport,
     targetYear,
   });
-  const yearItem = buildYearItem(context);
+  const baseYearItem = buildYearItem(context);
+  const yearItem = {
+    ...baseYearItem,
+    fixedReport: buildStageFixedReportModel({
+      stage: "year",
+      item: baseYearItem,
+      baseBaziViewModel,
+      natalImageReport,
+      luckImageReport,
+      yearImageReport: {
+        yearItem: baseYearItem,
+      },
+    }),
+  };
 
   return {
     summary: buildSummary(yearItem, context),

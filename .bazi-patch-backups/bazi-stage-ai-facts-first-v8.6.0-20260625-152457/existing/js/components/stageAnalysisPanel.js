@@ -83,7 +83,7 @@ export function renderAiCollapse({ title, button, helper, state = {}, hasReport 
   const buttonText = state.loading ? "生成中..." : escapeHtml(button || "生成 AI 分析");
   const helperText = state.loading
     ? "正在生成 AI 分析..."
-    : (helper || "基础数据与结构事实由前端确定，AI只能从规则库候选象中选择和分析。");
+    : (helper || "固定报告由本地结构与规则生成，AI只负责整理表达；AI失败时仍保留本地报告。");
   const statusLabel = state.loading ? "生成中" : hasReport ? "AI 辅助" : "等待排盘";
 
   if (!state.text) {
@@ -372,6 +372,136 @@ function renderStageTriggeredImages(triggeredImages = {}) {
   `;
 }
 
+
+function renderStageFixedReportCard(
+  fixedReport = {},
+  stage = "luck",
+) {
+  if (
+    !fixedReport ||
+    typeof fixedReport !==
+      "object" ||
+    !fixedReport.headline
+  ) {
+    return "";
+  }
+
+  const domains =
+    Array.isArray(
+      fixedReport.primaryDomains,
+    )
+      ? fixedReport.primaryDomains
+      : [];
+
+  const actions =
+    Array.isArray(
+      fixedReport.actions,
+    )
+      ? fixedReport.actions
+      : [];
+
+  const verification =
+    Array.isArray(
+      fixedReport.verificationQuestions,
+    )
+      ? fixedReport.verificationQuestions
+      : [];
+
+  const stageTitle = {
+    luck:
+      "十年阶段固定报告",
+    year:
+      "年度固定报告",
+    month:
+      "本月固定报告",
+  }[stage] ??
+    "阶段固定报告";
+
+  return `
+    <article class="stage-image-card stage-fixed-report-card">
+      <header class="stage-compact-head">
+        <div>
+          <span>${escapeHtml(stageTitle)}</span>
+          <h3>${escapeHtml(fixedReport.headline)}</h3>
+        </div>
+      </header>
+
+      ${fixedReport.overview
+        ? `<p class="stage-fixed-report-overview">${escapeHtml(fixedReport.overview)}</p>`
+        : ""
+      }
+
+      ${domains.length
+        ? `
+          <section class="stage-compact-block">
+            <header>
+              <h4>主要现实领域</h4>
+            </header>
+            <div class="stage-triggered-image-grid">
+              ${domains.map((domain) => `
+                <article class="stage-triggered-image-card">
+                  <div class="stage-triggered-image-title">
+                    <span>${escapeHtml(domain.label || "现实领域")}</span>
+                    <em class="is-${domain.certainty === "current" ? "direct" : "background"}">
+                      ${domain.certainty === "current" ? "当前显像" : "背景主题"}
+                    </em>
+                  </div>
+                  <p>${escapeHtml(domain.summary || "")}</p>
+                  ${domain.alternativeScenarios?.[0]
+                    ? `<small>其他可能：${escapeHtml(domain.alternativeScenarios[0])}</small>`
+                    : ""
+                  }
+                  ${domain.conditions?.[0]
+                    ? `<small>成立条件：${escapeHtml(domain.conditions[0])}</small>`
+                    : ""
+                  }
+                </article>
+              `).join("")}
+            </div>
+          </section>
+        `
+        : `
+          <p class="muted">
+            当前层没有足够强的新增领域显像，以背景延续和现实反馈为主。
+          </p>
+        `
+      }
+
+      ${actions.length
+        ? `
+          <section class="stage-compact-block">
+            <header>
+              <h4>行动重点</h4>
+            </header>
+            <ul>
+              ${actions.slice(0, stage === "luck" ? 4 : 3)
+                .map((item) => `<li>${escapeHtml(item)}</li>`)
+                .join("")}
+            </ul>
+          </section>
+        `
+        : ""
+      }
+
+      ${verification.length
+        ? `
+          <details class="stage-evidence-details stage-evidence-details-compact">
+            <summary>
+              <span>
+                <b>现实验证问题</b>
+                <small>${verification.length}项</small>
+              </span>
+            </summary>
+            <ul>
+              ${verification.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+            </ul>
+          </details>
+        `
+        : ""
+      }
+    </article>
+  `;
+}
 
 function renderStageEvidenceDetails(
   model = {},

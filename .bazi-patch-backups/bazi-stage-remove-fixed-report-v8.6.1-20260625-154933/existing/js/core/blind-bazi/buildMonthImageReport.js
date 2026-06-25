@@ -2,6 +2,7 @@ import { createMonthPillar } from "../bazi/pillarMath.js";
 import { branchMainStem, getTenGod } from "../bazi/tenGods.js";
 import { buildTransitStructureAnalysis } from "../transit/transitStructureAnalyzer.js";
 import { buildTransitTriggeredImages } from "../transit/transitImageComposer.js";
+import { buildStageFixedReportModel } from "../transit/buildStageFixedReportModel.js";
 
 const tenGodThemes = {
   比肩: "竞争、同辈、自主、合作",
@@ -83,7 +84,21 @@ export function buildMonthImageReport({
     targetYear,
     selectedMonth,
   });
-  const monthItem = buildMonthItem(context);
+  const baseMonthItem = buildMonthItem(context);
+  const monthItem = {
+    ...baseMonthItem,
+    fixedReport: buildStageFixedReportModel({
+      stage: "month",
+      item: baseMonthItem,
+      baseBaziViewModel,
+      natalImageReport,
+      luckImageReport,
+      yearImageReport,
+      monthImageReport: {
+        monthItem: baseMonthItem,
+      },
+    }),
+  };
 
   return {
     summary: buildSummary(monthItem),

@@ -38,8 +38,9 @@ export function renderYearFlowReport(report = {}) {
       </div>
 
       <section class="year-month-flow-note is-year">
-        <b>本年重点领域</b>
+        <b>流年只讲这一年在哪些领域有动静</b>
         <p>${escapeHtml(value.eventOutline.summary || "可以说事件轮廓、作用方向与需要注意的领域，但不把结果写死。")}</p>
+        ${value.eventOutline.domains.length ? renderChips(value.eventOutline.domains) : ""}
         ${renderThreePartAdvice(value.eventOutline)}
       </section>
 
@@ -189,6 +190,9 @@ function renderMatrixItem(label, textValue, tone) {
   return `<article class="is-${escapeHtml(tone)}"><b>${escapeHtml(label)}</b><span>${escapeHtml(textValue)}</span></article>`;
 }
 
+function renderChips(items) {
+  return `<div class="year-month-flow-chips">${array(items).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>`;
+}
 
 function renderList(items) {
   const values = array(items);

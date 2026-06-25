@@ -1,0 +1,398 @@
+.year-month-flow-report {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  color: var(--ink);
+}
+
+.year-month-flow-banner,
+.year-month-flow-note,
+.year-force-matrix,
+.three-layer-principle,
+.year-month-flow-actions {
+  min-width: 0;
+  padding: 16px 18px;
+  border: 1px solid #eadfce;
+  border-radius: 14px;
+  background: #fffdf8;
+  color: var(--ink);
+  box-shadow: 0 8px 20px rgba(89, 64, 32, 0.05);
+}
+
+.year-month-flow-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.year-month-flow-banner.is-year {
+  border-color: #cde1da;
+  background: linear-gradient(180deg, #eef8f5, #fffdf8);
+}
+
+.year-month-flow-banner.is-month {
+  border-color: #ead8b8;
+  background: linear-gradient(180deg, #fff7e8, #fffdf8);
+}
+
+.year-month-flow-banner span,
+.year-month-flow-banner strong {
+  color: var(--accent);
+  font-size: 20px;
+  font-weight: 950;
+}
+
+.year-month-flow-banner.is-month span,
+.year-month-flow-banner.is-month strong {
+  color: #8a6324;
+}
+
+.year-month-flow-banner p {
+  flex-basis: 100%;
+  margin: 5px 0 0;
+  color: #48545f;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.year-month-flow-step-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+
+.year-month-flow-card {
+  position: relative;
+  min-width: 0;
+  min-height: 210px;
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  padding: 16px;
+  border: 1px solid #eadfce;
+  border-radius: 14px;
+  background: #fffdf8;
+  color: var(--ink);
+  box-shadow: 0 7px 18px rgba(89, 64, 32, 0.05);
+}
+
+.year-month-flow-card::after {
+  content: "→";
+  position: absolute;
+  top: 50%;
+  right: -15px;
+  z-index: 2;
+  transform: translateY(-50%);
+  color: #aaa296;
+  font-size: 21px;
+  font-weight: 900;
+}
+
+.year-month-flow-card:last-child::after {
+  display: none;
+}
+
+.year-month-flow-card.is-year {
+  border-top: 4px solid #86bcae;
+  background: linear-gradient(180deg, #f5fbf9, #fffdf8 42%);
+}
+
+.year-month-flow-card.is-month {
+  border-top: 4px solid #d6ad63;
+  background: linear-gradient(180deg, #fff9ed, #fffdf8 42%);
+}
+
+.year-month-flow-card > span {
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.year-month-flow-card.is-month > span {
+  color: #8a6324;
+}
+
+.year-month-flow-card h4 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.year-month-flow-card small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.year-month-flow-card p,
+.year-month-flow-card li {
+  margin: 0;
+  color: #46535d;
+  font-size: 13px;
+  line-height: 1.72;
+}
+
+.year-month-flow-card ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.year-month-flow-card.is-force,
+.year-month-flow-card.is-rhythm {
+  box-shadow: 0 7px 18px rgba(89, 64, 32, 0.055);
+}
+
+.year-month-flow-card.is-force.is-strong_favorable {
+  border-color: #c8dfd2;
+  border-top-color: #6ea98c;
+  background: linear-gradient(180deg, #eef8f2, #fffdf8 45%);
+}
+
+.year-month-flow-card.is-force.is-favorable_with_pressure {
+  border-color: #d9d4ef;
+  border-top-color: #8f85c7;
+  background: linear-gradient(180deg, #f5f3ff, #fffdf8 45%);
+}
+
+.year-month-flow-card.is-force.is-pressure_with_opportunity {
+  border-color: #ead8b8;
+  border-top-color: #c99a4f;
+  background: linear-gradient(180deg, #fff7e8, #fffdf8 45%);
+}
+
+.year-month-flow-card.is-force.is-strong_pressure {
+  border-color: #e8d0c6;
+  border-top-color: #c9856d;
+  background: linear-gradient(180deg, #fff3ee, #fffdf8 45%);
+}
+
+.year-month-flow-card.is-force.is-mixed,
+.year-month-flow-card.is-rhythm {
+  border-color: #ddd6ca;
+  border-top-color: #9c9387;
+  background: linear-gradient(180deg, #f8f6f2, #fffdf8 45%);
+}
+
+.year-month-flow-note {
+  border-style: dashed;
+  background: #fbfaf7;
+  text-align: center;
+}
+
+.year-month-flow-note b {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.year-month-flow-note p {
+  margin: 0;
+  color: #48545f;
+  line-height: 1.75;
+}
+
+.year-month-flow-three-part {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+  text-align: left;
+}
+
+.year-month-flow-three-part section,
+.year-month-flow-action-block {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(222, 208, 189, 0.72);
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.9);
+}
+
+.year-month-flow-three-part b,
+.year-month-flow-action-block b {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.year-month-flow-three-part p,
+.year-month-flow-action-block p {
+  margin: 5px 0 0;
+  color: #48545f;
+  line-height: 1.65;
+}
+
+.year-month-flow-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.year-month-flow-chips span {
+  padding: 5px 10px;
+  border: 1px solid #d8cbb8;
+  border-radius: 999px;
+  background: #fffaf1;
+  color: #5c554c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.year-force-matrix,
+.three-layer-principle {
+  background: linear-gradient(180deg, #fbfaf7, #fffdf8);
+}
+
+.year-force-matrix h4,
+.three-layer-principle h4,
+.year-month-flow-actions h4 {
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-size: 18px;
+  text-align: center;
+}
+
+.year-force-matrix > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.year-force-matrix article {
+  display: grid;
+  grid-template-columns: minmax(150px, .8fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid rgba(222, 208, 189, 0.68);
+  border-radius: 10px;
+  background: #fffdf8;
+}
+
+.year-force-matrix article b {
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.year-force-matrix article.is-strong_favorable b { background: #e6f4eb; color: #2f6f55; }
+.year-force-matrix article.is-favorable_with_pressure b { background: #efedfb; color: #5b5198; }
+.year-force-matrix article.is-pressure_with_opportunity b { background: #fff1d8; color: #8a6324; }
+.year-force-matrix article.is-strong_pressure b { background: #fbe8e1; color: #934c35; }
+
+.year-force-matrix article span {
+  color: #48545f;
+  line-height: 1.6;
+}
+
+.three-layer-principle > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+}
+
+.three-layer-principle article {
+  min-width: 0;
+  padding: 10px 18px;
+  text-align: center;
+}
+
+.three-layer-principle article + article {
+  border-left: 1px solid #e3d8ca;
+}
+
+.three-layer-principle b {
+  color: var(--accent);
+  font-size: 15px;
+}
+
+.three-layer-principle p {
+  margin: 8px 0 0;
+  color: #59636c;
+  line-height: 1.65;
+}
+
+.year-month-flow-actions {
+  border-color: #cfe1d8;
+  background: linear-gradient(180deg, #f1f8f5, #fffdf8);
+}
+
+.year-month-flow-actions ul,
+.year-month-flow-verification ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.year-month-flow-actions li,
+.year-month-flow-verification li {
+  margin: 6px 0;
+  color: #48545f;
+  line-height: 1.65;
+}
+
+.year-month-flow-verification {
+  padding: 12px 14px;
+  border: 1px solid #d8cbb8;
+  border-radius: 10px;
+  background: #fffaf1;
+  color: var(--ink);
+}
+
+.year-month-flow-verification summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+@media (max-width: 1100px) {
+  .year-month-flow-step-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .year-month-flow-card:nth-child(2)::after,
+  .year-month-flow-card:last-child::after {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .year-month-flow-step-row,
+  .year-force-matrix > div,
+  .year-month-flow-three-part,
+  .three-layer-principle > div {
+    grid-template-columns: 1fr;
+  }
+
+  .year-month-flow-card {
+    min-height: 0;
+  }
+
+  .year-month-flow-card::after {
+    content: "↓";
+    top: auto;
+    right: 50%;
+    bottom: -22px;
+    transform: translateX(50%);
+  }
+
+  .year-month-flow-card:nth-child(2)::after {
+    display: block;
+  }
+
+  .three-layer-principle article + article {
+    border-left: 0;
+    border-top: 1px solid #e3d8ca;
+  }
+
+  .year-force-matrix article {
+    grid-template-columns: 1fr;
+  }
+}

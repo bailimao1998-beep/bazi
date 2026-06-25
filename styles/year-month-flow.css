@@ -1,7 +1,14 @@
+.year-month-flow-report,
+.year-month-flow-report * {
+  box-sizing: border-box;
+}
+
 .year-month-flow-report {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   width: 100%;
+  max-width: 100%;
+  overflow: visible;
   color: var(--ink);
 }
 
@@ -11,12 +18,14 @@
 .three-layer-principle,
 .year-month-flow-actions {
   min-width: 0;
-  padding: 16px 18px;
-  border: 1px solid #eadfce;
+  width: 100%;
+  max-width: 100%;
+  padding: 20px 22px;
+  border: 1px solid #ddd3c4;
   border-radius: 14px;
-  background: #fffdf8;
-  color: var(--ink);
-  box-shadow: 0 8px 20px rgba(89, 64, 32, 0.05);
+  background: #fffdf9;
+  color: #29343d;
+  box-shadow: 0 7px 18px rgba(69, 54, 36, 0.045);
 }
 
 .year-month-flow-banner {
@@ -24,158 +33,158 @@
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   text-align: center;
 }
 
 .year-month-flow-banner.is-year {
-  border-color: #cde1da;
-  background: linear-gradient(180deg, #eef8f5, #fffdf8);
+  border-color: #bed8d1;
+  background: linear-gradient(180deg, #f2f9f7, #fffdf9);
 }
 
 .year-month-flow-banner.is-month {
-  border-color: #ead8b8;
-  background: linear-gradient(180deg, #fff7e8, #fffdf8);
+  border-color: #e3d2b3;
+  background: linear-gradient(180deg, #fff8ea, #fffdf9);
 }
 
 .year-month-flow-banner span,
 .year-month-flow-banner strong {
-  color: var(--accent);
-  font-size: 20px;
+  color: #1f6f6a;
+  font-size: 22px;
   font-weight: 950;
 }
 
 .year-month-flow-banner.is-month span,
 .year-month-flow-banner.is-month strong {
-  color: #8a6324;
+  color: #805a20;
 }
 
 .year-month-flow-banner p {
   flex-basis: 100%;
-  margin: 5px 0 0;
-  color: #48545f;
-  font-size: 14px;
-  line-height: 1.7;
+  margin: 7px 0 0;
+  color: #35414a;
+  font-size: 16px;
+  line-height: 1.82;
 }
 
+/* 四步流程改成两列，避免桌面端四张卡片横向挤压。 */
 .year-month-flow-step-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 100%;
   align-items: stretch;
 }
 
 .year-month-flow-card {
   position: relative;
   min-width: 0;
-  min-height: 210px;
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
   display: grid;
   align-content: start;
-  gap: 9px;
-  padding: 16px;
-  border: 1px solid #eadfce;
+  gap: 11px;
+  padding: 20px;
+  overflow: visible;
+  border: 1px solid #ddd3c4;
   border-radius: 14px;
-  background: #fffdf8;
-  color: var(--ink);
-  box-shadow: 0 7px 18px rgba(89, 64, 32, 0.05);
+  background: #fffdf9;
+  color: #29343d;
+  box-shadow: 0 6px 16px rgba(69, 54, 36, 0.045);
 }
 
+/* 两列布局不再使用横向箭头，防止箭头和右侧卡片被裁切。 */
 .year-month-flow-card::after {
-  content: "→";
-  position: absolute;
-  top: 50%;
-  right: -15px;
-  z-index: 2;
-  transform: translateY(-50%);
-  color: #aaa296;
-  font-size: 21px;
-  font-weight: 900;
-}
-
-.year-month-flow-card:last-child::after {
   display: none;
+  content: none;
 }
 
 .year-month-flow-card.is-year {
-  border-top: 4px solid #86bcae;
-  background: linear-gradient(180deg, #f5fbf9, #fffdf8 42%);
+  border-top: 4px solid #77aa9e;
+  background: linear-gradient(180deg, #f7fbfa, #fffdf9 44%);
 }
 
 .year-month-flow-card.is-month {
-  border-top: 4px solid #d6ad63;
-  background: linear-gradient(180deg, #fff9ed, #fffdf8 42%);
+  border-top: 4px solid #cba35a;
+  background: linear-gradient(180deg, #fff9ee, #fffdf9 44%);
 }
 
 .year-month-flow-card > span {
-  color: var(--accent);
-  font-size: 14px;
+  color: #1f6f6a;
+  font-size: 15px;
   font-weight: 950;
 }
 
 .year-month-flow-card.is-month > span {
-  color: #8a6324;
+  color: #805a20;
 }
 
 .year-month-flow-card h4 {
   margin: 0;
-  color: var(--ink);
-  font-size: 17px;
+  color: #222c33;
+  font-size: 20px;
   line-height: 1.45;
+  font-weight: 950;
 }
 
 .year-month-flow-card small {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.55;
+  color: #58636d;
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 .year-month-flow-card p,
 .year-month-flow-card li {
   margin: 0;
-  color: #46535d;
-  font-size: 13px;
-  line-height: 1.72;
+  color: #35414a;
+  font-size: 15px;
+  line-height: 1.82;
+  overflow-wrap: anywhere;
 }
 
 .year-month-flow-card ul {
+  display: grid;
+  gap: 7px;
   margin: 0;
-  padding-left: 18px;
+  padding-left: 21px;
 }
 
 .year-month-flow-card.is-force,
 .year-month-flow-card.is-rhythm {
-  box-shadow: 0 7px 18px rgba(89, 64, 32, 0.055);
+  box-shadow: 0 6px 16px rgba(69, 54, 36, 0.05);
 }
 
 .year-month-flow-card.is-force.is-strong_favorable {
-  border-color: #c8dfd2;
-  border-top-color: #6ea98c;
-  background: linear-gradient(180deg, #eef8f2, #fffdf8 45%);
+  border-color: #c6ddcf;
+  border-top-color: #649d7f;
+  background: linear-gradient(180deg, #f0f8f3, #fffdf9 46%);
 }
 
 .year-month-flow-card.is-force.is-favorable_with_pressure {
-  border-color: #d9d4ef;
-  border-top-color: #8f85c7;
-  background: linear-gradient(180deg, #f5f3ff, #fffdf8 45%);
+  border-color: #d7d2e8;
+  border-top-color: #8177b4;
+  background: linear-gradient(180deg, #f7f5ff, #fffdf9 46%);
 }
 
 .year-month-flow-card.is-force.is-pressure_with_opportunity {
-  border-color: #ead8b8;
-  border-top-color: #c99a4f;
-  background: linear-gradient(180deg, #fff7e8, #fffdf8 45%);
+  border-color: #e5d3b4;
+  border-top-color: #bd8e42;
+  background: linear-gradient(180deg, #fff8e9, #fffdf9 46%);
 }
 
 .year-month-flow-card.is-force.is-strong_pressure {
-  border-color: #e8d0c6;
-  border-top-color: #c9856d;
-  background: linear-gradient(180deg, #fff3ee, #fffdf8 45%);
+  border-color: #e4cec5;
+  border-top-color: #bc765e;
+  background: linear-gradient(180deg, #fff5f0, #fffdf9 46%);
 }
 
 .year-month-flow-card.is-force.is-mixed,
 .year-month-flow-card.is-rhythm {
-  border-color: #ddd6ca;
-  border-top-color: #9c9387;
-  background: linear-gradient(180deg, #f8f6f2, #fffdf8 45%);
+  border-color: #d8d1c7;
+  border-top-color: #91897f;
+  background: linear-gradient(180deg, #faf8f5, #fffdf9 46%);
 }
 
 .year-month-flow-note {
@@ -186,111 +195,115 @@
 
 .year-month-flow-note b {
   display: block;
-  margin-bottom: 7px;
-  color: var(--ink);
-  font-size: 16px;
+  margin-bottom: 8px;
+  color: #222c33;
+  font-size: 18px;
 }
 
 .year-month-flow-note p {
   margin: 0;
-  color: #48545f;
-  line-height: 1.75;
+  color: #35414a;
+  font-size: 15px;
+  line-height: 1.82;
 }
 
 .year-month-flow-three-part {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 14px;
+  gap: 12px;
+  margin-top: 16px;
   text-align: left;
 }
 
 .year-month-flow-three-part section,
 .year-month-flow-action-block {
   min-width: 0;
-  padding: 10px 12px;
-  border: 1px solid rgba(222, 208, 189, 0.72);
+  padding: 13px 15px;
+  border: 1px solid #ddd2c3;
   border-radius: 10px;
-  background: rgba(255, 253, 248, 0.9);
+  background: rgba(255, 253, 249, 0.94);
 }
 
 .year-month-flow-three-part b,
 .year-month-flow-action-block b {
-  color: var(--accent);
-  font-size: 12px;
+  color: #1f6f6a;
+  font-size: 13px;
   font-weight: 950;
 }
 
 .year-month-flow-three-part p,
 .year-month-flow-action-block p {
-  margin: 5px 0 0;
-  color: #48545f;
-  line-height: 1.65;
+  margin: 7px 0 0;
+  color: #35414a;
+  font-size: 15px;
+  line-height: 1.76;
 }
 
 .year-month-flow-chips {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 9px;
+  margin-top: 14px;
 }
 
 .year-month-flow-chips span {
-  padding: 5px 10px;
-  border: 1px solid #d8cbb8;
+  padding: 6px 11px;
+  border: 1px solid #d2c5b3;
   border-radius: 999px;
   background: #fffaf1;
-  color: #5c554c;
-  font-size: 12px;
+  color: #4c565e;
+  font-size: 13px;
   font-weight: 800;
 }
 
 .year-force-matrix,
 .three-layer-principle {
-  background: linear-gradient(180deg, #fbfaf7, #fffdf8);
+  background: linear-gradient(180deg, #fbfaf7, #fffdf9);
 }
 
 .year-force-matrix h4,
 .three-layer-principle h4,
 .year-month-flow-actions h4 {
-  margin: 0 0 14px;
-  color: var(--ink);
-  font-size: 18px;
+  margin: 0 0 16px;
+  color: #222c33;
+  font-size: 20px;
   text-align: center;
 }
 
 .year-force-matrix > div {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 
 .year-force-matrix article {
   display: grid;
-  grid-template-columns: minmax(150px, .8fr) minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: minmax(170px, .8fr) minmax(0, 1fr);
+  gap: 14px;
   align-items: center;
-  padding: 10px 12px;
-  border: 1px solid rgba(222, 208, 189, 0.68);
+  padding: 13px 15px;
+  border: 1px solid #ddd2c3;
   border-radius: 10px;
-  background: #fffdf8;
+  background: #fffdf9;
 }
 
 .year-force-matrix article b {
-  padding: 8px 10px;
+  padding: 9px 11px;
   border-radius: 8px;
   text-align: center;
+  font-size: 14px;
 }
 
-.year-force-matrix article.is-strong_favorable b { background: #e6f4eb; color: #2f6f55; }
-.year-force-matrix article.is-favorable_with_pressure b { background: #efedfb; color: #5b5198; }
-.year-force-matrix article.is-pressure_with_opportunity b { background: #fff1d8; color: #8a6324; }
-.year-force-matrix article.is-strong_pressure b { background: #fbe8e1; color: #934c35; }
+.year-force-matrix article.is-strong_favorable b { background: #e5f3e9; color: #2a684d; }
+.year-force-matrix article.is-favorable_with_pressure b { background: #eeecf9; color: #544a91; }
+.year-force-matrix article.is-pressure_with_opportunity b { background: #fff0d3; color: #805a20; }
+.year-force-matrix article.is-strong_pressure b { background: #fae7df; color: #8c452f; }
 
 .year-force-matrix article span {
-  color: #48545f;
-  line-height: 1.6;
+  color: #35414a;
+  font-size: 15px;
+  line-height: 1.72;
 }
 
 .three-layer-principle > div {
@@ -301,95 +314,87 @@
 
 .three-layer-principle article {
   min-width: 0;
-  padding: 10px 18px;
+  padding: 12px 20px;
   text-align: center;
 }
 
 .three-layer-principle article + article {
-  border-left: 1px solid #e3d8ca;
+  border-left: 1px solid #ddd2c3;
 }
 
 .three-layer-principle b {
-  color: var(--accent);
-  font-size: 15px;
+  color: #1f6f6a;
+  font-size: 16px;
 }
 
 .three-layer-principle p {
-  margin: 8px 0 0;
-  color: #59636c;
-  line-height: 1.65;
+  margin: 9px 0 0;
+  color: #46525b;
+  font-size: 15px;
+  line-height: 1.75;
 }
 
 .year-month-flow-actions {
-  border-color: #cfe1d8;
-  background: linear-gradient(180deg, #f1f8f5, #fffdf8);
+  border-color: #c7dcd3;
+  background: linear-gradient(180deg, #f3f8f6, #fffdf9);
 }
 
 .year-month-flow-actions ul,
 .year-month-flow-verification ul {
+  display: grid;
+  gap: 7px;
   margin: 0;
-  padding-left: 20px;
+  padding-left: 22px;
 }
 
 .year-month-flow-actions li,
 .year-month-flow-verification li {
-  margin: 6px 0;
-  color: #48545f;
-  line-height: 1.65;
+  margin: 0;
+  color: #35414a;
+  font-size: 15px;
+  line-height: 1.76;
 }
 
 .year-month-flow-verification {
-  padding: 12px 14px;
-  border: 1px solid #d8cbb8;
+  padding: 14px 16px;
+  border: 1px solid #d2c5b3;
   border-radius: 10px;
   background: #fffaf1;
-  color: var(--ink);
+  color: #29343d;
 }
 
 .year-month-flow-verification summary {
   cursor: pointer;
-  color: var(--accent);
+  color: #1f6f6a;
+  font-size: 15px;
   font-weight: 900;
 }
 
-@media (max-width: 1100px) {
-  .year-month-flow-step-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .year-month-flow-card:nth-child(2)::after,
-  .year-month-flow-card:last-child::after {
-    display: none;
-  }
-}
-
-@media (max-width: 720px) {
-  .year-month-flow-step-row,
-  .year-force-matrix > div,
+@media (max-width: 1050px) {
   .year-month-flow-three-part,
   .three-layer-principle > div {
     grid-template-columns: 1fr;
   }
 
-  .year-month-flow-card {
-    min-height: 0;
-  }
-
-  .year-month-flow-card::after {
-    content: "↓";
-    top: auto;
-    right: 50%;
-    bottom: -22px;
-    transform: translateX(50%);
-  }
-
-  .year-month-flow-card:nth-child(2)::after {
-    display: block;
-  }
-
   .three-layer-principle article + article {
     border-left: 0;
-    border-top: 1px solid #e3d8ca;
+    border-top: 1px solid #ddd2c3;
+  }
+}
+
+@media (max-width: 760px) {
+  .year-month-flow-step-row,
+  .year-force-matrix > div {
+    grid-template-columns: 1fr;
+  }
+
+  .year-month-flow-banner,
+  .year-month-flow-note,
+  .year-force-matrix,
+  .three-layer-principle,
+  .year-month-flow-actions,
+  .year-month-flow-card {
+    padding: 17px;
   }
 
   .year-force-matrix article {

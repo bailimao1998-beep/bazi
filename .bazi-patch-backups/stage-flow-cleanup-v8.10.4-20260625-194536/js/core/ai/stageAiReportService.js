@@ -146,7 +146,7 @@ function buildLuckFlowSkeleton(rawFactPack = {}) {
 
   return {
     stage: "luck",
-    overallJudgment: "当前大运的基础事实已经通过校验。系统先保留八步分析流程，缺少独立规则支持的栏目不强行下结论。",
+    overallJudgment: "当前大运的基础事实已经通过校验。系统先保留九步分析流程，缺少独立规则支持的栏目不强行下结论。",
     stemPhase: {
       title: "天干前五年",
       phaseNote: "前段权重与外显主题，不代表后段完全失效。",

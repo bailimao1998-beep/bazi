@@ -58,8 +58,15 @@ export function renderLuckFlowReport(report = {}) {
 
       <div class="luck-flow-arrow" aria-hidden="true">↓</div>
 
+      <section class="luck-flow-year-trigger">
+        <span>⑦ 叠加流年看具体年份</span>
+        <p>大运是背景，流年是触发。具体年份请进入流年模块查看；这里不凭空编造某年必然发生什么。</p>
+      </section>
+
+      <div class="luck-flow-arrow" aria-hidden="true">↓</div>
+
       <section class="luck-flow-action">
-        <span>⑦ 给出这步大运的行动建议</span>
+        <span>⑧ 给出这步大运的行动建议</span>
         <div class="luck-flow-action-grid">
           ${renderActionColumn("主动推进", value.actionAdvice.advance)}
           ${renderActionColumn("需要控制", value.actionAdvice.control)}
@@ -70,7 +77,7 @@ export function renderLuckFlowReport(report = {}) {
       <div class="luck-flow-arrow" aria-hidden="true">↓</div>
 
       <section class="luck-flow-transition">
-        <span>⑧ 大运交接过渡期提示</span>
+        <span>⑨ 大运交接过渡期提示</span>
         <p>${escapeHtml(value.transition.summary || "换运交接提示待生成。")}</p>
         ${renderPlainList(value.transition.advice)}
       </section>

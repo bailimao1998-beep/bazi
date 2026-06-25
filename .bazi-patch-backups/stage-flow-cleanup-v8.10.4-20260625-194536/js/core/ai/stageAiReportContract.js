@@ -233,7 +233,7 @@ export function validateStageAiReport({
     warnings.push(...repaired.warnings);
 
     if (normalized.overallJudgment.length < 18) {
-      warnings.push("十年总断较短，已保留八步流程，不再因此整篇阻断");
+      warnings.push("十年总断较短，已保留九步流程，不再因此整篇阻断");
     }
 
     validateLuckCore(normalized, refs, fatalIssues, warnings);
@@ -308,12 +308,15 @@ export function renderStageAiReportMarkdown(report, stage = "luck") {
           "",
         ];
       }),
-      "### ⑦ 行动建议",
+      "### ⑦ 叠加流年看具体年份",
+      "大运定背景，流年定触发；具体年份进入流年模块查看。",
+      "",
+      "### ⑧ 行动建议",
       ...value.actionAdvice.advance.map((item) => `- 主动推进：${item}`),
       ...value.actionAdvice.control.map((item) => `- 需要控制：${item}`),
       ...value.actionAdvice.avoidForNow.map((item) => `- 暂不勉强：${item}`),
       "",
-      "### ⑧ 大运交接过渡期提示",
+      "### ⑨ 大运交接过渡期提示",
       value.transition.summary,
       ...value.transition.advice.map((item) => `- ${item}`),
       value.verificationQuestions.length ? "" : "",

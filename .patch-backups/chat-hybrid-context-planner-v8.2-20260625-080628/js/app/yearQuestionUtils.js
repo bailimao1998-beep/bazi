@@ -98,14 +98,6 @@ export function detectChatIntent(
     return "chartEvidence";
   }
 
-  if (
-    /人生画像|人物画像|整体命运|总体命运|命怎么样|命好不好|命局|命盘|原局|四柱|八字|一生|性格|天赋|优点|缺点|人生走向|综合分析|全面分析|总体分析|这个人怎么样|此人怎么样|看这个人|看命|断命/.test(
-      text,
-    )
-  ) {
-    return "natalOverview";
-  }
-
   return "free";
 }
 

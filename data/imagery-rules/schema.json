@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Blind Bazi Imagery Rule",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "category",
+    "domains",
+    "scopes",
+    "ruleLevel",
+    "certainty",
+    "priority",
+    "trigger",
+    "requires",
+    "weakeningConditions",
+    "imagery",
+    "advice",
+    "prohibitions",
+    "sourceRefs"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ruleLevel": {
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ]
+    },
+    "certainty": {
+      "enum": [
+        "direct",
+        "structurally_supported",
+        "conditional",
+        "candidate"
+      ]
+    },
+    "priority": {
+      "type": "number"
+    },
+    "gender": {
+      "type": [
+        "string",
+        "array"
+      ]
+    },
+    "queryKeywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "trigger": {
+      "type": "object"
+    },
+    "requires": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "weakeningConditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "imagery": {
+      "type": "object"
+    },
+    "advice": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "prohibitions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sourceRefs": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "researchOnly": {
+      "type": "boolean"
+    },
+    "allowInUserAnswer": {
+      "type": "boolean"
+    }
+  }
+}

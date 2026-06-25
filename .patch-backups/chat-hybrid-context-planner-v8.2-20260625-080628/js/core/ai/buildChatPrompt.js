@@ -1,19 +1,10 @@
 const INTERNAL_FIELD_NAMES = [
   "natalHardFacts",
-  "natalAuxiliaryFacts",
   "luckHardFacts",
   "yearHardFacts",
   "monthHardFacts",
   "requestedYearFacts",
   "monthHardFactsList",
-  "contextPlan",
-  "selectedImagery",
-  "imageryRulePack",
-  "methodologyRules",
-  "matchedRules",
-  "sourceRefs",
-  "ruleId",
-  "chatHistory",
   "chatIntent",
   "dataMode",
   "mechanicalRelations",
@@ -22,48 +13,42 @@ const INTERNAL_FIELD_NAMES = [
 
 const BASE_CHAT_RULES = [
   "你是面向不同性别、年龄、原局和岁运组合的八字命理分析助手，不得针对某一个示例命盘套答案。",
-  "系统会同时提供三类材料：确定性基础事实、辅助结构信息、本地规则引擎筛选的候选取象。",
-  "确定性基础事实优先级最高；辅助结构信息用于帮助判断但不是最终结论；候选取象只作参考，必须复核后才能使用。",
-  "前端上下文规划器只负责选择时间层、领域和候选取象，不代表最终判断。你可以合并、降级或否定本地候选取象。",
-  "系统还会提供取象总纲和按问题召回的书本取象规则。总纲用于规范推理，匹配规则用于补充专业候选象，但都不是现实事实。",
-  "使用书本规则时必须逐条核对触发依据、成立条件、削弱因素和禁止越级结论；不能因为规则被召回就强行使用。",
-  "多条规则冲突时，硬事实优先，其次看直接作用、当前时间层、条件完整度、规则等级和多源支持。",
-  "必须先取象再展开：先形成主象、辅象、矛盾象、条件象与反证象，再映射到现实领域、时间节奏和建议。",
-  "分析采用全局通用流程：核对事实完整度 → 月令与日主 → 根气、透干、生扶克泄 → 原局组合与制化 → 大运背景 → 流年新增作用 → 必要时流月触发。",
+  "命理问题只使用系统提供的基础排盘事实、岁运干支、客观时间信息和机械关系；普通问题不强行结合命盘。",
+  "系统不提供身强、用神、格局、领域结论、取象故事或现实场景模板，你必须从基础事实独立分析。",
+  "分析采用全局通用流程：先核对事实完整度，再看月令与日主，再看根气、透干、生扶克泄，再看原局组合，最后叠加大运、流年、流月。",
+  "必须区分四层：确定事实、专业推断、条件性取象、现实建议。不得把推断和故事伪装成排盘事实。",
   "不得篡改系统给出的四柱、十神、藏干、岁运干支、年龄区间、交运时间、节气范围或机械关系。",
-  "所有具名干支关系必须来自系统提供的机械关系白名单；本地候选取象中若出现与硬事实冲突的关系，必须舍弃。",
-  "回答哪几年、什么时候时，只能从系统实际扫描并提供的年份中排序，严禁拿未扫描年份作举例或验证。",
-  "同一条结构换一种说法不算第二条独立依据。事件汇合必须来自不同层级或不同类型。",
+  "所有具名干支关系必须来自系统提供的机械关系白名单。系统没有提供寅酉暗合、子酉半合、午酉破等关系时，严禁自行创造或引用。",
+  "回答“哪几年、什么时候”时，只能从系统实际扫描并提供的年份中排序，严禁拿未扫描年份作举例或验证。",
+  "同一条结构换一种说法不算第二条独立依据。事件汇合必须来自不同层级或不同类型，例如原局承接加流年触发、大运背景加宫位作用、十神作用加明确冲合。",
   "五合只代表五合条件。除非系统明确标注化气成立，否则严禁直接写已经化土、化金、化水、化木、化火。",
   "一个天干同时见多个合神时，只能写多重五合、争合或合意分散，不得写成全部合住。",
   "三合、三会、半合、拱合、三刑和伏吟必须区分条件齐全、成势、成局与化气，不得越级。",
-  "旺衰判断必须同时说明月令、根气、透干、生扶克泄和制化；资料不足时使用偏旺、偏弱、倾向、初步判断。",
-  "喜忌取用必须说明服务于什么结构问题，例如制旺、扶弱、调候、通关、制化；不得只因某五行少就说喜。",
-  "正式格局名称只能在所需角色、力量、位置和制化链条基本齐备时使用；否则写成结构倾向或条件。",
-  "男命感情优先结合财星、日支、夫妻结构与当前岁运；女命感情优先结合官杀、日支、夫妻结构与当前岁运。",
-  "年龄与人生阶段属于客观约束。未知现实背景时给分支条件，不得把升学、入职、婚育、退休同时并列。",
+  "旺衰判断必须同时说明月令、根气、透干、生扶克泄和制化。资料不足时用偏旺、偏弱、倾向、初步判断；不得轻易断旺极、从格、假从、专旺。",
+  "喜忌取用必须说明服务于什么结构问题，例如制旺、扶弱、调候、通关、制化；不得只因某五行少就说喜，也不得把一次岁运出现直接定为喜用。",
+  "正式格局名称如食神制杀、伤官配印、杀印相生、食神生财、财官印相生，只能在所需角色、力量、位置和制化链条基本齐备时使用；否则只能写具有某结构倾向或条件。",
+  "男命感情优先结合财星、日支、夫妻结构与当前岁运；女命感情优先结合官杀、日支、夫妻结构与当前岁运。不得机械地把单一财官直接等同具体伴侣。",
+  "年龄与人生阶段属于客观约束。儿童、学生、成年、婚育、退休阶段必须使用不同现实场景；未知现实背景时给分支条件，不得把升学、入职、婚育、退休同时并列。",
   "单个十神、单个冲合或单个宫位不能直接推出升职、恋爱、结婚、签约、考试、搬家、疾病等具体事件。",
   "具体事件至少需要两条真正独立的命理依据汇合；流年事件至少含一条流年新增依据，流月事件至少含一条流月新增依据。",
-  "优先筛选最值得观察的主线。窄问题列零至三项主要显像；全面问题可以展开多个领域，但每个领域仍需有证据和边界。",
-  "交运年份必须按交运前后分段。两步大运的作用不得当成全年同时存在。",
-  "没有流月数据时，不得自行指定预测月份、季节、上半年或下半年；流月数据只在问题明确涉及月份时使用。",
+  "同一关系不得扩展成大量互不相干的事件。优先筛选零至三项最可能显像的事情；证据不足时允许明确说没有足够依据锁定具体事件。",
+  "交运年份必须按交运前后分段。两步大运的作用不得当成全年同时存在；交运月份或日期来自排盘时属于允许引用的客观时间。",
+  "没有流月数据时，不得自行指定预测月份、季节、上半年或下半年；但可以引用数据中明确给出的交运月份、交运日期和大运起止范围。",
   "健康只允许讨论传统体质、压力、作息、安全和就医建议；严禁仅凭命盘预测具体器官、疾病、症状或寿命。",
-  "建议必须对应前文判断并且现实可执行，优先给信息核验、时间安排、沟通边界、学习准备、风险缓冲、作息与就医建议。",
+  "建议必须对应可控行动：信息核验、时间安排、沟通边界、学习准备、风险缓冲、作息与就医。不得给出迷信化保证或高风险财务、法律、医疗指令。",
   "不能假装命盘能确认现实事实，不能使用一定、必然、注定、必定、肯定会等绝对表达。",
 ];
 
 const DATA_USAGE_RULES = [
-  "原局基础事实、辅助信息、完整大运基础时间轴和取象方法总纲属于常驻上下文；用户问任何未预设领域时，也可以基于这些材料独立取象。",
-  "matchedRules只代表与当前问题和命盘线索相关的专业规则候选；先验证再使用，未命中条件的规则应舍弃。",
-  "用户问原局、性格、家庭、职业、关系或其他无具体时间的问题时，不要擅自加入流年流月。",
-  "用户问当前阶段时，结合原局与当前大运；用户问某年时，结合该年对应大运与流年基础事实。",
-  "用户问多年走势或哪几年、什么时候时，逐年比较系统实际提供的年份，不把不同年份证据混成同一结论。",
-  "用户明确问月份、哪月或逐月时，才使用系统提供的流月基础事实和流月候选取象。",
-  "候选取象的作用是帮助发现可能主线，不是替代推理。每条候选取象都要检查硬事实、成立条件、削弱因素和现实阶段。",
-  "当候选取象与硬事实冲突、证据重复或置信度过低时，应主动舍弃而不是勉强写入答案。",
+  "用户问原局时，只使用基础四柱、十神和藏干完成全局结构分析。",
+  "用户问某年时，先判断该年是否交运；若交运则分交运前后，再判断全年共同的流年作用。",
+  "用户问多年走势或“哪几年、什么时候”时，逐年比较系统实际提供的年份，不把不同年份的证据混成同一结论。",
+  "当用户没有指定年份范围时，系统会提供默认扫描窗口；不得声称没有大运或流年数据，也不得要求用户重复提供已经存在的出生信息。",
+  "用户问月份差异时，比较系统提供的目标年份十二流月基础事实。",
   "程序提供的机械关系只证明结构存在，不自动证明现实事件已经发生。",
+  "条件组合只能作为条件性线索，不能升级为确定结论。",
+  "不得引用系统未发送的页面取象、AI文章、领域排名或现实故事。",
   "若数据存在缺项、交运定位不清或关系冲突，先指出缺口，再降低结论强度。",
-  "普通常识问题可以忽略命盘上下文，直接作为一般AI助手回答。",
 ];
 
 const USER_FACING_RULES = [
@@ -75,28 +60,24 @@ const USER_FACING_RULES = [
 const OUTPUT_FORMAT_RULES = [
   "回答命理问题时，优先按以下Markdown结构输出：",
   "## 直接回答",
-  "先用1-3句话回答用户真正的问题，先给结论再展开。",
-  "## 核心取象",
-  "明确写出主象、辅象、矛盾象、条件象和主要反证；没有足够证据的类别可以省略。",
-  "## 命理依据",
-  "分清硬事实、辅助结构信息和经过复核的本地候选取象，不暴露内部字段名。",
-  "## 展开分析",
-  "按原局承接、大运背景、流年触发、必要时流月触发展开，解释为什么会形成这些象。",
-  "## 可能表现",
-  "窄问题列零至三项；全面问题按相关领域展开。每项说明可能性、至少两条独立依据、成立条件和削弱因素。",
-  "## 时间节奏",
-  "只有收到对应大运、流年或流月数据时才写；交运年必须分段。",
+  "用1-3句话回答真正的问题；允许回答本阶段没有足够证据锁定具体事件。",
+  "## 数据完整度",
+  "说明已获得哪些层级、是否处于交运年、是否缺流月或现实背景。",
+  "## 确定结构",
+  "只列四柱、十神、岁运干支、交运时间和明确机械关系。",
+  "## 专业判断",
+  "依次说明旺衰依据、取用逻辑、原局承接、岁运新增作用；正式格局若条件不全必须降级为倾向。",
+  "## 主要显像",
+  "只列零至三项。每项必须包含：可能性等级、依据A、依据B、成立条件、削弱因素。",
   "## 行动建议",
-  "给出与判断直接对应、现实可执行、低风险的建议，不写空泛鸡汤。",
+  "给出2-5条与主要显像直接对应、现实可执行且低风险的建议。",
   "## 现实验证",
-  "列出2-5条用户可以现实中观察的验证点。",
+  "列出2-4条可观察验证点，不把验证问题写成暗示性确认。",
   "## 注意边界",
   "说明哪些不能仅凭命盘确认，健康不作具体医学判断。",
-  "若上下文规划显示回答深度为deep，应更全面地覆盖与问题相关的主要领域；若为concise，则保留核心取象、关键依据和建议。",
 ];
 
 const NATAL_CHAT_INTENTS = new Set([
-  "natalOverview",
   "relationship",
   "career",
   "wealth",
@@ -136,35 +117,12 @@ export function buildChatPrompt({
   requestedYears,
   requestedYearReports,
   yearSearchPlan,
-  contextPlan,
-  selectedImagery,
-  imageryRulePack,
-  chatHistory,
   chart,
   baseBaziViewModel,
   currentInput,
 } = {}) {
   const normalizedIntent =
     normalizeChatIntent(chatIntent);
-
-  const resolvedTimeScope =
-    String(
-      contextPlan
-        ?.timeScope ??
-      "",
-    ) ||
-    (
-      normalizedIntent ===
-        "multiYear"
-        ? "multiYear"
-        : normalizedIntent ===
-            "yearTrend"
-          ? "singleYear"
-          : normalizedIntent ===
-              "monthTrend"
-            ? "month"
-            : "natal"
-    );
 
   const userPayload = {
     question:
@@ -174,12 +132,7 @@ export function buildChatPrompt({
       normalizedIntent,
 
     dataMode:
-      "hybrid_facts_plus_selected_imagery_plus_rule_kb",
-
-    contextPlan:
-      compactContextPlan(
-        contextPlan,
-      ),
+      "hard_facts_only",
 
     subjectContext:
       compactSubjectContext({
@@ -187,51 +140,25 @@ export function buildChatPrompt({
         chart,
         baseBaziViewModel,
         currentInput,
-        chatIntent:
-          normalizedIntent,
-
-        contextTimeScope:
-          resolvedTimeScope,
-      }),
-
-    natalHardFacts:
-      compactNatalHardFacts(
-        natalImageReport,
-      ),
-
-    natalAuxiliaryFacts:
-      compactNatalAuxiliaryFacts(
-        natalImageReport,
-      ),
-
-    luckHardFacts:
-      compactLuckHardFacts(
-        luckImageReport,
-      ),
-
-    selectedImagery:
-      compactSelectedImagery(
-        selectedImagery,
-      ),
-
-    imageryRulePack:
-      compactImageryRulePack(
-        imageryRulePack,
-      ),
-
-    chatHistory:
-      compactChatHistory({
-        messages:
-          chatHistory,
-        limit:
-          contextPlan
-            ?.limits
-            ?.chatTurns ??
-          4,
       }),
   };
 
-  if (resolvedTimeScope === "multiYear") {
+  const needsNatalEvidence =
+    NATAL_CHAT_INTENTS.has(
+      normalizedIntent,
+    ) ||
+    TIME_CHAT_INTENTS.has(
+      normalizedIntent,
+    );
+
+  if (needsNatalEvidence) {
+    userPayload.natalHardFacts =
+      compactNatalHardFacts(
+        natalImageReport,
+      );
+  }
+
+  if (normalizedIntent === "multiYear") {
     userPayload.requestedYears =
       normalizeYears(
         requestedYears,
@@ -255,7 +182,7 @@ export function buildChatPrompt({
       );
   }
 
-  if (resolvedTimeScope === "singleYear") {
+  if (normalizedIntent === "yearTrend") {
     userPayload.requestedYears =
       normalizeYears(
         requestedYears,
@@ -288,7 +215,7 @@ export function buildChatPrompt({
       );
   }
 
-  if (resolvedTimeScope === "month") {
+  if (normalizedIntent === "monthTrend") {
     userPayload.luckHardFacts =
       compactLuckHardFacts(
         luckImageReport,
@@ -345,387 +272,11 @@ export function buildChatPrompt({
   };
 }
 
-
-function compactContextPlan(
-  plan,
-) {
-  if (
-    !plan ||
-    typeof plan !==
-      "object"
-  ) {
-    return null;
-  }
-
-  return deepClean({
-    version:
-      plan.version,
-
-    isBaziQuestion:
-      Boolean(
-        plan.isBaziQuestion,
-      ),
-
-    timeScope:
-      plan.timeScope,
-
-    answerDepth:
-      plan.answerDepth,
-
-    domainKeys:
-      Array.isArray(
-        plan.domainKeys,
-      )
-        ? plan.domainKeys
-        : [],
-
-    requestedYears:
-      normalizeYears(
-        plan.requestedYears,
-      ),
-
-    targetYear:
-      plan.targetYear,
-
-    selectedMonth:
-      plan.selectedMonth,
-
-    yearSearchMode:
-      plan.yearSearchMode,
-
-    monthMode:
-      plan.monthMode,
-
-    include:
-      plan.include,
-
-    availability:
-      plan.availability,
-
-    plannerInstruction:
-      plan.plannerInstruction,
-  });
-}
-
-function compactNatalAuxiliaryFacts(
-  natalImageReport,
-) {
-  const pack =
-    natalImageReport
-      ?.natalAiEvidencePack ??
-    natalImageReport
-      ?.natalDebug
-      ?.natalAiEvidencePack ??
-    null;
-
-  if (
-    !pack
-  ) {
-    return null;
-  }
-
-  return deepClean({
-    source:
-      "local_structure_engine",
-
-    role:
-      "auxiliary_reference_not_final",
-
-    dayMasterSummary:
-      compactAuxiliaryValue(
-        pack.dayMasterSummary,
-        0,
-      ),
-
-    natalBaseline:
-      compactAuxiliaryValue(
-        pack.natalBaseline,
-        0,
-      ),
-
-    warnings:
-      (
-        Array.isArray(
-          pack.warnings,
-        )
-          ? pack.warnings
-          : []
-      ).slice(
-        0,
-        8,
-      ),
-
-    instruction:
-      "辅助信息用于提高判断效率，但旺衰、格局、喜忌和现实取象仍需AI结合硬事实重新复核。",
-  });
-}
-
-function compactSelectedImagery(
-  value,
-) {
-  if (
-    !value ||
-    typeof value !==
-      "object"
-  ) {
-    return null;
-  }
-
-  return compactAuxiliaryValue(
-    value,
-    0,
-    {
-      maxDepth:
-        5,
-
-      maxArray:
-        20,
-
-      maxString:
-        600,
-    },
-  );
-}
-
-function compactImageryRulePack(
-  value,
-) {
-  if (
-    !value ||
-    typeof value !==
-      "object"
-  ) {
-    return null;
-  }
-
-  return compactAuxiliaryValue(
-    value,
-    0,
-    {
-      maxDepth:
-        7,
-
-      maxArray:
-        32,
-
-      maxString:
-        800,
-    },
-  );
-}
-
-function compactChatHistory({
-  messages,
-  limit,
-} = {}) {
-  const safeLimit =
-    Math.max(
-      0,
-      Math.min(
-        8,
-        Number(
-          limit,
-        ) ||
-          0,
-      ),
-    );
-
-  return (
-    Array.isArray(
-      messages,
-    )
-      ? messages
-      : []
-  )
-    .slice(
-      -safeLimit,
-    )
-    .map(
-      (item) =>
-        deepClean({
-          question:
-            String(
-              item?.question ??
-              "",
-            ).slice(
-              0,
-              500,
-            ),
-
-          answer:
-            String(
-              item?.answer ??
-              "",
-            ).slice(
-              0,
-              1600,
-            ),
-        }),
-    )
-    .filter(
-      (item) =>
-        item.question ||
-        item.answer,
-    );
-}
-
-function compactAuxiliaryValue(
-  value,
-  depth,
-  options = {},
-) {
-  const maxDepth =
-    Number(
-      options.maxDepth,
-    ) ||
-    4;
-
-  const maxArray =
-    Number(
-      options.maxArray,
-    ) ||
-    16;
-
-  const maxString =
-    Number(
-      options.maxString,
-    ) ||
-    420;
-
-  if (
-    value ===
-      null ||
-    value ===
-      undefined
-  ) {
-    return null;
-  }
-
-  if (
-    typeof value ===
-      "string"
-  ) {
-    return value.slice(
-      0,
-      maxString,
-    );
-  }
-
-  if (
-    typeof value ===
-      "number" ||
-    typeof value ===
-      "boolean"
-  ) {
-    return value;
-  }
-
-  if (
-    depth >=
-      maxDepth
-  ) {
-    return null;
-  }
-
-  if (
-    Array.isArray(
-      value,
-    )
-  ) {
-    return value
-      .slice(
-        0,
-        maxArray,
-      )
-      .map(
-        (item) =>
-          compactAuxiliaryValue(
-            item,
-            depth +
-              1,
-            options,
-          ),
-      )
-      .filter(
-        (item) =>
-          item !==
-            null &&
-          item !==
-            undefined,
-      );
-  }
-
-  if (
-    typeof value ===
-      "object"
-  ) {
-    return Object.fromEntries(
-      Object.entries(
-        value,
-      )
-        .filter(
-          (
-            [
-              key,
-            ],
-          ) =>
-            ![
-              "masterSummary",
-              "narrative",
-              "story",
-              "article",
-              "html",
-              "debug",
-              "raw",
-            ].includes(
-              key,
-            ),
-        )
-        .slice(
-          0,
-          40,
-        )
-        .map(
-          (
-            [
-              key,
-              child,
-            ],
-          ) => [
-            key,
-            compactAuxiliaryValue(
-              child,
-              depth +
-                1,
-              options,
-            ),
-          ],
-        )
-        .filter(
-          (
-            [
-              ,
-              child,
-            ],
-          ) =>
-            child !==
-              null &&
-            child !==
-              undefined,
-        ),
-    );
-  }
-
-  return null;
-}
-
 function compactSubjectContext({
   natalImageReport,
   chart,
   baseBaziViewModel,
   currentInput,
-  chatIntent,
-  contextTimeScope,
 } = {}) {
   const birthYear = firstFiniteNumber([
     chart?.input?.year,
@@ -744,52 +295,16 @@ function compactSubjectContext({
     ? Math.max(0, targetYear - birthYear)
     : null;
 
-  const isTimeIntent =
-    TIME_CHAT_INTENTS.has(
-      String(
-        chatIntent ??
-        "",
-      ),
-    ) ||
-    [
-      "singleYear",
-      "multiYear",
-      "month",
-    ].includes(
-      String(
-        contextTimeScope ??
-        "",
-      ),
-    );
-
   return deepClean({
     birthYear,
-
-    referenceAge:
-      age,
-
-    lifeStage:
-      classifyLifeStage(
-        age,
-      ),
-
-    ...(isTimeIntent
-      ? {
-          targetYear,
-
-          selectedMonth:
-            firstFiniteNumber([
-              currentInput
-                ?.selectedMonth,
-              chart
-                ?.input
-                ?.selectedMonth,
-              baseBaziViewModel
-                ?.birthInfo
-                ?.selectedMonth,
-            ]),
-        }
-      : {}),
+    targetYear,
+    selectedMonth: firstFiniteNumber([
+      currentInput?.selectedMonth,
+      chart?.input?.selectedMonth,
+      baseBaziViewModel?.birthInfo?.selectedMonth,
+    ]),
+    age,
+    lifeStage: classifyLifeStage(age),
   });
 }
 

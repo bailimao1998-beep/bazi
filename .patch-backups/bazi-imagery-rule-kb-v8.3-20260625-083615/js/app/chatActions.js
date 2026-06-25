@@ -12,9 +12,6 @@ import {
 import {
   selectChatImagery,
 } from "../core/ai/selectChatImagery.js";
-import {
-  buildImageryRulePack,
-} from "../core/imagery-rules/buildImageryRulePack.js";
 import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260613b";
 import { buildLuckImageReport } from "../core/blind-bazi/buildLuckImageReport.js";
 import { buildYearImageReport } from "../core/blind-bazi/buildYearImageReport.js";
@@ -280,41 +277,6 @@ export function createChatActions({
           requestedYearReports,
         });
 
-      const imageryRulePack =
-        buildImageryRulePack({
-          question:
-            trimmedQuestion,
-
-          plan:
-            contextPlan,
-
-          natalImageReport:
-            store.state
-              .natalImageReport,
-
-          luckImageReport:
-            targetYearReport
-              .luckImageReport ??
-            store.state
-              .luckImageReport,
-
-          yearImageReport:
-            targetYearReport
-              .yearImageReport ??
-            store.state
-              .yearImageReport,
-
-          monthImageReport:
-            resolvedMonthReport,
-
-          monthImageReports:
-            resolvedMonthReports,
-
-          requestedYearReports,
-
-          selectedImagery,
-        });
-
       const prompt =
         buildChatPrompt({
           question:
@@ -353,8 +315,6 @@ export function createChatActions({
           contextPlan,
 
           selectedImagery,
-
-          imageryRulePack,
 
           chatHistory:
             store.chatState
@@ -470,21 +430,8 @@ export function createChatActions({
 
           selectedImagery,
 
-          imageryRulePack: {
-            version:
-              imageryRulePack.version,
-
-            matchedRuleIds:
-              imageryRulePack
-                .matchedRuleIds,
-
-            sourceSummary:
-              imageryRulePack
-                .sourceSummary,
-          },
-
           dataMode:
-            "hybrid_facts_plus_selected_imagery_plus_rule_kb",
+            "hybrid_facts_plus_selected_imagery",
 
           attempts,
 

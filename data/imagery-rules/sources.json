@@ -1,0 +1,84 @@
+{
+  "version": "imagery-sources-v1",
+  "sources": [
+    {
+      "id": "cui_blind_notes_5000",
+      "title": "催老师催文举崔老师盲派八字笔记（5000元）",
+      "school": [
+        "盲派",
+        "崔文举体系"
+      ],
+      "fileName": "催老师催文举崔老师盲派八字笔记（5000元）.pdf",
+      "type": "course_notes",
+      "ingestionStatus": "core_chapters_partially_structured",
+      "ingestedSections": [
+        "基础与干支关系",
+        "十神",
+        "看命顺序与体用",
+        "做工与四大结构",
+        "婚姻",
+        "大运流年",
+        "五行、十神、地支与职业像法"
+      ],
+      "notes": "本版本只做规则化转述，不复制长段原文；高风险断语未进入用户侧规则。"
+    },
+    {
+      "id": "yang_advanced_blind_notes",
+      "title": "杨清娟盲派体系八字《盲派八字高级班笔记》",
+      "school": [
+        "盲派",
+        "杨清娟体系"
+      ],
+      "fileName": "杨清娟盲派体系八字《盲派八字高级班笔记》364页.pdf",
+      "type": "advanced_course_notes",
+      "ingestionStatus": "selected_core_pages_structured",
+      "ingestedSections": [
+        "十神类象（选页）",
+        "地支作用关系总纲（选页）",
+        "宾主、制用、化用、生泄用、合用、墓用目录框架"
+      ],
+      "notes": "扫描版仅结构化已人工核读的选页，其余章节后续分批补录。"
+    },
+    {
+      "id": "cui_five_elements",
+      "title": "崔文举 盲派八字（五行篇）W",
+      "school": [
+        "盲派",
+        "崔文举体系"
+      ],
+      "fileName": "崔文举 盲派八字（五行篇）W.pdf",
+      "type": "scanned_course_notes",
+      "ingestionStatus": "registered_ocr_pending",
+      "ingestedSections": [],
+      "notes": "已登记来源，扫描文本质量不足，本版本不冒充已完成提炼。"
+    },
+    {
+      "id": "cui_advanced_2025",
+      "title": "崔老师八字精进班320页2025年",
+      "school": [
+        "盲派",
+        "崔文举体系"
+      ],
+      "fileName": "崔老师八字精进班320页2025年.pdf",
+      "type": "scanned_course_notes",
+      "ingestionStatus": "registered_ocr_pending",
+      "ingestedSections": [],
+      "notes": "已登记来源，后续按章节渲染核读后再进入正式规则库。"
+    },
+    {
+      "id": "system_synthesis",
+      "title": "命理数据工程约束与多源归纳",
+      "school": [
+        "system"
+      ],
+      "type": "internal_methodology",
+      "ingestionStatus": "active",
+      "ingestedSections": [
+        "证据分层",
+        "安全边界",
+        "跨层级推理纪律"
+      ],
+      "notes": "用于把书本经验转成可审计规则，不作为古籍或课程原文。"
+    }
+  ]
+}

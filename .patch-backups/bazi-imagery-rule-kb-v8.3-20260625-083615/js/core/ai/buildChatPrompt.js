@@ -8,11 +8,6 @@ const INTERNAL_FIELD_NAMES = [
   "monthHardFactsList",
   "contextPlan",
   "selectedImagery",
-  "imageryRulePack",
-  "methodologyRules",
-  "matchedRules",
-  "sourceRefs",
-  "ruleId",
   "chatHistory",
   "chatIntent",
   "dataMode",
@@ -25,9 +20,6 @@ const BASE_CHAT_RULES = [
   "系统会同时提供三类材料：确定性基础事实、辅助结构信息、本地规则引擎筛选的候选取象。",
   "确定性基础事实优先级最高；辅助结构信息用于帮助判断但不是最终结论；候选取象只作参考，必须复核后才能使用。",
   "前端上下文规划器只负责选择时间层、领域和候选取象，不代表最终判断。你可以合并、降级或否定本地候选取象。",
-  "系统还会提供取象总纲和按问题召回的书本取象规则。总纲用于规范推理，匹配规则用于补充专业候选象，但都不是现实事实。",
-  "使用书本规则时必须逐条核对触发依据、成立条件、削弱因素和禁止越级结论；不能因为规则被召回就强行使用。",
-  "多条规则冲突时，硬事实优先，其次看直接作用、当前时间层、条件完整度、规则等级和多源支持。",
   "必须先取象再展开：先形成主象、辅象、矛盾象、条件象与反证象，再映射到现实领域、时间节奏和建议。",
   "分析采用全局通用流程：核对事实完整度 → 月令与日主 → 根气、透干、生扶克泄 → 原局组合与制化 → 大运背景 → 流年新增作用 → 必要时流月触发。",
   "不得篡改系统给出的四柱、十神、藏干、岁运干支、年龄区间、交运时间、节气范围或机械关系。",
@@ -53,8 +45,7 @@ const BASE_CHAT_RULES = [
 ];
 
 const DATA_USAGE_RULES = [
-  "原局基础事实、辅助信息、完整大运基础时间轴和取象方法总纲属于常驻上下文；用户问任何未预设领域时，也可以基于这些材料独立取象。",
-  "matchedRules只代表与当前问题和命盘线索相关的专业规则候选；先验证再使用，未命中条件的规则应舍弃。",
+  "原局基础事实、辅助信息和完整大运基础时间轴属于常驻上下文；用户问任何未预设领域时，也可以基于这些材料独立取象。",
   "用户问原局、性格、家庭、职业、关系或其他无具体时间的问题时，不要擅自加入流年流月。",
   "用户问当前阶段时，结合原局与当前大运；用户问某年时，结合该年对应大运与流年基础事实。",
   "用户问多年走势或哪几年、什么时候时，逐年比较系统实际提供的年份，不把不同年份证据混成同一结论。",
@@ -138,7 +129,6 @@ export function buildChatPrompt({
   yearSearchPlan,
   contextPlan,
   selectedImagery,
-  imageryRulePack,
   chatHistory,
   chart,
   baseBaziViewModel,
@@ -174,7 +164,7 @@ export function buildChatPrompt({
       normalizedIntent,
 
     dataMode:
-      "hybrid_facts_plus_selected_imagery_plus_rule_kb",
+      "hybrid_facts_plus_selected_imagery",
 
     contextPlan:
       compactContextPlan(
@@ -212,11 +202,6 @@ export function buildChatPrompt({
     selectedImagery:
       compactSelectedImagery(
         selectedImagery,
-      ),
-
-    imageryRulePack:
-      compactImageryRulePack(
-        imageryRulePack,
       ),
 
     chatHistory:
@@ -483,33 +468,6 @@ function compactSelectedImagery(
 
       maxString:
         600,
-    },
-  );
-}
-
-function compactImageryRulePack(
-  value,
-) {
-  if (
-    !value ||
-    typeof value !==
-      "object"
-  ) {
-    return null;
-  }
-
-  return compactAuxiliaryValue(
-    value,
-    0,
-    {
-      maxDepth:
-        7,
-
-      maxArray:
-        32,
-
-      maxString:
-        800,
     },
   );
 }

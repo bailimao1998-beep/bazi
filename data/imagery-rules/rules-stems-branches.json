@@ -1,0 +1,1734 @@
+{
+  "version": "imagery-rules-stems-branches-v1",
+  "module": "stems-branches",
+  "rules": [
+    {
+      "id": "stem_jia_imagery",
+      "title": "甲阳木：基础物象与行为方式",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 63,
+      "gender": "all",
+      "queryKeywords": [
+        "甲",
+        "阳木",
+        "天干"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "甲"
+        ]
+      },
+      "requires": [
+        "确认甲所在宫位、十神、根气与是否被当前岁运调用",
+        "物象只能作为表达方式和现实对象候选"
+      ],
+      "weakeningConditions": [
+        "甲无根、受制或只在远层出现",
+        "同柱与全局组合明显改变其表现"
+      ],
+      "imagery": {
+        "core": [
+          "甲可取大树、栋梁、规划、直立与向上之象"
+        ],
+        "positive": [
+          "重视方向、原则与长期成长"
+        ],
+        "negative": [
+          "过强时容易僵直或扩张"
+        ],
+        "realityChecks": [
+          "现实中是否在大树、栋梁、规划、直立与向上相关的行为或工作对象上反复出现"
+        ]
+      },
+      "advice": [
+        "把天干物象与十神、宫位和做功方式交叉验证"
+      ],
+      "prohibitions": [
+        "不能仅凭甲锁定性格、职业、相貌或具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-264",
+          "section": "甲天干与五行像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "6-8",
+          "section": "十天干章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "stem_yi_imagery",
+      "title": "乙阴木：基础物象与行为方式",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 63,
+      "gender": "all",
+      "queryKeywords": [
+        "乙",
+        "阴木",
+        "天干"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "乙"
+        ]
+      },
+      "requires": [
+        "确认乙所在宫位、十神、根气与是否被当前岁运调用",
+        "物象只能作为表达方式和现实对象候选"
+      ],
+      "weakeningConditions": [
+        "乙无根、受制或只在远层出现",
+        "同柱与全局组合明显改变其表现"
+      ],
+      "imagery": {
+        "core": [
+          "乙可取花草、藤蔓、协调、细节与柔性连接之象"
+        ],
+        "positive": [
+          "善于适应、沟通与细部经营"
+        ],
+        "negative": [
+          "过强时容易缠绕或犹豫"
+        ],
+        "realityChecks": [
+          "现实中是否在花草、藤蔓、协调、细节与柔性连接相关的行为或工作对象上反复出现"
+        ]
+      },
+      "advice": [
+        "把天干物象与十神、宫位和做功方式交叉验证"
+      ],
+      "prohibitions": [
+        "不能仅凭乙锁定性格、职业、相貌或具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-264",
+          "section": "乙天干与五行像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "6-8",
+          "section": "十天干章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "stem_bing_imagery",
+      "title": "丙阳火：基础物象与行为方式",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 63,
+      "gender": "all",
+      "queryKeywords": [
+        "丙",
+        "阳火",
+        "天干"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "丙"
+        ]
+      },
+      "requires": [
+        "确认丙所在宫位、十神、根气与是否被当前岁运调用",
+        "物象只能作为表达方式和现实对象候选"
+      ],
+      "weakeningConditions": [
+        "丙无根、受制或只在远层出现",
+        "同柱与全局组合明显改变其表现"
+      ],
+      "imagery": {
+        "core": [
+          "丙可取太阳、公开、传播、热度与可见度之象"
+        ],
+        "positive": [
+          "愿意表达、照亮和承担公开角色"
+        ],
+        "negative": [
+          "过强时容易急躁或曝光过度"
+        ],
+        "realityChecks": [
+          "现实中是否在太阳、公开、传播、热度与可见度相关的行为或工作对象上反复出现"
+        ]
+      },
+      "advice": [
+        "把天干物象与十神、宫位和做功方式交叉验证"
+      ],
+      "prohibitions": [
+        "不能仅凭丙锁定性格、职业、相貌或具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-264",
+          "section": "丙天干与五行像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "6-8",
+          "section": "十天干章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "stem_ding_imagery",
+      "title": "丁阴火：基础物象与行为方式",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 63,
+      "gender": "all",
+      "queryKeywords": [
+        "丁",
+        "阴火",
+        "天干"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "丁"
+        ]
+      },
+      "requires": [
+        "确认丁所在宫位、十神、根气与是否被当前岁运调用",
+        "物象只能作为表达方式和现实对象候选"
+      ],
+      "weakeningConditions": [
+        "丁无根、受制或只在远层出现",
+        "同柱与全局组合明显改变其表现"
+      ],
+      "imagery": {
+        "core": [
+          "丁可取灯火、专注、文化、精细表达与持续热度之象"
+        ],
+        "positive": [
+          "擅长细致传播、审美与点状影响"
+        ],
+        "negative": [
+          "过强时容易敏感或耗神"
+        ],
+        "realityChecks": [
+          "现实中是否在灯火、专注、文化、精细表达与持续热度相关的行为或工作对象上反复出现"
+        ]
+      },
+      "advice": [
+        "把天干物象与十神、宫位和做功方式交叉验证"
+      ],
+      "prohibitions": [
+        "不能仅凭丁锁定性格、职业、相貌或具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-264",
+          "section": "丁天干与五行像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "6-8",
+          "section": "十天干章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "stem_wu_imagery",
+      "title": "戊阳土：基础物象与行为方式",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 63,
+      "gender": "all",
+      "queryKeywords": [
+        "戊",
+        "阳土",
+        "天干"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "戊"
+        ]
+      },
+      "requires": [
+        "确认戊所在宫位、十神、根气与是否被当前岁运调用",
+        "物象只能作为表达方式和现实对象候选"
+      ],
+      "weakeningConditions": [
+        "戊无根、受制或只在远层出现",
+        "同柱与全局组合明显改变其表现"
+      ],
+      "imagery": {
+        "core": [
+          "戊可取高地、平台、承载、信用与稳定边界之象"
+        ],
+        "positive": [
+          "重视稳固、责任与大框架"
+        ],
+        "negative": [
+          "过强时容易厚重堵塞"
+        ],
+        "realityChecks": [
+          "现实中是否在高地、平台、承载、信用与稳定边界相关的行为或工作对象上反复出现"
+        ]
+      },
+      "advice": [
+        "把天干物象与十神、宫位和做功方式交叉验证"
+      ],
+      "prohibitions": [
+        "不能仅凭戊锁定性格、职业、相貌或具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-264",
+          "section": "戊天干与五行像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "6-8",
+          "section": "十天干章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "stem_ji_imagery",
+      "title": "己阴土：基础物象与行为方式",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 63,
+      "gender": "all",
+      "queryKeywords": [
+        "己",
+        "阴土",
+        "天干"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "己"
+        ]
+      },
+      "requires": [
+        "确认己所在宫位、十神、根气与是否被当前岁运调用",
+        "物象只能作为表达方式和现实对象候选"
+      ],
+      "weakeningConditions": [
+        "己无根、受制或只在远层出现",
+        "同柱与全局组合明显改变其表现"
+      ],
+      "imagery": {
+        "core": [
+          "己可取田园、培育、管理、细致承接与转化之象"
+        ],
+        "positive": [
+          "善于照料、协调、整合和落实"
+        ],
+        "negative": [
+          "过强时容易琐碎或包揽"
+        ],
+        "realityChecks": [
+          "现实中是否在田园、培育、管理、细致承接与转化相关的行为或工作对象上反复出现"
+        ]
+      },
+      "advice": [
+        "把天干物象与十神、宫位和做功方式交叉验证"
+      ],
+      "prohibitions": [
+        "不能仅凭己锁定性格、职业、相貌或具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-264",
+          "section": "己天干与五行像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "6-8",
+          "section": "十天干章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "stem_geng_imagery",
+      "title": "庚阳金：基础物象与行为方式",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 63,
+      "gender": "all",
+      "queryKeywords": [
+        "庚",
+        "阳金",
+        "天干"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "庚"
+        ]
+      },
+      "requires": [
+        "确认庚所在宫位、十神、根气与是否被当前岁运调用",
+        "物象只能作为表达方式和现实对象候选"
+      ],
+      "weakeningConditions": [
+        "庚无根、受制或只在远层出现",
+        "同柱与全局组合明显改变其表现"
+      ],
+      "imagery": {
+        "core": [
+          "庚可取刀斧、机器、执行、改革与直接切割之象"
+        ],
+        "positive": [
+          "行动果断、重效率和工具"
+        ],
+        "negative": [
+          "过强时容易强硬或冲突"
+        ],
+        "realityChecks": [
+          "现实中是否在刀斧、机器、执行、改革与直接切割相关的行为或工作对象上反复出现"
+        ]
+      },
+      "advice": [
+        "把天干物象与十神、宫位和做功方式交叉验证"
+      ],
+      "prohibitions": [
+        "不能仅凭庚锁定性格、职业、相貌或具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-264",
+          "section": "庚天干与五行像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "6-8",
+          "section": "十天干章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "stem_xin_imagery",
+      "title": "辛阴金：基础物象与行为方式",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 63,
+      "gender": "all",
+      "queryKeywords": [
+        "辛",
+        "阴金",
+        "天干"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "辛"
+        ]
+      },
+      "requires": [
+        "确认辛所在宫位、十神、根气与是否被当前岁运调用",
+        "物象只能作为表达方式和现实对象候选"
+      ],
+      "weakeningConditions": [
+        "辛无根、受制或只在远层出现",
+        "同柱与全局组合明显改变其表现"
+      ],
+      "imagery": {
+        "core": [
+          "辛可取珠玉、精密、标准、审美与价值筛选之象"
+        ],
+        "positive": [
+          "细致、讲究品质和边界"
+        ],
+        "negative": [
+          "过强时容易挑剔或自我约束"
+        ],
+        "realityChecks": [
+          "现实中是否在珠玉、精密、标准、审美与价值筛选相关的行为或工作对象上反复出现"
+        ]
+      },
+      "advice": [
+        "把天干物象与十神、宫位和做功方式交叉验证"
+      ],
+      "prohibitions": [
+        "不能仅凭辛锁定性格、职业、相貌或具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-264",
+          "section": "辛天干与五行像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "6-8",
+          "section": "十天干章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "stem_ren_imagery",
+      "title": "壬阳水：基础物象与行为方式",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 63,
+      "gender": "all",
+      "queryKeywords": [
+        "壬",
+        "阳水",
+        "天干"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "壬"
+        ]
+      },
+      "requires": [
+        "确认壬所在宫位、十神、根气与是否被当前岁运调用",
+        "物象只能作为表达方式和现实对象候选"
+      ],
+      "weakeningConditions": [
+        "壬无根、受制或只在远层出现",
+        "同柱与全局组合明显改变其表现"
+      ],
+      "imagery": {
+        "core": [
+          "壬可取江河、流动、资源网络、远行与大信息之象"
+        ],
+        "positive": [
+          "适应力、连接力和宏观流动强"
+        ],
+        "negative": [
+          "过强时容易漂移或泛化"
+        ],
+        "realityChecks": [
+          "现实中是否在江河、流动、资源网络、远行与大信息相关的行为或工作对象上反复出现"
+        ]
+      },
+      "advice": [
+        "把天干物象与十神、宫位和做功方式交叉验证"
+      ],
+      "prohibitions": [
+        "不能仅凭壬锁定性格、职业、相貌或具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-264",
+          "section": "壬天干与五行像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "6-8",
+          "section": "十天干章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "stem_gui_imagery",
+      "title": "癸阴水：基础物象与行为方式",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 63,
+      "gender": "all",
+      "queryKeywords": [
+        "癸",
+        "阴水",
+        "天干"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "癸"
+        ]
+      },
+      "requires": [
+        "确认癸所在宫位、十神、根气与是否被当前岁运调用",
+        "物象只能作为表达方式和现实对象候选"
+      ],
+      "weakeningConditions": [
+        "癸无根、受制或只在远层出现",
+        "同柱与全局组合明显改变其表现"
+      ],
+      "imagery": {
+        "core": [
+          "癸可取雨露、数据、细节信息、渗透与润泽之象"
+        ],
+        "positive": [
+          "观察细腻、善于积累和隐性连接"
+        ],
+        "negative": [
+          "过强时容易多虑或渗散"
+        ],
+        "realityChecks": [
+          "现实中是否在雨露、数据、细节信息、渗透与润泽相关的行为或工作对象上反复出现"
+        ]
+      },
+      "advice": [
+        "把天干物象与十神、宫位和做功方式交叉验证"
+      ],
+      "prohibitions": [
+        "不能仅凭癸锁定性格、职业、相貌或具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-264",
+          "section": "癸天干与五行像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "6-8",
+          "section": "十天干章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "branch_zi_imagery",
+      "title": "子阳水：基础物象与现实场域",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "property",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 64,
+      "gender": "all",
+      "queryKeywords": [
+        "子",
+        "阳水",
+        "地支"
+      ],
+      "trigger": {
+        "branchesAny": [
+          "子"
+        ]
+      },
+      "requires": [
+        "确认子所在宫位、藏干、是否为根或库，以及与其他地支的作用",
+        "地支物象必须服从十神归属与当前问题领域"
+      ],
+      "weakeningConditions": [
+        "子被强冲、穿、合绊或不参与做功",
+        "只凭单个地支无法确定现实行业或地点"
+      ],
+      "imagery": {
+        "core": [
+          "子可取流动、夜间、信息、隐秘、交通与细小持续变化之象"
+        ],
+        "positive": [
+          "灵活、敏感、重信息"
+        ],
+        "negative": [
+          "过旺时波动、分散或休息不足"
+        ],
+        "realityChecks": [
+          "现实中是否出现与流动、夜间、信息、隐秘、交通与细小持续变化相关的环境、资源或行为方式"
+        ]
+      },
+      "advice": [
+        "地支物象用来扩展候选场景，最终以宫位、十神和现实验证为准"
+      ],
+      "prohibitions": [
+        "不能仅凭子直接断灾祸、疾病、职业或地点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "265-270",
+          "section": "子地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "十二地支章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "branch_chou_imagery",
+      "title": "丑湿寒土、金库：基础物象与现实场域",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "property",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 64,
+      "gender": "all",
+      "queryKeywords": [
+        "丑",
+        "湿寒土、金库",
+        "地支"
+      ],
+      "trigger": {
+        "branchesAny": [
+          "丑"
+        ]
+      },
+      "requires": [
+        "确认丑所在宫位、藏干、是否为根或库，以及与其他地支的作用",
+        "地支物象必须服从十神归属与当前问题领域"
+      ],
+      "weakeningConditions": [
+        "丑被强冲、穿、合绊或不参与做功",
+        "只凭单个地支无法确定现实行业或地点"
+      ],
+      "imagery": {
+        "core": [
+          "丑可取收纳、仓储、金融、地下、组织与慢性积累之象"
+        ],
+        "positive": [
+          "耐久、能储存和承接"
+        ],
+        "negative": [
+          "过重时闭塞、拖延或难释放"
+        ],
+        "realityChecks": [
+          "现实中是否出现与收纳、仓储、金融、地下、组织与慢性积累相关的环境、资源或行为方式"
+        ]
+      },
+      "advice": [
+        "地支物象用来扩展候选场景，最终以宫位、十神和现实验证为准"
+      ],
+      "prohibitions": [
+        "不能仅凭丑直接断灾祸、疾病、职业或地点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "265-270",
+          "section": "丑地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "十二地支章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "branch_yin_imagery",
+      "title": "寅阳木、火土之源：基础物象与现实场域",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "property",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 64,
+      "gender": "all",
+      "queryKeywords": [
+        "寅",
+        "阳木、火土之源",
+        "地支"
+      ],
+      "trigger": {
+        "branchesAny": [
+          "寅"
+        ]
+      },
+      "requires": [
+        "确认寅所在宫位、藏干、是否为根或库，以及与其他地支的作用",
+        "地支物象必须服从十神归属与当前问题领域"
+      ],
+      "weakeningConditions": [
+        "寅被强冲、穿、合绊或不参与做功",
+        "只凭单个地支无法确定现实行业或地点"
+      ],
+      "imagery": {
+        "core": [
+          "寅可取启动、远行、规划、组织、教育与向外开拓之象"
+        ],
+        "positive": [
+          "主动、有方向、敢开局"
+        ],
+        "negative": [
+          "过旺时急于扩张或多线推进"
+        ],
+        "realityChecks": [
+          "现实中是否出现与启动、远行、规划、组织、教育与向外开拓相关的环境、资源或行为方式"
+        ]
+      },
+      "advice": [
+        "地支物象用来扩展候选场景，最终以宫位、十神和现实验证为准"
+      ],
+      "prohibitions": [
+        "不能仅凭寅直接断灾祸、疾病、职业或地点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "265-270",
+          "section": "寅地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "十二地支章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "branch_mao_imagery",
+      "title": "卯阴木：基础物象与现实场域",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "property",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 64,
+      "gender": "all",
+      "queryKeywords": [
+        "卯",
+        "阴木",
+        "地支"
+      ],
+      "trigger": {
+        "branchesAny": [
+          "卯"
+        ]
+      },
+      "requires": [
+        "确认卯所在宫位、藏干、是否为根或库，以及与其他地支的作用",
+        "地支物象必须服从十神归属与当前问题领域"
+      ],
+      "weakeningConditions": [
+        "卯被强冲、穿、合绊或不参与做功",
+        "只凭单个地支无法确定现实行业或地点"
+      ],
+      "imagery": {
+        "core": [
+          "卯可取门户、关系、审美、文字、教育与柔性协调之象"
+        ],
+        "positive": [
+          "细腻、合作、重体验"
+        ],
+        "negative": [
+          "过旺时边界松动或反复协调"
+        ],
+        "realityChecks": [
+          "现实中是否出现与门户、关系、审美、文字、教育与柔性协调相关的环境、资源或行为方式"
+        ]
+      },
+      "advice": [
+        "地支物象用来扩展候选场景，最终以宫位、十神和现实验证为准"
+      ],
+      "prohibitions": [
+        "不能仅凭卯直接断灾祸、疾病、职业或地点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "265-270",
+          "section": "卯地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "十二地支章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "branch_chen_imagery",
+      "title": "辰湿土、水库：基础物象与现实场域",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "property",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 64,
+      "gender": "all",
+      "queryKeywords": [
+        "辰",
+        "湿土、水库",
+        "地支"
+      ],
+      "trigger": {
+        "branchesAny": [
+          "辰"
+        ]
+      },
+      "requires": [
+        "确认辰所在宫位、藏干、是否为根或库，以及与其他地支的作用",
+        "地支物象必须服从十神归属与当前问题领域"
+      ],
+      "weakeningConditions": [
+        "辰被强冲、穿、合绊或不参与做功",
+        "只凭单个地支无法确定现实行业或地点"
+      ],
+      "imagery": {
+        "core": [
+          "辰可取平台、综合仓储、网络节点、变化接口与复杂承载之象"
+        ],
+        "positive": [
+          "可汇聚多种资源"
+        ],
+        "negative": [
+          "过重时混杂、拖滞或库门难开"
+        ],
+        "realityChecks": [
+          "现实中是否出现与平台、综合仓储、网络节点、变化接口与复杂承载相关的环境、资源或行为方式"
+        ]
+      },
+      "advice": [
+        "地支物象用来扩展候选场景，最终以宫位、十神和现实验证为准"
+      ],
+      "prohibitions": [
+        "不能仅凭辰直接断灾祸、疾病、职业或地点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "265-270",
+          "section": "辰地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "十二地支章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "branch_si_imagery",
+      "title": "巳阴火、金之长生：基础物象与现实场域",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "property",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 64,
+      "gender": "all",
+      "queryKeywords": [
+        "巳",
+        "阴火、金之长生",
+        "地支"
+      ],
+      "trigger": {
+        "branchesAny": [
+          "巳"
+        ]
+      },
+      "requires": [
+        "确认巳所在宫位、藏干、是否为根或库，以及与其他地支的作用",
+        "地支物象必须服从十神归属与当前问题领域"
+      ],
+      "weakeningConditions": [
+        "巳被强冲、穿、合绊或不参与做功",
+        "只凭单个地支无法确定现实行业或地点"
+      ],
+      "imagery": {
+        "core": [
+          "巳可取技术、传播、交易、变化、速度与精密加工之象"
+        ],
+        "positive": [
+          "反应快、能转化和传播"
+        ],
+        "negative": [
+          "过旺时急躁、消耗或暗中拉扯"
+        ],
+        "realityChecks": [
+          "现实中是否出现与技术、传播、交易、变化、速度与精密加工相关的环境、资源或行为方式"
+        ]
+      },
+      "advice": [
+        "地支物象用来扩展候选场景，最终以宫位、十神和现实验证为准"
+      ],
+      "prohibitions": [
+        "不能仅凭巳直接断灾祸、疾病、职业或地点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "265-270",
+          "section": "巳地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "十二地支章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "branch_wu_imagery",
+      "title": "午阳火：基础物象与现实场域",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "property",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 64,
+      "gender": "all",
+      "queryKeywords": [
+        "午",
+        "阳火",
+        "地支"
+      ],
+      "trigger": {
+        "branchesAny": [
+          "午"
+        ]
+      },
+      "requires": [
+        "确认午所在宫位、藏干、是否为根或库，以及与其他地支的作用",
+        "地支物象必须服从十神归属与当前问题领域"
+      ],
+      "weakeningConditions": [
+        "午被强冲、穿、合绊或不参与做功",
+        "只凭单个地支无法确定现实行业或地点"
+      ],
+      "imagery": {
+        "core": [
+          "午可取公开、热度、竞争、文化、权力与快速显化之象"
+        ],
+        "positive": [
+          "积极、可见、行动强"
+        ],
+        "negative": [
+          "过旺时压力、冲突或透支"
+        ],
+        "realityChecks": [
+          "现实中是否出现与公开、热度、竞争、文化、权力与快速显化相关的环境、资源或行为方式"
+        ]
+      },
+      "advice": [
+        "地支物象用来扩展候选场景，最终以宫位、十神和现实验证为准"
+      ],
+      "prohibitions": [
+        "不能仅凭午直接断灾祸、疾病、职业或地点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "265-270",
+          "section": "午地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "十二地支章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "branch_wei_imagery",
+      "title": "未燥土、木库：基础物象与现实场域",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "property",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 64,
+      "gender": "all",
+      "queryKeywords": [
+        "未",
+        "燥土、木库",
+        "地支"
+      ],
+      "trigger": {
+        "branchesAny": [
+          "未"
+        ]
+      },
+      "requires": [
+        "确认未所在宫位、藏干、是否为根或库，以及与其他地支的作用",
+        "地支物象必须服从十神归属与当前问题领域"
+      ],
+      "weakeningConditions": [
+        "未被强冲、穿、合绊或不参与做功",
+        "只凭单个地支无法确定现实行业或地点"
+      ],
+      "imagery": {
+        "core": [
+          "未可取规划落地、园林、建设、关系收纳与后期整合之象"
+        ],
+        "positive": [
+          "能把成长转成承载"
+        ],
+        "negative": [
+          "过重时缠绕、燥滞或责任堆积"
+        ],
+        "realityChecks": [
+          "现实中是否出现与规划落地、园林、建设、关系收纳与后期整合相关的环境、资源或行为方式"
+        ]
+      },
+      "advice": [
+        "地支物象用来扩展候选场景，最终以宫位、十神和现实验证为准"
+      ],
+      "prohibitions": [
+        "不能仅凭未直接断灾祸、疾病、职业或地点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "265-270",
+          "section": "未地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "十二地支章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "branch_shen_imagery",
+      "title": "申阳金：基础物象与现实场域",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "property",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 64,
+      "gender": "all",
+      "queryKeywords": [
+        "申",
+        "阳金",
+        "地支"
+      ],
+      "trigger": {
+        "branchesAny": [
+          "申"
+        ]
+      },
+      "requires": [
+        "确认申所在宫位、藏干、是否为根或库，以及与其他地支的作用",
+        "地支物象必须服从十神归属与当前问题领域"
+      ],
+      "weakeningConditions": [
+        "申被强冲、穿、合绊或不参与做功",
+        "只凭单个地支无法确定现实行业或地点"
+      ],
+      "imagery": {
+        "core": [
+          "申可取工具、交通、技术、制度执行、市场与快速切换之象"
+        ],
+        "positive": [
+          "效率、行动、资源交换"
+        ],
+        "negative": [
+          "过旺时强硬、变动或竞争"
+        ],
+        "realityChecks": [
+          "现实中是否出现与工具、交通、技术、制度执行、市场与快速切换相关的环境、资源或行为方式"
+        ]
+      },
+      "advice": [
+        "地支物象用来扩展候选场景，最终以宫位、十神和现实验证为准"
+      ],
+      "prohibitions": [
+        "不能仅凭申直接断灾祸、疾病、职业或地点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "265-270",
+          "section": "申地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "十二地支章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "branch_you_imagery",
+      "title": "酉阴金：基础物象与现实场域",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "property",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 64,
+      "gender": "all",
+      "queryKeywords": [
+        "酉",
+        "阴金",
+        "地支"
+      ],
+      "trigger": {
+        "branchesAny": [
+          "酉"
+        ]
+      },
+      "requires": [
+        "确认酉所在宫位、藏干、是否为根或库，以及与其他地支的作用",
+        "地支物象必须服从十神归属与当前问题领域"
+      ],
+      "weakeningConditions": [
+        "酉被强冲、穿、合绊或不参与做功",
+        "只凭单个地支无法确定现实行业或地点"
+      ],
+      "imagery": {
+        "core": [
+          "酉可取精密、审美、金融、口才、规则与成果筛选之象"
+        ],
+        "positive": [
+          "重品质、标准和兑现"
+        ],
+        "negative": [
+          "过旺时挑剔、内耗或关系疏离"
+        ],
+        "realityChecks": [
+          "现实中是否出现与精密、审美、金融、口才、规则与成果筛选相关的环境、资源或行为方式"
+        ]
+      },
+      "advice": [
+        "地支物象用来扩展候选场景，最终以宫位、十神和现实验证为准"
+      ],
+      "prohibitions": [
+        "不能仅凭酉直接断灾祸、疾病、职业或地点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "265-270",
+          "section": "酉地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "十二地支章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "branch_xu_imagery",
+      "title": "戌燥土、火库：基础物象与现实场域",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "property",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 64,
+      "gender": "all",
+      "queryKeywords": [
+        "戌",
+        "燥土、火库",
+        "地支"
+      ],
+      "trigger": {
+        "branchesAny": [
+          "戌"
+        ]
+      },
+      "requires": [
+        "确认戌所在宫位、藏干、是否为根或库，以及与其他地支的作用",
+        "地支物象必须服从十神归属与当前问题领域"
+      ],
+      "weakeningConditions": [
+        "戌被强冲、穿、合绊或不参与做功",
+        "只凭单个地支无法确定现实行业或地点"
+      ],
+      "imagery": {
+        "core": [
+          "戌可取规则、守护、工程、组织边界、文化收藏与收束之象"
+        ],
+        "positive": [
+          "责任、守成、结构稳定"
+        ],
+        "negative": [
+          "过重时封闭、压力或难以变通"
+        ],
+        "realityChecks": [
+          "现实中是否出现与规则、守护、工程、组织边界、文化收藏与收束相关的环境、资源或行为方式"
+        ]
+      },
+      "advice": [
+        "地支物象用来扩展候选场景，最终以宫位、十神和现实验证为准"
+      ],
+      "prohibitions": [
+        "不能仅凭戌直接断灾祸、疾病、职业或地点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "265-270",
+          "section": "戌地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "十二地支章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "branch_hai_imagery",
+      "title": "亥阴水、木之长生：基础物象与现实场域",
+      "category": "stem_branch",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "movement",
+        "property",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 64,
+      "gender": "all",
+      "queryKeywords": [
+        "亥",
+        "阴水、木之长生",
+        "地支"
+      ],
+      "trigger": {
+        "branchesAny": [
+          "亥"
+        ]
+      },
+      "requires": [
+        "确认亥所在宫位、藏干、是否为根或库，以及与其他地支的作用",
+        "地支物象必须服从十神归属与当前问题领域"
+      ],
+      "weakeningConditions": [
+        "亥被强冲、穿、合绊或不参与做功",
+        "只凭单个地支无法确定现实行业或地点"
+      ],
+      "imagery": {
+        "core": [
+          "亥可取远方、网络、学习、流动资源、想象与跨界连接之象"
+        ],
+        "positive": [
+          "开放、包容、信息面广"
+        ],
+        "negative": [
+          "过旺时漂移、理想化或目标分散"
+        ],
+        "realityChecks": [
+          "现实中是否出现与远方、网络、学习、流动资源、想象与跨界连接相关的环境、资源或行为方式"
+        ]
+      },
+      "advice": [
+        "地支物象用来扩展候选场景，最终以宫位、十神和现实验证为准"
+      ],
+      "prohibitions": [
+        "不能仅凭亥直接断灾祸、疾病、职业或地点"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "265-270",
+          "section": "亥地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "十二地支章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "stems-branches",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

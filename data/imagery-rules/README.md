@@ -1,36 +1,35 @@
-# 盲派取象知识与规则库 v1
+# 八字取象规则库 v8.4
 
-本目录是 v8.3 的 JSON 源数据，共包含：
+## 规模
 
-- 来源登记：5 项
-- 常驻取象总纲：22 条
-- 首批专业取象规则：51 条
+- 正式用户侧规则：365 条
+- 方法总纲：34 条
+- 模块：16 个
+- 登记来源：5 个
 
-## 规则原则
+## 模块
 
-1. 规则是专业参考，不是现实事件。
-2. 每条规则都包含成立条件、削弱条件、候选取象、建议和禁止越级结论。
-3. 高风险的死亡、牢狱、具体疾病、流产等断语没有进入用户侧规则。
-4. 来源内容采用结构化转述，不复制长段原文。
-5. 两本扫描资料已登记，但未完成可靠核读的章节不会冒充已提炼。
+- `core`：51条
+- `ten-gods`：60条
+- `elements`：25条
+- `stems-branches`：22条
+- `relations`：30条
+- `palaces`：12条
+- `guest-host-body-use`：15条
+- `work-methods`：20条
+- `tomb-storage`：15条
+- `relationship`：22条
+- `family`：15条
+- `career`：20条
+- `wealth`：14条
+- `health-state`：10条
+- `transit`：20条
+- `boundaries`：14条
 
-## 数据文件
+## 使用纪律
 
-- `sources.json`：四本资料和系统归纳的来源登记
-- `methodology.json`：每次命理问答都可使用的取象总纲
-- `rules-core.json`：根据问题动态召回的首批规则
-- `schema.json`：规则字段约束
-
-## 后续扩展
-
-新增规则后运行：
-
-```bash
-node scripts/build-imagery-rule-bundle.mjs
-```
-
-生成浏览器可直接 import 的：
-
-```text
-js/core/imagery-rules/imageryRuleBundle.js
-```
+1. 四柱、十神、藏干、实际交运时间和确定干支关系优先。
+2. 正式规则均包含成立条件、削弱因素、现实验证点和禁止越级结论。
+3. 扫描资料中未逐页人工核读的正文只进入 `research-pending.json`，不会打包进正式 `IMAGERY_RULES`。
+4. 案例断语不得直接升格为通则。
+5. 死亡、牢狱、重大疾病、流产、寿命等高风险断语不进入自动用户答案。

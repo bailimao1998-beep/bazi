@@ -13,6 +13,8 @@ const INTERNAL_FIELD_NAMES = [
   "matchedRules",
   "sourceRefs",
   "ruleId",
+  "ruleConstraint",
+  "ruleAudit",
   "chatHistory",
   "chatIntent",
   "dataMode",
@@ -24,37 +26,46 @@ const BASE_CHAT_RULES = [
   "你是面向不同性别、年龄、原局和岁运组合的八字命理分析助手，不得针对某一个示例命盘套答案。",
   "系统会同时提供三类材料：确定性基础事实、辅助结构信息、本地规则引擎筛选的候选取象。",
   "确定性基础事实优先级最高；辅助结构信息用于帮助判断但不是最终结论；候选取象只作参考，必须复核后才能使用。",
-  "前端上下文规划器只负责选择时间层、领域和候选取象，不代表最终判断。你可以合并、降级或否定本地候选取象。",
-  "系统还会提供取象总纲和按问题召回的书本取象规则。总纲用于规范推理，匹配规则用于补充专业候选象，但都不是现实事实。",
+  "前端上下文规划器只负责选择时间层、领域和候选取象，不代表最终判断。你可以对本次匹配规则和候选取象做合并、降级、否定、排序和现实化表达。",
+  "系统还会提供取象总纲和按问题召回的书本取象规则。匹配规则优先用于专业取象；规则覆盖不足时，可结合硬事实和总纲作保守补充推断。",
+  "不得自行创造系统未提供的具名干支关系、正式格局、特殊口诀或确定事件；也不要主动混入无关门派规则。",
+  "主象和重要判断应优先由匹配规则与硬事实共同支持；规则库暂未覆盖的部分只能作低强度补充推断，并明确条件与边界。",
+  "若本次没有匹配到足够规则，不要硬套口诀；可以从硬事实出发作简洁、保守的解释，也可以指出规则库暂未覆盖。",
   "使用书本规则时必须逐条核对触发依据、成立条件、削弱因素和禁止越级结论；不能因为规则被召回就强行使用。",
   "多条规则冲突时，硬事实优先，其次看直接作用、当前时间层、条件完整度、规则等级和多源支持。",
   "必须先取象再展开：先形成主象、辅象、矛盾象、条件象与反证象，再映射到现实领域、时间节奏和建议。",
   "分析采用全局通用流程：核对事实完整度 → 月令与日主 → 根气、透干、生扶克泄 → 原局组合与制化 → 大运背景 → 流年新增作用 → 必要时流月触发。",
   "不得篡改系统给出的四柱、十神、藏干、岁运干支、年龄区间、交运时间、节气范围或机械关系。",
+  "天干五行生克方向属于硬事实，必须按木克土、土克水、水克火、火克金、金克木判断；不确定时只写双方存在作用，不得写反。",
+  "天干五合属于固定基础规则：甲己合、乙庚合、丙辛合、丁壬合、戊癸合。除此之外不得写成天干五合、相合或合着。",
   "所有具名干支关系必须来自系统提供的机械关系白名单；本地候选取象中若出现与硬事实冲突的关系，必须舍弃。",
   "回答哪几年、什么时候时，只能从系统实际扫描并提供的年份中排序，严禁拿未扫描年份作举例或验证。",
   "同一条结构换一种说法不算第二条独立依据。事件汇合必须来自不同层级或不同类型。",
   "五合只代表五合条件。除非系统明确标注化气成立，否则严禁直接写已经化土、化金、化水、化木、化火。",
   "一个天干同时见多个合神时，只能写多重五合、争合或合意分散，不得写成全部合住。",
   "三合、三会、半合、拱合、三刑和伏吟必须区分条件齐全、成势、成局与化气，不得越级。",
-  "旺衰判断必须同时说明月令、根气、透干、生扶克泄和制化；资料不足时使用偏旺、偏弱、倾向、初步判断。",
-  "喜忌取用必须说明服务于什么结构问题，例如制旺、扶弱、调候、通关、制化；不得只因某五行少就说喜。",
+  "旺衰判断必须同时说明月令、根气、透干、生扶克泄和制化；资料不足时使用偏旺、偏弱、明显偏强、倾向、初步判断，避免仅凭评分写身极强、旺至极。",
+  "喜忌取用必须说明服务于什么结构问题，例如制旺、扶弱、调候、通关、制化；不得只因某五行少就说喜。没有完整取用链条时，优先写某五行具有疏泄、制衡或承接价值，不直接写某星就是用神。",
   "正式格局名称只能在所需角色、力量、位置和制化链条基本齐备时使用；否则写成结构倾向或条件。",
   "男命感情优先结合财星、日支、夫妻结构与当前岁运；女命感情优先结合官杀、日支、夫妻结构与当前岁运。",
+  "十神与干支作用先描述主题，再映射现实。七杀、正官、财星等不能仅凭一个信号直接拟人化成某类对象；害、破、冲、刑也不要一次扩展成家庭、距离、子女、金钱等多个具体场景。",
   "年龄与人生阶段属于客观约束。未知现实背景时给分支条件，不得把升学、入职、婚育、退休同时并列。",
   "单个十神、单个冲合或单个宫位不能直接推出升职、恋爱、结婚、签约、考试、搬家、疾病等具体事件。",
   "具体事件至少需要两条真正独立的命理依据汇合；流年事件至少含一条流年新增依据，流月事件至少含一条流月新增依据。",
   "优先筛选最值得观察的主线。窄问题列零至三项主要显像；全面问题可以展开多个领域，但每个领域仍需有证据和边界。",
   "交运年份必须按交运前后分段。两步大运的作用不得当成全年同时存在。",
+  "交运年的全年主次按实际覆盖时间判断：交运前覆盖更久，就以旧运加流年为全年主背景；交运后覆盖更久，才以新运为主。若在10月以后交运，新运只作年末转折与后续趋势，不得主导全年总判断。",
   "没有流月数据时，不得自行指定预测月份、季节、上半年或下半年；流月数据只在问题明确涉及月份时使用。",
   "健康只允许讨论传统体质、压力、作息、安全和就医建议；严禁仅凭命盘预测具体器官、疾病、症状或寿命。",
   "建议必须对应前文判断并且现实可执行，优先给信息核验、时间安排、沟通边界、学习准备、风险缓冲、作息与就医建议。",
   "不能假装命盘能确认现实事实，不能使用一定、必然、注定、必定、肯定会等绝对表达。",
+  "优先做到说得通、依据清楚和主次分明，不要为了形式完整而堆叠规则、栏目或过度保守的免责声明。",
 ];
 
 const DATA_USAGE_RULES = [
   "原局基础事实、辅助信息、完整大运基础时间轴和取象方法总纲属于常驻上下文；用户问任何未预设领域时，也可以基于这些材料独立取象。",
-  "matchedRules只代表与当前问题和命盘线索相关的专业规则候选；先验证再使用，未命中条件的规则应舍弃。",
+  "matchedRules是本次优先使用的专业规则集合；先验证再使用，条件不足的规则要降级或舍弃。",
+  "methodologyRules主要约束分析步骤；与明确硬事实共同使用时，可以支持保守的结构性解释，但不能单独推出具体事件。",
   "用户问原局、性格、家庭、职业、关系或其他无具体时间的问题时，不要擅自加入流年流月。",
   "用户问当前阶段时，结合原局与当前大运；用户问某年时，结合该年对应大运与流年基础事实。",
   "用户问多年走势或哪几年、什么时候时，逐年比较系统实际提供的年份，不把不同年份证据混成同一结论。",
@@ -92,7 +103,9 @@ const OUTPUT_FORMAT_RULES = [
   "列出2-5条用户可以现实中观察的验证点。",
   "## 注意边界",
   "说明哪些不能仅凭命盘确认，健康不作具体医学判断。",
-  "若上下文规划显示回答深度为deep，应更全面地覆盖与问题相关的主要领域；若为concise，则保留核心取象、关键依据和建议。",
+  "若上下文规划显示回答深度为concise，或用户明确说直接回答、只说结论、简单说，则只保留## 直接回答、## 核心取象、## 行动建议、## 注意边界四节，不强行填满所有栏目。",
+  "若回答深度为standard，覆盖关键依据和主要表现即可；只有deep才完整展开多个领域、时间节奏和现实验证。",
+  "正文不得展示英文规则ID、内部字段名或程序校验信息。规则追踪保留在程序调试数据中，不要求用户看到。",
 ];
 
 const NATAL_CHAT_INTENTS = new Set([
@@ -175,6 +188,9 @@ export function buildChatPrompt({
 
     dataMode:
       "hybrid_facts_plus_selected_imagery_plus_rule_kb",
+
+    reasoningMode:
+      "rule_guided_balanced",
 
     contextPlan:
       compactContextPlan(
@@ -833,6 +849,66 @@ function buildLuckTimelineForTargetYear({
     );
     const previous = nextIndex > 0 ? cycles[nextIndex - 1] : null;
 
+    const transitionMonth =
+      Number(
+        next.selectionMonth,
+      );
+
+    const beforeMonthsApprox =
+      Number.isFinite(
+        transitionMonth,
+      )
+        ? Math.max(
+            0,
+            Math.min(
+              12,
+              transitionMonth -
+                1,
+            ),
+          )
+        : null;
+
+    const afterMonthsApprox =
+      Number.isFinite(
+        transitionMonth,
+      )
+        ? Math.max(
+            0,
+            Math.min(
+              12,
+              13 -
+                transitionMonth,
+            ),
+          )
+        : null;
+
+    const dominantSegment =
+      Number.isFinite(
+        beforeMonthsApprox,
+      ) &&
+      Number.isFinite(
+        afterMonthsApprox,
+      )
+        ? (
+            beforeMonthsApprox >
+              afterMonthsApprox
+              ? "beforeTransition"
+              : afterMonthsApprox >
+                  beforeMonthsApprox
+                ? "afterTransition"
+                : "balanced"
+          )
+        : "unknown";
+
+    const annualPriorityInstruction =
+      dominantSegment ===
+        "beforeTransition"
+        ? "全年主判断以交运前的大运与流年为主，新大运只作交运后的转折和后续趋势。"
+        : dominantSegment ===
+            "afterTransition"
+          ? "全年主判断以交运后的新大运与流年为主，旧大运只解释交运前阶段。"
+          : "交运前后覆盖时间接近，应并列分段，不人为指定单一全年主背景。";
+
     return deepClean({
       targetYear: year,
       isTransitionYear: true,
@@ -842,19 +918,158 @@ function buildLuckTimelineForTargetYear({
       },
       beforeTransition: previous,
       afterTransition: next,
-      instruction: "交运前后必须分段分析，不得把两步大运当成全年同时存在。",
+      coverageMonthsApprox: {
+        beforeTransition:
+          beforeMonthsApprox,
+        afterTransition:
+          afterMonthsApprox,
+      },
+      dominantSegment,
+      instruction: [
+        "交运前后必须分段分析，不得把两步大运当成全年同时存在。",
+        annualPriorityInstruction,
+        Number.isFinite(
+          transitionMonth,
+        ) &&
+        transitionMonth >=
+          10
+          ? "本年在较晚月份交运，新大运不得被写成全年第一主象。"
+          : null,
+      ].filter(Boolean),
     });
   }
 
-  const active = cycles.find((item) => {
-    const range = parseYearRange(item.yearRange);
-    return range && year >= range.start && year <= range.end;
-  }) ?? cycles.find((item) => item.isCurrent) ?? null;
+  const cycleStarts =
+    cycles
+      .map(
+        (
+          item,
+          index,
+        ) => ({
+          item,
+          index,
+          startYear:
+            Number(
+              item
+                .selectionYear,
+            ),
+          startMonth:
+            Number(
+              item
+                .selectionMonth,
+            ),
+        }),
+      )
+      .filter(
+        (entry) =>
+          Number.isFinite(
+            entry.startYear,
+          ),
+      );
+
+  const activeEntry =
+    [
+      ...cycleStarts,
+    ]
+      .reverse()
+      .find(
+        (entry) =>
+          entry.startYear <
+            year ||
+          (
+            entry.startYear ===
+              year &&
+            (
+              !Number.isFinite(
+                entry.startMonth,
+              ) ||
+              entry.startMonth <=
+                12
+            )
+          ),
+      ) ??
+    null;
+
+  const active =
+    activeEntry
+      ?.item ??
+    cycles.find(
+      (item) =>
+        item.isCurrent,
+    ) ??
+    null;
+
+  const next =
+    activeEntry &&
+    activeEntry.index <
+      cycles.length -
+        1
+      ? cycles[
+          activeEntry.index +
+            1
+        ]
+      : null;
+
+  const nextTransitionAt =
+    Number.isFinite(
+      Number(
+        next
+          ?.selectionYear,
+      ),
+    )
+      ? {
+          year:
+            Number(
+              next
+                .selectionYear,
+            ),
+          month:
+            Number.isFinite(
+              Number(
+                next
+                  ?.selectionMonth,
+              ),
+            )
+              ? Number(
+                  next
+                    .selectionMonth,
+                )
+              : null,
+        }
+      : null;
+
+  const isFinalCalendarYearOfLuck =
+    Boolean(
+      nextTransitionAt &&
+      nextTransitionAt.year ===
+        year &&
+      nextTransitionAt.month ===
+        1,
+    );
+
+  const yearsUntilTransition =
+    nextTransitionAt
+      ? nextTransitionAt.year -
+        year
+      : null;
 
   return deepClean({
     targetYear: year,
     isTransitionYear: false,
     activeLuck: active,
+    nextLuck:
+      next,
+    nextTransitionAt,
+    yearsUntilTransition,
+    isFinalCalendarYearOfLuck,
+    instruction: [
+      "大运起止与是否换运，只以实际交运年月为准，不使用展示用yearRange判断最后一年。",
+      nextTransitionAt &&
+      nextTransitionAt.year >
+        year
+        ? `${year}年仍处当前大运；下一步大运于${nextTransitionAt.year}年${nextTransitionAt.month ?? "交运月"}开始。不得把${year}年写成当前大运最后一年。`
+        : null,
+    ].filter(Boolean),
   });
 }
 

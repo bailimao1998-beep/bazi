@@ -1,0 +1,1054 @@
+{
+  "version": "imagery-rules-boundaries-v1",
+  "module": "boundaries",
+  "rules": [
+    {
+      "id": "boundary_facts_first",
+      "title": "硬事实高于书本规则与AI取象",
+      "category": "boundary",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "parents",
+        "children",
+        "health"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 100,
+      "gender": "all",
+      "queryKeywords": [
+        "硬事实",
+        "规则",
+        "取象"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "硬事实",
+          "规则",
+          "取象"
+        ]
+      },
+      "requires": [
+        "发现冲突时舍弃或纠正规则解释"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "四柱、十神、藏干、实际交运时间和确定关系是最高层，规则和取象必须服从这些数据"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "不能让口诀覆盖排盘事实"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_five_combinations",
+      "title": "天干五合固定基础",
+      "category": "boundary",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 99,
+      "gender": "all",
+      "queryKeywords": [
+        "天干五合",
+        "甲己",
+        "乙庚",
+        "丙辛",
+        "丁壬",
+        "戊癸"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "天干五合",
+          "甲己",
+          "乙庚",
+          "丙辛",
+          "丁壬",
+          "戊癸"
+        ]
+      },
+      "requires": [
+        "先确认配对，再谈合意、合绊和化气"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "天干五合只有甲己、乙庚、丙辛、丁壬、戊癸五组"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止创造丙癸合、甲乙合等不存在关系"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_generation_control",
+      "title": "五行生克方向固定",
+      "category": "boundary",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 98,
+      "gender": "all",
+      "queryKeywords": [
+        "五行生克",
+        "生克方向"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "五行生克",
+          "生克方向"
+        ]
+      },
+      "requires": [
+        "基础方向正确后再判断力量和制化"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "生为木火土金水循环，克为木克土、土克水、水克火、火克金、金克木"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止写反生克或互相克制"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_ten_god_mapping",
+      "title": "十神映射按日主阴阳固定计算",
+      "category": "boundary",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 100,
+      "gender": "all",
+      "queryKeywords": [
+        "十神",
+        "日主",
+        "映射"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "十神",
+          "日主",
+          "映射"
+        ]
+      },
+      "requires": [
+        "以日主和目标天干阴阳五行计算"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "同我者比劫、生我者印、我生者食伤、我克者财、克我者官杀，正偏由阴阳决定"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止把辛日主的丙火写成财星等基础错误"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_relation_presence",
+      "title": "具名干支关系必须真实存在",
+      "category": "boundary",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 99,
+      "gender": "all",
+      "queryKeywords": [
+        "合冲刑害破",
+        "机械关系"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "合冲刑害破",
+          "机械关系"
+        ]
+      },
+      "requires": [
+        "明确参与干支和层级"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "暗合、六合、冲、刑、害、破、三合三会等必须由系统机械关系确认"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止根据语义联想创造关系"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_combine_transform",
+      "title": "合不等于化",
+      "category": "boundary",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 98,
+      "gender": "all",
+      "queryKeywords": [
+        "合化",
+        "化气"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "合化",
+          "化气"
+        ]
+      },
+      "requires": [
+        "系统未明确标注时只写合意或成势条件"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "天干五合和地支合局首先只是关系，化气需月令、根气、透干、局势和制化条件"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止直接写已经化木化火化土化金化水"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_strength_not_count",
+      "title": "旺衰不按数量或评分单断",
+      "category": "boundary",
+      "domains": [
+        "self",
+        "career",
+        "health"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 100,
+      "gender": "all",
+      "queryKeywords": [
+        "旺衰",
+        "评分",
+        "数量"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "旺衰",
+          "评分",
+          "数量"
+        ]
+      },
+      "requires": [
+        "评分仅作辅助摘要"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "旺衰需月令、根气、透藏、生扶克泄和制化综合判断"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止因分数高就写旺至极、从格或用神确定"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_event_two_evidence",
+      "title": "具体事件至少两条独立依据",
+      "category": "boundary",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse",
+        "parents",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 99,
+      "gender": "all",
+      "queryKeywords": [
+        "具体事件",
+        "独立依据"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "具体事件",
+          "独立依据"
+        ]
+      },
+      "requires": [
+        "流年事件含流年新增作用，流月事件含流月新增作用"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "升职、结婚、分手、搬家、破财等具体事件至少需不同层级或不同类型依据汇合"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止单一十神、关系或宫位直接推出事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_actual_transition",
+      "title": "大运状态以实际交运年月为准",
+      "category": "boundary",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 98,
+      "gender": "all",
+      "queryKeywords": [
+        "交运时间",
+        "最后一年",
+        "换运"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "交运时间",
+          "最后一年",
+          "换运"
+        ]
+      },
+      "requires": [
+        "计算目标日期位于哪步大运"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "当前大运、交运年和最后阶段只认实际交运年月，不认展示区间字符串"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止把尚未换运的年份写成新运全年或旧运最后一年"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_no_month_without_data",
+      "title": "无流月数据不指定月份",
+      "category": "boundary",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse",
+        "health"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 100,
+      "gender": "all",
+      "queryKeywords": [
+        "流月数据",
+        "月份"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "流月数据",
+          "月份"
+        ]
+      },
+      "requires": [
+        "用户明确询问月份且系统提供月柱和月关系"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "未加载流月事实时，只能分析全年和交运前后，不指定月份、季节或上下半年"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止模型自行推算或编造流月"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_no_medical_diagnosis",
+      "title": "命理不作医学诊断",
+      "category": "boundary",
+      "domains": [
+        "health"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 99,
+      "gender": "all",
+      "queryKeywords": [
+        "疾病",
+        "器官",
+        "寿命"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "疾病",
+          "器官",
+          "寿命"
+        ]
+      },
+      "requires": [
+        "具体症状和治疗交给专业医疗"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "健康内容只讨论压力、作息、安全和传统状态倾向"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止预测疾病、器官问题、流产、死亡和寿命"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_no_illegal_harm",
+      "title": "高风险断语不进入正式规则",
+      "category": "boundary",
+      "domains": [
+        "health",
+        "parents",
+        "children",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 98,
+      "gender": "all",
+      "queryKeywords": [
+        "死亡",
+        "牢狱",
+        "灾祸",
+        "流产"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "死亡",
+          "牢狱",
+          "灾祸",
+          "流产"
+        ]
+      },
+      "requires": [
+        "需要现实法律医疗安全证据和人工专业判断"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "课程中的高风险经验断语只能作为待研究材料，不能进入用户侧自动推理"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止自动输出死亡、牢狱、重大事故、流产或犯罪预测"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_source_verification",
+      "title": "扫描资料按核读状态分级",
+      "category": "boundary",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 100,
+      "gender": "all",
+      "queryKeywords": [
+        "来源",
+        "核读",
+        "扫描"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "来源",
+          "核读",
+          "扫描"
+        ]
+      },
+      "requires": [
+        "sourceRefs标注verificationStatus"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "已人工核读内容可进入正式规则；仅目录或模糊识别内容只登记研究待办"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止把未核读扫描内容冒充已提炼规则"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "boundary_conflict_resolution",
+      "title": "多来源冲突先保留条件差异",
+      "category": "boundary",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "A",
+      "certainty": "direct",
+      "priority": 99,
+      "gender": "all",
+      "queryKeywords": [
+        "多来源",
+        "冲突",
+        "仲裁"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "多来源",
+          "冲突",
+          "仲裁"
+        ]
+      },
+      "requires": [
+        "硬事实优先，条件更完整、直接作用和多源支持者优先"
+      ],
+      "weakeningConditions": [],
+      "imagery": {
+        "core": [
+          "不同老师断法不一致时，保留各自适用条件、来源和反证，不强行合成绝对口诀"
+        ],
+        "positive": [
+          "用于提高基础正确性、可追溯性和回答稳定性"
+        ],
+        "negative": [
+          "忽略边界会产生基础规则错误、越级事件和高风险误导"
+        ],
+        "realityChecks": [
+          "检查回答中的干支、十神、交运时间、关系名称和事件强度"
+        ]
+      },
+      "advice": [
+        "基础事实错误优先纠正，其余取象保持适度灵活"
+      ],
+      "prohibitions": [
+        "禁止无条件选择更极端或更吸引人的断语"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "基础规则与确定数据校验",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-75,226-250",
+          "section": "干支、十神、体用与岁运基础",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "boundaries",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

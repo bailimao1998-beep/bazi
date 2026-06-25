@@ -401,6 +401,18 @@ export function createChatActions({
             firstResult
               .finishReason ??
             null,
+
+          ruleAuditClaimCount:
+            Array.isArray(
+              firstValidation
+                .ruleAudit
+                ?.claims,
+            )
+              ? firstValidation
+                  .ruleAudit
+                  .claims
+                  .length
+              : 0,
         },
       ];
 
@@ -446,6 +458,18 @@ export function createChatActions({
             repairResult
               .finishReason ??
             null,
+
+          ruleAuditClaimCount:
+            Array.isArray(
+              repairValidation
+                .ruleAudit
+                ?.claims,
+            )
+              ? repairValidation
+                  .ruleAudit
+                  .claims
+                  .length
+              : 0,
         });
 
         finalText =
@@ -457,6 +481,13 @@ export function createChatActions({
                 prompt,
               });
       }
+
+      finalText =
+        sanitizeChatResponse({
+          text:
+            finalText,
+          prompt,
+        });
 
       globalThis
         .__lastChatAiDebug = {
@@ -485,6 +516,15 @@ export function createChatActions({
 
           dataMode:
             "hybrid_facts_plus_selected_imagery_plus_rule_kb",
+
+          ruleConstraintMode:
+            imageryRulePack
+              ?.ruleConstraint
+              ?.mode ??
+            "open",
+
+          reasoningMode:
+            "rule_guided_balanced",
 
           attempts,
 

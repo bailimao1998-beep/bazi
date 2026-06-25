@@ -1,0 +1,121 @@
+{
+  "version": "imagery-module-index-v1",
+  "activeRuleFiles": [
+    "rules-core.json",
+    "rules-ten-gods.json",
+    "rules-elements.json",
+    "rules-stems-branches.json",
+    "rules-relations.json",
+    "rules-palaces.json",
+    "rules-guest-host-body-use.json",
+    "rules-work-methods.json",
+    "rules-tomb-storage.json",
+    "rules-relationship.json",
+    "rules-family.json",
+    "rules-career.json",
+    "rules-wealth.json",
+    "rules-health-state.json",
+    "rules-transit.json",
+    "rules-boundaries.json"
+  ],
+  "modules": [
+    {
+      "id": "core",
+      "label": "首批核心规则",
+      "file": "rules-core.json",
+      "activeRuleCount": 51
+    },
+    {
+      "id": "ten-gods",
+      "label": "ten-gods",
+      "file": "rules-ten-gods.json",
+      "activeRuleCount": 60
+    },
+    {
+      "id": "elements",
+      "label": "elements",
+      "file": "rules-elements.json",
+      "activeRuleCount": 25
+    },
+    {
+      "id": "stems-branches",
+      "label": "stems-branches",
+      "file": "rules-stems-branches.json",
+      "activeRuleCount": 22
+    },
+    {
+      "id": "relations",
+      "label": "relations",
+      "file": "rules-relations.json",
+      "activeRuleCount": 30
+    },
+    {
+      "id": "palaces",
+      "label": "palaces",
+      "file": "rules-palaces.json",
+      "activeRuleCount": 12
+    },
+    {
+      "id": "guest-host-body-use",
+      "label": "guest-host-body-use",
+      "file": "rules-guest-host-body-use.json",
+      "activeRuleCount": 15
+    },
+    {
+      "id": "work-methods",
+      "label": "work-methods",
+      "file": "rules-work-methods.json",
+      "activeRuleCount": 20
+    },
+    {
+      "id": "tomb-storage",
+      "label": "tomb-storage",
+      "file": "rules-tomb-storage.json",
+      "activeRuleCount": 15
+    },
+    {
+      "id": "relationship",
+      "label": "relationship",
+      "file": "rules-relationship.json",
+      "activeRuleCount": 22
+    },
+    {
+      "id": "family",
+      "label": "family",
+      "file": "rules-family.json",
+      "activeRuleCount": 15
+    },
+    {
+      "id": "career",
+      "label": "career",
+      "file": "rules-career.json",
+      "activeRuleCount": 20
+    },
+    {
+      "id": "wealth",
+      "label": "wealth",
+      "file": "rules-wealth.json",
+      "activeRuleCount": 14
+    },
+    {
+      "id": "health-state",
+      "label": "health-state",
+      "file": "rules-health-state.json",
+      "activeRuleCount": 10
+    },
+    {
+      "id": "transit",
+      "label": "transit",
+      "file": "rules-transit.json",
+      "activeRuleCount": 20
+    },
+    {
+      "id": "boundaries",
+      "label": "boundaries",
+      "file": "rules-boundaries.json",
+      "activeRuleCount": 14
+    }
+  ],
+  "totalActiveRules": 365,
+  "methodologyCount": 34
+}

@@ -1,0 +1,1287 @@
+{
+  "version": "imagery-rules-family-v1",
+  "module": "family",
+  "rules": [
+    {
+      "id": "family_parents_star_palace",
+      "title": "父母判断星位与宫位同看",
+      "category": "family",
+      "domains": [
+        "parents"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 73,
+      "gender": "all",
+      "queryKeywords": [
+        "父母星",
+        "年柱",
+        "月柱"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "父母星",
+          "年柱",
+          "月柱"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "先明确性别体系下父母星取法，并核对现实家庭结构",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "父母相关判断需结合印财等角色、年月宫位、来源与岁运引动"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能单凭印财旺弱断父母吉凶、健康或寿命"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_parents_support",
+      "title": "印星与长辈支持的承接",
+      "category": "family",
+      "domains": [
+        "parents",
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "印星",
+        "长辈",
+        "支持"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "印星",
+          "长辈",
+          "支持"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "印确与年月或父母宫位发生联系",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "印星可提示照顾、教育、规则和支持方式，但是否来自父母要看宫位和来源"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能把所有印星都解释为母亲"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_father_wealth",
+      "title": "财星作为父亲或现实资源的条件取象",
+      "category": "family",
+      "domains": [
+        "parents",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "父亲",
+        "财星"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "父亲",
+          "财星"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "父亲取象与财星来源、年月位置相符",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "财星可作为父亲和现实供给的候选象，需结合宫位、根气和家庭角色"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能把财星受制直接断父亲有灾"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_mother_resource",
+      "title": "印星作为母亲或养育支持的条件取象",
+      "category": "family",
+      "domains": [
+        "parents"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 70,
+      "gender": "all",
+      "queryKeywords": [
+        "母亲",
+        "印星"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "母亲",
+          "印星"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "印星与父母宫位、来源或岁运直接相关",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "印星可作为母亲、教育和养育支持的候选象，需结合宫位和现实验证"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能把偏印正印数量直接等同于多个母亲或家庭关系"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_siblings_peer",
+      "title": "比劫与兄弟姐妹、同辈关系",
+      "category": "family",
+      "domains": [
+        "siblings",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 73,
+      "gender": "all",
+      "queryKeywords": [
+        "兄弟姐妹",
+        "比劫"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "兄弟姐妹",
+          "比劫"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "比劫与年月、月柱或同辈宫位有关",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "比肩劫财可提示同辈、兄弟姐妹和竞争合作方式，实际人数和关系需宫位与现实验证"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能由比劫数量预测兄弟姐妹人数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_siblings_resource",
+      "title": "同辈资源合作与分配",
+      "category": "family",
+      "domains": [
+        "siblings",
+        "friends",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "比劫",
+        "资源分配",
+        "同辈"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "比劫",
+          "资源分配",
+          "同辈"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "确认比劫归属和现实合作关系",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "比劫参与财或项目时，家人同辈可能成为合作、支持或分配压力来源"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能直接断借钱不还、争产或关系破裂"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_children_output",
+      "title": "食伤与子女、作品、学生的多重取象",
+      "category": "family",
+      "domains": [
+        "children",
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "子女星",
+        "食伤",
+        "作品"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "子女星",
+          "食伤",
+          "作品"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "结合时柱、现实婚育状态和岁运层级",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "食伤可对应子女、作品、技能、学生或输出成果，按年龄和问题选择最合理落点"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能未婚未育时强行解释为子女"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_children_hour",
+      "title": "时柱作为子女与后续成果宫位",
+      "category": "family",
+      "domains": [
+        "children",
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 70,
+      "gender": "all",
+      "queryKeywords": [
+        "时柱",
+        "子女宫"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "时柱",
+          "子女宫"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "时柱被相关十神或岁运直接引动",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "时柱贴近后续成果、子女或下属层，需结合食伤、官杀和现实阶段"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能把时柱冲刑直接断子女有灾"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_children_timing",
+      "title": "子女或成果应期需星宫与现实条件",
+      "category": "family",
+      "domains": [
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 73,
+      "gender": "all",
+      "queryKeywords": [
+        "子女应期",
+        "食伤",
+        "时柱"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "子女应期",
+          "食伤",
+          "时柱"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "现实有婚育计划或明确成果目标",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "食伤、时柱和岁运共同引动时，可提示子女议题或成果项目进入阶段"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能预测怀孕、流产、性别或具体医学结果"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_family_palace_activation",
+      "title": "年月宫位被岁运引动",
+      "category": "family",
+      "domains": [
+        "parents",
+        "siblings"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "年柱",
+        "月柱",
+        "岁运"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "岁运"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "根据当前问题和实际家庭结构选择一个主要落点",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "岁运直接作用年月时，家庭环境、长辈关系、同辈接口或工作环境可能调整"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能同时断父母、兄弟、单位和祖业"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_family_source_flow",
+      "title": "家庭资源流入或命主反向承担",
+      "category": "family",
+      "domains": [
+        "parents",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "家庭资源",
+        "来源",
+        "流向"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "家庭资源",
+          "来源",
+          "流向"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "作用方向和资源归属清楚",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "年月资源进入日时可体现家庭支持；日时力量向年月作用可体现命主反向承担或输出"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能把相生一律解释为父母给钱或命主尽孝"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_family_distance",
+      "title": "宫位远近与家庭联系模式",
+      "category": "family",
+      "domains": [
+        "parents",
+        "siblings",
+        "movement"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 70,
+      "gender": "all",
+      "queryKeywords": [
+        "远近",
+        "父母",
+        "兄弟"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "远近",
+          "父母",
+          "兄弟"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "结合实际居住、联系频率和岁运",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "年月较远、日时较近可辅助判断家庭影响是背景性还是日常性"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能据宫位锁定分居、异地或亲疏"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_family_conflict",
+      "title": "家庭摩擦需独立证据",
+      "category": "family",
+      "domains": [
+        "parents",
+        "siblings"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 73,
+      "gender": "all",
+      "queryKeywords": [
+        "家庭矛盾",
+        "冲刑害破"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "家庭矛盾",
+          "冲刑害破"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "至少两条独立依据并考虑大运背景",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "冲刑害破作用年月可作为家庭沟通、责任或环境调整候选，但需人物星和现实问题汇合"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能单一关系断父母离异、家庭不和或亲人有灾"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_family_advice",
+      "title": "六亲建议以沟通、责任和资源边界为主",
+      "category": "family",
+      "domains": [
+        "parents",
+        "siblings",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "家庭建议",
+        "六亲建议"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "家庭建议",
+          "六亲建议"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "建议对应前文具体结构",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "六亲问题的建议应落到沟通频率、责任分配、经济边界、照护安排和现实支持"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "不能以命盘替代医学、法律或家庭决策"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "family_family_safety",
+      "title": "六亲高风险结论边界",
+      "category": "family",
+      "domains": [
+        "parents",
+        "siblings",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "克父",
+        "克母",
+        "克子",
+        "六亲灾"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "克父",
+          "克母",
+          "克子",
+          "六亲灾"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财",
+          "食神",
+          "伤官"
+        ]
+      },
+      "requires": [
+        "涉及现实健康和安全必须建议专业评估",
+        "宫位、十神、来源和现实家庭结构共同验证"
+      ],
+      "weakeningConditions": [
+        "人物星与宫位不一致",
+        "现实中该家庭角色缺位或由他人承担"
+      ],
+      "imagery": {
+        "core": [
+          "命盘只用于观察关系模式与阶段压力，不用于确认亲属疾病、死亡、事故和寿命"
+        ],
+        "positive": [
+          "结构顺畅时可体现支持、协作、传承和稳定责任"
+        ],
+        "negative": [
+          "结构失衡时更容易出现边界、责任、资源或沟通压力"
+        ],
+        "realityChecks": [
+          "现实核验具体由谁提供支持、承担责任和影响决策"
+        ]
+      },
+      "advice": [
+        "优先给可执行的家庭沟通和资源安排建议"
+      ],
+      "prohibitions": [
+        "禁止输出克父克母、克子女或具体灾期"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,251-270",
+          "section": "十神、宫位、来源与六亲取象",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "六亲目录页",
+          "section": "父母、兄弟、子女章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "family",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

@@ -1,0 +1,1422 @@
+{
+  "version": "imagery-rules-tomb-storage-v1",
+  "module": "tomb-storage",
+  "rules": [
+    {
+      "id": "storage_definition",
+      "title": "墓库先分所藏对象与归属",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career",
+        "parents",
+        "spouse",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "墓库",
+        "库中",
+        "藏干"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "墓库",
+          "库中",
+          "藏干"
+        ]
+      },
+      "requires": [
+        "必须按地支藏干和十神归属确认，不用口号替代",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "墓库代表收纳、集中、封存和待释放的资源，先看库中实际藏什么、属于谁"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能见辰戌丑未就断有财库、官库或大资源"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_open_clash",
+      "title": "冲开库：释放与结构变动",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "冲开库",
+        "开库",
+        "冲库"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "冲开库",
+          "开库",
+          "冲库"
+        ]
+      },
+      "requires": [
+        "库中有物、冲力有效、命主有承接路径且不把库冲坏",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "库被冲时可出现释放、调动、重组或资源外显，但也可能破坏原有承载"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能把冲库一律断发财、升职或有人离开"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_open_penalty",
+      "title": "刑库与冲库效果区分",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "刑库",
+        "墓库",
+        "刑"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "刑库",
+          "墓库",
+          "刑"
+        ]
+      },
+      "requires": [
+        "区分刑的条件完整度与库中对象是否真正透出",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "刑可扰动库藏并产生摩擦性释放，但通常比直接冲开更复杂，需看是否损伤库体"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能把刑库自动等同于开库成功"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_open_stem",
+      "title": "天干引动库中藏干",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "透出",
+        "库中出来",
+        "天干引动"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "透出",
+          "库中出来",
+          "天干引动"
+        ]
+      },
+      "requires": [
+        "透干与原库有来源联系，且未被合走或强制",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "库中藏干在岁运透出、得根或被同类引动时，相关资源主题更易显化"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能只因岁运出现同五行就断库中物已经出来"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_close_stem",
+      "title": "天干闭库与资源封存",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "闭库",
+        "天干闭库"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "闭库",
+          "天干闭库"
+        ]
+      },
+      "requires": [
+        "必须有明确闭库机制和来源链条",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "特定合制或覆盖关系可能使库中资源更难释放，表现为手续、条件或承接通道受限"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能把任何天干相合都解释为闭库"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_luck_open",
+      "title": "大运开库决定阶段背景",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "大运开库",
+        "开库大运"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "大运开库",
+          "开库大运"
+        ]
+      },
+      "requires": [
+        "需结合实际交运时间和流年应期",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "大运长期冲合或引动墓库时，阶段内资源释放、组织重组或承载方式改变"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能把整个大运都写成持续发财或持续变动"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_year_trigger",
+      "title": "流年触发库门",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "流年开库",
+        "流年冲库"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "流年开库",
+          "流年冲库"
+        ]
+      },
+      "requires": [
+        "必须处在相关大运背景并有原局承接",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "流年对墓库形成直接作用时，可成为阶段资源显化的年度触发"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能只见流年冲库就锁定金额或事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_empty_storage",
+      "title": "空库或无对应对象",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "空库",
+        "库空"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "空库",
+          "库空"
+        ]
+      },
+      "requires": [
+        "确认库中对象、空亡和来源",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "库若空亡、无目标藏干或与命主无归属关系，即使被引动也未必带来所问资源"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能把库的名称当作真实存量"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_capacity",
+      "title": "开库后的承载能力",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "承载",
+        "开库",
+        "能力"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "承载",
+          "开库",
+          "能力"
+        ]
+      },
+      "requires": [
+        "比较体力、平台、团队、现金流和原局体用",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "资源释放规模可能超过命主当前能力，表现为机会、任务和成本同步增加"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能把大资源出现自动等同于净收益"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_multiple_storage",
+      "title": "多库并见与资源分区",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "多库",
+        "辰戌丑未"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "多库",
+          "辰戌丑未"
+        ]
+      },
+      "requires": [
+        "逐库追查藏干、根源和作用关系",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "多个墓库并见时需分别识别所藏对象、归属和开闭状态，不可合成一个笼统大库"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能因库多就断财富大、房产多或关系复杂"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_storage_palace",
+      "title": "墓库所在宫位决定资源场域",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career",
+        "parents",
+        "spouse",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "墓库",
+        "宫位"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "墓库",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "宫位、十神和宾主共同确认",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "库在年月日时不同位置，分别偏向外层来源、主要环境、贴身承接和后续成果"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能同时套用所有六亲含义"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_storage_ownership",
+      "title": "库属于谁比库大小更重要",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "墓库",
+        "归属",
+        "宾主"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "墓库",
+          "归属",
+          "宾主"
+        ]
+      },
+      "requires": [
+        "有清晰取得路径和回流",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "库中资源是否能归命主使用，取决于宾主、连体、合制与流向"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能看到别人宫位的库就断命主能得"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_storage_timing",
+      "title": "库中星的应期需透、开或被引动",
+      "category": "storage",
+      "domains": [
+        "spouse",
+        "wealth",
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "库中星",
+        "应期",
+        "透出"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "库中星",
+          "应期",
+          "透出"
+        ]
+      },
+      "requires": [
+        "大运背景与流年触发至少一层有效",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "藏于库中的财官印食通常需要透出、开库或岁运直接引动才更易进入现实"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能直接指定结婚、发财或职位时间"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_storage_damage",
+      "title": "开库与坏库区分",
+      "category": "storage",
+      "domains": [
+        "wealth",
+        "career",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "坏库",
+        "库破",
+        "冲刑"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "坏库",
+          "库破",
+          "冲刑"
+        ]
+      },
+      "requires": [
+        "检查冲刑后藏干是否有去处",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "对墓库的强烈作用可能是打开，也可能损坏承载和让资源散失，取决于原局是否需要、库体强弱和承接"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "不能以‘冲则开’作为无条件定律"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "storage_storage_safe_boundary",
+      "title": "墓库高风险断语边界",
+      "category": "storage",
+      "domains": [
+        "health",
+        "parents",
+        "children",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "入墓",
+        "收人",
+        "墓库"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "墓库",
+          "入墓",
+          "开库"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "入墓",
+          "收人",
+          "墓库"
+        ]
+      },
+      "requires": [
+        "涉及人物与健康必须回到现实风险提示和专业就医",
+        "区分辰戌丑未所藏对象、宫位与岁运层级"
+      ],
+      "weakeningConditions": [
+        "库中无对应对象",
+        "开库后无承接或被其他作用破坏"
+      ],
+      "imagery": {
+        "core": [
+          "墓库用于描述收纳、限制、沉潜和资源状态，不用于直接预测死亡、牢狱、流产或具体疾病"
+        ],
+        "positive": [
+          "条件完整时，墓库可解释资源集中、储存、组织和阶段性释放"
+        ],
+        "negative": [
+          "条件不全时容易出现封闭、延迟、承载压力或资源散失"
+        ],
+        "realityChecks": [
+          "现实中先核验资源是否真实存在、是否可调用、是否需要手续或时机"
+        ]
+      },
+      "advice": [
+        "对库的判断优先落到资源管理、承载能力和释放条件"
+      ],
+      "prohibitions": [
+        "禁止用入墓、开库直接断死亡、灾祸或寿命"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186,251-270",
+          "section": "做工、开库与地支像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "34-43",
+          "section": "墓库高级运用目录框架",
+          "verificationStatus": "outline_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "12-13",
+          "section": "墓库章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "tomb-storage",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "version": "imagery-research-pending-v1",
+  "policy": "以下内容仅登记研究范围，不进入AI正式规则包。",
+  "items": [
+    {
+      "sourceId": "yang_advanced_blind_notes",
+      "pages": "26-366",
+      "status": "needs_review",
+      "reason": "扫描正文尚未逐页人工核读；官场等级、丢职、牢狱、风水和水晶章节风险或时代语境较强。"
+    },
+    {
+      "sourceId": "cui_five_elements",
+      "pages": "14-165",
+      "status": "needs_review",
+      "reason": "扫描正文尚未逐页人工核读；仅目录和样页已核对。"
+    },
+    {
+      "sourceId": "cui_advanced_2025",
+      "pages": "14-328",
+      "status": "needs_review",
+      "reason": "扫描正文尚未逐页人工核读；案例断语需拆分条件后才能成为规则。"
+    },
+    {
+      "sourceId": "cui_blind_notes_5000",
+      "pages": "278-297",
+      "status": "research_only",
+      "reason": "含高风险疾病、死亡、牢狱、灾祸和具体应期断语，不进入自动用户答案。"
+    }
+  ]
+}

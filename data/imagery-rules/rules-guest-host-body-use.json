@@ -1,0 +1,1164 @@
+{
+  "version": "imagery-rules-guest-host-body-use-v1",
+  "module": "guest-host-body-use",
+  "rules": [
+    {
+      "id": "ghbu_guest_host_relative",
+      "title": "宾主是相对关系，不是固定标签",
+      "category": "guest_host",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 80,
+      "gender": "all",
+      "queryKeywords": [
+        "宾主",
+        "主位",
+        "宾位"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "宾主",
+          "主位",
+          "宾位"
+        ]
+      },
+      "requires": [
+        "同一字在不同问题中宾主属性可能变化",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "先确定以谁为中心、要分析什么对象，再区分主位与宾位"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能把某柱永久标记为宾或主"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_inside_outside_flow",
+      "title": "家里与外边看资源流向",
+      "category": "guest_host",
+      "domains": [
+        "wealth",
+        "career",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "家里",
+        "外边",
+        "流向"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "家里",
+          "外边",
+          "流向"
+        ]
+      },
+      "requires": [
+        "需确认生克合制的实际方向",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "资源从外层进入主位，侧重取得和承接；从主位流向外层，侧重付出、输出或被外部调用"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能只凭位置判断资源属于谁"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_ownership_source",
+      "title": "十神来源决定归属",
+      "category": "guest_host",
+      "domains": [
+        "wealth",
+        "career",
+        "spouse",
+        "parents"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "来源",
+        "出处",
+        "归属"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "来源",
+          "出处",
+          "归属"
+        ]
+      },
+      "requires": [
+        "需要明确根基和连接链条",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "同一财官印食要追查从哪个根、库、宫位或天干而来，来源影响人物和资源归属"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能看到财官就默认归命主所有"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_body_definition",
+      "title": "体是命主可调用的能力与工具",
+      "category": "guest_host",
+      "domains": [
+        "self",
+        "career",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "体",
+        "日主",
+        "禄",
+        "印比"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "体",
+          "日主",
+          "禄",
+          "印比"
+        ]
+      },
+      "requires": [
+        "先判断是否连体、得根和真正归命主",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "体通常包括日主、禄、比劫、印、食伤等可被命主调用的部分，但需结合具体体系与组合"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能把所有印比食伤机械视为有力之体"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_use_definition",
+      "title": "用是命主所求或要处理的目标",
+      "category": "guest_host",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "用",
+        "财官",
+        "目标"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "用",
+          "财官",
+          "目标"
+        ]
+      },
+      "requires": [
+        "必须先确定问题领域和做功目的",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "财官常作为所求之用，其他十神在具体结构中也可成为要处理的目标"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能固定认为财官永远为喜、体永远为好"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_body_use_capacity",
+      "title": "体能否承载用决定层次",
+      "category": "guest_host",
+      "domains": [
+        "career",
+        "wealth",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 80,
+      "gender": "all",
+      "queryKeywords": [
+        "承载",
+        "体用",
+        "层次"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "承载",
+          "体用",
+          "层次"
+        ]
+      },
+      "requires": [
+        "需比较力量、位置和制化链条",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "用大而体弱时可能机会大但承接吃力；体有力而用可得时更易把资源转为成果"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能以用多直接断财富或职位高"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_body_use_efficiency",
+      "title": "做功能力与效率分开",
+      "category": "guest_host",
+      "domains": [
+        "career",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "做功",
+        "效率",
+        "力量"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "做功",
+          "效率",
+          "力量"
+        ]
+      },
+      "requires": [
+        "核对是否有多层绕行和重复消耗",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "结构存在做功不等于效率高，需看直接性、力量、距离、损耗与反制"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能只见合克生泄就断成事"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_guest_to_host",
+      "title": "宾位资源进入主位",
+      "category": "guest_host",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "宾位",
+        "主位",
+        "进入"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "宾位",
+          "主位",
+          "进入"
+        ]
+      },
+      "requires": [
+        "需要确认路径完整且命主承载得住",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "外层财官或资源通过生、合、制、库等路径进入主位，可作为取得资源的候选象"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能直接断得到具体钱、职位或对象"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_host_to_guest",
+      "title": "主位力量作用宾位",
+      "category": "guest_host",
+      "domains": [
+        "career",
+        "wealth",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "主位",
+        "宾位",
+        "作用"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "主位",
+          "宾位",
+          "作用"
+        ]
+      },
+      "requires": [
+        "需看是否有回流和报酬承接",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "命主的体向外作用，常体现输出、服务、管理、交易或为外部环境做功"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能把对外付出直接断为吃亏或发财"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_direct_indirect",
+      "title": "直接做功与间接做功",
+      "category": "guest_host",
+      "domains": [
+        "career",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "直接",
+        "间接",
+        "做功"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "直接",
+          "间接",
+          "做功"
+        ]
+      },
+      "requires": [
+        "判断链条是否连续、是否被截断",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "直接作用通常更清楚快速；经多层生化或中介作用则更依赖环境和条件"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能简单认为直接一定好、间接一定差"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_inner_party",
+      "title": "内党作为命主一侧的协同结构",
+      "category": "guest_host",
+      "domains": [
+        "career",
+        "wealth",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 80,
+      "gender": "all",
+      "queryKeywords": [
+        "内党",
+        "我方",
+        "协同"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "内党",
+          "我方",
+          "协同"
+        ]
+      },
+      "requires": [
+        "必须排除表面同党实际争夺或反制",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "与命主同一侧、共同作用目标的干支可形成协同，但需确认是否真正连体和同向"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能把同五行直接视为内党"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_outer_party",
+      "title": "外党作为目标或环境一侧",
+      "category": "guest_host",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "外党",
+        "对方",
+        "环境"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "外党",
+          "对方",
+          "环境"
+        ]
+      },
+      "requires": [
+        "结合宾主和来源判断",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "外党可代表被处理的目标、外部规则、资源或对方一侧，需看是否进入主位"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能把外党直接视为敌人或坏事"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_rope_cow",
+      "title": "绳子与牛：控制关系与被控制对象",
+      "category": "guest_host",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "绳子",
+        "牛",
+        "控制"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "绳子",
+          "牛",
+          "控制"
+        ]
+      },
+      "requires": [
+        "需有明确制、合、穿、冲等作用链",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "功神像绳子，用神像被牵引的目标，重点看谁控制谁、控制是否有效"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能把比喻当作现实人物事实"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_source_to_result",
+      "title": "来源—作用—结果链",
+      "category": "guest_host",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse",
+        "parents"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "来源",
+        "作用",
+        "结果"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "来源",
+          "作用",
+          "结果"
+        ]
+      },
+      "requires": [
+        "链条任一环缺失时降低结论强度",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "完整取象需说明资源从哪里来、通过什么方式作用、最后落到哪个宫位或成果"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能只说有财官而省略取得方式"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "ghbu_body_use_transit",
+      "title": "岁运改变体用力量但不改原局归属",
+      "category": "guest_host",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "大运",
+        "流年",
+        "体用"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "大运",
+          "流年",
+          "体用"
+        ]
+      },
+      "requires": [
+        "按大运背景与流年触发分层",
+        "同时核对宫位、根气、十神和作用方向"
+      ],
+      "weakeningConditions": [
+        "宾主中心未定义",
+        "来源或作用链条不完整"
+      ],
+      "imagery": {
+        "core": [
+          "岁运可增强、削弱、引动或暂时替代体用角色，但原局的根本归属和底色仍需保留"
+        ],
+        "positive": [
+          "结构清楚时，可显著提升取象的归属和现实落点准确度"
+        ],
+        "negative": [
+          "忽略宾主体用容易把别人的资源、命主的付出和现实结果混在一起"
+        ],
+        "realityChecks": [
+          "能否用一句话说明谁的资源、通过什么方式、落到哪里"
+        ]
+      },
+      "advice": [
+        "在AI回答中优先写清来源、作用方向和承接结果"
+      ],
+      "prohibitions": [
+        "不能把流年一个字永久改写原局结构"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75",
+          "section": "体用、宾主、家里外边、财官来源",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "44-49,73-81",
+          "section": "宾主理论与预测用语目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "guest-host-body-use",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

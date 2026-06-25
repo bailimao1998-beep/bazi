@@ -1,0 +1,1535 @@
+{
+  "version": "imagery-rules-transit-v1",
+  "module": "transit",
+  "rules": [
+    {
+      "id": "transit_luck_stage",
+      "title": "大运决定十年阶段背景",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 88,
+      "gender": "all",
+      "queryKeywords": [
+        "大运",
+        "阶段",
+        "十年"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "大运",
+          "阶段",
+          "十年"
+        ]
+      },
+      "requires": [
+        "必须按实际交运年月定位当前大运",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "大运改变原局各角色的力量和可用性，决定阶段主要矛盾与可用通道"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能用展示年份范围替代实际交运日期"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_year_trigger",
+      "title": "流年触发年度新增作用",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 87,
+      "gender": "all",
+      "queryKeywords": [
+        "流年",
+        "触发",
+        "年度"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "流年",
+          "触发",
+          "年度"
+        ]
+      },
+      "requires": [
+        "至少说明一条流年新增关系",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "流年新增干支直接作用原局和大运，决定当年哪些主题被放大或落地"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能只重复原局结论当作流年分析"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_month_landing_detail",
+      "title": "流月用于短期落点",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 86,
+      "gender": "all",
+      "queryKeywords": [
+        "流月",
+        "月份",
+        "落点"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "流月",
+          "月份",
+          "落点"
+        ]
+      },
+      "requires": [
+        "用户明确询问月份且系统提供流月数据",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "流月只在大运和流年背景内细化短期节奏，不改写原局和全年主线"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能自行编月份、季节或上下半年"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_transition_date",
+      "title": "交运按实际年月分段",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 85,
+      "gender": "all",
+      "queryKeywords": [
+        "交运",
+        "换运",
+        "分段"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "交运",
+          "换运",
+          "分段"
+        ]
+      },
+      "requires": [
+        "系统提供实际交运年月",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "交运年必须按实际交运月划分旧运和新运，全年主次按各自覆盖时间判断"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能把年末新运写成全年第一主象"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_existing_char",
+      "title": "原局已有字被岁运引动",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 84,
+      "gender": "all",
+      "queryKeywords": [
+        "原局有字",
+        "岁运出来"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "原局有字",
+          "岁运出来"
+        ]
+      },
+      "requires": [
+        "确认同字同角色及作用层级",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "岁运重复原局已有干支或十神时，熟悉主题被加强、重做或显化"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能只因同字出现就断伏吟或具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_new_char",
+      "title": "原局没有的岁运新字",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 88,
+      "gender": "all",
+      "queryKeywords": [
+        "原局没有",
+        "新来字"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "原局没有",
+          "新来字"
+        ]
+      },
+      "requires": [
+        "新字与原局发生真实关系并被承接",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "岁运带来原局未显的角色时，可表示新的环境、人物或处理方式进入"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能把新字直接当成确定对象或事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_luck_year_relation",
+      "title": "大运与流年必须相互作用",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 87,
+      "gender": "all",
+      "queryKeywords": [
+        "大运流年",
+        "岁运关系"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "大运流年",
+          "岁运关系"
+        ]
+      },
+      "requires": [
+        "明确大运、流年干支及正确基础关系",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "流年不仅作用原局，也与当前大运发生生克合冲，影响年度主题的可用程度"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能写不存在的天干合或写反生克"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_repeated_layer",
+      "title": "原局大运流年重复激活",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 86,
+      "gender": "all",
+      "queryKeywords": [
+        "重复激活",
+        "伏吟",
+        "多层"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "重复激活",
+          "伏吟",
+          "多层"
+        ]
+      },
+      "requires": [
+        "区分真正独立层级而非同一关系换说法",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "同一主题被原局、大运、流年多层重复时优先级提高，但也可能增加重复压力"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能把重复直接断成必然事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_root_activation",
+      "title": "岁运补根或引根",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 85,
+      "gender": "all",
+      "queryKeywords": [
+        "得根",
+        "岁运补根"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "得根",
+          "岁运补根"
+        ]
+      },
+      "requires": [
+        "确认根与天干来源一致且未被破坏",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "原局虚浮角色在岁运得根、通根或同类支持时，功能更易稳定显现"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能只因同五行到来就说完全立住"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_hidden_reveal",
+      "title": "藏干岁运透出",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 84,
+      "gender": "all",
+      "queryKeywords": [
+        "藏干透出",
+        "岁运透出"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "藏干透出",
+          "岁运透出"
+        ]
+      },
+      "requires": [
+        "透出与原支来源关系明确",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "藏干在岁运透出可使潜在角色从内部条件转为更可见的年度主题"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能直接把透出等同于现实事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_relation_activation",
+      "title": "岁运补齐合冲刑害关系",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 88,
+      "gender": "all",
+      "queryKeywords": [
+        "岁运补齐",
+        "合冲刑害"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "岁运补齐",
+          "合冲刑害"
+        ]
+      },
+      "requires": [
+        "系统机械关系明确且作用到当前问题",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "岁运补齐原局关系条件时，原有潜在结构进入活动状态"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能跨层级创造不存在的关系"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_storage_activation",
+      "title": "岁运开库闭库",
+      "category": "transit",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 87,
+      "gender": "all",
+      "queryKeywords": [
+        "岁运开库",
+        "闭库"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "岁运开库",
+          "闭库"
+        ]
+      },
+      "requires": [
+        "库中有对象、作用方式明确并有现实承接",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "大运流年作用墓库可改变资源显隐和承接方式"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能一律断发财、结婚或灾祸"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_ten_god_luck",
+      "title": "十神大运作为阶段主题",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 86,
+      "gender": "all",
+      "queryKeywords": [
+        "十神大运",
+        "大运主题"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "十神大运",
+          "大运主题"
+        ]
+      },
+      "requires": [
+        "结合原局是否需要、来源与制化",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "某十神进入大运时，其角色、工作方式和关系主题更易成为十年背景"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能按十神名称给大运简单贴好坏"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_ten_god_year",
+      "title": "十神流年作为年度主题",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 85,
+      "gender": "all",
+      "queryKeywords": [
+        "十神流年",
+        "年度主题"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "十神流年",
+          "年度主题"
+        ]
+      },
+      "requires": [
+        "至少有一条直接作用关系",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "流年十神提示年度新增角色，但具体表现取决于原局和大运承接"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能见财官流年就断发财升职恋爱"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_good_luck_bad_year",
+      "title": "好大运遇阻流年",
+      "category": "transit",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 84,
+      "gender": "all",
+      "queryKeywords": [
+        "好大运",
+        "坏流年"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "好大运",
+          "坏流年"
+        ]
+      },
+      "requires": [
+        "比较大运长期作用和流年短期触发",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "有利大运中的不利流年通常表现为阶段中的调整或成本，不轻易改写整个十年方向"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能因一年波动否定整个大运"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_hard_luck_good_year",
+      "title": "困难大运中的机会流年",
+      "category": "transit",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 88,
+      "gender": "all",
+      "queryKeywords": [
+        "坏大运",
+        "好流年"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "坏大运",
+          "好流年"
+        ]
+      },
+      "requires": [
+        "流年确有独立支持且现实窗口存在",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "困难阶段中的有利流年可提供窗口、缓冲或局部机会，但承接上限受大运背景限制"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能把局部好年写成全面翻盘"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_multi_year_compare",
+      "title": "多年问题逐年独立比较",
+      "category": "transit",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 87,
+      "gender": "all",
+      "queryKeywords": [
+        "哪几年",
+        "多年",
+        "比较"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "哪几年",
+          "多年",
+          "比较"
+        ]
+      },
+      "requires": [
+        "只使用系统实际扫描年份",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "多年排序需逐年比较相同指标，不把不同年份的证据拼成一个结论"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能引用未扫描年份或混淆交运前后"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_event_convergence",
+      "title": "具体事件需多层汇合",
+      "category": "transit",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 86,
+      "gender": "all",
+      "queryKeywords": [
+        "应事",
+        "应期",
+        "汇合"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "应事",
+          "应期",
+          "汇合"
+        ]
+      },
+      "requires": [
+        "事件强度与证据层级相匹配",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "具体事件候选至少需要原局承接、大运背景和流年新增作用中的独立汇合"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能用单一十神或关系断具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_transition_aftereffect",
+      "title": "换运后的适应期",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 85,
+      "gender": "all",
+      "queryKeywords": [
+        "换运后",
+        "适应期"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "换运后",
+          "适应期"
+        ]
+      },
+      "requires": [
+        "实际已过交运日期，并区分前后覆盖月份",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "新大运开始后，旧结构惯性与新主题可能短期并存，现实适应需要时间"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能把新运第一年所有变化都归于新运"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "transit_transit_reality",
+      "title": "岁运分析需现实验证",
+      "category": "transit",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 84,
+      "gender": "all",
+      "queryKeywords": [
+        "岁运验证",
+        "现实背景"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "岁运验证",
+          "现实背景"
+        ]
+      },
+      "requires": [
+        "询问或利用用户已知现实背景",
+        "原局、大运、流年、流月按层级分开"
+      ],
+      "weakeningConditions": [
+        "时间数据缺失",
+        "只有原局结论而无岁运新增作用"
+      ],
+      "imagery": {
+        "core": [
+          "同一岁运结构可落在不同现实领域，需根据工作、关系、家庭和计划选择最贴近的落点"
+        ],
+        "positive": [
+          "分层清楚时，可形成阶段、年份和短期节奏的可靠比较"
+        ],
+        "negative": [
+          "混层会把十年背景、年度触发和月份落点相互替代"
+        ],
+        "realityChecks": [
+          "核验当前实际大运、目标年份和是否明确询问月份"
+        ]
+      },
+      "advice": [
+        "先给阶段主线，再给年度变化；流月只在需要时展开"
+      ],
+      "prohibitions": [
+        "不能为了故事完整同时列出多个互斥事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "226-250",
+          "section": "大运、流年与应期",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间层级与实际交运数据",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "transit",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

@@ -1,0 +1,421 @@
+{
+  "version": "imagery-methodology-v1",
+  "rules": [
+    {
+      "id": "method_facts_first",
+      "title": "硬事实优先于辅助结论与候选取象",
+      "priority": 100,
+      "instruction": "排盘、十神、藏干、岁运干支和确定关系为最高层；辅助结构、书本规则和本地取象都必须服从硬事实。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "证据分层"
+        }
+      ]
+    },
+    {
+      "id": "method_image_before_story",
+      "title": "先取象，再展开现实故事",
+      "priority": 99,
+      "instruction": "先归纳主象、辅象、矛盾象、条件象、反证象，再映射现实领域；禁止从一个十神直接跳到具体事件。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 68,
+          "section": "打开八字找财官：先格局、做工、取象"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "输出纪律"
+        }
+      ]
+    },
+    {
+      "id": "method_layer_order",
+      "title": "原局、大运、流年、流月分层",
+      "priority": 98,
+      "instruction": "原局定底色，大运定阶段背景，流年定年度触发，流月只作短期落点；不得倒置层级。",
+      "appliesTo": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 229,
+          "section": "大运定事、流年定应期"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 244,
+          "section": "流年字的力量"
+        }
+      ]
+    },
+    {
+      "id": "method_month_command_root_visibility",
+      "title": "先月令、根气、透藏，再谈旺衰",
+      "priority": 97,
+      "instruction": "旺衰必须同时检查月令、根气、透干、藏干、生扶克泄与受制状态，不能只数五行个数。",
+      "appliesTo": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 64,
+          "section": "命局基本论：寻根基"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 67,
+          "section": "八字层次：承载财官"
+        }
+      ]
+    },
+    {
+      "id": "method_source_trace",
+      "title": "追根溯源与归属",
+      "priority": 95,
+      "instruction": "判断十神与五行时要追查其出处、根基、宫位和是否属于命主，不能只看表面出现。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 64,
+          "section": "命局基本论"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 65,
+          "section": "看命顺序"
+        }
+      ]
+    },
+    {
+      "id": "method_body_use_balance",
+      "title": "体用与承载能力共同判断",
+      "priority": 94,
+      "instruction": "先区分命主可调用的体与所求的财官等用，再判断体是否有力、用是否可得、命主是否承载得住。",
+      "appliesTo": [
+        "natal",
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 64,
+          "section": "体与用"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 69,
+          "section": "如何得到财和官"
+        }
+      ]
+    },
+    {
+      "id": "method_guest_host_location",
+      "title": "宫位与宾主决定现实落点",
+      "priority": 93,
+      "instruction": "同一十神落在家内、家外、年、月、日、时，其人物、资源归属和现实表现不同；宫位不能被省略。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 64,
+          "section": "家里与外边"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 7,
+          "section": "目录：宾主理论及宫位"
+        }
+      ]
+    },
+    {
+      "id": "method_relation_not_good_bad",
+      "title": "地支作用先看做功方式，不先判吉凶",
+      "priority": 92,
+      "instruction": "冲、合、刑、穿、墓、脆等先说明发生了什么作用、作用到谁、是否服务于做功，再判断利弊。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 24,
+          "section": "地支作用关系总纲"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 228,
+          "section": "大运基本论"
+        }
+      ]
+    },
+    {
+      "id": "method_independent_evidence",
+      "title": "具体事件至少两条独立依据",
+      "priority": 91,
+      "instruction": "同一关系换一种说法不算第二条依据；至少需要不同层级、不同角色或宫位与十神的独立汇合。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "事件证据纪律"
+        }
+      ]
+    },
+    {
+      "id": "method_conditions_and_counterevidence",
+      "title": "每个候选象必须同时检查成立条件与反证",
+      "priority": 90,
+      "instruction": "命中规则不等于事件成立；必须列出需要满足的条件、削弱因素、阻断因素和现实验证点。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "规则仲裁"
+        }
+      ]
+    },
+    {
+      "id": "method_combine_not_transform",
+      "title": "五合条件不等于合化成立",
+      "priority": 100,
+      "instruction": "天干五合先论牵连与合意；只有月令、根气、局势和化神条件充分时才讨论化气，且仍需标明条件。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 4,
+          "section": "天干五合条件"
+        }
+      ]
+    },
+    {
+      "id": "method_combination_condition_levels",
+      "title": "半合、拱合、三合三会区分条件层级",
+      "priority": 96,
+      "instruction": "两支牵连、三支齐全、得月令成势、透干化气是不同层级，不能把条件直接写成完整成局。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 75,
+          "section": "合的做工方式"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 244,
+          "section": "中神在旺点才能合成"
+        }
+      ]
+    },
+    {
+      "id": "method_star_palace_relation",
+      "title": "人物星、宫位与岁运必须共同核对",
+      "priority": 94,
+      "instruction": "婚恋、父母、子女等人物判断，不能只看一个十神；必须同时核对人物星、对应宫位、来源与岁运触发。",
+      "appliesTo": [
+        "spouse",
+        "parents",
+        "children"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 192,
+          "section": "定夫妻星"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 204,
+          "section": "结婚应期流年"
+        }
+      ]
+    },
+    {
+      "id": "method_gender_spouse_roles",
+      "title": "婚恋取象先按性别确定主参考星",
+      "priority": 99,
+      "instruction": "男命以财星为主要配偶参考，女命以官杀为主要配偶参考，同时必须结合日支与全局，不把单星机械等同配偶。",
+      "appliesTo": [
+        "spouse"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 192,
+          "section": "定夫妻星"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 24,
+          "section": "六亲基本原则"
+        }
+      ]
+    },
+    {
+      "id": "method_transition_year_segment",
+      "title": "交运年份分交运前后",
+      "priority": 98,
+      "instruction": "交运年份必须分别使用旧运和新运判断，不能把两步大运关系叠加成全年同时存在。",
+      "appliesTo": [
+        "year",
+        "month"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 229,
+          "section": "交运前后变数"
+        },
+        {
+          "sourceId": "system_synthesis",
+          "section": "时间边界"
+        }
+      ]
+    },
+    {
+      "id": "method_original_image_transit_trigger",
+      "title": "原局有象，岁运才谈引动与改写",
+      "priority": 95,
+      "instruction": "先确认原局是否存在可承接结构，再判断大运流年是放大、补足、冲开、合绊、制约还是转向。",
+      "appliesTo": [
+        "luck",
+        "year",
+        "month",
+        "multiYear"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 229,
+          "section": "原局字与外来字"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": 244,
+          "section": "流年字的力量"
+        }
+      ]
+    },
+    {
+      "id": "method_month_only_when_needed",
+      "title": "流月只用于明确的月度定位",
+      "priority": 89,
+      "instruction": "用户未问月份时不借流月制造精确时间；问月时才结合节气月、流年和大运定位。",
+      "appliesTo": [
+        "month"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "流月按需加载"
+        }
+      ]
+    },
+    {
+      "id": "method_life_stage_constraint",
+      "title": "现实取象必须符合年龄与人生阶段",
+      "priority": 92,
+      "instruction": "相同结构在幼年、求学、工作、婚育和晚年落点不同；不知道现实背景时使用条件分支。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "人生阶段约束"
+        }
+      ]
+    },
+    {
+      "id": "method_rule_conflict_arbitration",
+      "title": "规则冲突按证据、层级和适用条件仲裁",
+      "priority": 93,
+      "instruction": "多条规则冲突时，优先硬事实、直接作用、当前时间层、条件完整和多源支持；单一流派候选不得压过明确反证。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "多源规则仲裁"
+        }
+      ]
+    },
+    {
+      "id": "method_advice_must_be_grounded",
+      "title": "建议必须对应主象和现实条件",
+      "priority": 88,
+      "instruction": "建议应针对规则、沟通、时间、资源、风险缓冲、学习或作息等具体问题，不给空泛转运承诺。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "建议生成纪律"
+        }
+      ]
+    },
+    {
+      "id": "method_health_boundary",
+      "title": "健康只谈传统倾向与现实照护",
+      "priority": 100,
+      "instruction": "不得仅凭命盘判断具体器官、疾病、寿命或治疗方案；只能提示作息、压力、安全和必要时就医。",
+      "appliesTo": [
+        "health",
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "医学边界"
+        }
+      ]
+    },
+    {
+      "id": "method_no_absolute_claim",
+      "title": "命理结论使用概率和条件表达",
+      "priority": 100,
+      "instruction": "不得使用必然、注定、肯定会；明确区分确定结构、专业推断、条件性可能和证据不足。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "不确定性表达"
+        }
+      ]
+    }
+  ]
+}

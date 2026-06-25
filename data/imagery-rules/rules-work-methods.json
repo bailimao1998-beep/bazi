@@ -1,0 +1,1519 @@
+{
+  "version": "imagery-rules-work-methods-v1",
+  "module": "work-methods",
+  "rules": [
+    {
+      "id": "work_control_direct",
+      "title": "正制：体直接制用",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "正制",
+        "制用",
+        "克制"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "正制",
+          "制用",
+          "克制"
+        ]
+      },
+      "requires": [
+        "体与用的归属明确，制得住且不伤自身根基",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "命主一侧的体直接克制、管理或筛选目标之用，成败看力量、距离和反制"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能把任何相克都写成制用成功"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_control_reverse",
+      "title": "反制：目标反过来制体",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "wealth",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "反制",
+        "制用",
+        "被制"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "反制",
+          "制用",
+          "被制"
+        ]
+      },
+      "requires": [
+        "确认作用方向和谁强谁弱",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "原本要处理的目标反而制约命主之体，常体现压力、受控、成本上升或能力被限制"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能只因被克就断失败或灾祸"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_control_balance",
+      "title": "制净与制过",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "制净",
+        "制过",
+        "制衡"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "制净",
+          "制过",
+          "制衡"
+        ]
+      },
+      "requires": [
+        "检查用是否仍有可用价值和回流",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "制用需有度；制得恰当可提高效率，过制则可能把资源、角色或通道一并破坏"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能把制得越尽越好作为通则"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_transform_official_resource",
+      "title": "官杀生印化用",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "官印相生",
+        "化用",
+        "官杀生印"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "官印相生",
+          "化用",
+          "官杀生印"
+        ]
+      },
+      "requires": [
+        "官杀、印、日主链条连续且印不为过度负担",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "压力、规则或职位通过印星转化为学习、资质、平台和承接能力"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能仅见官印同现就定官印相生格"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_transform_output_wealth",
+      "title": "食伤生财化用",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "食伤生财",
+        "化用"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "食伤生财",
+          "化用"
+        ]
+      },
+      "requires": [
+        "食伤与财有真实连接，财能被命主承接",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "技能、表达、产品或服务通过财星转为市场回报和现实资源"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能只见食伤财星就断赚钱"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_transform_wealth_official",
+      "title": "财生官的责任转换",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "财生官",
+        "化用"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "财生官",
+          "化用"
+        ]
+      },
+      "requires": [
+        "财官链条有效且官不成为无法承受的压力",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "现实资源、项目或关系进一步转为责任、职位、规则或正式身份"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能把财生官直接断升职"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_generate_use",
+      "title": "生用：持续供给目标",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "生用",
+        "相生"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "生用",
+          "相生"
+        ]
+      },
+      "requires": [
+        "生扶方向、来源和回流明确",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "命主一侧持续生扶目标，常体现投入、培养、服务、生产或资源供给"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能把单向付出自动视为有收益"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_discharge_use",
+      "title": "泄用：通过输出释放体能",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "self",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "泄用",
+        "食伤",
+        "输出"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "泄用",
+          "食伤",
+          "输出"
+        ]
+      },
+      "requires": [
+        "体确有可泄之力，输出通道未被堵塞",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "旺体通过食伤、作品、服务或表达释放，形成成果和社会接口"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能把泄气一律视为弱化或好事"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_detail_combine_use",
+      "title": "合用：通过连接取得或绑定目标",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "合用",
+        "五合",
+        "六合"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "合用",
+          "五合",
+          "六合"
+        ]
+      },
+      "requires": [
+        "合的双方归属明确，且不存在严重争合、合绊或被冲破",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "通过合、协议、合作或身份绑定让目标进入命主可承接范围"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能把合用直接等同于成功取得"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_combine_binding",
+      "title": "合绊：连接同时限制行动",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "spouse",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "合绊",
+        "被合",
+        "牵制"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "合绊",
+          "被合",
+          "牵制"
+        ]
+      },
+      "requires": [
+        "判断谁被合、是否失去原有作用以及是否有解合",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "合可建立连接，也可能使某一功能被牵住、注意力分散或行动减慢"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能只写合好或合坏"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_detail_storage_use",
+      "title": "墓用：资源通过库藏取得",
+      "category": "work_method",
+      "domains": [
+        "wealth",
+        "career",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "墓用",
+        "墓库",
+        "开库"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "墓用",
+          "墓库",
+          "开库"
+        ]
+      },
+      "requires": [
+        "库中确有目标藏干且命主有取得路径",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "财官印食等进入库藏后，需通过开库、透出、连体或岁运引动才能成为现实资源"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能见库就断大财或资源很多"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_compound_chain",
+      "title": "复合结构：多种做功串联",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "复合结构",
+        "多层做功"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "复合结构",
+          "多层做功"
+        ]
+      },
+      "requires": [
+        "每一段都有明确参与者和作用方向",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "制、生、化、合、库等可串联形成复杂取得路径，需逐段检查是否连续"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能把多个关系堆叠当作多条独立证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_root_connected_control",
+      "title": "通根连体后才具备稳定制力",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "wealth",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "通根",
+        "连体",
+        "制用"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "通根",
+          "连体",
+          "制用"
+        ]
+      },
+      "requires": [
+        "确认根、同柱、禄刃或生扶链条",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "参与做功的干支若通根连体，力量和归属更稳定；无根时作用可能短暂或借力"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能仅凭天干相克判断制得住"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_sitting_official_control",
+      "title": "坐下官杀的直接压力与利用",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "self",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "坐下官杀",
+        "官杀坐下"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "坐下官杀",
+          "官杀坐下"
+        ]
+      },
+      "requires": [
+        "结合日主承载、印食制化和夫妻宫角色",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "官杀贴近日主时，责任、规则和压力更直接，也可能成为执行力和职位接口"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能直接断婚姻受压或有官职"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_official_control_peer",
+      "title": "官制比劫：秩序约束竞争",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "friends",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "官制比",
+        "官制劫"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "官制比",
+          "官制劫"
+        ]
+      },
+      "requires": [
+        "官杀有力且不反伤日主",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "官杀对比劫形成约束，可把同辈竞争转为纪律、岗位分工或组织执行"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能直接断升职、制服小人或结婚"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_output_control_kill",
+      "title": "食伤制杀：技能应对压力",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "食神制杀",
+        "伤官制杀"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "食神制杀",
+          "伤官制杀"
+        ]
+      },
+      "requires": [
+        "食伤有根有力且制杀不过度",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "食伤对官杀形成制衡，常体现用技术、表达、方案和成果应对压力"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能只见食伤官杀就定正式格局"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_resource_control_output",
+      "title": "印制食伤：规则收束输出",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "印制食伤",
+        "印夺食"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "印制食伤",
+          "印夺食"
+        ]
+      },
+      "requires": [
+        "区分适度收束与过度夺食，结合现实输出",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "印对食伤可形成规范、学习和审核，也可能压制表达和成果通道"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能直接断疾病、生育或重大灾害"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_wealth_control_resource",
+      "title": "财制印：现实目标调整支持体系",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "wealth",
+        "parents"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "财制印",
+        "财破印"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "财制印",
+          "财破印"
+        ]
+      },
+      "requires": [
+        "看财印力量、日主承载和是否有通关",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "财对印形成制约，常体现现实目标、收入和责任改变学习、平台或支持方式"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能直接断离职、父母吉凶、牢狱或离婚"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_peer_control_wealth",
+      "title": "比劫制财：资源分配与共同取得",
+      "category": "work_method",
+      "domains": [
+        "wealth",
+        "friends",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "比劫制财",
+        "劫财见财"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "比劫制财",
+          "劫财见财"
+        ]
+      },
+      "requires": [
+        "必须区分财和比劫归属、强弱和是否有官印约束",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "比劫与财互动，可能体现共同争取、合作分配、竞争或资源外流"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能直接断破财、第三者或离婚"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "work_timing_work_activation",
+      "title": "岁运引动原局做功链",
+      "category": "work_method",
+      "domains": [
+        "career",
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "岁运",
+        "做功",
+        "引动"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "岁运",
+          "做功",
+          "引动"
+        ]
+      },
+      "requires": [
+        "岁运新增字必须与原局链条直接发生作用",
+        "同时核对宾主、体用、根气和宫位"
+      ],
+      "weakeningConditions": [
+        "作用链条中间被截断",
+        "参与者无根、归属不清或力量严重失衡"
+      ],
+      "imagery": {
+        "core": [
+          "原局已有做功结构在大运流年补齐参与者、增强力量或打开通道时，主题更容易显现"
+        ],
+        "positive": [
+          "做功有效时，命主更容易把结构能力转成现实成果"
+        ],
+        "negative": [
+          "做功失效或反制时，容易出现成本、压力、返工或资源流失"
+        ],
+        "realityChecks": [
+          "用一句话说明谁通过什么方式取得或处理什么目标"
+        ]
+      },
+      "advice": [
+        "现实建议对应做功方式：制用重边界，化用重承接，生泄重输出，合用重协议，墓用重释放条件"
+      ],
+      "prohibitions": [
+        "不能把原局没有的完整结构强行补成永久格局"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "77-186",
+          "section": "做工与制化结构",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "50-72",
+          "section": "制用、化用、生泄用、合用、墓用目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "work-methods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

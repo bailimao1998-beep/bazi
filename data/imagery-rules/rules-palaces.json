@@ -1,0 +1,935 @@
+{
+  "version": "imagery-rules-palaces-v1",
+  "module": "palaces",
+  "rules": [
+    {
+      "id": "palace_year_source",
+      "title": "年柱作为来源与外层背景",
+      "category": "palace",
+      "domains": [
+        "parents",
+        "self",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "年柱"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "年柱"
+        ]
+      },
+      "requires": [
+        "需结合年干年支的十神归属以及是否与日主发生直接作用",
+        "宫位取象需与十神、宾主、来源和当前问题交叉验证"
+      ],
+      "weakeningConditions": [
+        "现实阶段不对应该宫位的传统人物含义",
+        "宫位虽被提及但无直接作用"
+      ],
+      "imagery": {
+        "core": [
+          "年柱更偏家族根基、早年环境、外层来源与较远关系"
+        ],
+        "positive": [
+          "宫位明确时，可帮助缩小现实落点和人物范围"
+        ],
+        "negative": [
+          "忽略宫位会把同一十神泛化到错误领域"
+        ],
+        "realityChecks": [
+          "现实验证集中在该宫位的主要角色，不同时铺开所有类象"
+        ]
+      },
+      "advice": [
+        "回答时优先选择与年龄、问题和现实阶段最匹配的一个或两个落点"
+      ],
+      "prohibitions": [
+        "不能把年柱所有事项机械等同于祖上或父母"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-68",
+          "section": "宫位、家里外边与看命顺序",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "7,44-49",
+          "section": "宾主理论及宫位目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "palaces",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "palace_year_external",
+      "title": "年柱与外部资源、远方和公共环境",
+      "category": "palace",
+      "domains": [
+        "movement",
+        "career",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 70,
+      "gender": "all",
+      "queryKeywords": [
+        "年柱",
+        "外边",
+        "远方"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "年柱",
+          "外边",
+          "远方"
+        ]
+      },
+      "requires": [
+        "判断资源能否流入主位、是否被命主取得",
+        "宫位取象需与十神、宾主、来源和当前问题交叉验证"
+      ],
+      "weakeningConditions": [
+        "现实阶段不对应该宫位的传统人物含义",
+        "宫位虽被提及但无直接作用"
+      ],
+      "imagery": {
+        "core": [
+          "年柱中的财官印食可提示外部、远层或公共资源来源"
+        ],
+        "positive": [
+          "宫位明确时，可帮助缩小现实落点和人物范围"
+        ],
+        "negative": [
+          "忽略宫位会把同一十神泛化到错误领域"
+        ],
+        "realityChecks": [
+          "现实验证集中在该宫位的主要角色，不同时铺开所有类象"
+        ]
+      },
+      "advice": [
+        "回答时优先选择与年龄、问题和现实阶段最匹配的一个或两个落点"
+      ],
+      "prohibitions": [
+        "不能仅凭年柱有财官就断富贵"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-68",
+          "section": "宫位、家里外边与看命顺序",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "7,44-49",
+          "section": "宾主理论及宫位目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "palaces",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "palace_month_environment_detail",
+      "title": "月柱作为成长秩序与事业环境",
+      "category": "palace",
+      "domains": [
+        "parents",
+        "career",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "月柱",
+        "月令"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "月柱",
+          "月令"
+        ]
+      },
+      "requires": [
+        "月令还要承担旺衰和气候判断，不能只作人物宫位",
+        "宫位取象需与十神、宾主、来源和当前问题交叉验证"
+      ],
+      "weakeningConditions": [
+        "现实阶段不对应该宫位的传统人物含义",
+        "宫位虽被提及但无直接作用"
+      ],
+      "imagery": {
+        "core": [
+          "月柱反映成长环境、父母承接、主要社会秩序与工作接口"
+        ],
+        "positive": [
+          "宫位明确时，可帮助缩小现实落点和人物范围"
+        ],
+        "negative": [
+          "忽略宫位会把同一十神泛化到错误领域"
+        ],
+        "realityChecks": [
+          "现实验证集中在该宫位的主要角色，不同时铺开所有类象"
+        ]
+      },
+      "advice": [
+        "回答时优先选择与年龄、问题和现实阶段最匹配的一个或两个落点"
+      ],
+      "prohibitions": [
+        "不能把月柱单独等同于父母吉凶"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-68",
+          "section": "宫位、家里外边与看命顺序",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "7,44-49",
+          "section": "宾主理论及宫位目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "palaces",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "palace_month_work_interface",
+      "title": "月柱与单位、行业环境和社会评价",
+      "category": "palace",
+      "domains": [
+        "career",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "月柱",
+        "工作环境",
+        "单位"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "月柱",
+          "工作环境",
+          "单位"
+        ]
+      },
+      "requires": [
+        "必须结合官印财食等角色和实际岁运作用",
+        "宫位取象需与十神、宾主、来源和当前问题交叉验证"
+      ],
+      "weakeningConditions": [
+        "现实阶段不对应该宫位的传统人物含义",
+        "宫位虽被提及但无直接作用"
+      ],
+      "imagery": {
+        "core": [
+          "月柱被岁运引动时，单位环境、职责接口或社会评价更容易变化"
+        ],
+        "positive": [
+          "宫位明确时，可帮助缩小现实落点和人物范围"
+        ],
+        "negative": [
+          "忽略宫位会把同一十神泛化到错误领域"
+        ],
+        "realityChecks": [
+          "现实验证集中在该宫位的主要角色，不同时铺开所有类象"
+        ]
+      },
+      "advice": [
+        "回答时优先选择与年龄、问题和现实阶段最匹配的一个或两个落点"
+      ],
+      "prohibitions": [
+        "不能只见月柱冲合就断换工作"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-68",
+          "section": "宫位、家里外边与看命顺序",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "7,44-49",
+          "section": "宾主理论及宫位目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "palaces",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "palace_day_self",
+      "title": "日干作为命主直接立场与承载",
+      "category": "palace",
+      "domains": [
+        "self",
+        "career",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 70,
+      "gender": "all",
+      "queryKeywords": [
+        "日干",
+        "日主"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "日干",
+          "日主"
+        ]
+      },
+      "requires": [
+        "需结合根气、帮扶、克泄和坐支",
+        "宫位取象需与十神、宾主、来源和当前问题交叉验证"
+      ],
+      "weakeningConditions": [
+        "现实阶段不对应该宫位的传统人物含义",
+        "宫位虽被提及但无直接作用"
+      ],
+      "imagery": {
+        "core": [
+          "日干体现命主直接立场、行动主体和承载能力"
+        ],
+        "positive": [
+          "宫位明确时，可帮助缩小现实落点和人物范围"
+        ],
+        "negative": [
+          "忽略宫位会把同一十神泛化到错误领域"
+        ],
+        "realityChecks": [
+          "现实验证集中在该宫位的主要角色，不同时铺开所有类象"
+        ]
+      },
+      "advice": [
+        "回答时优先选择与年龄、问题和现实阶段最匹配的一个或两个落点"
+      ],
+      "prohibitions": [
+        "不能把日干旺弱直接等同于性格好坏"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-68",
+          "section": "宫位、家里外边与看命顺序",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "7,44-49",
+          "section": "宾主理论及宫位目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "palaces",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "palace_day_spouse",
+      "title": "日支作为亲密关系与日常落点",
+      "category": "palace",
+      "domains": [
+        "spouse",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "日支",
+        "夫妻宫"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "日支",
+          "夫妻宫"
+        ]
+      },
+      "requires": [
+        "配偶星、日支、宾主和岁运必须共同判断",
+        "宫位取象需与十神、宾主、来源和当前问题交叉验证"
+      ],
+      "weakeningConditions": [
+        "现实阶段不对应该宫位的传统人物含义",
+        "宫位虽被提及但无直接作用"
+      ],
+      "imagery": {
+        "core": [
+          "日支反映亲密关系模式、日常相处与命主贴身环境"
+        ],
+        "positive": [
+          "宫位明确时，可帮助缩小现实落点和人物范围"
+        ],
+        "negative": [
+          "忽略宫位会把同一十神泛化到错误领域"
+        ],
+        "realityChecks": [
+          "现实验证集中在该宫位的主要角色，不同时铺开所有类象"
+        ]
+      },
+      "advice": [
+        "回答时优先选择与年龄、问题和现实阶段最匹配的一个或两个落点"
+      ],
+      "prohibitions": [
+        "日支被冲合不直接等同于结婚或离婚"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-68",
+          "section": "宫位、家里外边与看命顺序",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "7,44-49",
+          "section": "宾主理论及宫位目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "palaces",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "palace_day_body",
+      "title": "日柱干支一体与自我矛盾",
+      "category": "palace",
+      "domains": [
+        "self",
+        "spouse",
+        "health"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "日柱",
+        "坐下",
+        "连体"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "日柱",
+          "坐下",
+          "连体"
+        ]
+      },
+      "requires": [
+        "需区分坐下是否为体、是否被外层结构调用",
+        "宫位取象需与十神、宾主、来源和当前问题交叉验证"
+      ],
+      "weakeningConditions": [
+        "现实阶段不对应该宫位的传统人物含义",
+        "宫位虽被提及但无直接作用"
+      ],
+      "imagery": {
+        "core": [
+          "日干与日支的生克制化反映自我、身体感受和亲密关系之间的直接互动"
+        ],
+        "positive": [
+          "宫位明确时，可帮助缩小现实落点和人物范围"
+        ],
+        "negative": [
+          "忽略宫位会把同一十神泛化到错误领域"
+        ],
+        "realityChecks": [
+          "现实验证集中在该宫位的主要角色，不同时铺开所有类象"
+        ]
+      },
+      "advice": [
+        "回答时优先选择与年龄、问题和现实阶段最匹配的一个或两个落点"
+      ],
+      "prohibitions": [
+        "不能只凭坐下十神断身体疾病或婚姻结局"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-68",
+          "section": "宫位、家里外边与看命顺序",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "7,44-49",
+          "section": "宾主理论及宫位目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "palaces",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "palace_hour_result",
+      "title": "时柱作为结果、作品与后期规划",
+      "category": "palace",
+      "domains": [
+        "children",
+        "career",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 70,
+      "gender": "all",
+      "queryKeywords": [
+        "时柱",
+        "结果",
+        "后期"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "时柱",
+          "结果",
+          "后期"
+        ]
+      },
+      "requires": [
+        "需结合命主年龄和现实阶段，未婚未育者优先取成果与后期计划",
+        "宫位取象需与十神、宾主、来源和当前问题交叉验证"
+      ],
+      "weakeningConditions": [
+        "现实阶段不对应该宫位的传统人物含义",
+        "宫位虽被提及但无直接作用"
+      ],
+      "imagery": {
+        "core": [
+          "时柱更偏执行结果、作品、后期规划、子女或下属层"
+        ],
+        "positive": [
+          "宫位明确时，可帮助缩小现实落点和人物范围"
+        ],
+        "negative": [
+          "忽略宫位会把同一十神泛化到错误领域"
+        ],
+        "realityChecks": [
+          "现实验证集中在该宫位的主要角色，不同时铺开所有类象"
+        ]
+      },
+      "advice": [
+        "回答时优先选择与年龄、问题和现实阶段最匹配的一个或两个落点"
+      ],
+      "prohibitions": [
+        "不能同时断子女、晚年、下属和作品"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-68",
+          "section": "宫位、家里外边与看命顺序",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "7,44-49",
+          "section": "宾主理论及宫位目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "palaces",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "palace_hour_future",
+      "title": "时柱被岁运引动的后续变化",
+      "category": "palace",
+      "domains": [
+        "career",
+        "children",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "时柱",
+        "流年",
+        "大运"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "时柱",
+          "流年",
+          "大运"
+        ]
+      },
+      "requires": [
+        "需有对应岁运事实，且按现实阶段选择最贴近场景",
+        "宫位取象需与十神、宾主、来源和当前问题交叉验证"
+      ],
+      "weakeningConditions": [
+        "现实阶段不对应该宫位的传统人物含义",
+        "宫位虽被提及但无直接作用"
+      ],
+      "imagery": {
+        "core": [
+          "时柱受岁运直接作用时，成果交付、后期安排或子女下属层更易调整"
+        ],
+        "positive": [
+          "宫位明确时，可帮助缩小现实落点和人物范围"
+        ],
+        "negative": [
+          "忽略宫位会把同一十神泛化到错误领域"
+        ],
+        "realityChecks": [
+          "现实验证集中在该宫位的主要角色，不同时铺开所有类象"
+        ]
+      },
+      "advice": [
+        "回答时优先选择与年龄、问题和现实阶段最匹配的一个或两个落点"
+      ],
+      "prohibitions": [
+        "不能把时柱冲刑直接断子女有灾"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-68",
+          "section": "宫位、家里外边与看命顺序",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "7,44-49",
+          "section": "宾主理论及宫位目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "palaces",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "palace_inner_outer",
+      "title": "年月为外层、日时为内层的相对区分",
+      "category": "palace",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "年月",
+        "日时",
+        "内外"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "年月",
+          "日时",
+          "内外"
+        ]
+      },
+      "requires": [
+        "宾主是相对关系，还需看具体组合和来源流向",
+        "宫位取象需与十神、宾主、来源和当前问题交叉验证"
+      ],
+      "weakeningConditions": [
+        "现实阶段不对应该宫位的传统人物含义",
+        "宫位虽被提及但无直接作用"
+      ],
+      "imagery": {
+        "core": [
+          "年月更偏外层来源和环境，日时更偏命主可直接承接的家内与结果层"
+        ],
+        "positive": [
+          "宫位明确时，可帮助缩小现实落点和人物范围"
+        ],
+        "negative": [
+          "忽略宫位会把同一十神泛化到错误领域"
+        ],
+        "realityChecks": [
+          "现实验证集中在该宫位的主要角色，不同时铺开所有类象"
+        ]
+      },
+      "advice": [
+        "回答时优先选择与年龄、问题和现实阶段最匹配的一个或两个落点"
+      ],
+      "prohibitions": [
+        "不能把年月一律视为别人、日时一律视为自己"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-68",
+          "section": "宫位、家里外边与看命顺序",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "7,44-49",
+          "section": "宾主理论及宫位目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "palaces",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "palace_near_far",
+      "title": "宫位远近与事情显现距离",
+      "category": "palace",
+      "domains": [
+        "movement",
+        "spouse",
+        "career",
+        "parents"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 70,
+      "gender": "all",
+      "queryKeywords": [
+        "远近",
+        "年月日时"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "远近",
+          "年月日时"
+        ]
+      },
+      "requires": [
+        "距离只是相对象，仍受合冲和现实背景影响",
+        "宫位取象需与十神、宾主、来源和当前问题交叉验证"
+      ],
+      "weakeningConditions": [
+        "现实阶段不对应该宫位的传统人物含义",
+        "宫位虽被提及但无直接作用"
+      ],
+      "imagery": {
+        "core": [
+          "年柱较远、月柱为主要环境、日柱贴身、时柱偏后续，可辅助判断资源和人物距离"
+        ],
+        "positive": [
+          "宫位明确时，可帮助缩小现实落点和人物范围"
+        ],
+        "negative": [
+          "忽略宫位会把同一十神泛化到错误领域"
+        ],
+        "realityChecks": [
+          "现实验证集中在该宫位的主要角色，不同时铺开所有类象"
+        ]
+      },
+      "advice": [
+        "回答时优先选择与年龄、问题和现实阶段最匹配的一个或两个落点"
+      ],
+      "prohibitions": [
+        "不能据此锁定地理距离或年龄差"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-68",
+          "section": "宫位、家里外边与看命顺序",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "7,44-49",
+          "section": "宾主理论及宫位目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "palaces",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "palace_palace_transit",
+      "title": "岁运引动宫位不等于事件自动发生",
+      "category": "palace",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "wealth",
+        "movement"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "宫位",
+        "引动",
+        "岁运"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "宫位",
+          "引动",
+          "岁运"
+        ]
+      },
+      "requires": [
+        "至少再有一条独立依据并考虑大运背景",
+        "宫位取象需与十神、宾主、来源和当前问题交叉验证"
+      ],
+      "weakeningConditions": [
+        "现实阶段不对应该宫位的传统人物含义",
+        "宫位虽被提及但无直接作用"
+      ],
+      "imagery": {
+        "core": [
+          "岁运触及宫位说明该领域主题被强调，具体事件还需十神、做功与现实条件汇合"
+        ],
+        "positive": [
+          "宫位明确时，可帮助缩小现实落点和人物范围"
+        ],
+        "negative": [
+          "忽略宫位会把同一十神泛化到错误领域"
+        ],
+        "realityChecks": [
+          "现实验证集中在该宫位的主要角色，不同时铺开所有类象"
+        ]
+      },
+      "advice": [
+        "回答时优先选择与年龄、问题和现实阶段最匹配的一个或两个落点"
+      ],
+      "prohibitions": [
+        "不能单凭引动宫位就断升职、婚变、搬家或生育"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-68",
+          "section": "宫位、家里外边与看命顺序",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "7,44-49",
+          "section": "宾主理论及宫位目录框架",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "palaces",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

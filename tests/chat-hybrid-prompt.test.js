@@ -1,4 +1,3 @@
-
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -189,7 +188,7 @@ test(
 
     assert.equal(
       payload.dataMode,
-      "hybrid_facts_plus_selected_imagery",
+      "hybrid_facts_plus_selected_imagery_plus_rule_kb",
     );
 
     assert.equal(
@@ -250,7 +249,7 @@ test(
 
     assert.match(
       result.system,
-      /可以合并、降级或否定本地候选取象/,
+      /可以对本次匹配规则和候选取象做合并、降级、否定、排序和现实化表达/,
     );
 
     assert.match(

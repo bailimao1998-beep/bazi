@@ -75,7 +75,7 @@ const DEEP_PATTERN =
   /全面|详细|深入|完整|综合|人生画像|人物画像|一生|所有方面|系统分析|仔细分析|断准|专业分析/;
 
 const CONCISE_PATTERN =
-  /简单说|简短|一句话|概括|不要太长/;
+  /直接回答|直接说|只说结论|只说重点|重点说|简单说|简短|一句话|概括|不要太长|不用太长|不要展开太多/;
 
 const CURRENT_STAGE_PATTERN =
   /现在|目前|当前|最近|这段时间|当下/;
@@ -195,7 +195,7 @@ export function buildChatContextPlan({
 
   return {
     version:
-      "chat-context-plan-v2",
+      "chat-context-plan-v1",
 
     isBaziQuestion,
 
@@ -322,24 +322,6 @@ export function buildChatContextPlan({
           "deep"
           ? 4
           : 3,
-
-      methodologyRules:
-        answerDepth ===
-          "deep"
-          ? 22
-          : answerDepth ===
-              "concise"
-            ? 12
-            : 18,
-
-      imageryRules:
-        answerDepth ===
-          "deep"
-          ? 28
-          : answerDepth ===
-              "concise"
-            ? 10
-            : 18,
 
       chatTurns:
         4,

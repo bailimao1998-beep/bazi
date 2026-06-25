@@ -1,0 +1,757 @@
+{
+  "version": "imagery-rules-health-state-v1",
+  "module": "health-state",
+  "rules": [
+    {
+      "id": "health_traditional_state",
+      "title": "健康只作传统状态与压力提示",
+      "category": "health_state",
+      "domains": [
+        "health"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 90,
+      "gender": "all",
+      "queryKeywords": [
+        "健康",
+        "体质",
+        "状态"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "健康",
+          "体质",
+          "状态"
+        ]
+      },
+      "requires": [
+        "结合现实症状和医学评估",
+        "健康问题优先依据用户现实描述和专业医疗信息"
+      ],
+      "weakeningConditions": [
+        "没有现实不适或压力证据",
+        "命理信号只来自单一关系"
+      ],
+      "imagery": {
+        "core": [
+          "命理可讨论寒热燥湿、压力、作息、恢复和安全倾向，不确认具体疾病"
+        ],
+        "positive": [
+          "用于提醒作息、压力、安全和恢复管理"
+        ],
+        "negative": [
+          "过度医学化会造成误导和不必要恐慌"
+        ],
+        "realityChecks": [
+          "询问现实作息、压力和症状持续情况，而不是从命盘猜病"
+        ]
+      },
+      "advice": [
+        "有持续不适时及时就医，命理仅作生活管理提醒"
+      ],
+      "prohibitions": [
+        "不能凭命盘诊断器官、疾病、症状或寿命"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "健康与安全边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-270",
+          "section": "五行像法的低风险转译",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "health-state",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "health_five_element_balance",
+      "title": "五行偏颇用于生活节律，不用于诊断",
+      "category": "health_state",
+      "domains": [
+        "health"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 89,
+      "gender": "all",
+      "queryKeywords": [
+        "五行偏颇",
+        "健康"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "五行偏颇",
+          "健康"
+        ]
+      },
+      "requires": [
+        "只给低风险作息、运动和就医建议",
+        "健康问题优先依据用户现实描述和专业医疗信息"
+      ],
+      "weakeningConditions": [
+        "没有现实不适或压力证据",
+        "命理信号只来自单一关系"
+      ],
+      "imagery": {
+        "core": [
+          "五行偏颇可提醒生活节律、活动与休息的平衡，不等同于对应器官患病"
+        ],
+        "positive": [
+          "用于提醒作息、压力、安全和恢复管理"
+        ],
+        "negative": [
+          "过度医学化会造成误导和不必要恐慌"
+        ],
+        "realityChecks": [
+          "询问现实作息、压力和症状持续情况，而不是从命盘猜病"
+        ]
+      },
+      "advice": [
+        "有持续不适时及时就医，命理仅作生活管理提醒"
+      ],
+      "prohibitions": [
+        "不能建立五行—器官—疾病的一对一断法"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "健康与安全边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-270",
+          "section": "五行像法的低风险转译",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "health-state",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "health_pressure_official",
+      "title": "官杀压力与紧张度",
+      "category": "health_state",
+      "domains": [
+        "health",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 88,
+      "gender": "all",
+      "queryKeywords": [
+        "官杀",
+        "压力",
+        "紧张"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "官杀",
+          "压力",
+          "紧张"
+        ]
+      },
+      "requires": [
+        "结合工作量、睡眠和情绪现实反馈",
+        "健康问题优先依据用户现实描述和专业医疗信息"
+      ],
+      "weakeningConditions": [
+        "没有现实不适或压力证据",
+        "命理信号只来自单一关系"
+      ],
+      "imagery": {
+        "core": [
+          "官杀增强可提示责任、竞争和警觉度上升，现实中可能需要更主动管理压力"
+        ],
+        "positive": [
+          "用于提醒作息、压力、安全和恢复管理"
+        ],
+        "negative": [
+          "过度医学化会造成误导和不必要恐慌"
+        ],
+        "realityChecks": [
+          "询问现实作息、压力和症状持续情况，而不是从命盘猜病"
+        ]
+      },
+      "advice": [
+        "有持续不适时及时就医，命理仅作生活管理提醒"
+      ],
+      "prohibitions": [
+        "不能由官杀直接断失眠、焦虑症或具体疾病"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "健康与安全边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-270",
+          "section": "五行像法的低风险转译",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "health-state",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "health_output_blocked",
+      "title": "食伤通道受阻与身心松弛",
+      "category": "health_state",
+      "domains": [
+        "health",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 90,
+      "gender": "all",
+      "queryKeywords": [
+        "食伤受制",
+        "输出受阻"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "食伤受制",
+          "输出受阻"
+        ]
+      },
+      "requires": [
+        "需现实反馈支持，并区分工作压力和情绪问题",
+        "健康问题优先依据用户现实描述和专业医疗信息"
+      ],
+      "weakeningConditions": [
+        "没有现实不适或压力证据",
+        "命理信号只来自单一关系"
+      ],
+      "imagery": {
+        "core": [
+          "表达和输出通道受限时，可能主观感到不畅、压抑或难以放松"
+        ],
+        "positive": [
+          "用于提醒作息、压力、安全和恢复管理"
+        ],
+        "negative": [
+          "过度医学化会造成误导和不必要恐慌"
+        ],
+        "realityChecks": [
+          "询问现实作息、压力和症状持续情况，而不是从命盘猜病"
+        ]
+      },
+      "advice": [
+        "有持续不适时及时就医，命理仅作生活管理提醒"
+      ],
+      "prohibitions": [
+        "不能断消化系统、生殖系统或具体症状"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "健康与安全边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-270",
+          "section": "五行像法的低风险转译",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "health-state",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "health_resource_heavy",
+      "title": "印星过重与静态负担",
+      "category": "health_state",
+      "domains": [
+        "health",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 89,
+      "gender": "all",
+      "queryKeywords": [
+        "印重",
+        "准备过多"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "印重",
+          "准备过多"
+        ]
+      },
+      "requires": [
+        "结合运动、工作方式和现实作息",
+        "健康问题优先依据用户现实描述和专业医疗信息"
+      ],
+      "weakeningConditions": [
+        "没有现实不适或压力证据",
+        "命理信号只来自单一关系"
+      ],
+      "imagery": {
+        "core": [
+          "印星过重可提示思虑、静态时间、保护倾向和行动节奏偏慢"
+        ],
+        "positive": [
+          "用于提醒作息、压力、安全和恢复管理"
+        ],
+        "negative": [
+          "过度医学化会造成误导和不必要恐慌"
+        ],
+        "realityChecks": [
+          "询问现实作息、压力和症状持续情况，而不是从命盘猜病"
+        ]
+      },
+      "advice": [
+        "有持续不适时及时就医，命理仅作生活管理提醒"
+      ],
+      "prohibitions": [
+        "不能直接断肥胖、抑郁或代谢疾病"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "健康与安全边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-270",
+          "section": "五行像法的低风险转译",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "health-state",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "health_clash_safety",
+      "title": "岁运冲动与一般安全提醒",
+      "category": "health_state",
+      "domains": [
+        "health",
+        "movement"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 88,
+      "gender": "all",
+      "queryKeywords": [
+        "冲",
+        "安全",
+        "出行"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "冲",
+          "安全",
+          "出行"
+        ]
+      },
+      "requires": [
+        "必须有明确岁运冲动且现实中确有出行或高压任务",
+        "健康问题优先依据用户现实描述和专业医疗信息"
+      ],
+      "weakeningConditions": [
+        "没有现实不适或压力证据",
+        "命理信号只来自单一关系"
+      ],
+      "imagery": {
+        "core": [
+          "强烈冲动可提示节奏变化、移动和注意力分散，适合做一般安全与行程预案"
+        ],
+        "positive": [
+          "用于提醒作息、压力、安全和恢复管理"
+        ],
+        "negative": [
+          "过度医学化会造成误导和不必要恐慌"
+        ],
+        "realityChecks": [
+          "询问现实作息、压力和症状持续情况，而不是从命盘猜病"
+        ]
+      },
+      "advice": [
+        "有持续不适时及时就医，命理仅作生活管理提醒"
+      ],
+      "prohibitions": [
+        "不能断车祸、手术或灾难"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "健康与安全边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-270",
+          "section": "五行像法的低风险转译",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "health-state",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "health_heat_cold",
+      "title": "寒热燥湿只作环境与节律象",
+      "category": "health_state",
+      "domains": [
+        "health"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 90,
+      "gender": "all",
+      "queryKeywords": [
+        "寒",
+        "热",
+        "燥",
+        "湿"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "寒",
+          "热",
+          "燥",
+          "湿"
+        ]
+      },
+      "requires": [
+        "建议保持适宜环境、规律作息并听从专业意见",
+        "健康问题优先依据用户现实描述和专业医疗信息"
+      ],
+      "weakeningConditions": [
+        "没有现实不适或压力证据",
+        "命理信号只来自单一关系"
+      ],
+      "imagery": {
+        "core": [
+          "寒热燥湿可用于描述命局环境和生活节律，不直接映射医学病名"
+        ],
+        "positive": [
+          "用于提醒作息、压力、安全和恢复管理"
+        ],
+        "negative": [
+          "过度医学化会造成误导和不必要恐慌"
+        ],
+        "realityChecks": [
+          "询问现实作息、压力和症状持续情况，而不是从命盘猜病"
+        ]
+      },
+      "advice": [
+        "有持续不适时及时就医，命理仅作生活管理提醒"
+      ],
+      "prohibitions": [
+        "不能以调候替代就医"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "健康与安全边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-270",
+          "section": "五行像法的低风险转译",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "health-state",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "health_mental_load",
+      "title": "自刑伏吟与反复心理负担",
+      "category": "health_state",
+      "domains": [
+        "health",
+        "self"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 89,
+      "gender": "all",
+      "queryKeywords": [
+        "自刑",
+        "伏吟",
+        "内耗"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "自刑",
+          "伏吟",
+          "内耗"
+        ]
+      },
+      "requires": [
+        "结合实际压力、行为和持续时间",
+        "健康问题优先依据用户现实描述和专业医疗信息"
+      ],
+      "weakeningConditions": [
+        "没有现实不适或压力证据",
+        "命理信号只来自单一关系"
+      ],
+      "imagery": {
+        "core": [
+          "自刑或伏吟可提示重复、较劲和心理负担主题，但程度需现实验证"
+        ],
+        "positive": [
+          "用于提醒作息、压力、安全和恢复管理"
+        ],
+        "negative": [
+          "过度医学化会造成误导和不必要恐慌"
+        ],
+        "realityChecks": [
+          "询问现实作息、压力和症状持续情况，而不是从命盘猜病"
+        ]
+      },
+      "advice": [
+        "有持续不适时及时就医，命理仅作生活管理提醒"
+      ],
+      "prohibitions": [
+        "不能直接诊断焦虑、强迫或抑郁"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "健康与安全边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-270",
+          "section": "五行像法的低风险转译",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "health-state",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "health_medical_boundary",
+      "title": "出现具体不适时以医学为准",
+      "category": "health_state",
+      "domains": [
+        "health"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 88,
+      "gender": "all",
+      "queryKeywords": [
+        "就医",
+        "不适",
+        "诊断"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "就医",
+          "不适",
+          "诊断"
+        ]
+      },
+      "requires": [
+        "任何具体症状、用药和治疗问题转向专业医疗",
+        "健康问题优先依据用户现实描述和专业医疗信息"
+      ],
+      "weakeningConditions": [
+        "没有现实不适或压力证据",
+        "命理信号只来自单一关系"
+      ],
+      "imagery": {
+        "core": [
+          "命理建议只到风险提醒和生活管理，持续或明显不适应及时就医"
+        ],
+        "positive": [
+          "用于提醒作息、压力、安全和恢复管理"
+        ],
+        "negative": [
+          "过度医学化会造成误导和不必要恐慌"
+        ],
+        "realityChecks": [
+          "询问现实作息、压力和症状持续情况，而不是从命盘猜病"
+        ]
+      },
+      "advice": [
+        "有持续不适时及时就医，命理仅作生活管理提醒"
+      ],
+      "prohibitions": [
+        "不能建议停药、替代治疗或保证康复"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "健康与安全边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-270",
+          "section": "五行像法的低风险转译",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "health-state",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "health_health_advice",
+      "title": "健康建议必须低风险可执行",
+      "category": "health_state",
+      "domains": [
+        "health"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 90,
+      "gender": "all",
+      "queryKeywords": [
+        "作息",
+        "运动",
+        "压力管理"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "作息",
+          "运动",
+          "压力管理"
+        ]
+      },
+      "requires": [
+        "建议不与医学治疗冲突",
+        "健康问题优先依据用户现实描述和专业医疗信息"
+      ],
+      "weakeningConditions": [
+        "没有现实不适或压力证据",
+        "命理信号只来自单一关系"
+      ],
+      "imagery": {
+        "core": [
+          "适合给规律睡眠、适度运动、饮食规律、压力缓冲和安全检查等通用建议"
+        ],
+        "positive": [
+          "用于提醒作息、压力、安全和恢复管理"
+        ],
+        "negative": [
+          "过度医学化会造成误导和不必要恐慌"
+        ],
+        "realityChecks": [
+          "询问现实作息、压力和症状持续情况，而不是从命盘猜病"
+        ]
+      },
+      "advice": [
+        "有持续不适时及时就医，命理仅作生活管理提醒"
+      ],
+      "prohibitions": [
+        "不能用补五行食物、颜色、饰品或方位声称治病"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "健康与安全边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-270",
+          "section": "五行像法的低风险转译",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "health-state",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

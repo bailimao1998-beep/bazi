@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Blind Bazi Imagery Rule",
+  "title": "Blind Bazi Imagery Rule v8.4",
   "type": "object",
   "required": [
     "id",
@@ -114,6 +114,19 @@
     },
     "allowInUserAnswer": {
       "type": "boolean"
+    },
+    "module": {
+      "type": "string"
+    },
+    "verificationStatus": {
+      "enum": [
+        "confirmed",
+        "cross_confirmed",
+        "selected_pages_verified",
+        "outline_verified",
+        "system_synthesis",
+        "needs_review"
+      ]
     }
   }
 }

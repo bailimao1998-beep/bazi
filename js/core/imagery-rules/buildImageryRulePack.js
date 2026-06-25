@@ -2,6 +2,7 @@ import {
   IMAGERY_METHODOLOGY_RULES,
   IMAGERY_RULE_CORPUS_VERSION,
   IMAGERY_RULES,
+  IMAGERY_RULE_MODULES,
   IMAGERY_SOURCE_REGISTRY,
 } from "./imageryRuleBundle.js";
 
@@ -26,6 +27,15 @@ const SCOPE_MAP = {
   month: "month",
 };
 
+const PINNED_RULE_IDS = new Set([
+  "spouse_gender_primary_star",
+  "spouse_star_and_palace",
+  "spouse_timing_multi_condition",
+  "career_object_and_method",
+  "career_output_skill",
+  "career_resource_support",
+]);
+
 const CATEGORY_QUOTA = {
   ten_god: 5,
   relation: 5,
@@ -35,7 +45,14 @@ const CATEGORY_QUOTA = {
   relationship: 6,
   transit: 6,
   element: 5,
-  career: 5,
+  career: 8,
+  guest_host: 7,
+  stem_branch: 8,
+  storage: 7,
+  family: 7,
+  wealth: 7,
+  health_state: 5,
+  boundary: 8,
 };
 
 export function buildImageryRulePack({
@@ -57,6 +74,8 @@ export function buildImageryRulePack({
       methodologyRules: [],
       matchedRules: [],
       matchedRuleIds: [],
+      ruleConstraint:
+        buildRuleConstraint([]),
       coverage: buildCoverage(),
       instruction: "当前问题未识别为命理问题，不注入取象规则。",
     };
@@ -103,6 +122,11 @@ export function buildImageryRulePack({
   const selected = selectWithCategoryDiversity(scored, ruleLimit)
     .map(compactMatchedRule);
 
+  const ruleConstraint =
+    buildRuleConstraint(
+      selected,
+    );
+
   return {
     version: IMAGERY_RULE_CORPUS_VERSION,
     source: "blind_bazi_imagery_knowledge_base",
@@ -110,19 +134,23 @@ export function buildImageryRulePack({
     methodologyRules,
     matchedRules: selected,
     matchedRuleIds: selected.map((item) => item.id),
+    ruleConstraint,
     sourceSummary: summarizeSources(selected),
+    moduleSummary: IMAGERY_RULE_MODULES,
     coverage: buildCoverage(),
     contextSummary: {
       timeScope: context.timeScope,
-      domains: context.domains,
+      domains: [...context.domains].sort(),
       gender: context.gender || null,
       observedTenGods: [...context.tenGods].sort(),
       observedRelations: [...context.relations].sort(),
     },
     instruction: [
-      "总纲是推理方法，匹配规则是候选知识，不是现实事实。",
-      "必须逐条检查规则的成立条件、削弱条件和禁止越级结论。",
-      "硬事实与规则冲突时舍弃规则；多条规则冲突时按直接作用、当前层级、条件完整和来源支持仲裁。",
+      "采用规则优先的引导模式：匹配规则是主要取象依据，AI可在这些规则和硬事实之间做主次排序、合并与现实化表达。",
+      "不得自行创造系统未提供的具名干支关系、正式格局、特殊口诀或确定事件。",
+      "当规则库覆盖不足时，可以依据原局硬事实、岁运硬事实和取象总纲做保守补充推断，但必须降低语气，不得伪装成书本定则。",
+      "总纲规定推理方法，匹配规则提供专业候选象；二者都不能替代命盘硬事实。",
+      "应检查触发证据、成立条件、削弱因素和禁止越级结论，但不要求每句话机械绑定规则编号。",
       "先形成主象、辅象、矛盾象、条件象和反证象，再展开现实表现与建议。",
     ],
   };
@@ -212,21 +240,33 @@ function scoreRule(rule, context) {
   const featureAny = expandAlternatives(trigger.featuresAny);
 
   const tenGodAnyHits = tenGodAny.filter((item) => context.tenGods.has(item));
+  let allTenGodGroupsHit =
+    tenGodAll.length ===
+      0;
+
   if (tenGodAnyHits.length) {
     score += 5;
     matchedBy.push(`十神：${tenGodAnyHits.slice(0, 4).join("、")}`);
   }
 
   if (tenGodAll.length) {
-    const allGroupsHit = tenGodAll.every((group) =>
-      String(group).split("|").some((item) => context.tenGods.has(item)),
-    );
-    if (allGroupsHit) {
-      score += 8;
-      matchedBy.push(`组合十神：${tenGodAll.join("＋")}`);
-    } else {
-      score -= 5;
+    allTenGodGroupsHit =
+      tenGodAll.every((group) =>
+        String(group)
+          .split("|")
+          .some((item) =>
+            context.tenGods.has(item),
+          ),
+      );
+
+    if (!allTenGodGroupsHit) {
+      return null;
     }
+
+    score += 8;
+    matchedBy.push(
+      `组合十神：${tenGodAll.join("＋")}`,
+    );
   }
 
   const relationHits = relationAny.filter((item) => context.relations.has(item));
@@ -248,11 +288,62 @@ function scoreRule(rule, context) {
     matchedBy.push(`结构：${featureHits.slice(0, 3).join("、")}`);
   }
 
+  const triggerEvidence = [
+    ...tenGodAnyHits.map(
+      (item) =>
+        `十神:${item}`,
+    ),
+    ...(
+      tenGodAll.length &&
+      allTenGodGroupsHit
+        ? tenGodAll.map(
+            (item) =>
+              `组合十神:${item}`,
+          )
+        : []
+    ),
+    ...relationHits.map(
+      (item) =>
+        `关系:${item}`,
+    ),
+    ...stemHits.map(
+      (item) =>
+        `天干:${item}`,
+    ),
+    ...branchHits.map(
+      (item) =>
+        `地支:${item}`,
+    ),
+    ...featureHits.map(
+      (item) =>
+        `结构:${item}`,
+    ),
+  ];
+
+  /*
+   * 领域、时间层和问题关键词可以召回“检查框架”类规则，
+   * 但没有命中命盘或岁运触发条件时，该规则不能支撑具体结论。
+   */
+  const claimSupportAllowed =
+    triggerEvidence.length >
+      0;
+
   // Relation rules should not be injected when the relation is absent.
   if (rule.category === "relation" && relationAny.length && relationHits.length === 0) return null;
 
-  // Element rules require at least one corresponding stem or branch.
-  if (rule.category === "element" && stemHits.length + branchHits.length === 0) return null;
+  // Element and stem/branch rules require corresponding chart material.
+  if (["element", "stem_branch"].includes(rule.category) &&
+      stemHits.length + branchHits.length === 0) return null;
+
+  // Storage rules require a storage branch or a direct storage feature hit.
+  if (rule.category === "storage" &&
+      branchHits.length + featureHits.length === 0) return null;
+
+  // Boundary rules need a direct question/feature hit, except deterministic foundation rules.
+  if (rule.category === "boundary" &&
+      featureHits.length === 0 &&
+      keywordHits.length === 0 &&
+      Number(rule.priority || 0) < 99) return null;
 
   // Specific pattern/work-method rules need at least one structural or ten-god hit.
   if (["pattern", "work_method"].includes(rule.category) &&
@@ -262,7 +353,17 @@ function scoreRule(rule, context) {
 
   if (score < 8) return null;
 
-  return { rule, score: Number(score.toFixed(2)), matchedBy };
+  return {
+    rule,
+    score:
+      Number(
+        score.toFixed(2),
+      ),
+    matchedBy,
+    triggerEvidence:
+      [...new Set(triggerEvidence)],
+    claimSupportAllowed,
+  };
 }
 
 function selectWithCategoryDiversity(scored, limit) {
@@ -270,6 +371,15 @@ function selectWithCategoryDiversity(scored, limit) {
   const counts = new Map();
 
   for (const item of scored) {
+    if (!PINNED_RULE_IDS.has(item.rule.id)) continue;
+    selected.push(item);
+    const category = item.rule.category || "other";
+    counts.set(category, (counts.get(category) ?? 0) + 1);
+    if (selected.length >= limit) return selected;
+  }
+
+  for (const item of scored) {
+    if (selected.includes(item)) continue;
     const category = item.rule.category || "other";
     const quota = CATEGORY_QUOTA[category] ?? 4;
     if ((counts.get(category) ?? 0) >= quota) continue;
@@ -319,6 +429,20 @@ function compactMatchedRule(item) {
     domains: array(rule.domains),
     scopes: array(rule.scopes),
     matchedBy: item.matchedBy,
+    triggerEvidence:
+      array(
+        item.triggerEvidence,
+      ).slice(0, 8),
+    claimSupportAllowed:
+      Boolean(
+        item.claimSupportAllowed,
+      ),
+    conditionStatus:
+      !item.claimSupportAllowed
+        ? "context_only"
+        : array(rule.requires).length
+          ? "requires_review"
+          : "trigger_verified",
     requires: array(rule.requires).slice(0, 4),
     weakeningConditions: array(rule.weakeningConditions).slice(0, 4),
     imagery: {
@@ -331,6 +455,93 @@ function compactMatchedRule(item) {
     prohibitions: array(rule.prohibitions).slice(0, 3),
     sources: compactSources(rule.sourceRefs),
     matchScore: item.score,
+  };
+}
+
+
+function buildRuleConstraint(
+  selected,
+) {
+  const rules =
+    array(selected)
+      .filter(
+        (item) =>
+          item
+            ?.claimSupportAllowed !==
+          false,
+      );
+
+  const allowedRuleIds =
+    rules
+      .map(
+        (item) =>
+          item.id,
+      )
+      .filter(Boolean);
+
+  const conditionalRuleIds =
+    rules
+      .filter(
+        (item) =>
+          item
+            ?.conditionStatus ===
+          "requires_review",
+      )
+      .map(
+        (item) =>
+          item.id,
+      );
+
+  return {
+    mode:
+      "rule_guided",
+    allowExternalImageryRules:
+      false,
+    methodologyCanSupportClaims:
+      true,
+    claimBindingRequired:
+      false,
+    auditRequired:
+      false,
+    allowedRuleIds,
+    conditionalRuleIds,
+    allowedFactLayers: [
+      "natal",
+      "luck",
+      "year",
+      "month",
+    ],
+    minimumRulesPerMajorClaim:
+      0,
+    minimumFactAnchorsPerMajorClaim:
+      1,
+    eventMinimumIndependentBases:
+      2,
+    fallbackWhenNoRuleMatches:
+      "可以依据硬事实和取象总纲做保守补充推断，但不得创造具名关系、正式格局、特殊口诀或确定事件。",
+    auditSchema: {
+      claims: [
+        {
+          claim:
+            "正文中的主象或重要判断",
+          ruleIds: [
+            "必须来自allowedRuleIds",
+          ],
+          factAnchors: [
+            "必须来自本次原局或岁运硬事实",
+          ],
+          basisLayers: [
+            "natal|luck|year|month",
+          ],
+          conditionsChecked: [
+            "使用条件规则时必须填写",
+          ],
+          counterEvidence: [],
+          confidence:
+            "high|medium|low",
+        },
+      ],
+    },
   };
 }
 
@@ -359,12 +570,17 @@ function buildCoverage() {
     registeredSourceCount: IMAGERY_SOURCE_REGISTRY.length,
     activeRuleCount: IMAGERY_RULES.filter((item) => !item.researchOnly && item.allowInUserAnswer !== false).length,
     methodologyRuleCount: IMAGERY_METHODOLOGY_RULES.length,
+    moduleCount: IMAGERY_RULE_MODULES.length,
+    modules: IMAGERY_RULE_MODULES.map((item) => ({
+      id: item.id,
+      ruleCount: item.ruleCount,
+    })),
     sources: IMAGERY_SOURCE_REGISTRY.map((item) => ({
       id: item.id,
       title: item.title,
       ingestionStatus: item.ingestionStatus,
     })),
-    notice: "当前为首批核心规则库；未完成可靠核读的扫描章节不会冒充已提炼。",
+    notice: "v8.4已形成全模块规则库；未逐页核读的扫描正文仅登记为研究待办，不进入正式用户侧规则。",
   };
 }
 

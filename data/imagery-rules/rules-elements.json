@@ -1,0 +1,2291 @@
+{
+  "version": "imagery-rules-elements-v1",
+  "module": "elements",
+  "rules": [
+    {
+      "id": "element_wood_season_root",
+      "title": "木：季节与根气",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "木",
+        "季节与根气",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "甲",
+          "乙"
+        ],
+        "branchesAny": [
+          "寅",
+          "卯"
+        ],
+        "featuresAny": [
+          "月令",
+          "根气",
+          "木"
+        ]
+      },
+      "requires": [
+        "先看是否得时、得地与有源",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "木的状态要结合季节和根气；需要根、水分、空间和适度阳光"
+        ],
+        "positive": [
+          "得用时可体现生长、规划、连接、教育与向上发展的正向功能"
+        ],
+        "negative": [
+          "过旺时容易扩张过快、枝节过多或目标分散"
+        ],
+        "realityChecks": [
+          "检查木是否得令、通根、透干并被关键结构调用"
+        ]
+      },
+      "advice": [
+        "现实建议围绕筋骨舒展、情绪条达与生活节律和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能只按五行个数判断旺弱",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "木五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_wood_flow_channel",
+      "title": "木：流通与出口",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "木",
+        "流通与出口",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "甲",
+          "乙"
+        ],
+        "branchesAny": [
+          "寅",
+          "卯"
+        ],
+        "featuresAny": [
+          "流通",
+          "通关",
+          "出口",
+          "木"
+        ]
+      },
+      "requires": [
+        "看是否能生、泄、制、化并进入现实成果",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "木是否有价值取决于能否流通；需要根、水分、空间和适度阳光"
+        ],
+        "positive": [
+          "得用时可体现生长、规划、连接、教育与向上发展的正向功能"
+        ],
+        "negative": [
+          "过旺时容易扩张过快、枝节过多或目标分散"
+        ],
+        "realityChecks": [
+          "检查木从哪里来、到哪里去、是否形成成果或制化"
+        ]
+      },
+      "advice": [
+        "现实建议围绕筋骨舒展、情绪条达与生活节律和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能把出现等同于有效做功",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "木五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_wood_excess",
+      "title": "木：偏旺与成势",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "木",
+        "偏旺与成势",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "甲",
+          "乙"
+        ],
+        "branchesAny": [
+          "寅",
+          "卯"
+        ],
+        "featuresAny": [
+          "偏旺",
+          "成势",
+          "太旺",
+          "木"
+        ]
+      },
+      "requires": [
+        "看旺势服务于什么结构，以及是否有制泄",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "木的生长、规划、连接、教育与向上发展被放大；过旺时容易扩张过快、枝节过多或目标分散"
+        ],
+        "positive": [
+          "得用时可体现生长、规划、连接、教育与向上发展的正向功能"
+        ],
+        "negative": [
+          "过旺时容易扩张过快、枝节过多或目标分散"
+        ],
+        "realityChecks": [
+          "现实中是否反复出现与生长、规划、连接、教育与向上发展相关的过度或高频表现"
+        ]
+      },
+      "advice": [
+        "现实建议围绕筋骨舒展、情绪条达与生活节律和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能直接判吉凶",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "木五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_wood_weak",
+      "title": "木：偏弱与受制",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "木",
+        "偏弱与受制",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "甲",
+          "乙"
+        ],
+        "branchesAny": [
+          "寅",
+          "卯"
+        ],
+        "featuresAny": [
+          "偏弱",
+          "受制",
+          "无根",
+          "木"
+        ]
+      },
+      "requires": [
+        "看是否有来源、救应、岁运补充与替代通道",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "木的生长、规划、连接、教育与向上发展表达受限；偏弱时计划难落地、持续性不足或缺乏成长空间"
+        ],
+        "positive": [
+          "得用时可体现生长、规划、连接、教育与向上发展的正向功能"
+        ],
+        "negative": [
+          "偏弱时计划难落地、持续性不足或缺乏成长空间"
+        ],
+        "realityChecks": [
+          "现实中是否需要外部环境或岁运才补足生长、规划、连接、教育与向上发展"
+        ]
+      },
+      "advice": [
+        "现实建议围绕筋骨舒展、情绪条达与生活节律和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能把弱等同于不存在",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "木五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_wood_object",
+      "title": "木：职业与环境物象",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 67,
+      "gender": "all",
+      "queryKeywords": [
+        "木",
+        "职业与环境物象",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "甲",
+          "乙"
+        ],
+        "branchesAny": [
+          "寅",
+          "卯"
+        ],
+        "featuresAny": [
+          "职业",
+          "行业",
+          "环境",
+          "物象",
+          "木"
+        ]
+      },
+      "requires": [
+        "职业对象必须与十神角色和做功方式共同验证",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "木可提供教育、规划、设计、林业、文字、组织发展等木性对象的对象线索"
+        ],
+        "positive": [
+          "得用时可体现生长、规划、连接、教育与向上发展的正向功能"
+        ],
+        "negative": [
+          "过旺时容易扩张过快、枝节过多或目标分散"
+        ],
+        "realityChecks": [
+          "核验实际岗位的工作对象、工作方式和收入来源是否同时吻合"
+        ]
+      },
+      "advice": [
+        "现实建议围绕筋骨舒展、情绪条达与生活节律和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能仅凭某五行锁定唯一行业",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "木五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_fire_season_root",
+      "title": "火：季节与根气",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "火",
+        "季节与根气",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "丙",
+          "丁"
+        ],
+        "branchesAny": [
+          "巳",
+          "午"
+        ],
+        "featuresAny": [
+          "月令",
+          "根气",
+          "火"
+        ]
+      },
+      "requires": [
+        "先看是否得时、得地与有源",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "火的状态要结合季节和根气；需要燃料、空间与适度控制，过寒时有调候价值"
+        ],
+        "positive": [
+          "得用时可体现热度、表达、照明、传播、规则与炼化的正向功能"
+        ],
+        "negative": [
+          "过旺时容易急躁、曝光过度、压力和消耗加快"
+        ],
+        "realityChecks": [
+          "检查火是否得令、通根、透干并被关键结构调用"
+        ]
+      },
+      "advice": [
+        "现实建议围绕活力、温度、兴奋度与作息稳定和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能只按五行个数判断旺弱",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "火五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_fire_flow_channel",
+      "title": "火：流通与出口",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "火",
+        "流通与出口",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "丙",
+          "丁"
+        ],
+        "branchesAny": [
+          "巳",
+          "午"
+        ],
+        "featuresAny": [
+          "流通",
+          "通关",
+          "出口",
+          "火"
+        ]
+      },
+      "requires": [
+        "看是否能生、泄、制、化并进入现实成果",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "火是否有价值取决于能否流通；需要燃料、空间与适度控制，过寒时有调候价值"
+        ],
+        "positive": [
+          "得用时可体现热度、表达、照明、传播、规则与炼化的正向功能"
+        ],
+        "negative": [
+          "过旺时容易急躁、曝光过度、压力和消耗加快"
+        ],
+        "realityChecks": [
+          "检查火从哪里来、到哪里去、是否形成成果或制化"
+        ]
+      },
+      "advice": [
+        "现实建议围绕活力、温度、兴奋度与作息稳定和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能把出现等同于有效做功",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "火五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_fire_excess",
+      "title": "火：偏旺与成势",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "火",
+        "偏旺与成势",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "丙",
+          "丁"
+        ],
+        "branchesAny": [
+          "巳",
+          "午"
+        ],
+        "featuresAny": [
+          "偏旺",
+          "成势",
+          "太旺",
+          "火"
+        ]
+      },
+      "requires": [
+        "看旺势服务于什么结构，以及是否有制泄",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "火的热度、表达、照明、传播、规则与炼化被放大；过旺时容易急躁、曝光过度、压力和消耗加快"
+        ],
+        "positive": [
+          "得用时可体现热度、表达、照明、传播、规则与炼化的正向功能"
+        ],
+        "negative": [
+          "过旺时容易急躁、曝光过度、压力和消耗加快"
+        ],
+        "realityChecks": [
+          "现实中是否反复出现与热度、表达、照明、传播、规则与炼化相关的过度或高频表现"
+        ]
+      },
+      "advice": [
+        "现实建议围绕活力、温度、兴奋度与作息稳定和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能直接判吉凶",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "火五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_fire_weak",
+      "title": "火：偏弱与受制",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "火",
+        "偏弱与受制",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "丙",
+          "丁"
+        ],
+        "branchesAny": [
+          "巳",
+          "午"
+        ],
+        "featuresAny": [
+          "偏弱",
+          "受制",
+          "无根",
+          "火"
+        ]
+      },
+      "requires": [
+        "看是否有来源、救应、岁运补充与替代通道",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "火的热度、表达、照明、传播、规则与炼化表达受限；偏弱时动力、可见度、行动热度或规则执行不足"
+        ],
+        "positive": [
+          "得用时可体现热度、表达、照明、传播、规则与炼化的正向功能"
+        ],
+        "negative": [
+          "偏弱时动力、可见度、行动热度或规则执行不足"
+        ],
+        "realityChecks": [
+          "现实中是否需要外部环境或岁运才补足热度、表达、照明、传播、规则与炼化"
+        ]
+      },
+      "advice": [
+        "现实建议围绕活力、温度、兴奋度与作息稳定和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能把弱等同于不存在",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "火五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_fire_object",
+      "title": "火：职业与环境物象",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 67,
+      "gender": "all",
+      "queryKeywords": [
+        "火",
+        "职业与环境物象",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "丙",
+          "丁"
+        ],
+        "branchesAny": [
+          "巳",
+          "午"
+        ],
+        "featuresAny": [
+          "职业",
+          "行业",
+          "环境",
+          "物象",
+          "火"
+        ]
+      },
+      "requires": [
+        "职业对象必须与十神角色和做功方式共同验证",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "火可提供传播、教育、文化、能源、电子、管理、公共表达等火性对象的对象线索"
+        ],
+        "positive": [
+          "得用时可体现热度、表达、照明、传播、规则与炼化的正向功能"
+        ],
+        "negative": [
+          "过旺时容易急躁、曝光过度、压力和消耗加快"
+        ],
+        "realityChecks": [
+          "核验实际岗位的工作对象、工作方式和收入来源是否同时吻合"
+        ]
+      },
+      "advice": [
+        "现实建议围绕活力、温度、兴奋度与作息稳定和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能仅凭某五行锁定唯一行业",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "火五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_earth_season_root",
+      "title": "土：季节与根气",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "土",
+        "季节与根气",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "戊",
+          "己"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "月令",
+          "根气",
+          "土"
+        ]
+      },
+      "requires": [
+        "先看是否得时、得地与有源",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "土的状态要结合季节和根气；需分辨燥湿、厚薄、是否堵塞以及能否生养万物"
+        ],
+        "positive": [
+          "得用时可体现承载、信用、平台、库藏、边界与转换的正向功能"
+        ],
+        "negative": [
+          "过旺时容易固化、压滞、包袱过重或信息流通变慢"
+        ],
+        "realityChecks": [
+          "检查土是否得令、通根、透干并被关键结构调用"
+        ]
+      },
+      "advice": [
+        "现实建议围绕承载感、饮食规律、稳定节奏与压力消化和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能只按五行个数判断旺弱",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "土五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_earth_flow_channel",
+      "title": "土：流通与出口",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "土",
+        "流通与出口",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "戊",
+          "己"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "流通",
+          "通关",
+          "出口",
+          "土"
+        ]
+      },
+      "requires": [
+        "看是否能生、泄、制、化并进入现实成果",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "土是否有价值取决于能否流通；需分辨燥湿、厚薄、是否堵塞以及能否生养万物"
+        ],
+        "positive": [
+          "得用时可体现承载、信用、平台、库藏、边界与转换的正向功能"
+        ],
+        "negative": [
+          "过旺时容易固化、压滞、包袱过重或信息流通变慢"
+        ],
+        "realityChecks": [
+          "检查土从哪里来、到哪里去、是否形成成果或制化"
+        ]
+      },
+      "advice": [
+        "现实建议围绕承载感、饮食规律、稳定节奏与压力消化和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能把出现等同于有效做功",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "土五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_earth_excess",
+      "title": "土：偏旺与成势",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "土",
+        "偏旺与成势",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "戊",
+          "己"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "偏旺",
+          "成势",
+          "太旺",
+          "土"
+        ]
+      },
+      "requires": [
+        "看旺势服务于什么结构，以及是否有制泄",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "土的承载、信用、平台、库藏、边界与转换被放大；过旺时容易固化、压滞、包袱过重或信息流通变慢"
+        ],
+        "positive": [
+          "得用时可体现承载、信用、平台、库藏、边界与转换的正向功能"
+        ],
+        "negative": [
+          "过旺时容易固化、压滞、包袱过重或信息流通变慢"
+        ],
+        "realityChecks": [
+          "现实中是否反复出现与承载、信用、平台、库藏、边界与转换相关的过度或高频表现"
+        ]
+      },
+      "advice": [
+        "现实建议围绕承载感、饮食规律、稳定节奏与压力消化和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能直接判吉凶",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "土五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_earth_weak",
+      "title": "土：偏弱与受制",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "土",
+        "偏弱与受制",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "戊",
+          "己"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "偏弱",
+          "受制",
+          "无根",
+          "土"
+        ]
+      },
+      "requires": [
+        "看是否有来源、救应、岁运补充与替代通道",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "土的承载、信用、平台、库藏、边界与转换表达受限；偏弱时承接能力、稳定性、资源存放和边界不足"
+        ],
+        "positive": [
+          "得用时可体现承载、信用、平台、库藏、边界与转换的正向功能"
+        ],
+        "negative": [
+          "偏弱时承接能力、稳定性、资源存放和边界不足"
+        ],
+        "realityChecks": [
+          "现实中是否需要外部环境或岁运才补足承载、信用、平台、库藏、边界与转换"
+        ]
+      },
+      "advice": [
+        "现实建议围绕承载感、饮食规律、稳定节奏与压力消化和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能把弱等同于不存在",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "土五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_earth_object",
+      "title": "土：职业与环境物象",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 67,
+      "gender": "all",
+      "queryKeywords": [
+        "土",
+        "职业与环境物象",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "戊",
+          "己"
+        ],
+        "branchesAny": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "featuresAny": [
+          "职业",
+          "行业",
+          "环境",
+          "物象",
+          "土"
+        ]
+      },
+      "requires": [
+        "职业对象必须与十神角色和做功方式共同验证",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "土可提供地产、工程、仓储、平台、行政、农业、供应链等土性对象的对象线索"
+        ],
+        "positive": [
+          "得用时可体现承载、信用、平台、库藏、边界与转换的正向功能"
+        ],
+        "negative": [
+          "过旺时容易固化、压滞、包袱过重或信息流通变慢"
+        ],
+        "realityChecks": [
+          "核验实际岗位的工作对象、工作方式和收入来源是否同时吻合"
+        ]
+      },
+      "advice": [
+        "现实建议围绕承载感、饮食规律、稳定节奏与压力消化和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能仅凭某五行锁定唯一行业",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "土五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_metal_season_root",
+      "title": "金：季节与根气",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "金",
+        "季节与根气",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "庚",
+          "辛"
+        ],
+        "branchesAny": [
+          "申",
+          "酉"
+        ],
+        "featuresAny": [
+          "月令",
+          "根气",
+          "金"
+        ]
+      },
+      "requires": [
+        "先看是否得时、得地与有源",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "金的状态要结合季节和根气；需看是否成器、是否得火炼、得水润、得木显价值"
+        ],
+        "positive": [
+          "得用时可体现规则、工具、判断、切割、精密与价值显现的正向功能"
+        ],
+        "negative": [
+          "过旺时容易刚硬、批判、边界过强或人际距离加大"
+        ],
+        "realityChecks": [
+          "检查金是否得令、通根、透干并被关键结构调用"
+        ]
+      },
+      "advice": [
+        "现实建议围绕边界、呼吸节律、皮肤防护与紧张度和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能只按五行个数判断旺弱",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "金五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_metal_flow_channel",
+      "title": "金：流通与出口",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "金",
+        "流通与出口",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "庚",
+          "辛"
+        ],
+        "branchesAny": [
+          "申",
+          "酉"
+        ],
+        "featuresAny": [
+          "流通",
+          "通关",
+          "出口",
+          "金"
+        ]
+      },
+      "requires": [
+        "看是否能生、泄、制、化并进入现实成果",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "金是否有价值取决于能否流通；需看是否成器、是否得火炼、得水润、得木显价值"
+        ],
+        "positive": [
+          "得用时可体现规则、工具、判断、切割、精密与价值显现的正向功能"
+        ],
+        "negative": [
+          "过旺时容易刚硬、批判、边界过强或人际距离加大"
+        ],
+        "realityChecks": [
+          "检查金从哪里来、到哪里去、是否形成成果或制化"
+        ]
+      },
+      "advice": [
+        "现实建议围绕边界、呼吸节律、皮肤防护与紧张度和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能把出现等同于有效做功",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "金五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_metal_excess",
+      "title": "金：偏旺与成势",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "金",
+        "偏旺与成势",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "庚",
+          "辛"
+        ],
+        "branchesAny": [
+          "申",
+          "酉"
+        ],
+        "featuresAny": [
+          "偏旺",
+          "成势",
+          "太旺",
+          "金"
+        ]
+      },
+      "requires": [
+        "看旺势服务于什么结构，以及是否有制泄",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "金的规则、工具、判断、切割、精密与价值显现被放大；过旺时容易刚硬、批判、边界过强或人际距离加大"
+        ],
+        "positive": [
+          "得用时可体现规则、工具、判断、切割、精密与价值显现的正向功能"
+        ],
+        "negative": [
+          "过旺时容易刚硬、批判、边界过强或人际距离加大"
+        ],
+        "realityChecks": [
+          "现实中是否反复出现与规则、工具、判断、切割、精密与价值显现相关的过度或高频表现"
+        ]
+      },
+      "advice": [
+        "现实建议围绕边界、呼吸节律、皮肤防护与紧张度和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能直接判吉凶",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "金五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_metal_weak",
+      "title": "金：偏弱与受制",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "金",
+        "偏弱与受制",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "庚",
+          "辛"
+        ],
+        "branchesAny": [
+          "申",
+          "酉"
+        ],
+        "featuresAny": [
+          "偏弱",
+          "受制",
+          "无根",
+          "金"
+        ]
+      },
+      "requires": [
+        "看是否有来源、救应、岁运补充与替代通道",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "金的规则、工具、判断、切割、精密与价值显现表达受限；偏弱时执行标准、决断、工具能力或自我边界不足"
+        ],
+        "positive": [
+          "得用时可体现规则、工具、判断、切割、精密与价值显现的正向功能"
+        ],
+        "negative": [
+          "偏弱时执行标准、决断、工具能力或自我边界不足"
+        ],
+        "realityChecks": [
+          "现实中是否需要外部环境或岁运才补足规则、工具、判断、切割、精密与价值显现"
+        ]
+      },
+      "advice": [
+        "现实建议围绕边界、呼吸节律、皮肤防护与紧张度和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能把弱等同于不存在",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "金五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_metal_object",
+      "title": "金：职业与环境物象",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 67,
+      "gender": "all",
+      "queryKeywords": [
+        "金",
+        "职业与环境物象",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "庚",
+          "辛"
+        ],
+        "branchesAny": [
+          "申",
+          "酉"
+        ],
+        "featuresAny": [
+          "职业",
+          "行业",
+          "环境",
+          "物象",
+          "金"
+        ]
+      },
+      "requires": [
+        "职业对象必须与十神角色和做功方式共同验证",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "金可提供技术、制造、金融工具、法律规则、审计、精密器械等金性对象的对象线索"
+        ],
+        "positive": [
+          "得用时可体现规则、工具、判断、切割、精密与价值显现的正向功能"
+        ],
+        "negative": [
+          "过旺时容易刚硬、批判、边界过强或人际距离加大"
+        ],
+        "realityChecks": [
+          "核验实际岗位的工作对象、工作方式和收入来源是否同时吻合"
+        ]
+      },
+      "advice": [
+        "现实建议围绕边界、呼吸节律、皮肤防护与紧张度和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能仅凭某五行锁定唯一行业",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "金五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_water_season_root",
+      "title": "水：季节与根气",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "水",
+        "季节与根气",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "壬",
+          "癸"
+        ],
+        "branchesAny": [
+          "亥",
+          "子"
+        ],
+        "featuresAny": [
+          "月令",
+          "根气",
+          "水"
+        ]
+      },
+      "requires": [
+        "先看是否得时、得地与有源",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "水的状态要结合季节和根气；需有源头、河道、堤岸和去处，过寒或泛滥都需调节"
+        ],
+        "positive": [
+          "得用时可体现流动、信息、智慧、连接、变化与出口的正向功能"
+        ],
+        "negative": [
+          "过旺时容易漂移、情绪波动、选择过多或执行松散"
+        ],
+        "realityChecks": [
+          "检查水是否得令、通根、透干并被关键结构调用"
+        ]
+      },
+      "advice": [
+        "现实建议围绕休息恢复、情绪流动、补水与节律和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能只按五行个数判断旺弱",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "水五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_water_flow_channel",
+      "title": "水：流通与出口",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "水",
+        "流通与出口",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "壬",
+          "癸"
+        ],
+        "branchesAny": [
+          "亥",
+          "子"
+        ],
+        "featuresAny": [
+          "流通",
+          "通关",
+          "出口",
+          "水"
+        ]
+      },
+      "requires": [
+        "看是否能生、泄、制、化并进入现实成果",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "水是否有价值取决于能否流通；需有源头、河道、堤岸和去处，过寒或泛滥都需调节"
+        ],
+        "positive": [
+          "得用时可体现流动、信息、智慧、连接、变化与出口的正向功能"
+        ],
+        "negative": [
+          "过旺时容易漂移、情绪波动、选择过多或执行松散"
+        ],
+        "realityChecks": [
+          "检查水从哪里来、到哪里去、是否形成成果或制化"
+        ]
+      },
+      "advice": [
+        "现实建议围绕休息恢复、情绪流动、补水与节律和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能把出现等同于有效做功",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "水五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_water_excess",
+      "title": "水：偏旺与成势",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "水",
+        "偏旺与成势",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "壬",
+          "癸"
+        ],
+        "branchesAny": [
+          "亥",
+          "子"
+        ],
+        "featuresAny": [
+          "偏旺",
+          "成势",
+          "太旺",
+          "水"
+        ]
+      },
+      "requires": [
+        "看旺势服务于什么结构，以及是否有制泄",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "水的流动、信息、智慧、连接、变化与出口被放大；过旺时容易漂移、情绪波动、选择过多或执行松散"
+        ],
+        "positive": [
+          "得用时可体现流动、信息、智慧、连接、变化与出口的正向功能"
+        ],
+        "negative": [
+          "过旺时容易漂移、情绪波动、选择过多或执行松散"
+        ],
+        "realityChecks": [
+          "现实中是否反复出现与流动、信息、智慧、连接、变化与出口相关的过度或高频表现"
+        ]
+      },
+      "advice": [
+        "现实建议围绕休息恢复、情绪流动、补水与节律和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能直接判吉凶",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "水五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_water_weak",
+      "title": "水：偏弱与受制",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 65,
+      "gender": "all",
+      "queryKeywords": [
+        "水",
+        "偏弱与受制",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "壬",
+          "癸"
+        ],
+        "branchesAny": [
+          "亥",
+          "子"
+        ],
+        "featuresAny": [
+          "偏弱",
+          "受制",
+          "无根",
+          "水"
+        ]
+      },
+      "requires": [
+        "看是否有来源、救应、岁运补充与替代通道",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "水的流动、信息、智慧、连接、变化与出口表达受限；偏弱时信息流通、表达出口、适应性和恢复力不足"
+        ],
+        "positive": [
+          "得用时可体现流动、信息、智慧、连接、变化与出口的正向功能"
+        ],
+        "negative": [
+          "偏弱时信息流通、表达出口、适应性和恢复力不足"
+        ],
+        "realityChecks": [
+          "现实中是否需要外部环境或岁运才补足流动、信息、智慧、连接、变化与出口"
+        ]
+      },
+      "advice": [
+        "现实建议围绕休息恢复、情绪流动、补水与节律和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能把弱等同于不存在",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "水五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "element_water_object",
+      "title": "水：职业与环境物象",
+      "category": "element",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "health",
+        "movement",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 67,
+      "gender": "all",
+      "queryKeywords": [
+        "水",
+        "职业与环境物象",
+        "五行"
+      ],
+      "trigger": {
+        "stemsAny": [
+          "壬",
+          "癸"
+        ],
+        "branchesAny": [
+          "亥",
+          "子"
+        ],
+        "featuresAny": [
+          "职业",
+          "行业",
+          "环境",
+          "物象",
+          "水"
+        ]
+      },
+      "requires": [
+        "职业对象必须与十神角色和做功方式共同验证",
+        "同时结合阴阳、位置、十神和宫位"
+      ],
+      "weakeningConditions": [
+        "只出现孤字而无根无作用",
+        "被其他五行强烈制化或不参与当前问题"
+      ],
+      "imagery": {
+        "core": [
+          "水可提供数据、物流、咨询、贸易、传媒、交通、服务等水性对象的对象线索"
+        ],
+        "positive": [
+          "得用时可体现流动、信息、智慧、连接、变化与出口的正向功能"
+        ],
+        "negative": [
+          "过旺时容易漂移、情绪波动、选择过多或执行松散"
+        ],
+        "realityChecks": [
+          "核验实际岗位的工作对象、工作方式和收入来源是否同时吻合"
+        ]
+      },
+      "advice": [
+        "现实建议围绕休息恢复、情绪流动、补水与节律和结构所需的流通方式，不用颜色、饮食或饰品替代真实行动"
+      ],
+      "prohibitions": [
+        "不能仅凭某五行锁定唯一行业",
+        "不能以五行物象替代职业、医学或事件证据"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "251-277",
+          "section": "水五行与职业像法",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "5-13",
+          "section": "五行基础与章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "elements",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

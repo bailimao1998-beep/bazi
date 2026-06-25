@@ -1,0 +1,1870 @@
+{
+  "version": "imagery-rules-career-v1",
+  "module": "career",
+  "rules": [
+    {
+      "id": "career_object_method",
+      "title": "职业对象与工作方式分开判断",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 80,
+      "gender": "all",
+      "queryKeywords": [
+        "职业",
+        "对象",
+        "方式"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "职业",
+          "对象",
+          "方式"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "五行物象说明对象，十神和做功说明方式，宫位说明环境",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "职业取象要分别回答做什么对象、通过什么方式做、在什么组织环境承接"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能由一个十神或五行锁定唯一职业"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_skill_output",
+      "title": "食伤做功偏技能、作品与服务",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "食伤",
+        "技术",
+        "作品"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "食伤",
+          "技术",
+          "作品"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "食伤有根、有出口并能转成财官或成果",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "食伤有效做功时，职业方式偏技术输出、产品、表达、服务、教学或解决问题"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能见食伤就断艺术、口才或自由职业"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_resource_platform",
+      "title": "印星做功偏学习、资质与平台",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "印星",
+        "资质",
+        "平台"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "印星",
+          "资质",
+          "平台"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "印能承接官杀或帮助日主，且不过度压制输出",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "印星有效时，职业更依赖知识、证照、制度、研究、资料和组织支持"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能见印就断体制、公务员或高学历"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_official_role",
+      "title": "官杀做功偏责任、管理与规则执行",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "官杀",
+        "职位",
+        "管理"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "官杀",
+          "职位",
+          "管理"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "官杀有制化、日主承载得住并有组织接口",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "官杀有效时，职业更强调责任、执行、竞争、风险和正式身份"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能见官杀就断有官职、当领导或受处罚"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_wealth_market",
+      "title": "财星做功偏市场、客户与资源经营",
+      "category": "career",
+      "domains": [
+        "career",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "财星",
+        "市场",
+        "客户"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "财星",
+          "市场",
+          "客户"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "财有来源、能进入主位并有体承接",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "财星有效时，职业更关注客户、预算、交易、资源配置和现实回报"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能见财就断经商、销售或发财"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_peer_team",
+      "title": "比劫做功偏团队、竞争与自主承担",
+      "category": "career",
+      "domains": [
+        "career",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 80,
+      "gender": "all",
+      "queryKeywords": [
+        "比劫",
+        "团队",
+        "竞争"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "比劫",
+          "团队",
+          "竞争"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "比劫受官印约束或有清晰分工",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "比劫参与做功时，职业方式可能强调独立负责、同辈协作、项目竞争或资源整合"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能见比劫就断合伙、创业或竞争失败"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_technical",
+      "title": "技术型岗位的结构条件",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "技术",
+        "工程师",
+        "专业"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "技术",
+          "工程师",
+          "专业"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "至少有技能输出和专业承接两类独立证据",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "技术岗位通常需要食伤输出、印星学习、金水工具信息或明确制化链条共同支持"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能只凭金水或食伤锁定程序员、工程师"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_research",
+      "title": "研究咨询型岗位的结构条件",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "研究",
+        "咨询",
+        "分析"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "研究",
+          "咨询",
+          "分析"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "印食能够衔接，输出不被过度压制",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "研究咨询偏印星理解、食伤表达、信息流通和解决非标准问题"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能只凭偏印断研究、玄学或咨询"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_management",
+      "title": "管理型岗位的结构条件",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "管理",
+        "领导",
+        "项目管理"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "管理",
+          "领导",
+          "项目管理"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "日主承载、授权边界和组织环境匹配",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "管理需要官杀责任、印星制度、财星资源和比劫团队中的至少两类共同承接"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能只凭官杀或身旺断管理能力"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_sales_market",
+      "title": "销售商务型岗位的结构条件",
+      "category": "career",
+      "domains": [
+        "career",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "销售",
+        "商务",
+        "客户"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "销售",
+          "商务",
+          "客户"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "有现实回报通道和持续客户承接",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "销售商务需要财星客户资源、食伤表达、比劫人脉或水木流通等多项支持"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能只凭偏财或伤官断销售"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_public_system",
+      "title": "体制与规范组织的结构条件",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 80,
+      "gender": "all",
+      "queryKeywords": [
+        "体制",
+        "公务员",
+        "单位"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "体制",
+          "公务员",
+          "单位"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "官印角色和组织宫位真实有效",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "规范组织更看官印链条、月柱环境、正式资质与稳定承接"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能见正官正印就断公务员"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_entrepreneurship",
+      "title": "创业与自主经营的结构条件",
+      "category": "career",
+      "domains": [
+        "career",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "创业",
+        "自己干",
+        "自由职业"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "创业",
+          "自己干",
+          "自由职业"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "现金流、客户、执行与团队至少多项具备",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "自主经营通常需要命主体有力、食伤财星流通、资源边界和风险承接"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能只因比劫旺、伤官旺或无官就断创业"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_organization_size",
+      "title": "平台规模与命主承载",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "平台",
+        "规模",
+        "层次"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "平台",
+          "规模",
+          "层次"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "不能仅凭财官多或库大判断层次",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "职业平台和项目规模取决于用的大小、体的承载、组织资源和做功效率"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能直接断公司规模、级别或收入"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_position_change",
+      "title": "岗位调整需岁运新增依据",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "岗位调整",
+        "跳槽",
+        "辞职"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "岗位调整",
+          "跳槽",
+          "辞职"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "至少一条流年新增依据和一条原局承接依据",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "岗位变化候选需大运背景、流年新增作用和工作宫位或职业链条被引动"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能仅凭冲合或伤官见官断辞职"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_promotion",
+      "title": "升职与责任增加区分",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "升职",
+        "职位",
+        "官运"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "升职",
+          "职位",
+          "官运"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "正式身份与组织承接明确",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "官星或职责增强可能只是任务、考核和责任增加，是否升职还需身份、平台、资源和现实流程"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能把官杀增强直接等同于升职"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_job_loss",
+      "title": "工作受阻与丢职区分",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 80,
+      "gender": "all",
+      "queryKeywords": [
+        "丢工作",
+        "失业",
+        "处分"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "丢工作",
+          "失业",
+          "处分"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "大运、流年、官印食伤链条共同受损",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "职业链条受制可提示压力、调整或岗位不稳，但丢职需多层独立依据和现实制度背景"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能用伤官见官、财破印等单条规则断失业处分"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_work_environment",
+      "title": "工作环境与岗位内容分开",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "月柱",
+        "工作环境",
+        "岗位"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "月柱",
+          "工作环境",
+          "岗位"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "同时读取宫位和做功",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "月柱和官印更多说明组织环境，食伤财官做功更多说明工作内容，两者可能不同"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能把单位性质直接当职业内容"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_career_timing",
+      "title": "职业应期按大运—流年—流月分层",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "职业应期",
+        "大运",
+        "流年"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "职业应期",
+          "大运",
+          "流年"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "交运年分段且必须有对应时间数据",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "大运决定职业阶段，流年触发岗位项目或身份变化，流月仅在明确询问时细化"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能自行编月份或未扫描年份"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_career_reality_check",
+      "title": "职业取象需现实背景校准",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "教育背景",
+        "经验",
+        "地区",
+        "行业"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "教育背景",
+          "经验",
+          "地区",
+          "行业"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "结合用户已有技能和现实机会",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "同一命盘可在不同教育、地区、行业和家庭条件下落成不同职业，规则只提供方向与方式"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能把命理职业建议替代现实求职评估"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "career_career_advice",
+      "title": "职业建议围绕能力转化与风险边界",
+      "category": "career",
+      "domains": [
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "职业建议",
+        "发展方向"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "职业建议",
+          "发展方向"
+        ],
+        "tenGodsAny": [
+          "正印",
+          "偏印",
+          "食神",
+          "伤官",
+          "正官",
+          "七杀",
+          "正财",
+          "偏财",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "每条建议能对应至少一个命理判断与现实动作",
+        "职业对象、工作方式、组织环境和收入模式至少区分两层"
+      ],
+      "weakeningConditions": [
+        "现实教育和经验不支持",
+        "只有单一十神或五行线索"
+      ],
+      "imagery": {
+        "core": [
+          "建议应对应主象，落到技能、作品、资质、沟通、平台、客户、团队和风险管理"
+        ],
+        "positive": [
+          "证据汇合时可形成较稳定的职业方式和发展方向"
+        ],
+        "negative": [
+          "证据不全时容易把岗位、行业、职位和收入混为一谈"
+        ],
+        "realityChecks": [
+          "核验实际工作每天在处理什么、如何产生价值、由谁付费、在哪种组织内"
+        ]
+      },
+      "advice": [
+        "优先给技能与平台选择建议，不一次列过多行业"
+      ],
+      "prohibitions": [
+        "不能只给五行颜色、方位或空泛行业名单"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业取像",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "64-75,77-186",
+          "section": "体用、财官与做工",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "事业官命目录页",
+          "section": "事业、官命、职业章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "career",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

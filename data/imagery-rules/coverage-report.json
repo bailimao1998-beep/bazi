@@ -1,0 +1,40 @@
+{
+  "version": "v8.4",
+  "activeRules": 365,
+  "methodologyRules": 34,
+  "modules": {
+    "core": 51,
+    "ten-gods": 60,
+    "elements": 25,
+    "stems-branches": 22,
+    "relations": 30,
+    "palaces": 12,
+    "guest-host-body-use": 15,
+    "work-methods": 20,
+    "tomb-storage": 15,
+    "relationship": 22,
+    "family": 15,
+    "career": 20,
+    "wealth": 14,
+    "health-state": 10,
+    "transit": 20,
+    "boundaries": 14
+  },
+  "sources": {
+    "cui_blind_notes_5000": "core_text_chapters_structured",
+    "yang_advanced_blind_notes": "selected_pages_and_outline_structured",
+    "cui_five_elements": "outline_and_sampled_pages_pending_full_review",
+    "cui_advanced_2025": "outline_and_sampled_pages_pending_full_review",
+    "system_synthesis": "active"
+  },
+  "formalRulePolicy": "Only verified text chapters, manually checked pages, deterministic foundations, and system-synthesis rules enter the formal bundle.",
+  "researchPendingCount": 4,
+  "highRiskExclusions": [
+    "death",
+    "lifespan",
+    "prison certainty",
+    "miscarriage prediction",
+    "exact disease",
+    "exact accident"
+  ]
+}

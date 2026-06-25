@@ -1,0 +1,4976 @@
+{
+  "version": "imagery-rules-ten-gods-v1",
+  "module": "ten-gods",
+  "rules": [
+    {
+      "id": "tg_bijian_year_position",
+      "title": "比肩在年柱：外层背景中的自我、同辈、独立判断与边界",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "比肩",
+        "年柱",
+        "早年环境"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "比肩"
+        ],
+        "featuresAny": [
+          "年柱",
+          "year"
+        ]
+      },
+      "requires": [
+        "必须确认比肩确实落在年柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "比肩的主题更容易通过早年环境、家族根基、外部来源与远层关系表现"
+        ],
+        "positive": [
+          "得用时，自主、坚持、并肩合作会在外层背景层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，固执、同质竞争、资源分散也会通过外层背景层面显现"
+        ],
+        "realityChecks": [
+          "核验早年环境、家族根基、外部来源与远层关系是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "合作前明确分工，保留独立负责的空间"
+      ],
+      "prohibitions": [
+        "不能只因比肩在年柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-44",
+          "section": "比肩类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 22,
+          "section": "比肩类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_bijian_month_position",
+      "title": "比肩在月柱：主要环境中的自我、同辈、独立判断与边界",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "比肩",
+        "月柱",
+        "成长秩序"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "比肩"
+        ],
+        "featuresAny": [
+          "月柱",
+          "month"
+        ]
+      },
+      "requires": [
+        "必须确认比肩确实落在月柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "比肩的主题更容易通过成长秩序、父母承接、工作环境与社会接口表现"
+        ],
+        "positive": [
+          "得用时，自主、坚持、并肩合作会在主要环境层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，固执、同质竞争、资源分散也会通过主要环境层面显现"
+        ],
+        "realityChecks": [
+          "核验成长秩序、父母承接、工作环境与社会接口是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "合作前明确分工，保留独立负责的空间"
+      ],
+      "prohibitions": [
+        "不能只因比肩在月柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-44",
+          "section": "比肩类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 22,
+          "section": "比肩类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_bijian_day_position",
+      "title": "比肩在日柱：核心落点中的自我、同辈、独立判断与边界",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "比肩",
+        "日柱",
+        "自我状态"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "比肩"
+        ],
+        "featuresAny": [
+          "日柱",
+          "day"
+        ]
+      },
+      "requires": [
+        "必须确认比肩确实落在日柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "比肩的主题更容易通过自我状态、亲密关系、日常选择与直接承接表现"
+        ],
+        "positive": [
+          "得用时，自主、坚持、并肩合作会在核心落点层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，固执、同质竞争、资源分散也会通过核心落点层面显现"
+        ],
+        "realityChecks": [
+          "核验自我状态、亲密关系、日常选择与直接承接是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "合作前明确分工，保留独立负责的空间"
+      ],
+      "prohibitions": [
+        "不能只因比肩在日柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-44",
+          "section": "比肩类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 22,
+          "section": "比肩类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_bijian_hour_position",
+      "title": "比肩在时柱：结果与后续中的自我、同辈、独立判断与边界",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "比肩",
+        "时柱",
+        "执行结果"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "比肩"
+        ],
+        "featuresAny": [
+          "时柱",
+          "hour"
+        ]
+      },
+      "requires": [
+        "必须确认比肩确实落在时柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "比肩的主题更容易通过执行结果、作品、后期规划、子女或下属层表现"
+        ],
+        "positive": [
+          "得用时，自主、坚持、并肩合作会在结果与后续层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，固执、同质竞争、资源分散也会通过结果与后续层面显现"
+        ],
+        "realityChecks": [
+          "核验执行结果、作品、后期规划、子女或下属层是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "合作前明确分工，保留独立负责的空间"
+      ],
+      "prohibitions": [
+        "不能只因比肩在时柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-44",
+          "section": "比肩类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 22,
+          "section": "比肩类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_bijian_strong_state",
+      "title": "比肩偏旺：主题强化与过度使用",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "比肩",
+        "偏旺",
+        "太旺",
+        "多"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "比肩"
+        ],
+        "featuresAny": [
+          "比肩旺",
+          "比肩强",
+          "比肩成势",
+          "比肩多"
+        ]
+      },
+      "requires": [
+        "确认偏旺来自月令、根气、透干或多层重复，而非简单计数",
+        "判断旺势是否真正作用到日主、用神或关键宫位"
+      ],
+      "weakeningConditions": [
+        "虽多但无根、受制或不直接参与做功",
+        "辅助评分与实际根气不一致"
+      ],
+      "imagery": {
+        "core": [
+          "比肩的自我、同辈、独立判断与边界成为高频行为模式"
+        ],
+        "positive": [
+          "结构承接良好时，自主、坚持、并肩合作可形成优势"
+        ],
+        "negative": [
+          "失衡时更容易出现固执、同质竞争、资源分散"
+        ],
+        "realityChecks": [
+          "现实中是否更依赖自己判断，并重视平等与边界"
+        ]
+      },
+      "advice": [
+        "合作前明确分工，保留独立负责的空间"
+      ],
+      "prohibitions": [
+        "不能仅凭比肩数量多就锁定职业、婚姻或吉凶"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-44",
+          "section": "比肩类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 22,
+          "section": "比肩类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_bijian_controlled_state",
+      "title": "比肩受制或不显：功能受限与替代通道",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "比肩",
+        "弱",
+        "受制",
+        "不透",
+        "入墓"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "比肩"
+        ],
+        "featuresAny": [
+          "比肩受制",
+          "比肩弱",
+          "比肩不透",
+          "比肩入墓"
+        ]
+      },
+      "requires": [
+        "确认受制、无根、不透或入墓等具体事实",
+        "同时寻找是否有生扶、通关、开库或岁运引动"
+      ],
+      "weakeningConditions": [
+        "实际有强根或透干",
+        "岁运已解除原局限制"
+      ],
+      "imagery": {
+        "core": [
+          "比肩代表的自我、同辈、独立判断与边界不容易直接表达，常需借助其他十神或岁运通道"
+        ],
+        "positive": [
+          "受制若服务于整体制化，反而可能减少过度表现"
+        ],
+        "negative": [
+          "功能不足时，自主、坚持、并肩合作难以稳定落实"
+        ],
+        "realityChecks": [
+          "现实中是否在自我、同辈、独立判断与边界相关事项上需要外部条件才能启动"
+        ]
+      },
+      "advice": [
+        "先寻找可替代的现实通道，不把单一弱项当成能力缺失"
+      ],
+      "prohibitions": [
+        "不能把比肩弱或藏而不透直接等同于现实中没有对应人物或机会"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-44",
+          "section": "比肩类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 22,
+          "section": "比肩类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_jiecai_year_position",
+      "title": "劫财在年柱：外层背景中的行动、竞争、同辈动员与资源重新分配",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "劫财",
+        "年柱",
+        "早年环境"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "劫财"
+        ],
+        "featuresAny": [
+          "年柱",
+          "year"
+        ]
+      },
+      "requires": [
+        "必须确认劫财确实落在年柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "劫财的主题更容易通过早年环境、家族根基、外部来源与远层关系表现"
+        ],
+        "positive": [
+          "得用时，果断、动员力、敢于争取会在外层背景层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，冲动、利益摩擦、人情消耗也会通过外层背景层面显现"
+        ],
+        "realityChecks": [
+          "核验早年环境、家族根基、外部来源与远层关系是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "涉及资金和利益时先书面约定"
+      ],
+      "prohibitions": [
+        "不能只因劫财在年柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-44",
+          "section": "劫财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 22,
+          "section": "劫财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_jiecai_month_position",
+      "title": "劫财在月柱：主要环境中的行动、竞争、同辈动员与资源重新分配",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "劫财",
+        "月柱",
+        "成长秩序"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "劫财"
+        ],
+        "featuresAny": [
+          "月柱",
+          "month"
+        ]
+      },
+      "requires": [
+        "必须确认劫财确实落在月柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "劫财的主题更容易通过成长秩序、父母承接、工作环境与社会接口表现"
+        ],
+        "positive": [
+          "得用时，果断、动员力、敢于争取会在主要环境层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，冲动、利益摩擦、人情消耗也会通过主要环境层面显现"
+        ],
+        "realityChecks": [
+          "核验成长秩序、父母承接、工作环境与社会接口是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "涉及资金和利益时先书面约定"
+      ],
+      "prohibitions": [
+        "不能只因劫财在月柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-44",
+          "section": "劫财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 22,
+          "section": "劫财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_jiecai_day_position",
+      "title": "劫财在日柱：核心落点中的行动、竞争、同辈动员与资源重新分配",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "劫财",
+        "日柱",
+        "自我状态"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "劫财"
+        ],
+        "featuresAny": [
+          "日柱",
+          "day"
+        ]
+      },
+      "requires": [
+        "必须确认劫财确实落在日柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "劫财的主题更容易通过自我状态、亲密关系、日常选择与直接承接表现"
+        ],
+        "positive": [
+          "得用时，果断、动员力、敢于争取会在核心落点层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，冲动、利益摩擦、人情消耗也会通过核心落点层面显现"
+        ],
+        "realityChecks": [
+          "核验自我状态、亲密关系、日常选择与直接承接是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "涉及资金和利益时先书面约定"
+      ],
+      "prohibitions": [
+        "不能只因劫财在日柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-44",
+          "section": "劫财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 22,
+          "section": "劫财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_jiecai_hour_position",
+      "title": "劫财在时柱：结果与后续中的行动、竞争、同辈动员与资源重新分配",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "劫财",
+        "时柱",
+        "执行结果"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "劫财"
+        ],
+        "featuresAny": [
+          "时柱",
+          "hour"
+        ]
+      },
+      "requires": [
+        "必须确认劫财确实落在时柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "劫财的主题更容易通过执行结果、作品、后期规划、子女或下属层表现"
+        ],
+        "positive": [
+          "得用时，果断、动员力、敢于争取会在结果与后续层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，冲动、利益摩擦、人情消耗也会通过结果与后续层面显现"
+        ],
+        "realityChecks": [
+          "核验执行结果、作品、后期规划、子女或下属层是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "涉及资金和利益时先书面约定"
+      ],
+      "prohibitions": [
+        "不能只因劫财在时柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-44",
+          "section": "劫财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 22,
+          "section": "劫财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_jiecai_strong_state",
+      "title": "劫财偏旺：主题强化与过度使用",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "劫财",
+        "偏旺",
+        "太旺",
+        "多"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "劫财"
+        ],
+        "featuresAny": [
+          "劫财旺",
+          "劫财强",
+          "劫财成势",
+          "劫财多"
+        ]
+      },
+      "requires": [
+        "确认偏旺来自月令、根气、透干或多层重复，而非简单计数",
+        "判断旺势是否真正作用到日主、用神或关键宫位"
+      ],
+      "weakeningConditions": [
+        "虽多但无根、受制或不直接参与做功",
+        "辅助评分与实际根气不一致"
+      ],
+      "imagery": {
+        "core": [
+          "劫财的行动、竞争、同辈动员与资源重新分配成为高频行为模式"
+        ],
+        "positive": [
+          "结构承接良好时，果断、动员力、敢于争取可形成优势"
+        ],
+        "negative": [
+          "失衡时更容易出现冲动、利益摩擦、人情消耗"
+        ],
+        "realityChecks": [
+          "现实中是否常通过朋友同辈获得机会，也容易发生分配争议"
+        ]
+      },
+      "advice": [
+        "涉及资金和利益时先书面约定"
+      ],
+      "prohibitions": [
+        "不能仅凭劫财数量多就锁定职业、婚姻或吉凶"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-44",
+          "section": "劫财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 22,
+          "section": "劫财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_jiecai_controlled_state",
+      "title": "劫财受制或不显：功能受限与替代通道",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "劫财",
+        "弱",
+        "受制",
+        "不透",
+        "入墓"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "劫财"
+        ],
+        "featuresAny": [
+          "劫财受制",
+          "劫财弱",
+          "劫财不透",
+          "劫财入墓"
+        ]
+      },
+      "requires": [
+        "确认受制、无根、不透或入墓等具体事实",
+        "同时寻找是否有生扶、通关、开库或岁运引动"
+      ],
+      "weakeningConditions": [
+        "实际有强根或透干",
+        "岁运已解除原局限制"
+      ],
+      "imagery": {
+        "core": [
+          "劫财代表的行动、竞争、同辈动员与资源重新分配不容易直接表达，常需借助其他十神或岁运通道"
+        ],
+        "positive": [
+          "受制若服务于整体制化，反而可能减少过度表现"
+        ],
+        "negative": [
+          "功能不足时，果断、动员力、敢于争取难以稳定落实"
+        ],
+        "realityChecks": [
+          "现实中是否在行动、竞争、同辈动员与资源重新分配相关事项上需要外部条件才能启动"
+        ]
+      },
+      "advice": [
+        "先寻找可替代的现实通道，不把单一弱项当成能力缺失"
+      ],
+      "prohibitions": [
+        "不能把劫财弱或藏而不透直接等同于现实中没有对应人物或机会"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-44",
+          "section": "劫财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 22,
+          "section": "劫财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengyin_year_position",
+      "title": "正印在年柱：外层背景中的学习、保护、规则承接与正式支持",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "正印",
+        "年柱",
+        "早年环境"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正印"
+        ],
+        "featuresAny": [
+          "年柱",
+          "year"
+        ]
+      },
+      "requires": [
+        "必须确认正印确实落在年柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "正印的主题更容易通过早年环境、家族根基、外部来源与远层关系表现"
+        ],
+        "positive": [
+          "得用时，稳定、耐心、重信誉和资质会在外层背景层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，依赖、准备过多、行动偏慢也会通过外层背景层面显现"
+        ],
+        "realityChecks": [
+          "核验早年环境、家族根基、外部来源与远层关系是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "把学习及时转成成果和交付"
+      ],
+      "prohibitions": [
+        "不能只因正印在年柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "47-49",
+          "section": "正印类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 18,
+          "section": "正印类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengyin_month_position",
+      "title": "正印在月柱：主要环境中的学习、保护、规则承接与正式支持",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "正印",
+        "月柱",
+        "成长秩序"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正印"
+        ],
+        "featuresAny": [
+          "月柱",
+          "month"
+        ]
+      },
+      "requires": [
+        "必须确认正印确实落在月柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "正印的主题更容易通过成长秩序、父母承接、工作环境与社会接口表现"
+        ],
+        "positive": [
+          "得用时，稳定、耐心、重信誉和资质会在主要环境层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，依赖、准备过多、行动偏慢也会通过主要环境层面显现"
+        ],
+        "realityChecks": [
+          "核验成长秩序、父母承接、工作环境与社会接口是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "把学习及时转成成果和交付"
+      ],
+      "prohibitions": [
+        "不能只因正印在月柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "47-49",
+          "section": "正印类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 18,
+          "section": "正印类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengyin_day_position",
+      "title": "正印在日柱：核心落点中的学习、保护、规则承接与正式支持",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "正印",
+        "日柱",
+        "自我状态"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正印"
+        ],
+        "featuresAny": [
+          "日柱",
+          "day"
+        ]
+      },
+      "requires": [
+        "必须确认正印确实落在日柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "正印的主题更容易通过自我状态、亲密关系、日常选择与直接承接表现"
+        ],
+        "positive": [
+          "得用时，稳定、耐心、重信誉和资质会在核心落点层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，依赖、准备过多、行动偏慢也会通过核心落点层面显现"
+        ],
+        "realityChecks": [
+          "核验自我状态、亲密关系、日常选择与直接承接是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "把学习及时转成成果和交付"
+      ],
+      "prohibitions": [
+        "不能只因正印在日柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "47-49",
+          "section": "正印类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 18,
+          "section": "正印类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengyin_hour_position",
+      "title": "正印在时柱：结果与后续中的学习、保护、规则承接与正式支持",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "正印",
+        "时柱",
+        "执行结果"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正印"
+        ],
+        "featuresAny": [
+          "时柱",
+          "hour"
+        ]
+      },
+      "requires": [
+        "必须确认正印确实落在时柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "正印的主题更容易通过执行结果、作品、后期规划、子女或下属层表现"
+        ],
+        "positive": [
+          "得用时，稳定、耐心、重信誉和资质会在结果与后续层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，依赖、准备过多、行动偏慢也会通过结果与后续层面显现"
+        ],
+        "realityChecks": [
+          "核验执行结果、作品、后期规划、子女或下属层是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "把学习及时转成成果和交付"
+      ],
+      "prohibitions": [
+        "不能只因正印在时柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "47-49",
+          "section": "正印类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 18,
+          "section": "正印类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengyin_strong_state",
+      "title": "正印偏旺：主题强化与过度使用",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "正印",
+        "偏旺",
+        "太旺",
+        "多"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正印"
+        ],
+        "featuresAny": [
+          "正印旺",
+          "正印强",
+          "正印成势",
+          "正印多"
+        ]
+      },
+      "requires": [
+        "确认偏旺来自月令、根气、透干或多层重复，而非简单计数",
+        "判断旺势是否真正作用到日主、用神或关键宫位"
+      ],
+      "weakeningConditions": [
+        "虽多但无根、受制或不直接参与做功",
+        "辅助评分与实际根气不一致"
+      ],
+      "imagery": {
+        "core": [
+          "正印的学习、保护、规则承接与正式支持成为高频行为模式"
+        ],
+        "positive": [
+          "结构承接良好时，稳定、耐心、重信誉和资质可形成优势"
+        ],
+        "negative": [
+          "失衡时更容易出现依赖、准备过多、行动偏慢"
+        ],
+        "realityChecks": [
+          "现实中是否重视证照、资料、制度与长辈支持"
+        ]
+      },
+      "advice": [
+        "把学习及时转成成果和交付"
+      ],
+      "prohibitions": [
+        "不能仅凭正印数量多就锁定职业、婚姻或吉凶"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "47-49",
+          "section": "正印类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 18,
+          "section": "正印类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengyin_controlled_state",
+      "title": "正印受制或不显：功能受限与替代通道",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "正印",
+        "弱",
+        "受制",
+        "不透",
+        "入墓"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正印"
+        ],
+        "featuresAny": [
+          "正印受制",
+          "正印弱",
+          "正印不透",
+          "正印入墓"
+        ]
+      },
+      "requires": [
+        "确认受制、无根、不透或入墓等具体事实",
+        "同时寻找是否有生扶、通关、开库或岁运引动"
+      ],
+      "weakeningConditions": [
+        "实际有强根或透干",
+        "岁运已解除原局限制"
+      ],
+      "imagery": {
+        "core": [
+          "正印代表的学习、保护、规则承接与正式支持不容易直接表达，常需借助其他十神或岁运通道"
+        ],
+        "positive": [
+          "受制若服务于整体制化，反而可能减少过度表现"
+        ],
+        "negative": [
+          "功能不足时，稳定、耐心、重信誉和资质难以稳定落实"
+        ],
+        "realityChecks": [
+          "现实中是否在学习、保护、规则承接与正式支持相关事项上需要外部条件才能启动"
+        ]
+      },
+      "advice": [
+        "先寻找可替代的现实通道，不把单一弱项当成能力缺失"
+      ],
+      "prohibitions": [
+        "不能把正印弱或藏而不透直接等同于现实中没有对应人物或机会"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "47-49",
+          "section": "正印类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 18,
+          "section": "正印类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_pianyin_year_position",
+      "title": "偏印在年柱：外层背景中的研究、洞察、筛选与非常规理解",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "偏印",
+        "年柱",
+        "早年环境"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "偏印"
+        ],
+        "featuresAny": [
+          "年柱",
+          "year"
+        ]
+      },
+      "requires": [
+        "必须确认偏印确实落在年柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "偏印的主题更容易通过早年环境、家族根基、外部来源与远层关系表现"
+        ],
+        "positive": [
+          "得用时，敏感、策略、独立研究会在外层背景层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，孤立、想法跳跃、输出不稳定也会通过外层背景层面显现"
+        ],
+        "realityChecks": [
+          "核验早年环境、家族根基、外部来源与远层关系是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "建立固定输出和验证机制"
+      ],
+      "prohibitions": [
+        "不能只因偏印在年柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "47-49",
+          "section": "偏印类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 19,
+          "section": "偏印类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_pianyin_month_position",
+      "title": "偏印在月柱：主要环境中的研究、洞察、筛选与非常规理解",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "偏印",
+        "月柱",
+        "成长秩序"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "偏印"
+        ],
+        "featuresAny": [
+          "月柱",
+          "month"
+        ]
+      },
+      "requires": [
+        "必须确认偏印确实落在月柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "偏印的主题更容易通过成长秩序、父母承接、工作环境与社会接口表现"
+        ],
+        "positive": [
+          "得用时，敏感、策略、独立研究会在主要环境层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，孤立、想法跳跃、输出不稳定也会通过主要环境层面显现"
+        ],
+        "realityChecks": [
+          "核验成长秩序、父母承接、工作环境与社会接口是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "建立固定输出和验证机制"
+      ],
+      "prohibitions": [
+        "不能只因偏印在月柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "47-49",
+          "section": "偏印类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 19,
+          "section": "偏印类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_pianyin_day_position",
+      "title": "偏印在日柱：核心落点中的研究、洞察、筛选与非常规理解",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "偏印",
+        "日柱",
+        "自我状态"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "偏印"
+        ],
+        "featuresAny": [
+          "日柱",
+          "day"
+        ]
+      },
+      "requires": [
+        "必须确认偏印确实落在日柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "偏印的主题更容易通过自我状态、亲密关系、日常选择与直接承接表现"
+        ],
+        "positive": [
+          "得用时，敏感、策略、独立研究会在核心落点层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，孤立、想法跳跃、输出不稳定也会通过核心落点层面显现"
+        ],
+        "realityChecks": [
+          "核验自我状态、亲密关系、日常选择与直接承接是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "建立固定输出和验证机制"
+      ],
+      "prohibitions": [
+        "不能只因偏印在日柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "47-49",
+          "section": "偏印类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 19,
+          "section": "偏印类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_pianyin_hour_position",
+      "title": "偏印在时柱：结果与后续中的研究、洞察、筛选与非常规理解",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "偏印",
+        "时柱",
+        "执行结果"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "偏印"
+        ],
+        "featuresAny": [
+          "时柱",
+          "hour"
+        ]
+      },
+      "requires": [
+        "必须确认偏印确实落在时柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "偏印的主题更容易通过执行结果、作品、后期规划、子女或下属层表现"
+        ],
+        "positive": [
+          "得用时，敏感、策略、独立研究会在结果与后续层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，孤立、想法跳跃、输出不稳定也会通过结果与后续层面显现"
+        ],
+        "realityChecks": [
+          "核验执行结果、作品、后期规划、子女或下属层是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "建立固定输出和验证机制"
+      ],
+      "prohibitions": [
+        "不能只因偏印在时柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "47-49",
+          "section": "偏印类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 19,
+          "section": "偏印类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_pianyin_strong_state",
+      "title": "偏印偏旺：主题强化与过度使用",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "偏印",
+        "偏旺",
+        "太旺",
+        "多"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "偏印"
+        ],
+        "featuresAny": [
+          "偏印旺",
+          "偏印强",
+          "偏印成势",
+          "偏印多"
+        ]
+      },
+      "requires": [
+        "确认偏旺来自月令、根气、透干或多层重复，而非简单计数",
+        "判断旺势是否真正作用到日主、用神或关键宫位"
+      ],
+      "weakeningConditions": [
+        "虽多但无根、受制或不直接参与做功",
+        "辅助评分与实际根气不一致"
+      ],
+      "imagery": {
+        "core": [
+          "偏印的研究、洞察、筛选与非常规理解成为高频行为模式"
+        ],
+        "positive": [
+          "结构承接良好时，敏感、策略、独立研究可形成优势"
+        ],
+        "negative": [
+          "失衡时更容易出现孤立、想法跳跃、输出不稳定"
+        ],
+        "realityChecks": [
+          "现实中是否擅长处理复杂或非标准问题"
+        ]
+      },
+      "advice": [
+        "建立固定输出和验证机制"
+      ],
+      "prohibitions": [
+        "不能仅凭偏印数量多就锁定职业、婚姻或吉凶"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "47-49",
+          "section": "偏印类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 19,
+          "section": "偏印类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_pianyin_controlled_state",
+      "title": "偏印受制或不显：功能受限与替代通道",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "偏印",
+        "弱",
+        "受制",
+        "不透",
+        "入墓"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "偏印"
+        ],
+        "featuresAny": [
+          "偏印受制",
+          "偏印弱",
+          "偏印不透",
+          "偏印入墓"
+        ]
+      },
+      "requires": [
+        "确认受制、无根、不透或入墓等具体事实",
+        "同时寻找是否有生扶、通关、开库或岁运引动"
+      ],
+      "weakeningConditions": [
+        "实际有强根或透干",
+        "岁运已解除原局限制"
+      ],
+      "imagery": {
+        "core": [
+          "偏印代表的研究、洞察、筛选与非常规理解不容易直接表达，常需借助其他十神或岁运通道"
+        ],
+        "positive": [
+          "受制若服务于整体制化，反而可能减少过度表现"
+        ],
+        "negative": [
+          "功能不足时，敏感、策略、独立研究难以稳定落实"
+        ],
+        "realityChecks": [
+          "现实中是否在研究、洞察、筛选与非常规理解相关事项上需要外部条件才能启动"
+        ]
+      },
+      "advice": [
+        "先寻找可替代的现实通道，不把单一弱项当成能力缺失"
+      ],
+      "prohibitions": [
+        "不能把偏印弱或藏而不透直接等同于现实中没有对应人物或机会"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "47-49",
+          "section": "偏印类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 19,
+          "section": "偏印类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_shishen_year_position",
+      "title": "食神在年柱：外层背景中的温和输出、技能、作品与生活节奏",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "食神",
+        "年柱",
+        "早年环境"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "食神"
+        ],
+        "featuresAny": [
+          "年柱",
+          "year"
+        ]
+      },
+      "requires": [
+        "必须确认食神确实落在年柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "食神的主题更容易通过早年环境、家族根基、外部来源与远层关系表现"
+        ],
+        "positive": [
+          "得用时，表达自然、服务意识、持续产出会在外层背景层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，安逸、节奏松散、回避压力也会通过外层背景层面显现"
+        ],
+        "realityChecks": [
+          "核验早年环境、家族根基、外部来源与远层关系是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "保持稳定节奏并设置明确交付"
+      ],
+      "prohibitions": [
+        "不能只因食神在年柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "53-55",
+          "section": "食神类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "22-23",
+          "section": "食神类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_shishen_month_position",
+      "title": "食神在月柱：主要环境中的温和输出、技能、作品与生活节奏",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "食神",
+        "月柱",
+        "成长秩序"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "食神"
+        ],
+        "featuresAny": [
+          "月柱",
+          "month"
+        ]
+      },
+      "requires": [
+        "必须确认食神确实落在月柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "食神的主题更容易通过成长秩序、父母承接、工作环境与社会接口表现"
+        ],
+        "positive": [
+          "得用时，表达自然、服务意识、持续产出会在主要环境层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，安逸、节奏松散、回避压力也会通过主要环境层面显现"
+        ],
+        "realityChecks": [
+          "核验成长秩序、父母承接、工作环境与社会接口是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "保持稳定节奏并设置明确交付"
+      ],
+      "prohibitions": [
+        "不能只因食神在月柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "53-55",
+          "section": "食神类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "22-23",
+          "section": "食神类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_shishen_day_position",
+      "title": "食神在日柱：核心落点中的温和输出、技能、作品与生活节奏",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "食神",
+        "日柱",
+        "自我状态"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "食神"
+        ],
+        "featuresAny": [
+          "日柱",
+          "day"
+        ]
+      },
+      "requires": [
+        "必须确认食神确实落在日柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "食神的主题更容易通过自我状态、亲密关系、日常选择与直接承接表现"
+        ],
+        "positive": [
+          "得用时，表达自然、服务意识、持续产出会在核心落点层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，安逸、节奏松散、回避压力也会通过核心落点层面显现"
+        ],
+        "realityChecks": [
+          "核验自我状态、亲密关系、日常选择与直接承接是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "保持稳定节奏并设置明确交付"
+      ],
+      "prohibitions": [
+        "不能只因食神在日柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "53-55",
+          "section": "食神类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "22-23",
+          "section": "食神类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_shishen_hour_position",
+      "title": "食神在时柱：结果与后续中的温和输出、技能、作品与生活节奏",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "食神",
+        "时柱",
+        "执行结果"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "食神"
+        ],
+        "featuresAny": [
+          "时柱",
+          "hour"
+        ]
+      },
+      "requires": [
+        "必须确认食神确实落在时柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "食神的主题更容易通过执行结果、作品、后期规划、子女或下属层表现"
+        ],
+        "positive": [
+          "得用时，表达自然、服务意识、持续产出会在结果与后续层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，安逸、节奏松散、回避压力也会通过结果与后续层面显现"
+        ],
+        "realityChecks": [
+          "核验执行结果、作品、后期规划、子女或下属层是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "保持稳定节奏并设置明确交付"
+      ],
+      "prohibitions": [
+        "不能只因食神在时柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "53-55",
+          "section": "食神类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "22-23",
+          "section": "食神类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_shishen_strong_state",
+      "title": "食神偏旺：主题强化与过度使用",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "食神",
+        "偏旺",
+        "太旺",
+        "多"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "食神"
+        ],
+        "featuresAny": [
+          "食神旺",
+          "食神强",
+          "食神成势",
+          "食神多"
+        ]
+      },
+      "requires": [
+        "确认偏旺来自月令、根气、透干或多层重复，而非简单计数",
+        "判断旺势是否真正作用到日主、用神或关键宫位"
+      ],
+      "weakeningConditions": [
+        "虽多但无根、受制或不直接参与做功",
+        "辅助评分与实际根气不一致"
+      ],
+      "imagery": {
+        "core": [
+          "食神的温和输出、技能、作品与生活节奏成为高频行为模式"
+        ],
+        "positive": [
+          "结构承接良好时，表达自然、服务意识、持续产出可形成优势"
+        ],
+        "negative": [
+          "失衡时更容易出现安逸、节奏松散、回避压力"
+        ],
+        "realityChecks": [
+          "现实中是否通过技术、作品、照顾或服务体现价值"
+        ]
+      },
+      "advice": [
+        "保持稳定节奏并设置明确交付"
+      ],
+      "prohibitions": [
+        "不能仅凭食神数量多就锁定职业、婚姻或吉凶"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "53-55",
+          "section": "食神类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "22-23",
+          "section": "食神类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_shishen_controlled_state",
+      "title": "食神受制或不显：功能受限与替代通道",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "食神",
+        "弱",
+        "受制",
+        "不透",
+        "入墓"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "食神"
+        ],
+        "featuresAny": [
+          "食神受制",
+          "食神弱",
+          "食神不透",
+          "食神入墓"
+        ]
+      },
+      "requires": [
+        "确认受制、无根、不透或入墓等具体事实",
+        "同时寻找是否有生扶、通关、开库或岁运引动"
+      ],
+      "weakeningConditions": [
+        "实际有强根或透干",
+        "岁运已解除原局限制"
+      ],
+      "imagery": {
+        "core": [
+          "食神代表的温和输出、技能、作品与生活节奏不容易直接表达，常需借助其他十神或岁运通道"
+        ],
+        "positive": [
+          "受制若服务于整体制化，反而可能减少过度表现"
+        ],
+        "negative": [
+          "功能不足时，表达自然、服务意识、持续产出难以稳定落实"
+        ],
+        "realityChecks": [
+          "现实中是否在温和输出、技能、作品与生活节奏相关事项上需要外部条件才能启动"
+        ]
+      },
+      "advice": [
+        "先寻找可替代的现实通道，不把单一弱项当成能力缺失"
+      ],
+      "prohibitions": [
+        "不能把食神弱或藏而不透直接等同于现实中没有对应人物或机会"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "53-55",
+          "section": "食神类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "22-23",
+          "section": "食神类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_shangguan_year_position",
+      "title": "伤官在年柱：外层背景中的突破表达、创新、质疑与效率",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "伤官",
+        "年柱",
+        "早年环境"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "伤官"
+        ],
+        "featuresAny": [
+          "年柱",
+          "year"
+        ]
+      },
+      "requires": [
+        "必须确认伤官确实落在年柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "伤官的主题更容易通过早年环境、家族根基、外部来源与远层关系表现"
+        ],
+        "positive": [
+          "得用时，反应快、创新、敢于改进会在外层背景层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，与规则摩擦、言语过直、变化过快也会通过外层背景层面显现"
+        ],
+        "realityChecks": [
+          "核验早年环境、家族根基、外部来源与远层关系是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "先确认目标和边界，再表达不同意见"
+      ],
+      "prohibitions": [
+        "不能只因伤官在年柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "53-55",
+          "section": "伤官类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "23-24",
+          "section": "伤官类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_shangguan_month_position",
+      "title": "伤官在月柱：主要环境中的突破表达、创新、质疑与效率",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "伤官",
+        "月柱",
+        "成长秩序"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "伤官"
+        ],
+        "featuresAny": [
+          "月柱",
+          "month"
+        ]
+      },
+      "requires": [
+        "必须确认伤官确实落在月柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "伤官的主题更容易通过成长秩序、父母承接、工作环境与社会接口表现"
+        ],
+        "positive": [
+          "得用时，反应快、创新、敢于改进会在主要环境层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，与规则摩擦、言语过直、变化过快也会通过主要环境层面显现"
+        ],
+        "realityChecks": [
+          "核验成长秩序、父母承接、工作环境与社会接口是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "先确认目标和边界，再表达不同意见"
+      ],
+      "prohibitions": [
+        "不能只因伤官在月柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "53-55",
+          "section": "伤官类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "23-24",
+          "section": "伤官类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_shangguan_day_position",
+      "title": "伤官在日柱：核心落点中的突破表达、创新、质疑与效率",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "伤官",
+        "日柱",
+        "自我状态"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "伤官"
+        ],
+        "featuresAny": [
+          "日柱",
+          "day"
+        ]
+      },
+      "requires": [
+        "必须确认伤官确实落在日柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "伤官的主题更容易通过自我状态、亲密关系、日常选择与直接承接表现"
+        ],
+        "positive": [
+          "得用时，反应快、创新、敢于改进会在核心落点层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，与规则摩擦、言语过直、变化过快也会通过核心落点层面显现"
+        ],
+        "realityChecks": [
+          "核验自我状态、亲密关系、日常选择与直接承接是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "先确认目标和边界，再表达不同意见"
+      ],
+      "prohibitions": [
+        "不能只因伤官在日柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "53-55",
+          "section": "伤官类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "23-24",
+          "section": "伤官类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_shangguan_hour_position",
+      "title": "伤官在时柱：结果与后续中的突破表达、创新、质疑与效率",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "伤官",
+        "时柱",
+        "执行结果"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "伤官"
+        ],
+        "featuresAny": [
+          "时柱",
+          "hour"
+        ]
+      },
+      "requires": [
+        "必须确认伤官确实落在时柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "伤官的主题更容易通过执行结果、作品、后期规划、子女或下属层表现"
+        ],
+        "positive": [
+          "得用时，反应快、创新、敢于改进会在结果与后续层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，与规则摩擦、言语过直、变化过快也会通过结果与后续层面显现"
+        ],
+        "realityChecks": [
+          "核验执行结果、作品、后期规划、子女或下属层是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "先确认目标和边界，再表达不同意见"
+      ],
+      "prohibitions": [
+        "不能只因伤官在时柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "53-55",
+          "section": "伤官类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "23-24",
+          "section": "伤官类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_shangguan_strong_state",
+      "title": "伤官偏旺：主题强化与过度使用",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "伤官",
+        "偏旺",
+        "太旺",
+        "多"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "伤官"
+        ],
+        "featuresAny": [
+          "伤官旺",
+          "伤官强",
+          "伤官成势",
+          "伤官多"
+        ]
+      },
+      "requires": [
+        "确认偏旺来自月令、根气、透干或多层重复，而非简单计数",
+        "判断旺势是否真正作用到日主、用神或关键宫位"
+      ],
+      "weakeningConditions": [
+        "虽多但无根、受制或不直接参与做功",
+        "辅助评分与实际根气不一致"
+      ],
+      "imagery": {
+        "core": [
+          "伤官的突破表达、创新、质疑与效率成为高频行为模式"
+        ],
+        "positive": [
+          "结构承接良好时，反应快、创新、敢于改进可形成优势"
+        ],
+        "negative": [
+          "失衡时更容易出现与规则摩擦、言语过直、变化过快"
+        ],
+        "realityChecks": [
+          "现实中是否常发现制度漏洞并提出不同方案"
+        ]
+      },
+      "advice": [
+        "先确认目标和边界，再表达不同意见"
+      ],
+      "prohibitions": [
+        "不能仅凭伤官数量多就锁定职业、婚姻或吉凶"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "53-55",
+          "section": "伤官类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "23-24",
+          "section": "伤官类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_shangguan_controlled_state",
+      "title": "伤官受制或不显：功能受限与替代通道",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "伤官",
+        "弱",
+        "受制",
+        "不透",
+        "入墓"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "伤官"
+        ],
+        "featuresAny": [
+          "伤官受制",
+          "伤官弱",
+          "伤官不透",
+          "伤官入墓"
+        ]
+      },
+      "requires": [
+        "确认受制、无根、不透或入墓等具体事实",
+        "同时寻找是否有生扶、通关、开库或岁运引动"
+      ],
+      "weakeningConditions": [
+        "实际有强根或透干",
+        "岁运已解除原局限制"
+      ],
+      "imagery": {
+        "core": [
+          "伤官代表的突破表达、创新、质疑与效率不容易直接表达，常需借助其他十神或岁运通道"
+        ],
+        "positive": [
+          "受制若服务于整体制化，反而可能减少过度表现"
+        ],
+        "negative": [
+          "功能不足时，反应快、创新、敢于改进难以稳定落实"
+        ],
+        "realityChecks": [
+          "现实中是否在突破表达、创新、质疑与效率相关事项上需要外部条件才能启动"
+        ]
+      },
+      "advice": [
+        "先寻找可替代的现实通道，不把单一弱项当成能力缺失"
+      ],
+      "prohibitions": [
+        "不能把伤官弱或藏而不透直接等同于现实中没有对应人物或机会"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "53-55",
+          "section": "伤官类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "23-24",
+          "section": "伤官类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengcai_year_position",
+      "title": "正财在年柱：外层背景中的稳定资源、责任、预算与长期经营",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "正财",
+        "年柱",
+        "早年环境"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正财"
+        ],
+        "featuresAny": [
+          "年柱",
+          "year"
+        ]
+      },
+      "requires": [
+        "必须确认正财确实落在年柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "正财的主题更容易通过早年环境、家族根基、外部来源与远层关系表现"
+        ],
+        "positive": [
+          "得用时，务实、重兑现、持续积累会在外层背景层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，过度计较、受现实牵制、保守也会通过外层背景层面显现"
+        ],
+        "realityChecks": [
+          "核验早年环境、家族根基、外部来源与远层关系是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "把责任分层，避免所有现实压力一人承担"
+      ],
+      "prohibitions": [
+        "不能只因正财在年柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "45-47",
+          "section": "正财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 21,
+          "section": "正财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengcai_month_position",
+      "title": "正财在月柱：主要环境中的稳定资源、责任、预算与长期经营",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "正财",
+        "月柱",
+        "成长秩序"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正财"
+        ],
+        "featuresAny": [
+          "月柱",
+          "month"
+        ]
+      },
+      "requires": [
+        "必须确认正财确实落在月柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "正财的主题更容易通过成长秩序、父母承接、工作环境与社会接口表现"
+        ],
+        "positive": [
+          "得用时，务实、重兑现、持续积累会在主要环境层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，过度计较、受现实牵制、保守也会通过主要环境层面显现"
+        ],
+        "realityChecks": [
+          "核验成长秩序、父母承接、工作环境与社会接口是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "把责任分层，避免所有现实压力一人承担"
+      ],
+      "prohibitions": [
+        "不能只因正财在月柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "45-47",
+          "section": "正财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 21,
+          "section": "正财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengcai_day_position",
+      "title": "正财在日柱：核心落点中的稳定资源、责任、预算与长期经营",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "正财",
+        "日柱",
+        "自我状态"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正财"
+        ],
+        "featuresAny": [
+          "日柱",
+          "day"
+        ]
+      },
+      "requires": [
+        "必须确认正财确实落在日柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "正财的主题更容易通过自我状态、亲密关系、日常选择与直接承接表现"
+        ],
+        "positive": [
+          "得用时，务实、重兑现、持续积累会在核心落点层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，过度计较、受现实牵制、保守也会通过核心落点层面显现"
+        ],
+        "realityChecks": [
+          "核验自我状态、亲密关系、日常选择与直接承接是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "把责任分层，避免所有现实压力一人承担"
+      ],
+      "prohibitions": [
+        "不能只因正财在日柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "45-47",
+          "section": "正财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 21,
+          "section": "正财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengcai_hour_position",
+      "title": "正财在时柱：结果与后续中的稳定资源、责任、预算与长期经营",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "正财",
+        "时柱",
+        "执行结果"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正财"
+        ],
+        "featuresAny": [
+          "时柱",
+          "hour"
+        ]
+      },
+      "requires": [
+        "必须确认正财确实落在时柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "正财的主题更容易通过执行结果、作品、后期规划、子女或下属层表现"
+        ],
+        "positive": [
+          "得用时，务实、重兑现、持续积累会在结果与后续层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，过度计较、受现实牵制、保守也会通过结果与后续层面显现"
+        ],
+        "realityChecks": [
+          "核验执行结果、作品、后期规划、子女或下属层是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "把责任分层，避免所有现实压力一人承担"
+      ],
+      "prohibitions": [
+        "不能只因正财在时柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "45-47",
+          "section": "正财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 21,
+          "section": "正财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengcai_strong_state",
+      "title": "正财偏旺：主题强化与过度使用",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "正财",
+        "偏旺",
+        "太旺",
+        "多"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正财"
+        ],
+        "featuresAny": [
+          "正财旺",
+          "正财强",
+          "正财成势",
+          "正财多"
+        ]
+      },
+      "requires": [
+        "确认偏旺来自月令、根气、透干或多层重复，而非简单计数",
+        "判断旺势是否真正作用到日主、用神或关键宫位"
+      ],
+      "weakeningConditions": [
+        "虽多但无根、受制或不直接参与做功",
+        "辅助评分与实际根气不一致"
+      ],
+      "imagery": {
+        "core": [
+          "正财的稳定资源、责任、预算与长期经营成为高频行为模式"
+        ],
+        "positive": [
+          "结构承接良好时，务实、重兑现、持续积累可形成优势"
+        ],
+        "negative": [
+          "失衡时更容易出现过度计较、受现实牵制、保守"
+        ],
+        "realityChecks": [
+          "现实中是否重视固定收入、长期关系和可持续安排"
+        ]
+      },
+      "advice": [
+        "把责任分层，避免所有现实压力一人承担"
+      ],
+      "prohibitions": [
+        "不能仅凭正财数量多就锁定职业、婚姻或吉凶"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "45-47",
+          "section": "正财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 21,
+          "section": "正财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengcai_controlled_state",
+      "title": "正财受制或不显：功能受限与替代通道",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "正财",
+        "弱",
+        "受制",
+        "不透",
+        "入墓"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正财"
+        ],
+        "featuresAny": [
+          "正财受制",
+          "正财弱",
+          "正财不透",
+          "正财入墓"
+        ]
+      },
+      "requires": [
+        "确认受制、无根、不透或入墓等具体事实",
+        "同时寻找是否有生扶、通关、开库或岁运引动"
+      ],
+      "weakeningConditions": [
+        "实际有强根或透干",
+        "岁运已解除原局限制"
+      ],
+      "imagery": {
+        "core": [
+          "正财代表的稳定资源、责任、预算与长期经营不容易直接表达，常需借助其他十神或岁运通道"
+        ],
+        "positive": [
+          "受制若服务于整体制化，反而可能减少过度表现"
+        ],
+        "negative": [
+          "功能不足时，务实、重兑现、持续积累难以稳定落实"
+        ],
+        "realityChecks": [
+          "现实中是否在稳定资源、责任、预算与长期经营相关事项上需要外部条件才能启动"
+        ]
+      },
+      "advice": [
+        "先寻找可替代的现实通道，不把单一弱项当成能力缺失"
+      ],
+      "prohibitions": [
+        "不能把正财弱或藏而不透直接等同于现实中没有对应人物或机会"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "45-47",
+          "section": "正财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 21,
+          "section": "正财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_piancai_year_position",
+      "title": "偏财在年柱：外层背景中的流动资源、机会、人脉与多项选择",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "偏财",
+        "年柱",
+        "早年环境"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "偏财"
+        ],
+        "featuresAny": [
+          "年柱",
+          "year"
+        ]
+      },
+      "requires": [
+        "必须确认偏财确实落在年柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "偏财的主题更容易通过早年环境、家族根基、外部来源与远层关系表现"
+        ],
+        "positive": [
+          "得用时，灵活、善于连接、把握机会会在外层背景层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，分散、追逐机会、边界模糊也会通过外层背景层面显现"
+        ],
+        "realityChecks": [
+          "核验早年环境、家族根基、外部来源与远层关系是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "机会先做风险和现金流筛选"
+      ],
+      "prohibitions": [
+        "不能只因偏财在年柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "45-47",
+          "section": "偏财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 21,
+          "section": "偏财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_piancai_month_position",
+      "title": "偏财在月柱：主要环境中的流动资源、机会、人脉与多项选择",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "偏财",
+        "月柱",
+        "成长秩序"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "偏财"
+        ],
+        "featuresAny": [
+          "月柱",
+          "month"
+        ]
+      },
+      "requires": [
+        "必须确认偏财确实落在月柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "偏财的主题更容易通过成长秩序、父母承接、工作环境与社会接口表现"
+        ],
+        "positive": [
+          "得用时，灵活、善于连接、把握机会会在主要环境层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，分散、追逐机会、边界模糊也会通过主要环境层面显现"
+        ],
+        "realityChecks": [
+          "核验成长秩序、父母承接、工作环境与社会接口是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "机会先做风险和现金流筛选"
+      ],
+      "prohibitions": [
+        "不能只因偏财在月柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "45-47",
+          "section": "偏财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 21,
+          "section": "偏财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_piancai_day_position",
+      "title": "偏财在日柱：核心落点中的流动资源、机会、人脉与多项选择",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "偏财",
+        "日柱",
+        "自我状态"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "偏财"
+        ],
+        "featuresAny": [
+          "日柱",
+          "day"
+        ]
+      },
+      "requires": [
+        "必须确认偏财确实落在日柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "偏财的主题更容易通过自我状态、亲密关系、日常选择与直接承接表现"
+        ],
+        "positive": [
+          "得用时，灵活、善于连接、把握机会会在核心落点层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，分散、追逐机会、边界模糊也会通过核心落点层面显现"
+        ],
+        "realityChecks": [
+          "核验自我状态、亲密关系、日常选择与直接承接是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "机会先做风险和现金流筛选"
+      ],
+      "prohibitions": [
+        "不能只因偏财在日柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "45-47",
+          "section": "偏财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 21,
+          "section": "偏财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_piancai_hour_position",
+      "title": "偏财在时柱：结果与后续中的流动资源、机会、人脉与多项选择",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "偏财",
+        "时柱",
+        "执行结果"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "偏财"
+        ],
+        "featuresAny": [
+          "时柱",
+          "hour"
+        ]
+      },
+      "requires": [
+        "必须确认偏财确实落在时柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "偏财的主题更容易通过执行结果、作品、后期规划、子女或下属层表现"
+        ],
+        "positive": [
+          "得用时，灵活、善于连接、把握机会会在结果与后续层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，分散、追逐机会、边界模糊也会通过结果与后续层面显现"
+        ],
+        "realityChecks": [
+          "核验执行结果、作品、后期规划、子女或下属层是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "机会先做风险和现金流筛选"
+      ],
+      "prohibitions": [
+        "不能只因偏财在时柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "45-47",
+          "section": "偏财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 21,
+          "section": "偏财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_piancai_strong_state",
+      "title": "偏财偏旺：主题强化与过度使用",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "偏财",
+        "偏旺",
+        "太旺",
+        "多"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "偏财"
+        ],
+        "featuresAny": [
+          "偏财旺",
+          "偏财强",
+          "偏财成势",
+          "偏财多"
+        ]
+      },
+      "requires": [
+        "确认偏旺来自月令、根气、透干或多层重复，而非简单计数",
+        "判断旺势是否真正作用到日主、用神或关键宫位"
+      ],
+      "weakeningConditions": [
+        "虽多但无根、受制或不直接参与做功",
+        "辅助评分与实际根气不一致"
+      ],
+      "imagery": {
+        "core": [
+          "偏财的流动资源、机会、人脉与多项选择成为高频行为模式"
+        ],
+        "positive": [
+          "结构承接良好时，灵活、善于连接、把握机会可形成优势"
+        ],
+        "negative": [
+          "失衡时更容易出现分散、追逐机会、边界模糊"
+        ],
+        "realityChecks": [
+          "现实中是否常从项目、人脉或临时机会获得资源"
+        ]
+      },
+      "advice": [
+        "机会先做风险和现金流筛选"
+      ],
+      "prohibitions": [
+        "不能仅凭偏财数量多就锁定职业、婚姻或吉凶"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "45-47",
+          "section": "偏财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 21,
+          "section": "偏财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_piancai_controlled_state",
+      "title": "偏财受制或不显：功能受限与替代通道",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "偏财",
+        "弱",
+        "受制",
+        "不透",
+        "入墓"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "偏财"
+        ],
+        "featuresAny": [
+          "偏财受制",
+          "偏财弱",
+          "偏财不透",
+          "偏财入墓"
+        ]
+      },
+      "requires": [
+        "确认受制、无根、不透或入墓等具体事实",
+        "同时寻找是否有生扶、通关、开库或岁运引动"
+      ],
+      "weakeningConditions": [
+        "实际有强根或透干",
+        "岁运已解除原局限制"
+      ],
+      "imagery": {
+        "core": [
+          "偏财代表的流动资源、机会、人脉与多项选择不容易直接表达，常需借助其他十神或岁运通道"
+        ],
+        "positive": [
+          "受制若服务于整体制化，反而可能减少过度表现"
+        ],
+        "negative": [
+          "功能不足时，灵活、善于连接、把握机会难以稳定落实"
+        ],
+        "realityChecks": [
+          "现实中是否在流动资源、机会、人脉与多项选择相关事项上需要外部条件才能启动"
+        ]
+      },
+      "advice": [
+        "先寻找可替代的现实通道，不把单一弱项当成能力缺失"
+      ],
+      "prohibitions": [
+        "不能把偏财弱或藏而不透直接等同于现实中没有对应人物或机会"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "45-47",
+          "section": "偏财类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 21,
+          "section": "偏财类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengguan_year_position",
+      "title": "正官在年柱：外层背景中的秩序、责任、职位与正式身份",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "正官",
+        "年柱",
+        "早年环境"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正官"
+        ],
+        "featuresAny": [
+          "年柱",
+          "year"
+        ]
+      },
+      "requires": [
+        "必须确认正官确实落在年柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "正官的主题更容易通过早年环境、家族根基、外部来源与远层关系表现"
+        ],
+        "positive": [
+          "得用时，自律、可靠、能在规则内承担会在外层背景层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，拘谨、压力、过度在意评价也会通过外层背景层面显现"
+        ],
+        "realityChecks": [
+          "核验早年环境、家族根基、外部来源与远层关系是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "把外部要求转成可执行步骤"
+      ],
+      "prohibitions": [
+        "不能只因正官在年柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "50-52",
+          "section": "正官类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "19-20",
+          "section": "正官类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengguan_month_position",
+      "title": "正官在月柱：主要环境中的秩序、责任、职位与正式身份",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "正官",
+        "月柱",
+        "成长秩序"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正官"
+        ],
+        "featuresAny": [
+          "月柱",
+          "month"
+        ]
+      },
+      "requires": [
+        "必须确认正官确实落在月柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "正官的主题更容易通过成长秩序、父母承接、工作环境与社会接口表现"
+        ],
+        "positive": [
+          "得用时，自律、可靠、能在规则内承担会在主要环境层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，拘谨、压力、过度在意评价也会通过主要环境层面显现"
+        ],
+        "realityChecks": [
+          "核验成长秩序、父母承接、工作环境与社会接口是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "把外部要求转成可执行步骤"
+      ],
+      "prohibitions": [
+        "不能只因正官在月柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "50-52",
+          "section": "正官类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "19-20",
+          "section": "正官类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengguan_day_position",
+      "title": "正官在日柱：核心落点中的秩序、责任、职位与正式身份",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "正官",
+        "日柱",
+        "自我状态"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正官"
+        ],
+        "featuresAny": [
+          "日柱",
+          "day"
+        ]
+      },
+      "requires": [
+        "必须确认正官确实落在日柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "正官的主题更容易通过自我状态、亲密关系、日常选择与直接承接表现"
+        ],
+        "positive": [
+          "得用时，自律、可靠、能在规则内承担会在核心落点层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，拘谨、压力、过度在意评价也会通过核心落点层面显现"
+        ],
+        "realityChecks": [
+          "核验自我状态、亲密关系、日常选择与直接承接是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "把外部要求转成可执行步骤"
+      ],
+      "prohibitions": [
+        "不能只因正官在日柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "50-52",
+          "section": "正官类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "19-20",
+          "section": "正官类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengguan_hour_position",
+      "title": "正官在时柱：结果与后续中的秩序、责任、职位与正式身份",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "正官",
+        "时柱",
+        "执行结果"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正官"
+        ],
+        "featuresAny": [
+          "时柱",
+          "hour"
+        ]
+      },
+      "requires": [
+        "必须确认正官确实落在时柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "正官的主题更容易通过执行结果、作品、后期规划、子女或下属层表现"
+        ],
+        "positive": [
+          "得用时，自律、可靠、能在规则内承担会在结果与后续层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，拘谨、压力、过度在意评价也会通过结果与后续层面显现"
+        ],
+        "realityChecks": [
+          "核验执行结果、作品、后期规划、子女或下属层是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "把外部要求转成可执行步骤"
+      ],
+      "prohibitions": [
+        "不能只因正官在时柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "50-52",
+          "section": "正官类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "19-20",
+          "section": "正官类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengguan_strong_state",
+      "title": "正官偏旺：主题强化与过度使用",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "正官",
+        "偏旺",
+        "太旺",
+        "多"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正官"
+        ],
+        "featuresAny": [
+          "正官旺",
+          "正官强",
+          "正官成势",
+          "正官多"
+        ]
+      },
+      "requires": [
+        "确认偏旺来自月令、根气、透干或多层重复，而非简单计数",
+        "判断旺势是否真正作用到日主、用神或关键宫位"
+      ],
+      "weakeningConditions": [
+        "虽多但无根、受制或不直接参与做功",
+        "辅助评分与实际根气不一致"
+      ],
+      "imagery": {
+        "core": [
+          "正官的秩序、责任、职位与正式身份成为高频行为模式"
+        ],
+        "positive": [
+          "结构承接良好时，自律、可靠、能在规则内承担可形成优势"
+        ],
+        "negative": [
+          "失衡时更容易出现拘谨、压力、过度在意评价"
+        ],
+        "realityChecks": [
+          "现实中是否重视正式流程、身份与责任评价"
+        ]
+      },
+      "advice": [
+        "把外部要求转成可执行步骤"
+      ],
+      "prohibitions": [
+        "不能仅凭正官数量多就锁定职业、婚姻或吉凶"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "50-52",
+          "section": "正官类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "19-20",
+          "section": "正官类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_zhengguan_controlled_state",
+      "title": "正官受制或不显：功能受限与替代通道",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "正官",
+        "弱",
+        "受制",
+        "不透",
+        "入墓"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "正官"
+        ],
+        "featuresAny": [
+          "正官受制",
+          "正官弱",
+          "正官不透",
+          "正官入墓"
+        ]
+      },
+      "requires": [
+        "确认受制、无根、不透或入墓等具体事实",
+        "同时寻找是否有生扶、通关、开库或岁运引动"
+      ],
+      "weakeningConditions": [
+        "实际有强根或透干",
+        "岁运已解除原局限制"
+      ],
+      "imagery": {
+        "core": [
+          "正官代表的秩序、责任、职位与正式身份不容易直接表达，常需借助其他十神或岁运通道"
+        ],
+        "positive": [
+          "受制若服务于整体制化，反而可能减少过度表现"
+        ],
+        "negative": [
+          "功能不足时，自律、可靠、能在规则内承担难以稳定落实"
+        ],
+        "realityChecks": [
+          "现实中是否在秩序、责任、职位与正式身份相关事项上需要外部条件才能启动"
+        ]
+      },
+      "advice": [
+        "先寻找可替代的现实通道，不把单一弱项当成能力缺失"
+      ],
+      "prohibitions": [
+        "不能把正官弱或藏而不透直接等同于现实中没有对应人物或机会"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "50-52",
+          "section": "正官类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "19-20",
+          "section": "正官类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_qisha_year_position",
+      "title": "七杀在年柱：外层背景中的压力、竞争、执行、风险与强制变化",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "七杀",
+        "年柱",
+        "早年环境"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "七杀"
+        ],
+        "featuresAny": [
+          "年柱",
+          "year"
+        ]
+      },
+      "requires": [
+        "必须确认七杀确实落在年柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "七杀的主题更容易通过早年环境、家族根基、外部来源与远层关系表现"
+        ],
+        "positive": [
+          "得用时，果断、抗压、危机处理会在外层背景层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，紧张、冲突、过度防御也会通过外层背景层面显现"
+        ],
+        "realityChecks": [
+          "核验早年环境、家族根基、外部来源与远层关系是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "建立风险预案，避免在压力下孤注一掷"
+      ],
+      "prohibitions": [
+        "不能只因七杀在年柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "50-52",
+          "section": "七杀类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 20,
+          "section": "七杀类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_qisha_month_position",
+      "title": "七杀在月柱：主要环境中的压力、竞争、执行、风险与强制变化",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "七杀",
+        "月柱",
+        "成长秩序"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "七杀"
+        ],
+        "featuresAny": [
+          "月柱",
+          "month"
+        ]
+      },
+      "requires": [
+        "必须确认七杀确实落在月柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "七杀的主题更容易通过成长秩序、父母承接、工作环境与社会接口表现"
+        ],
+        "positive": [
+          "得用时，果断、抗压、危机处理会在主要环境层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，紧张、冲突、过度防御也会通过主要环境层面显现"
+        ],
+        "realityChecks": [
+          "核验成长秩序、父母承接、工作环境与社会接口是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "建立风险预案，避免在压力下孤注一掷"
+      ],
+      "prohibitions": [
+        "不能只因七杀在月柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "50-52",
+          "section": "七杀类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 20,
+          "section": "七杀类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_qisha_day_position",
+      "title": "七杀在日柱：核心落点中的压力、竞争、执行、风险与强制变化",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "七杀",
+        "日柱",
+        "自我状态"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "七杀"
+        ],
+        "featuresAny": [
+          "日柱",
+          "day"
+        ]
+      },
+      "requires": [
+        "必须确认七杀确实落在日柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "七杀的主题更容易通过自我状态、亲密关系、日常选择与直接承接表现"
+        ],
+        "positive": [
+          "得用时，果断、抗压、危机处理会在核心落点层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，紧张、冲突、过度防御也会通过核心落点层面显现"
+        ],
+        "realityChecks": [
+          "核验自我状态、亲密关系、日常选择与直接承接是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "建立风险预案，避免在压力下孤注一掷"
+      ],
+      "prohibitions": [
+        "不能只因七杀在日柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "50-52",
+          "section": "七杀类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 20,
+          "section": "七杀类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_qisha_hour_position",
+      "title": "七杀在时柱：结果与后续中的压力、竞争、执行、风险与强制变化",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "parents",
+        "career",
+        "spouse",
+        "wealth",
+        "children"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 68,
+      "gender": "all",
+      "queryKeywords": [
+        "七杀",
+        "时柱",
+        "执行结果"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "七杀"
+        ],
+        "featuresAny": [
+          "时柱",
+          "hour"
+        ]
+      },
+      "requires": [
+        "必须确认七杀确实落在时柱或该宫位被岁运直接引动",
+        "结合透藏、根气、强弱和与日主的实际作用"
+      ],
+      "weakeningConditions": [
+        "只有问题文本提到该宫位但命盘中并未落位",
+        "该十神严重受制、无根或被其他结构改写"
+      ],
+      "imagery": {
+        "core": [
+          "七杀的主题更容易通过执行结果、作品、后期规划、子女或下属层表现"
+        ],
+        "positive": [
+          "得用时，果断、抗压、危机处理会在结果与后续层面更明显"
+        ],
+        "negative": [
+          "过旺或受损时，紧张、冲突、过度防御也会通过结果与后续层面显现"
+        ],
+        "realityChecks": [
+          "核验执行结果、作品、后期规划、子女或下属层是否确实是现实中反复出现的场域"
+        ]
+      },
+      "advice": [
+        "建立风险预案，避免在压力下孤注一掷"
+      ],
+      "prohibitions": [
+        "不能只因七杀在时柱就直接断定具体人物吉凶或单一事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "50-52",
+          "section": "七杀类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 20,
+          "section": "七杀类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_qisha_strong_state",
+      "title": "七杀偏旺：主题强化与过度使用",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 74,
+      "gender": "all",
+      "queryKeywords": [
+        "七杀",
+        "偏旺",
+        "太旺",
+        "多"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "七杀"
+        ],
+        "featuresAny": [
+          "七杀旺",
+          "七杀强",
+          "七杀成势",
+          "七杀多"
+        ]
+      },
+      "requires": [
+        "确认偏旺来自月令、根气、透干或多层重复，而非简单计数",
+        "判断旺势是否真正作用到日主、用神或关键宫位"
+      ],
+      "weakeningConditions": [
+        "虽多但无根、受制或不直接参与做功",
+        "辅助评分与实际根气不一致"
+      ],
+      "imagery": {
+        "core": [
+          "七杀的压力、竞争、执行、风险与强制变化成为高频行为模式"
+        ],
+        "positive": [
+          "结构承接良好时，果断、抗压、危机处理可形成优势"
+        ],
+        "negative": [
+          "失衡时更容易出现紧张、冲突、过度防御"
+        ],
+        "realityChecks": [
+          "现实中是否经常面对高压、竞争或需要快速决策的场景"
+        ]
+      },
+      "advice": [
+        "建立风险预案，避免在压力下孤注一掷"
+      ],
+      "prohibitions": [
+        "不能仅凭七杀数量多就锁定职业、婚姻或吉凶"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "50-52",
+          "section": "七杀类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 20,
+          "section": "七杀类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "tg_qisha_controlled_state",
+      "title": "七杀受制或不显：功能受限与替代通道",
+      "category": "ten_god",
+      "domains": [
+        "self",
+        "career",
+        "wealth",
+        "spouse",
+        "fortune"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 71,
+      "gender": "all",
+      "queryKeywords": [
+        "七杀",
+        "弱",
+        "受制",
+        "不透",
+        "入墓"
+      ],
+      "trigger": {
+        "tenGodsAny": [
+          "七杀"
+        ],
+        "featuresAny": [
+          "七杀受制",
+          "七杀弱",
+          "七杀不透",
+          "七杀入墓"
+        ]
+      },
+      "requires": [
+        "确认受制、无根、不透或入墓等具体事实",
+        "同时寻找是否有生扶、通关、开库或岁运引动"
+      ],
+      "weakeningConditions": [
+        "实际有强根或透干",
+        "岁运已解除原局限制"
+      ],
+      "imagery": {
+        "core": [
+          "七杀代表的压力、竞争、执行、风险与强制变化不容易直接表达，常需借助其他十神或岁运通道"
+        ],
+        "positive": [
+          "受制若服务于整体制化，反而可能减少过度表现"
+        ],
+        "negative": [
+          "功能不足时，果断、抗压、危机处理难以稳定落实"
+        ],
+        "realityChecks": [
+          "现实中是否在压力、竞争、执行、风险与强制变化相关事项上需要外部条件才能启动"
+        ]
+      },
+      "advice": [
+        "先寻找可替代的现实通道，不把单一弱项当成能力缺失"
+      ],
+      "prohibitions": [
+        "不能把七杀弱或藏而不透直接等同于现实中没有对应人物或机会"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "50-52",
+          "section": "七杀类象与配置",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": 20,
+          "section": "七杀类象",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "ten-gods",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

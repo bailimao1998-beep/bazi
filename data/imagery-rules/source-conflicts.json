@@ -1,0 +1,35 @@
+{
+  "version": "imagery-source-conflicts-v1",
+  "resolutions": [
+    {
+      "topic": "天干五合与婚姻",
+      "resolution": "五合只证明连接或牵连；婚恋必须再看配偶星、夫妻宫和岁运承接。",
+      "priority": "deterministic_foundation"
+    },
+    {
+      "topic": "劫财见财与破财离婚",
+      "resolution": "先判断归属、强弱、官印约束和流年触发；不直接推出破财、第三者或离婚。",
+      "priority": "conditional"
+    },
+    {
+      "topic": "财破印、枭夺食、伤官见官",
+      "resolution": "作为结构冲突主题使用；具体失业、疾病、牢狱、婚变等必须多条件汇合且高风险结论不自动输出。",
+      "priority": "safety_boundary"
+    },
+    {
+      "topic": "墓库开闭",
+      "resolution": "先问库中对象、归属、开闭方式和承载；冲库不等于必然发财或灾祸。",
+      "priority": "conditional"
+    },
+    {
+      "topic": "五行与职业",
+      "resolution": "五行只提供工作对象和环境物象；职业必须与十神、做功、宫位及现实背景交叉验证。",
+      "priority": "multi_evidence"
+    },
+    {
+      "topic": "大运起止",
+      "resolution": "实际交运年月是唯一权威；展示年份区间不用于判断最后一年或换运。",
+      "priority": "deterministic_foundation"
+    }
+  ]
+}

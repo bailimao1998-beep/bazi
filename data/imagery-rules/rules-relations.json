@@ -1,0 +1,2649 @@
+{
+  "version": "imagery-rules-relations-v1",
+  "module": "relations",
+  "rules": [
+    {
+      "id": "relation_stem_combine_mechanism",
+      "title": "五合：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "五合",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "五合"
+        ]
+      },
+      "requires": [
+        "先确认只属于甲己、乙庚、丙辛、丁壬、戊癸五组，并区分合与化",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "天干之间形成连接、牵连、合作意向或合绊"
+        ],
+        "positive": [
+          "有机会建立正式连接、协议或角色绑定"
+        ],
+        "negative": [
+          "也可能出现拖住、分心、争合或自主性下降"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能把五合直接等同于结婚、合作成功或已经化气",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "五合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：五合",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_stem_combine_palace_role",
+      "title": "五合作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "五合",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "五合"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认五合具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "五合的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "五合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：五合",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_six_combine_mechanism",
+      "title": "六合：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "六合",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "六合"
+        ]
+      },
+      "requires": [
+        "确认六合双方、藏干归属、宫位与是否被冲破",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "地支之间形成连接、接近、资源交换或彼此牵制"
+        ],
+        "positive": [
+          "有利于建立接口、合作与关系承接"
+        ],
+        "negative": [
+          "也可能因合绊而行动变慢或被关系牵制"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能见六合就定吉、定婚或定合作成功",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "六合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：六合",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "六合章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_six_combine_palace_role",
+      "title": "六合作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "六合",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "六合"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认六合具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "六合的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "六合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：六合",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "六合章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_hidden_combine_mechanism",
+      "title": "暗合：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "暗合",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "暗合"
+        ]
+      },
+      "requires": [
+        "必须有系统明确标注的暗合关系，并核对藏干参与",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "表面不显但内部存在连接、意向或资源暗中流动"
+        ],
+        "positive": [
+          "可表现为隐性支持、私下协调或潜在连接"
+        ],
+        "negative": [
+          "也可能形成信息不透明、暧昧或暗中牵制"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能把暗合直接断成秘密恋情或暗财",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "暗合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：暗合",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "暗合章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_hidden_combine_palace_role",
+      "title": "暗合作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "暗合",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "暗合"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认暗合具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "暗合的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "暗合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：暗合",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "暗合章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_self_combine_mechanism",
+      "title": "自合：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "自合",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "自合"
+        ]
+      },
+      "requires": [
+        "必须有明确自合结构，并看该柱宫位和十神",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "同柱内部干支产生牵连，主题更内化并反复自我运作"
+        ],
+        "positive": [
+          "能形成自我驱动、内部闭环或持续承接"
+        ],
+        "negative": [
+          "也可能形成自我束缚、反复或内在矛盾"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能只见自合就定婚姻、财富或灾祸",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "自合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：自合",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "自合章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_self_combine_palace_role",
+      "title": "自合作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "自合",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "自合"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认自合具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "自合的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "自合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：自合",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "自合章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_clash_mechanism",
+      "title": "冲：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "冲",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "冲"
+        ]
+      },
+      "requires": [
+        "确认冲到的宫位、十神、原局是否需要变化及岁运层级",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "对位冲击、换位、移动、打破原状与重新安排"
+        ],
+        "positive": [
+          "可推动改变、释放停滞或打开新空间"
+        ],
+        "negative": [
+          "也可能带来波动、冲突、计划中断或位置调整"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能把冲直接等同于分手、搬家、事故或失业",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "冲与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：冲",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "冲章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_clash_palace_role",
+      "title": "冲作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "冲",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "冲"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认冲具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "冲的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "冲与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：冲",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "冲章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_punishment_mechanism",
+      "title": "刑：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "刑",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "刑"
+        ]
+      },
+      "requires": [
+        "区分自刑、无恩之刑、恃势之刑等条件是否完整",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "规范压力、反复修正、摩擦和内部不协调"
+        ],
+        "positive": [
+          "可促使纠偏、标准化和处理旧问题"
+        ],
+        "negative": [
+          "容易反复、较劲、延误或心理压力增加"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能把刑直接断成官非、手术或灾祸",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "刑与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：刑",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "刑章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_punishment_palace_role",
+      "title": "刑作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "刑",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "刑"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认刑具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "刑的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "刑与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：刑",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "刑章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_harm_mechanism",
+      "title": "害：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "害",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "害"
+        ]
+      },
+      "requires": [
+        "确认相害双方及其现实角色，不跨多个领域泛化",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "隐性阻力、误解、信息不对称与配合不顺"
+        ],
+        "positive": [
+          "能暴露隐蔽问题并推动细节校正"
+        ],
+        "negative": [
+          "容易出现说不清、互不理解或暗中消耗"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能把害直接断成小人、疾病、婚变或家庭冲突",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "害与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：害",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_harm_palace_role",
+      "title": "害作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "害",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "害"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认害具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "害的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "害与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：害",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_pierce_mechanism",
+      "title": "穿：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "穿",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "穿"
+        ]
+      },
+      "requires": [
+        "必须有系统明确标注的穿，并看是否穿到命主核心体用",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "直接穿透、破坏接口、利益受损或关系难兼容"
+        ],
+        "positive": [
+          "可快速切断低效连接、暴露核心矛盾"
+        ],
+        "negative": [
+          "容易出现边界受损、资源被穿透或关系紧张"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能把穿直接断成死亡、牢狱或重大灾害",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "穿与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：穿",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "穿章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_pierce_palace_role",
+      "title": "穿作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "穿",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "穿"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认穿具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "穿的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "穿与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：穿",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "穿章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_break_mechanism",
+      "title": "破：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "破",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "破"
+        ]
+      },
+      "requires": [
+        "确认破到的宫位和对象，判断是否服务于重组",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "松动、漏洞、拆分、修补与原有结构不完整"
+        ],
+        "positive": [
+          "适合拆旧重组、修复制度或调整方案"
+        ],
+        "negative": [
+          "容易出现承诺松动、重复返工或小损耗"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能把破直接断成破产、离婚或关系必败",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "破与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：破",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_break_palace_role",
+      "title": "破作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "破",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "破"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认破具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "破的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "破与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：破",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_half_harmony_mechanism",
+      "title": "半合：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "半合",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "半合"
+        ]
+      },
+      "requires": [
+        "区分生地半合、墓地半合及是否得令得势",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "局部方向一致、力量聚集但条件未全"
+        ],
+        "positive": [
+          "可形成阶段性的协同与倾向"
+        ],
+        "negative": [
+          "也可能只成趋势、未必成局，受第三方条件影响大"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能把半合直接写成三合局或化气",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "半合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：半合",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "半合章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_half_harmony_palace_role",
+      "title": "半合作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "半合",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "半合"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认半合具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "半合的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "半合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：半合",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "半合章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_arch_harmony_mechanism",
+      "title": "拱合：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "拱合",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "拱合"
+        ]
+      },
+      "requires": [
+        "确认两支确有拱合条件，并看缺字是否被岁运补齐",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "缺一字的潜在聚合、期待或结构牵引"
+        ],
+        "positive": [
+          "可形成隐性方向和待触发的协同"
+        ],
+        "negative": [
+          "条件不足时只是一种倾向，容易落空"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能把拱合当成完整三合局",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "拱合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：拱合",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_arch_harmony_palace_role",
+      "title": "拱合作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "拱合",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "拱合"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认拱合具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "拱合的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "拱合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：拱合",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_triple_harmony_mechanism",
+      "title": "三合：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "三合",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "三合"
+        ]
+      },
+      "requires": [
+        "三支齐全后仍需判断月令、透干、制化与是否真正成势",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "三支共同形成较强的方向性与资源汇聚"
+        ],
+        "positive": [
+          "可强化某五行主题并形成稳定协作"
+        ],
+        "negative": [
+          "过旺时会压制其他结构或改变原有平衡"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能只因三支齐全就写已经化局",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "三合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：三合",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "三合章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_triple_harmony_palace_role",
+      "title": "三合作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "三合",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "三合"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认三合具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "三合的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "三合与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：三合",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "三合章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_triple_meeting_mechanism",
+      "title": "三会：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "三会",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "三会"
+        ]
+      },
+      "requires": [
+        "三支齐全并结合季节、透干和承载能力",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "同季三支汇聚，环境和阶段力量高度集中"
+        ],
+        "positive": [
+          "可形成强烈的环境趋势和集体资源"
+        ],
+        "negative": [
+          "过强时容易一边倒、失衡或现实压力集中"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能把三会自动等同于吉局或化气",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "三会与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：三会",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "三会章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_triple_meeting_palace_role",
+      "title": "三会作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "三会",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "三会"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认三会具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "三会的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "三会与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：三会",
+          "verificationStatus": "selected_pages_verified"
+        },
+        {
+          "sourceId": "cui_five_elements",
+          "pdfPage": "9-13",
+          "section": "三会章节目录与样页",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_repetition_mechanism",
+      "title": "伏吟：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "伏吟",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "伏吟"
+        ]
+      },
+      "requires": [
+        "确认重复发生在哪一层、哪个宫位及是否与岁运同现",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "相同干支或结构重复，主题加重、重复和回看"
+        ],
+        "positive": [
+          "有利于巩固、重做、复盘与完成旧事"
+        ],
+        "negative": [
+          "也可能带来重复压力、停滞或情绪放大"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能把伏吟直接断成哭泣、死亡或必有灾",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "伏吟与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：伏吟",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_repetition_palace_role",
+      "title": "伏吟作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "伏吟",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "伏吟"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认伏吟具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "伏吟的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "伏吟与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：伏吟",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_opposition_mechanism",
+      "title": "反吟：作用机制与现实主题",
+      "category": "relation",
+      "domains": [
+        "self",
+        "career",
+        "spouse",
+        "wealth",
+        "parents",
+        "children",
+        "movement",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "反吟",
+        "关系",
+        "作用"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "反吟"
+        ]
+      },
+      "requires": [
+        "必须有明确反吟或对冲结构，并看原局承载",
+        "判断作用方向、宫位、十神归属和原局是否需要该作用"
+      ],
+      "weakeningConditions": [
+        "关系虽存在但不触及当前问题领域",
+        "被其他合冲制化改写或岁运未真正引动"
+      ],
+      "imagery": {
+        "core": [
+          "上下或岁运形成强对立，主题快速翻转与位置变化"
+        ],
+        "positive": [
+          "可推动彻底调整和旧模式重构"
+        ],
+        "negative": [
+          "容易出现方向冲突、节奏剧烈或稳定性下降"
+        ],
+        "realityChecks": [
+          "现实中先核验发生了连接、变化、摩擦或重组，再判断具体事件"
+        ]
+      },
+      "advice": [
+        "把关系解释为作用方式，不先贴吉凶标签"
+      ],
+      "prohibitions": [
+        "不能把反吟直接断成事故或人生大败",
+        "单一干支关系不能独立证明具体事件"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "反吟与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：反吟",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relation_opposition_palace_role",
+      "title": "反吟作用到宫位：人物与领域落点",
+      "category": "relation",
+      "domains": [
+        "career",
+        "spouse",
+        "parents",
+        "children",
+        "movement",
+        "property",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 72,
+      "gender": "all",
+      "queryKeywords": [
+        "反吟",
+        "宫位",
+        "作用到"
+      ],
+      "trigger": {
+        "relationsAny": [
+          "反吟"
+        ],
+        "featuresAny": [
+          "年柱",
+          "月柱",
+          "日支",
+          "时柱",
+          "宫位"
+        ]
+      },
+      "requires": [
+        "确认反吟具体作用到哪个宫位和哪两个参与者",
+        "同一关系作用到不同宫位，现实含义不同"
+      ],
+      "weakeningConditions": [
+        "宫位信息缺失或参与者不明确",
+        "只从关系名称推断人物事件"
+      ],
+      "imagery": {
+        "core": [
+          "反吟的现实落点由被作用宫位决定，不能脱离宫位泛化"
+        ],
+        "positive": [
+          "落在需要调整的宫位时，可促成关系、环境或计划更新"
+        ],
+        "negative": [
+          "落在核心宫位且无承接时，相关领域更易感到波动或摩擦"
+        ],
+        "realityChecks": [
+          "核验现实变化是否集中在该宫位所代表的关系和事项"
+        ]
+      },
+      "advice": [
+        "回答中明确写出作用到谁、哪一层、什么主题"
+      ],
+      "prohibitions": [
+        "不能把年柱、月柱、日支、时柱所有含义同时并列"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "1-41",
+          "section": "反吟与干支作用",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "yang_advanced_blind_notes",
+          "pdfPage": "24-25",
+          "section": "地支作用关系：反吟",
+          "verificationStatus": "selected_pages_verified"
+        }
+      ],
+      "module": "relations",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

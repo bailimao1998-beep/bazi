@@ -1,0 +1,1725 @@
+{
+  "version": "imagery-rules-relationship-v1",
+  "module": "relationship",
+  "rules": [
+    {
+      "id": "relationship_star_palace_core",
+      "title": "配偶星与夫妻宫共同判断",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 82,
+      "gender": "all",
+      "queryKeywords": [
+        "配偶星",
+        "夫妻宫",
+        "日支"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "配偶星",
+          "夫妻宫",
+          "日支"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "男命以财星为主要参考，女命以官杀为主要参考，同时核对日支和现实阶段",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "配偶星说明对象与关系资源，日支说明贴身相处和关系落点，两者必须共同承接"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能单凭配偶星或日支判定婚姻质量",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_star_hidden",
+      "title": "配偶星藏支的显化条件",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 81,
+      "gender": "all",
+      "queryKeywords": [
+        "配偶星藏支",
+        "藏而不透"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "配偶星藏支",
+          "藏而不透"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "确认藏干来源和是否真正归命主",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "配偶星藏于地支时，关系机会更依赖透出、得根、开库、合入或岁运引动"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能写成没有对象或必晚婚",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_star_external",
+      "title": "配偶星在宾位或外层",
+      "category": "relationship",
+      "domains": [
+        "spouse",
+        "movement"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 80,
+      "gender": "all",
+      "queryKeywords": [
+        "配偶星",
+        "宾位",
+        "外边"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "配偶星",
+          "宾位",
+          "外边"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "需有进入主位的作用路径",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "配偶星在外层可提示对象或关系资源来自外部环境、远层关系、工作社交或异地接口"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能据此锁定异地恋、年龄差或职业",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_star_internal",
+      "title": "配偶星在主位或贴身",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "配偶星",
+        "主位",
+        "日时"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "配偶星",
+          "主位",
+          "日时"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "仍需看星是否有力、是否被合制及夫妻宫承接",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "配偶星贴近主位时，关系议题更容易进入日常生活和直接选择"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能直接断早婚或关系稳定",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_palace_clash",
+      "title": "夫妻宫受冲：关系模式调整",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "夫妻宫",
+        "冲"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "夫妻宫",
+          "冲"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "至少再有配偶星或岁运新增依据",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "日支受冲表示相处方式、居住安排或关系状态需要调整，变化幅度取决于大运和现实背景"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能直接断分手、离婚或搬家",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_palace_combine",
+      "title": "夫妻宫受合：连接与牵制",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 82,
+      "gender": "all",
+      "queryKeywords": [
+        "夫妻宫",
+        "合"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "夫妻宫",
+          "合"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "确认合神归属、是否争合及是否被冲破",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "日支受合可表示关系连接、合作、注意力被牵引或相处模式被绑定"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能见合就断恋爱、结婚或第三者",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_palace_harm_break",
+      "title": "夫妻宫害破：隐性摩擦与修补",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 81,
+      "gender": "all",
+      "queryKeywords": [
+        "夫妻宫",
+        "害",
+        "破"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "夫妻宫",
+          "害",
+          "破"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "结合配偶星和现实互动确认落点",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "日支受害破更适合解释为沟通盲点、边界松动或关系结构需要修补"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能直接扩展为家庭反对、异地、金钱和孩子等多项问题",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_peer_wealth_male",
+      "title": "男命比劫与财星的关系边界",
+      "category": "relationship",
+      "domains": [
+        "spouse",
+        "wealth",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 80,
+      "gender": "male",
+      "queryKeywords": [
+        "男命",
+        "比劫",
+        "财星"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "男命",
+          "比劫",
+          "财星"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财"
+        ]
+      },
+      "requires": [
+        "区分比劫和财星归属、强弱、官印约束与岁运触发",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "比劫与财星同时强烈互动，可能体现同辈竞争、资源分配、朋友影响或关系边界问题"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能直接断第三者、夺妻、破财或离婚",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_output_official_female",
+      "title": "女命食伤与官杀的表达边界",
+      "category": "relationship",
+      "domains": [
+        "spouse",
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "female",
+      "queryKeywords": [
+        "女命",
+        "食伤",
+        "官杀"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "女命",
+          "食伤",
+          "官杀"
+        ],
+        "tenGodsAny": [
+          "正官",
+          "七杀"
+        ]
+      },
+      "requires": [
+        "区分制杀、伤官见官、印制食伤等不同结构",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "食伤与官杀强烈互动，可能体现表达方式、关系规则、择偶标准与责任压力之间的拉扯"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能直接断克夫、离婚或婚姻差",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_wealth_resource_conflict",
+      "title": "财印冲突在关系中的现实与支持拉扯",
+      "category": "relationship",
+      "domains": [
+        "spouse",
+        "wealth",
+        "parents"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "财印",
+        "感情",
+        "婚姻"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "财印",
+          "感情",
+          "婚姻"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "需看财印谁属于命主、谁在夫妻结构中被引动",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "财与印冲突可体现伴侣现实需求、原生支持、学习事业与生活安排之间的优先级冲突"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能直接断婆媳矛盾、离婚或父母反对",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_output_wealth_source",
+      "title": "食伤生财需检查来源归属",
+      "category": "relationship",
+      "domains": [
+        "spouse",
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 82,
+      "gender": "all",
+      "queryKeywords": [
+        "食伤生财",
+        "婚姻",
+        "来源"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "食伤生财",
+          "婚姻",
+          "来源"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "食伤财星链条完整并有现实关系承接",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "食伤生财用于婚恋时，要看输出来自谁、财归谁以及是否进入夫妻宫或主位"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能只见食伤生财就断桃花多或二婚",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_five_combine_relationship",
+      "title": "天干五合在婚恋中只作连接候选",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 81,
+      "gender": "all",
+      "queryKeywords": [
+        "天干五合",
+        "婚姻"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "天干五合",
+          "婚姻"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "五合必须是固定五组并检查争合、合绊和化气条件",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "五合可提示连接、吸引、协议和牵连，但是否成为关系需看配偶星、夫妻宫和岁运背景"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能把五合直接等同于结婚、桃花或配偶被合走",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_timing_luck_first",
+      "title": "婚恋应期先选有承接的大运",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 80,
+      "gender": "all",
+      "queryKeywords": [
+        "结婚应期",
+        "大运",
+        "婚恋"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "结婚应期",
+          "大运",
+          "婚恋"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "大运需引动配偶星、夫妻宫、根气或平衡结构",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "大运先决定关系议题是否进入阶段背景，流年再触发接触、确认或变化"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能跳过大运只凭流年定婚期",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_timing_star_arrives",
+      "title": "配偶星到位只是应期条件之一",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "星到",
+        "配偶星",
+        "流年"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "星到",
+          "配偶星",
+          "流年"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "同时需夫妻宫、命主承载和现实阶段配合",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "配偶星在岁运透出、得根或从库中显现，可增加关系机会和对象主题"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能见财官流年就断恋爱或结婚",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_timing_palace_activation",
+      "title": "夫妻宫引动与关系状态变化",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "引动夫妻宫",
+        "桃花运",
+        "日支"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "引动夫妻宫",
+          "桃花运",
+          "日支"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "需区分已有关系和单身状态，并结合配偶星",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "大运流年合冲刑害日支，可使关系模式和相处议题进入显著阶段"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能直接确定是认识、结婚、分手还是复合",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_timing_root_capacity",
+      "title": "双方立得住与关系承载",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 82,
+      "gender": "all",
+      "queryKeywords": [
+        "立得住",
+        "根气",
+        "婚姻"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "立得住",
+          "根气",
+          "婚姻"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "根气、印比支持、宫位和现实准备共同判断",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "关系应期不仅看星到，还看命主和对方象是否有根、有承接和能否稳定进入生活"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能以无根直接断无婚或关系不长",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_timing_storage_star",
+      "title": "库中配偶星需打开或透出",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 81,
+      "gender": "all",
+      "queryKeywords": [
+        "库中星",
+        "配偶星",
+        "开库"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "库中星",
+          "配偶星",
+          "开库"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "库中确有配偶星且开库不损坏承载",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "配偶星藏库时，开库、透出、同类引动或直接合入可增加关系显化条件"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能见冲库就断结婚或桃花",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_relationship_quality",
+      "title": "婚姻质量看长期互动，不按上中下机械定级",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 80,
+      "gender": "all",
+      "queryKeywords": [
+        "婚姻质量",
+        "上等婚",
+        "下等婚"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "婚姻质量",
+          "上等婚",
+          "下等婚"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "至少有多条独立结构和现实验证",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "关系质量需看星宫承接、双方边界、制化是否平衡和现实沟通，不宜只按单一组合定级"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能输出宿命式上等婚、下等婚标签",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_multiple_relationships",
+      "title": "多次关系需事件链而非计数十神",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 79,
+      "gender": "all",
+      "queryKeywords": [
+        "二婚",
+        "多婚",
+        "离婚次数"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "二婚",
+          "多婚",
+          "离婚次数"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "多段岁运各自形成独立关系事件链",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "十神数量、合冲次数或库中星数量不能直接等同于婚姻次数，需有阶段性应期和现实事实"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能预测具体婚姻次数",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_separation_condition",
+      "title": "关系分离是多条件结果",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "离婚应期",
+        "分手",
+        "关系变化"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "离婚应期",
+          "分手",
+          "关系变化"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "至少两条独立命理依据及现实状态",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "分离候选需同时有关系承接削弱、星宫受损、岁运触发和现实问题累积"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能由一冲一合一刑直接断离婚",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_single_status",
+      "title": "无婚或晚婚不能由单一弱星决定",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 82,
+      "gender": "all",
+      "queryKeywords": [
+        "无婚",
+        "晚婚",
+        "单身"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "无婚",
+          "晚婚",
+          "单身"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "需比较完整大运和现实选择",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "配偶星弱、藏、受制或夫妻宫静，只说明显化条件不足，不等于无婚"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能断终身无婚",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "relationship_relationship_advice",
+      "title": "关系建议对应结构问题",
+      "category": "relationship",
+      "domains": [
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year",
+        "month"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 81,
+      "gender": "all",
+      "queryKeywords": [
+        "感情建议",
+        "婚姻建议"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "感情建议",
+          "婚姻建议"
+        ],
+        "tenGodsAny": []
+      },
+      "requires": [
+        "建议必须来自前文主象而非泛泛而谈",
+        "结合性别、年龄、现实关系状态和问题时间层"
+      ],
+      "weakeningConditions": [
+        "现实阶段与婚恋议题不匹配",
+        "只有同一条结构的重复表述而无独立证据"
+      ],
+      "imagery": {
+        "core": [
+          "比劫财星问题重边界与分配，食伤官杀问题重表达与规则，财印问题重现实与支持协调"
+        ],
+        "positive": [
+          "条件完整时可用于判断关系机会、相处模式和阶段主题"
+        ],
+        "negative": [
+          "条件失衡时更容易表现为边界、沟通、责任或现实安排的摩擦"
+        ],
+        "realityChecks": [
+          "现实中核验接触机会、沟通方式、责任分配和长期规划，而不是只验证事件标签"
+        ]
+      },
+      "advice": [
+        "先厘清关系状态和现实条件，再给具体建议"
+      ],
+      "prohibitions": [
+        "不能用颜色、饰品、改名或保证性方法替代沟通和选择",
+        "不得预测配偶具体身份、绝对婚期或婚姻次数"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "187-225",
+          "section": "婚姻分类、结婚应期、离婚与多婚边界",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_advanced_2025",
+          "pdfPage": "婚姻目录页",
+          "section": "婚姻、应期、桃花、离婚章节目录",
+          "verificationStatus": "outline_verified"
+        }
+      ],
+      "module": "relationship",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

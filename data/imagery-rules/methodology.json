@@ -1,5 +1,5 @@
 {
-  "version": "imagery-methodology-v1",
+  "version": "imagery-methodology-v2",
   "rules": [
     {
       "id": "method_facts_first",
@@ -414,6 +414,203 @@
         {
           "sourceId": "system_synthesis",
           "section": "不确定性表达"
+        }
+      ]
+    },
+    {
+      "id": "method_module_route",
+      "title": "按问题领域召回模块",
+      "priority": 96,
+      "instruction": "先识别性格、家庭、婚恋、职业、财富、健康和岁运层级，再召回相关模块；通用问题保留原局总纲。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "v8.4全量规则库工程",
+          "verificationStatus": "confirmed"
+        }
+      ]
+    },
+    {
+      "id": "method_object_method_environment",
+      "title": "职业三分法",
+      "priority": 95,
+      "instruction": "职业判断分为工作对象、工作方式和组织环境，三者不得混成一个行业标签。",
+      "appliesTo": [
+        "career"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "v8.4全量规则库工程",
+          "verificationStatus": "confirmed"
+        }
+      ]
+    },
+    {
+      "id": "method_ownership_before_event",
+      "title": "先归属再断事件",
+      "priority": 94,
+      "instruction": "财官印食先确认来源、宾主和归属，再判断命主能否取得或承接。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "v8.4全量规则库工程",
+          "verificationStatus": "confirmed"
+        }
+      ]
+    },
+    {
+      "id": "method_storage_four_questions",
+      "title": "墓库四问",
+      "priority": 93,
+      "instruction": "看到墓库依次问：库中有什么、属于谁、如何开闭、命主能否承载；缺一项则降低结论。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "v8.4全量规则库工程",
+          "verificationStatus": "confirmed"
+        }
+      ]
+    },
+    {
+      "id": "method_relation_actor_target",
+      "title": "关系三问",
+      "priority": 92,
+      "instruction": "每个合冲刑害破先说明谁作用谁、作用到哪个宫位、服务于什么结构问题。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "v8.4全量规则库工程",
+          "verificationStatus": "confirmed"
+        }
+      ]
+    },
+    {
+      "id": "method_transition_actual_date",
+      "title": "实际交运时间唯一权威",
+      "priority": 91,
+      "instruction": "当前大运、交运年和阶段主次只按实际交运年月定位，不使用展示区间推断。",
+      "appliesTo": [
+        "luck",
+        "year",
+        "multiYear"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "v8.4全量规则库工程",
+          "verificationStatus": "confirmed"
+        }
+      ]
+    },
+    {
+      "id": "method_foundation_formula_check",
+      "title": "基础公式先校验",
+      "priority": 96,
+      "instruction": "天干五合、五行生克、十神映射和地支关系属于确定规则，解释前必须先校验。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "v8.4全量规则库工程",
+          "verificationStatus": "confirmed"
+        }
+      ]
+    },
+    {
+      "id": "method_rule_status",
+      "title": "规则按核读状态使用",
+      "priority": 95,
+      "instruction": "confirmed和cross_confirmed可进入正式推理；outline_verified只提供框架；needs_review和research_only不进入用户结论。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "v8.4全量规则库工程",
+          "verificationStatus": "confirmed"
+        }
+      ]
+    },
+    {
+      "id": "method_case_not_rule",
+      "title": "案例断语不直接升格为通则",
+      "priority": 94,
+      "instruction": "案例中的结论必须抽取触发条件、反证和适用范围后才能进入正式规则。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "v8.4全量规则库工程",
+          "verificationStatus": "confirmed"
+        }
+      ]
+    },
+    {
+      "id": "method_safe_family_health",
+      "title": "六亲健康高风险降级",
+      "priority": 93,
+      "instruction": "涉及亲属、疾病、事故、牢狱和寿命时，只保留关系压力、现实风险和专业求助建议。",
+      "appliesTo": [
+        "health",
+        "parents",
+        "children",
+        "spouse"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "v8.4全量规则库工程",
+          "verificationStatus": "confirmed"
+        }
+      ]
+    },
+    {
+      "id": "method_reality_branch",
+      "title": "未知现实背景用条件分支",
+      "priority": 92,
+      "instruction": "不了解职业、婚恋、家庭状态时，给一至两个最可能分支和验证点，不并列大量互斥故事。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "v8.4全量规则库工程",
+          "verificationStatus": "confirmed"
+        }
+      ]
+    },
+    {
+      "id": "method_concise_when_asked",
+      "title": "用户要求简洁时保留主线",
+      "priority": 91,
+      "instruction": "用户明确说直接回答或不要太长时，仅保留结论、核心取象、关键建议和边界。",
+      "appliesTo": [
+        "all"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "system_synthesis",
+          "section": "v8.4全量规则库工程",
+          "verificationStatus": "confirmed"
         }
       ]
     }

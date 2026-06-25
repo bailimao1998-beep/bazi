@@ -1,5 +1,5 @@
 {
-  "version": "imagery-sources-v1",
+  "version": "imagery-sources-v2",
   "sources": [
     {
       "id": "cui_blind_notes_5000",
@@ -10,17 +10,27 @@
       ],
       "fileName": "催老师催文举崔老师盲派八字笔记（5000元）.pdf",
       "type": "course_notes",
-      "ingestionStatus": "core_chapters_partially_structured",
-      "ingestedSections": [
-        "基础与干支关系",
-        "十神",
-        "看命顺序与体用",
-        "做工与四大结构",
-        "婚姻",
-        "大运流年",
-        "五行、十神、地支与职业像法"
+      "pageCount": 297,
+      "ingestionStatus": "core_text_chapters_structured",
+      "verifiedRanges": [
+        "1-277"
       ],
-      "notes": "本版本只做规则化转述，不复制长段原文；高风险断语未进入用户侧规则。"
+      "excludedRanges": [
+        {
+          "pages": "278-297",
+          "reason": "高风险灾病、牢狱、寿命及案例性极强内容不进入自动推理"
+        }
+      ],
+      "ingestedSections": [
+        "干支基础与关系",
+        "十神类象与配置",
+        "体用宾主与来源",
+        "做工与制化结构",
+        "婚姻与应期边界",
+        "大运流年",
+        "五行地支与职业像法"
+      ],
+      "notes": "文本层可用；规则均为条件化转述，未复制长段原文。"
     },
     {
       "id": "yang_advanced_blind_notes",
@@ -31,13 +41,20 @@
       ],
       "fileName": "杨清娟盲派体系八字《盲派八字高级班笔记》364页.pdf",
       "type": "advanced_course_notes",
-      "ingestionStatus": "selected_core_pages_structured",
-      "ingestedSections": [
-        "十神类象（选页）",
-        "地支作用关系总纲（选页）",
-        "宾主、制用、化用、生泄用、合用、墓用目录框架"
+      "pageCount": 366,
+      "ingestionStatus": "selected_pages_and_outline_structured",
+      "verifiedRanges": [
+        "18-25"
       ],
-      "notes": "扫描版仅结构化已人工核读的选页，其余章节后续分批补录。"
+      "outlineVerifiedRanges": [
+        "6-9"
+      ],
+      "ingestedSections": [
+        "十神类象选页",
+        "地支作用关系选页",
+        "墓库、宾主、制用、预测用语目录框架"
+      ],
+      "notes": "扫描资料仅已核读页面进入正式规则；目录只用于模块设计，不作为具体断语依据。"
     },
     {
       "id": "cui_five_elements",
@@ -48,9 +65,15 @@
       ],
       "fileName": "崔文举 盲派八字（五行篇）W.pdf",
       "type": "scanned_course_notes",
-      "ingestionStatus": "registered_ocr_pending",
-      "ingestedSections": [],
-      "notes": "已登记来源，扫描文本质量不足，本版本不冒充已完成提炼。"
+      "pageCount": 165,
+      "ingestionStatus": "outline_and_sampled_pages_pending_full_review",
+      "outlineVerifiedRanges": [
+        "5-13"
+      ],
+      "ingestedSections": [
+        "五行、十天干、十二地支、六合、相穿、六冲、三合、三会、暗合、自合、墓库、三刑、半合章节框架"
+      ],
+      "notes": "本版只用已核对目录和样页支持模块框架；未核读正文不进入正式具体断语。"
     },
     {
       "id": "cui_advanced_2025",
@@ -61,9 +84,15 @@
       ],
       "fileName": "崔老师八字精进班320页2025年.pdf",
       "type": "scanned_course_notes",
-      "ingestionStatus": "registered_ocr_pending",
-      "ingestedSections": [],
-      "notes": "已登记来源，后续按章节渲染核读后再进入正式规则库。"
+      "pageCount": 328,
+      "ingestionStatus": "outline_and_sampled_pages_pending_full_review",
+      "outlineVerifiedRanges": [
+        "5-13"
+      ],
+      "ingestedSections": [
+        "事业、官命、格局、婚姻应期、离婚、桃花、父母兄弟子女、案例章节框架"
+      ],
+      "notes": "本版只使用已核对目录作为覆盖清单；未核读案例和具体口诀不进入正式规则。"
     },
     {
       "id": "system_synthesis",
@@ -75,10 +104,12 @@
       "ingestionStatus": "active",
       "ingestedSections": [
         "证据分层",
+        "基础公式校验",
         "安全边界",
-        "跨层级推理纪律"
+        "规则去重与冲突仲裁",
+        "模块化召回"
       ],
-      "notes": "用于把书本经验转成可审计规则，不作为古籍或课程原文。"
+      "notes": "用于把课程经验转成可审计、可条件化、低风险的规则。"
     }
   ]
 }

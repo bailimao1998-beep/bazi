@@ -1,0 +1,1179 @@
+{
+  "version": "imagery-rules-wealth-v1",
+  "module": "wealth",
+  "rules": [
+    {
+      "id": "wealth_source",
+      "title": "财富先看来源与归属",
+      "category": "wealth",
+      "domains": [
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "财源",
+        "来源",
+        "归属"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "财源",
+          "来源",
+          "归属"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "有明确根基、宫位和做功路径",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "财星、财库或资源必须追查从哪里来、属于谁、如何进入主位"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能见财星就断命主可得"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_capacity",
+      "title": "财富规模与承载能力",
+      "category": "wealth",
+      "domains": [
+        "wealth",
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "财富量",
+        "承载",
+        "体用"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "财富量",
+          "承载",
+          "体用"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "比较体用力量和做功效率",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "资源机会大小与命主体、平台、团队和现金流承载共同决定"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能以财多、库多或官杀多直接断大富"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_stable_income",
+      "title": "稳定收入的结构候选",
+      "category": "wealth",
+      "domains": [
+        "wealth",
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "工资",
+        "稳定收入",
+        "正财"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "工资",
+          "稳定收入",
+          "正财"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "至少有持续价值输出和稳定支付来源",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "稳定收入更看正财、官印、持续食伤输出和组织承接的组合"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能只见正财就断工资高"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_variable_income",
+      "title": "项目与流动收入候选",
+      "category": "wealth",
+      "domains": [
+        "wealth",
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "偏财",
+        "项目收入",
+        "机会"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "偏财",
+          "项目收入",
+          "机会"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "有食伤、人脉或交易通道，并能控制风险",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "偏财、人脉、项目和流动资源可提示非固定收入，但波动和筛选成本也更高"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能见偏财就断横财、投机或中奖"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_output_to_money",
+      "title": "技能成果转化为收入",
+      "category": "wealth",
+      "domains": [
+        "wealth",
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "食伤生财",
+        "变现",
+        "作品"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "食伤生财",
+          "变现",
+          "作品"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "食伤财星链条连续，财归命主并有市场承接",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "食伤通过产品、服务、表达和技术进入财星，构成能力变现候选"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能只见食伤财星同现就断能变现"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_resource_to_money",
+      "title": "资质平台转化为收入",
+      "category": "wealth",
+      "domains": [
+        "wealth",
+        "career"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "印星",
+        "平台",
+        "收入"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "印星",
+          "平台",
+          "收入"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "印不压制输出，平台有真实支付与晋升通道",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "印星通过资质、专业、组织平台或知识产权转化为收入，需要财官或食伤接口"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能见印就断靠学历赚钱"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_peer_distribution",
+      "title": "合作分配与比劫边界",
+      "category": "wealth",
+      "domains": [
+        "wealth",
+        "friends"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "比劫",
+        "分成",
+        "合作"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "比劫",
+          "分成",
+          "合作"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "合同、权责和回流清楚，官印可约束分配",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "比劫参与财星时，财富主题常伴随合伙、团队、同辈竞争和分配机制"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能直接断破财、被骗或朋友夺财"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_wealth_storage",
+      "title": "财库的存在、打开与承接",
+      "category": "wealth",
+      "domains": [
+        "wealth",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "财库",
+        "开库",
+        "墓库"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "财库",
+          "开库",
+          "墓库"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "库中确有财星并有取得路径",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "财库只说明资源收纳候选，需确认库中财、归属、开库方式和承载能力"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能见财库就断不动产、大额财富或发财"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_wealth_loss",
+      "title": "损耗与破财需多条件",
+      "category": "wealth",
+      "domains": [
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "破财",
+        "损失",
+        "财受制"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "破财",
+          "损失",
+          "财受制"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "至少两条独立结构且有流年新增作用",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "财星外流、被制、比劫竞争或库损可提示成本和损耗，但实际破财需岁运触发与现实风险"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能凭单一劫财、冲财或财破印断破财"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_investment",
+      "title": "投资风险不以偏财单断",
+      "category": "wealth",
+      "domains": [
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "投资",
+        "理财",
+        "偏财"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "投资",
+          "理财",
+          "偏财"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "现实风险承受能力和专业信息优先",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "投资取象需财星、食伤信息、比劫竞争、官杀风险和现实现金流共同评估"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能给具体买卖、彩票、号码或收益保证"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_property",
+      "title": "房产与资产承载",
+      "category": "wealth",
+      "domains": [
+        "wealth",
+        "property"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 76,
+      "gender": "all",
+      "queryKeywords": [
+        "房产",
+        "不动产",
+        "土",
+        "库"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "房产",
+          "不动产",
+          "土",
+          "库"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "至少有资产承载和现实资金两类证据",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "房产资产需看土、财、印、库、日时承接和岁运引动的多项汇合"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能见土或墓库就断买房卖房"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_wealth_timing",
+      "title": "财富应期由阶段与年度触发",
+      "category": "wealth",
+      "domains": [
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 75,
+      "gender": "all",
+      "queryKeywords": [
+        "发财应期",
+        "大运",
+        "流年"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "发财应期",
+          "大运",
+          "流年"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "流年新增依据、原局承接和现实机会同时存在",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "大运先提供资源和做功背景，流年再触发财星、财库或变现通道"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能指定金额、月份或保证盈利"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_wealth_reality",
+      "title": "财富建议服从现实财务原则",
+      "category": "wealth",
+      "domains": [
+        "wealth"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 78,
+      "gender": "all",
+      "queryKeywords": [
+        "预算",
+        "现金流",
+        "风险"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "预算",
+          "现金流",
+          "风险"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "建议低风险且可执行",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "命理财富建议只能用于提醒收入方式、合作边界和风险节奏，现实预算、合同和专业建议优先"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能代替金融顾问、法律合同或投资决策"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    },
+    {
+      "id": "wealth_wealth_not_morality",
+      "title": "财星不等于品德或感情好坏",
+      "category": "wealth",
+      "domains": [
+        "wealth",
+        "spouse"
+      ],
+      "scopes": [
+        "natal",
+        "luck",
+        "year"
+      ],
+      "ruleLevel": "B",
+      "certainty": "conditional",
+      "priority": 77,
+      "gender": "all",
+      "queryKeywords": [
+        "财星",
+        "品德",
+        "婚姻"
+      ],
+      "trigger": {
+        "featuresAny": [
+          "财星",
+          "品德",
+          "婚姻"
+        ],
+        "tenGodsAny": [
+          "正财",
+          "偏财",
+          "食神",
+          "伤官",
+          "比肩",
+          "劫财"
+        ]
+      },
+      "requires": [
+        "结合全局结构和现实行为",
+        "结合宾主体用、宫位和现实财务背景"
+      ],
+      "weakeningConditions": [
+        "资源虽出现但归属不明",
+        "做功路径中断或承载不足"
+      ],
+      "imagery": {
+        "core": [
+          "财星说明现实资源、责任和关系对象候选，不代表贪财、花心、贤惠或婚姻质量"
+        ],
+        "positive": [
+          "条件完整时可判断收入方式、资源来源和阶段机会"
+        ],
+        "negative": [
+          "失衡时更易出现现金流、分配、成本或机会筛选压力"
+        ],
+        "realityChecks": [
+          "核验收入来自工资、项目、资产、客户还是家庭支持"
+        ]
+      },
+      "advice": [
+        "优先建立预算、合同、现金流和风险缓冲"
+      ],
+      "prohibitions": [
+        "不能以财多财少评价人格或伴侣"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "42-75,77-186,226-250",
+          "section": "财星、体用、做功与岁运",
+          "verificationStatus": "confirmed"
+        },
+        {
+          "sourceId": "cui_blind_notes_5000",
+          "pdfPage": "271-277",
+          "section": "职业与财富像法",
+          "verificationStatus": "confirmed"
+        }
+      ],
+      "module": "wealth",
+      "verificationStatus": "confirmed",
+      "researchOnly": false,
+      "allowInUserAnswer": true
+    }
+  ]
+}

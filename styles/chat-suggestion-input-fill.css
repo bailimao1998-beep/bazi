@@ -1,0 +1,10 @@
+/* 建议问题点击后只填入输入框，不自动发送。 */
+.chatgpt-input-shell.is-suggestion-filled {
+  border-color: rgba(47, 111, 115, 0.72);
+  box-shadow: 0 0 0 3px rgba(47, 111, 115, 0.10);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.ai-chat-question-shelf header span {
+  color: #66736f;
+}

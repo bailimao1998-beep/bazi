@@ -1,86 +1,61 @@
 import { renderAiText } from "./aiTextRenderer.js";
+import {
+  buildFollowUpQuestions,
+  buildStarterQuestions,
+} from "../core/ai/chatSuggestionEngine.js";
 
-
-function buildProfessionalQuestions(chartContext = {}) {
-  const base = chartContext?.baseBaziViewModel ?? {};
-  const luckReport = chartContext?.luckImageReport ?? {};
-  const yearReport = chartContext?.yearImageReport ?? {};
-  const monthReport = chartContext?.monthImageReport ?? {};
-
-  const currentLuck = luckReport.currentLuckItem
-    ?? luckReport.luckItems?.find((item) => item.isCurrent)
-    ?? luckReport.luckItems?.[0]
-    ?? {};
-
-  const yearItem = yearReport.yearItem ?? {};
-  const monthItem = monthReport.monthItem ?? {};
-
-  const dayMaster = base.dayMaster || "日主";
-  const luckLabel = currentLuck.ganZhi ? `${currentLuck.ganZhi}大运` : "当前大运";
-  const yearLabel = yearItem.year && yearItem.ganZhi
-    ? `${yearItem.year}年${yearItem.ganZhi}流年`
-    : "目标流年";
-  const monthLabel = monthItem.flowMonthLabel && monthItem.ganZhi
-    ? `${monthItem.flowMonthLabel}${monthItem.ganZhi}流月`
-    : "当前流月";
-
-  return [
-    `这个${dayMaster}日主的核心用神和忌神是什么？为什么？`,
-    `${luckLabel}这十年的主线是什么，最容易应在哪类事情上？`,
-    `${yearLabel}最明显的事情是什么，是事业、财务、感情还是家庭？`,
-    `${monthLabel}为什么会被触发，现实中要注意什么？`,
-    "从原局到大运看，这个人适合靠什么赚钱？技术、管理、资源还是表达？",
-    "这个命盘的婚恋最容易卡在哪里？正缘和烂桃花怎么区分？",
-    "用过去3个关键年份验证一下这个命盘准不准，应该看哪些事？",
-    "未来三年哪一年最适合主动变化，哪一年更适合保守？",
-  ];
-}
 export function renderAiChatPanel(root, payload = {}, actions = {}) {
   if (!root) return;
 
   const state = payload.state ?? {};
   const hasReport = Boolean(payload.hasReport);
-  const messages = Array.isArray(state.messages) ? state.messages.slice(-5) : [];
-  const professionalQuestions = buildProfessionalQuestions(payload.chartContext ?? {}).slice(0, 6);
+  const allMessages = Array.isArray(state.messages) ? state.messages : [];
+  const messages = allMessages.slice(-5);
   const disabled = state.loading || !hasReport;
   const hasMessages = messages.length > 0;
+  const chartContext = payload.chartContext ?? {};
+  const starterQuestions = buildStarterQuestions(chartContext, 8);
+  const followUpQuestions = buildFollowUpQuestions({
+    messages: allMessages,
+    chartContext,
+    limit: 4,
+  });
 
   root.innerHTML = `
     <section class="ai-chat-shell ai-chat-chatmode">
       <div class="ai-chat-compact-head">
         <div>
           <h2>AI 问答</h2>
-          <span>${hasReport ? "基于当前命盘、岁运和取象证据回答" : "请先完成基础排盘与取象"}</span>
+          <span>${hasReport ? "点一下问题会放到输入框，确认或修改后再发送" : "请先完成基础排盘与取象"}</span>
         </div>
         <b>${messages.length ? `${messages.length} 条记录` : "待提问"}</b>
       </div>
 
-      ${
-        hasMessages
-          ? ""
-          : `
-            <div class="ai-chat-guide compact-guide">
-              <strong>建议问法</strong>
-              <div>
-                ${professionalQuestions.map((item) => `
-                  <button type="button" class="ai-chat-suggestion" data-ai-chat-suggestion="${escapeHtml(item)}" ${state.loading || !hasReport ? "disabled" : ""}>
-                    ${escapeHtml(item)}
-                  </button>
-                `).join("")}
-              </div>
-            </div>
-          `
-      }
+      ${!hasMessages ? renderSuggestionBlock({
+        title: "大家常问",
+        hint: "点一下放入输入框，可继续修改",
+        questions: starterQuestions,
+        disabled,
+        className: "is-starter",
+      }) : ""}
 
       <section class="ai-chat-history-section">
         ${
           messages.length
             ? `<div class="ai-chat-history">${messages.map(renderMessage).join("")}</div>`
-            : `<div class="ai-chat-empty">还没有问答记录。可以先问“这个命盘整体怎么看？”</div>`
+            : `<div class="ai-chat-empty">还没有问答记录。可以点上面的常见问题放入输入框，也可以自己输入。</div>`
         }
       </section>
 
-      ${state.loading ? `<div class="ai-chat-loading">AI 正在整理命盘证据和回答结构...</div>` : ""}
+      ${hasMessages && followUpQuestions.length ? renderSuggestionBlock({
+        title: "接着问",
+        hint: "点一下放入输入框，确认后再发送",
+        questions: followUpQuestions,
+        disabled,
+        className: "is-follow-up",
+      }) : ""}
+
+      ${state.loading ? `<div class="ai-chat-loading">AI 正在整理命盘依据和回答...</div>` : ""}
       ${state.error ? `<p class="error-text">${escapeHtml(state.error)}</p>` : ""}
 
       <form data-ai-chat-form class="ai-chat-form ai-chat-composer chatgpt-composer">
@@ -89,7 +64,7 @@ export function renderAiChatPanel(root, payload = {}, actions = {}) {
             data-ai-chat-question
             name="question"
             rows="2"
-            placeholder="问当前命盘、岁运、感情、事业、流年流月……"
+            placeholder="也可以自己输入想问的问题……"
             ${disabled ? "disabled" : ""}
           >${escapeHtml(state.question || "")}</textarea>
 
@@ -99,26 +74,67 @@ export function renderAiChatPanel(root, payload = {}, actions = {}) {
         </div>
 
         <div class="chatgpt-composer-hint">
-          回答会区分：命盘依据 / 推演判断 / 现实验证。
+          回答会说明命盘依据、可能表现和现实建议。
         </div>
       </form>
     </section>
   `;
 
+  const ask = payload.onAsk ?? actions.onAsk;
+
   root.querySelector?.("[data-ai-chat-form]")?.addEventListener("submit", (event) => {
     event.preventDefault();
     const value = root.querySelector?.("[data-ai-chat-question]")?.value ?? "";
-    (payload.onAsk ?? actions.onAsk)?.(value);
+    ask?.(value);
   });
 
   root.querySelectorAll?.("[data-ai-chat-suggestion]").forEach((button) => {
     button.addEventListener("click", () => {
+      const question = button.dataset.aiChatSuggestion || "";
       const textarea = root.querySelector?.("[data-ai-chat-question]");
-      if (!textarea) return;
-      textarea.value = button.dataset.aiChatSuggestion || "";
+      if (!question || disabled || !textarea) return;
+
+      textarea.value = question;
+      textarea.dispatchEvent(new Event("input", { bubbles: true }));
       textarea.focus();
+      textarea.setSelectionRange?.(question.length, question.length);
+      textarea.closest?.(".chatgpt-input-shell")?.classList.add("is-suggestion-filled");
+
+      globalThis.setTimeout?.(() => {
+        textarea.closest?.(".chatgpt-input-shell")?.classList.remove("is-suggestion-filled");
+      }, 700);
     });
   });
+}
+
+function renderSuggestionBlock({
+  title,
+  hint,
+  questions = [],
+  disabled = false,
+  className = "",
+} = {}) {
+  if (!questions.length) return "";
+  return `
+    <section class="ai-chat-question-shelf ${escapeHtml(className)}">
+      <header>
+        <strong>${escapeHtml(title || "建议问题")}</strong>
+        <span>${escapeHtml(hint || "")}</span>
+      </header>
+      <div class="ai-chat-question-list">
+        ${questions.map((item) => `
+          <button
+            type="button"
+            class="ai-chat-suggestion"
+            data-ai-chat-suggestion="${escapeHtml(item)}"
+            ${disabled ? "disabled" : ""}
+          >
+            ${escapeHtml(item)}
+          </button>
+        `).join("")}
+      </div>
+    </section>
+  `;
 }
 
 function renderMessage(message = {}) {
@@ -131,7 +147,7 @@ function renderMessage(message = {}) {
 
       <div class="ai-chat-answer ai-bubble">
         <div class="ai-chat-answer-head">
-          <b>AI 结构化分析</b>
+          <b>AI 分析</b>
           <span>答</span>
         </div>
         ${renderAiText(message.answer || "", { className: "ai-chat-answer-output" })}

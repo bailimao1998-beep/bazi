@@ -1,0 +1,57 @@
+/* AI 问答抽屉：更容易收起，不再只依赖单个“关闭”按钮。 */
+.ai-chat-drawer-head {
+  cursor: pointer;
+  user-select: none;
+}
+
+.ai-chat-drawer-head:focus-visible {
+  outline: 3px solid rgba(47, 111, 115, 0.22);
+  outline-offset: -3px;
+}
+
+.ai-chat-collapse-tip {
+  min-width: 0;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+#aiChatClose {
+  flex: 0 0 auto;
+  min-width: 76px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #bad3cf;
+  border-radius: 999px;
+  background: #edf6f3;
+  color: #24656a;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(47, 111, 115, 0.08);
+}
+
+#aiChatClose:hover,
+#aiChatClose:focus-visible {
+  border-color: #2f6f73;
+  background: #e3f1ed;
+  color: #1f5f63;
+}
+
+.ai-chat-is-open #aiChatToggle {
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .ai-chat-collapse-tip {
+    display: none;
+  }
+
+  #aiChatClose {
+    min-width: 68px;
+    min-height: 36px;
+    padding: 0 12px;
+  }
+}

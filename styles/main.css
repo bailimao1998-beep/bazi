@@ -16,3 +16,7 @@
 @import "./section-title-cleanup.css";
 @import "./transit-selection-stability.css";
 @import "./transit-ui-scroll-fix.css";
+
+@import "./chat-common-questions.css";
+
+@import "./chat-suggestion-input-fill.css";

@@ -147,6 +147,7 @@ function renderStageImageCards(report = {}, item = {}, stage = "luck", evidenceC
   return `
     <div class="stage-card-grid stage-card-grid-v2">
       ${renderStageQuickSummary(model)}
+      ${renderStageFixedReportCard(item?.fixedReport, stage)}
       ${renderStageEvidenceDetails(model, evidencePack)}
     </div>
   `;

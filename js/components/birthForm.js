@@ -32,7 +32,11 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit, locationCat
     targetYear: initialValue.targetYear ?? 2026,
     selectedMonth: initialValue.selectedMonth ?? 1,
     trueSolarTime: Boolean(initialValue.trueSolarTime),
-    preInterpretAi: Boolean(initialValue.preInterpretAi),
+    preInterpretNatalAi: Boolean(initialValue.preInterpretNatalAi),
+    preInterpretYearAi: Boolean(
+      initialValue.preInterpretYearAi ??
+      initialValue.preInterpretAi
+    ),
     error: "",
   };
 
@@ -121,9 +125,11 @@ export function renderBirthForm(root, { initialValue = {}, onSubmit, locationCat
       formState.trueSolarTime = event.currentTarget.checked;
       update({ submit: true });
     });
-    container.querySelector("[name='preInterpretAi']")?.addEventListener("change", (event) => {
-      formState.preInterpretAi = event.currentTarget.checked;
-      update({ submit: true });
+    ["preInterpretNatalAi", "preInterpretYearAi"].forEach((name) => {
+      container.querySelector(`[name='${name}']`)?.addEventListener("change", (event) => {
+        formState[name] = event.currentTarget.checked;
+        update({ submit: false });
+      });
     });
     container.querySelector("form")?.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -150,8 +156,7 @@ function renderForm(state, locationCatalog) {
   return `
     <div class="birth-form-heading">
       <p class="eyebrow">命盘设置</p>
-      <h2>出生信息</h2>
-    </div>
+</div>
     <form class="birth-form birth-form-compact birth-form-main-grid">
       <div class="birth-toolbar-row birth-toolbar-main">
         <label class="field-name birth-field-name"><span>姓名</span><input name="name" value="${escapeHtml(state.name)}" /></label>
@@ -163,9 +168,12 @@ function renderForm(state, locationCatalog) {
             <option value="unknown" ${state.gender === "unknown" ? "selected" : ""}>不指定</option>
           </select>
         </label>
-        <div class="calendar-tabs field-calendar-type birth-field-calendar" role="radiogroup" aria-label="选择日期历法">
+        <div class="birth-control-field field-calendar-type birth-field-calendar">
+          <span class="birth-control-label">历法</span>
+          <div class="calendar-tabs" role="radiogroup" aria-label="选择日期历法">
             ${renderCalendarTab("solar", "公历", state.calendarType)}
             ${renderCalendarTab("lunar", "农历", state.calendarType)}
+          </div>
         </div>
         ${state.calendarType === "lunar" ? renderLunarControls(state, lunarMonths, lunarDays) : renderSolarControls(solar, solarDays)}
         <label class="field-time birth-field-time">
@@ -176,7 +184,10 @@ function renderForm(state, locationCatalog) {
             <small class="time-hour-label">${escapeHtml(getChineseHourLabel(state.birthTime))}</small>
           </div>
         </label>
-        <label class="compact-switch-row field-true-solar"><input name="trueSolarTime" type="checkbox" ${state.trueSolarTime ? "checked" : ""} /> <span>真太阳时</span></label>
+        <div class="birth-control-field birth-option-field field-true-solar">
+          <span class="birth-control-label">时间校正</span>
+          <label class="compact-switch-row"><input name="trueSolarTime" type="checkbox" ${state.trueSolarTime ? "checked" : ""} /> <span>真太阳时</span></label>
+        </div>
       </div>
 
       <div class="birth-toolbar-row birth-toolbar-secondary">
@@ -201,8 +212,14 @@ function renderForm(state, locationCatalog) {
           </select>
         </label>
         <label class="field-target-year birth-field-year"><span>解读年份</span><input name="targetYear" type="number" value="${state.targetYear}" /></label>
-        <label class="compact-switch-row field-pre-ai"><input name="preInterpretAi" type="checkbox" ${state.preInterpretAi ? "checked" : ""} /> <span>AI 预解读</span></label>
-        <button type="submit" class="field-submit">重新排盘</button>
+        <div class="birth-control-field field-pre-ai birth-pre-ai-field">
+          <span class="birth-control-label">AI预解读</span>
+          <div class="birth-pre-ai-options">
+            <label class="compact-switch-row"><input name="preInterpretNatalAi" type="checkbox" ${state.preInterpretNatalAi ? "checked" : ""} /> <span>原局预解读</span></label>
+            <label class="compact-switch-row"><input name="preInterpretYearAi" type="checkbox" ${state.preInterpretYearAi ? "checked" : ""} /> <span>流年预解读</span></label>
+          </div>
+        </div>
+        <button type="submit" class="field-submit is-start-chart">开始排盘</button>
       </div>
 
       <div class="birth-toolbar-row birth-toolbar-tips birth-form-hint-row">
@@ -404,7 +421,10 @@ function toPayload(state, locationCatalog) {
     targetYear: Number(state.targetYear),
     selectedMonth: Number(state.selectedMonth),
     trueSolarTime: Boolean(state.trueSolarTime),
-    preInterpretAi: Boolean(state.preInterpretAi),
+    preInterpretNatalAi: Boolean(state.preInterpretNatalAi),
+    preInterpretYearAi: Boolean(state.preInterpretYearAi),
+    // 保留旧字段作为流年预解读兼容别名。
+    preInterpretAi: Boolean(state.preInterpretYearAi),
   };
 }
 

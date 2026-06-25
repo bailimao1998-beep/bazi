@@ -1,0 +1,40 @@
+/*
+ * 岁运切换与横向定位稳定层 v8.10.11
+ * 只修复选择、激活态与横向居中，不改变命盘或岁运计算。
+ */
+
+/* 程序精确计算居中位置时，不再让 scroll-snap 二次吸附造成偏移。 */
+.transit-card-list {
+  scroll-snap-type: none !important;
+  scroll-behavior: auto !important;
+  scroll-padding-inline: 0 !important;
+}
+
+.transit-select-card {
+  scroll-snap-align: none !important;
+  scroll-snap-stop: normal !important;
+}
+
+/* 大运分析区的本地选择框保持可读，但不无限拉宽。 */
+.stage-analysis-tools {
+  min-width: 0;
+  width: min(100%, 620px);
+  justify-self: end;
+}
+
+.stage-local-selector {
+  width: 100%;
+  min-width: 0;
+}
+
+.stage-local-selector select {
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 760px) {
+  .stage-analysis-tools {
+    width: 100%;
+    justify-self: stretch;
+  }
+}

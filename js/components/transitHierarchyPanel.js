@@ -23,7 +23,7 @@ export function renderTransitHierarchyPanel({ state = {}, currentLuck = {}, sele
       })}
       ${renderSelectorRow({
         title: "流月",
-        hint: `${selectedYear || "目标年"} 年十二流月`,
+        hint: `${selectedYear || "目标年"} 年流月`,
         type: "month",
         cards: monthReports.map((report) => renderMonthCard(report.monthItem ?? {}, selectedMonth)),
       })}

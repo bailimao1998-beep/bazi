@@ -815,44 +815,68 @@ function renderNatalIntegratedReport(
         }
       </article>
 
-      <div
-        class="natal-domain-subhead"
+      <details
+        class="natal-domain-details"
       >
-        <div>
-          <h4>
-            十二领域详解
-          </h4>
+        <summary
+          class="natal-domain-subhead"
+        >
+          <div>
+            <h4>
+              十二领域详解
+            </h4>
 
-          <p>
-            分领域查看现实表现、
-            有利条件、压力与证据。
-          </p>
+            <p>
+              分领域查看现实表现、
+              有利条件、压力与证据。
+            </p>
+          </div>
+
+          <div
+            class="natal-domain-summary-meta"
+          >
+            <span>
+              ${safe(
+                domains.length,
+              )}
+              个方面
+            </span>
+
+            <b
+              class="natal-domain-toggle"
+            >
+              <span class="is-closed">
+                展开查看
+              </span>
+
+              <span class="is-open">
+                收起
+              </span>
+            </b>
+          </div>
+        </summary>
+
+        <div
+          class="natal-domain-details-body"
+        >
+          <div
+            class="natal-domain-grid"
+          >
+            ${domains
+              .map(
+                (
+                  domain,
+                  index,
+                ) =>
+                  renderNatalDomainCard(
+                    domain,
+                    index,
+                  ),
+              )
+              .join("")}
+          </div>
         </div>
-
-        <span>
-          ${safe(
-            domains.length,
-          )}
-          个方面
-        </span>
-      </div>
-
-      <div
-        class="natal-domain-grid"
-      >
-        ${domains
-          .map(
-            (
-              domain,
-              index,
-            ) =>
-              renderNatalDomainCard(
-                domain,
-                index,
-              ),
-          )
-          .join("")}
-      </div>
+      </details>
     </section>
   `;
 }

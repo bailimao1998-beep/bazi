@@ -36,8 +36,7 @@ export function renderChartSummary(root, currentState) {
     root.innerHTML = `
       <div class="plugin-header">
         <p class="eyebrow">核心命盘</p>
-        <h2>核心命盘</h2>
-        <p class="muted">左三列为当前岁运，右四列为原局四柱。</p>
+<p class="muted">左三列为当前岁运，右四列为原局四柱。</p>
       </div>
       <p class="muted">等待基础排盘。</p>
     `;
@@ -76,8 +75,7 @@ export function renderChartSummary(root, currentState) {
       <div class="plugin-header">
         <div>
           <p class="eyebrow">核心命盘</p>
-          <h2>基础排盘展示</h2>
-        </div>
+</div>
       </div>
       ${renderChartTopline(viewModel)}
       <div class="core-matrix-scroll">

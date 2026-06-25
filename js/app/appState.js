@@ -8,6 +8,9 @@ export const defaultInput = {
   targetYear: 2026,
   selectedMonth: 1,
   trueSolarTime: false,
+  preInterpretNatalAi: false,
+  preInterpretYearAi: false,
+  // 兼容旧输入，语义等同流年预解读。
   preInterpretAi: false,
 };
 

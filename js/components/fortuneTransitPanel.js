@@ -6,14 +6,19 @@ let pendingRevealType = "";
 const initializedRevealRoots =
   new WeakSet();
 
+export function queueTransitReveal(type = "") {
+  pendingRevealType = ["luck", "year", "month"].includes(type)
+    ? type
+    : "";
+}
+
 export function renderFortuneTransitPanel(root, payload = {}) {
   if (!root) return;
   const { state } = payload ?? {};
   if (!state?.baseBaziViewModel) {
     root.innerHTML = `
       <div class="plugin-header">
-        <h2>大运 / 流年 / 流月</h2>
-      </div>
+</div>
       <p class="muted">等待基础排盘后生成三排选择卡片。</p>
     `;
     return;
@@ -25,13 +30,13 @@ export function renderFortuneTransitPanel(root, payload = {}) {
       state.input?.targetYear,
     );
   const currentLuck =
-    findLuckForYear(
-      luckItems,
-      selectedTargetYear,
-    ) ??
     luckItems.find(
       (item) =>
         item.isCurrent,
+    ) ??
+    findLuckForYear(
+      luckItems,
+      selectedTargetYear,
     ) ??
     luckItems[0] ??
     {};
@@ -41,14 +46,18 @@ export function renderFortuneTransitPanel(root, payload = {}) {
   const selectedMonth = Number(monthItem.month ?? state.input?.selectedMonth ?? 1);
   const luckCycleInfo = state.chart?.luckCycles ?? {};
   const startNote = luckCycleInfo.startNote ?? "";
+  const previousTransitScroll =
+    captureTransitScrollPositions(root);
 
   root.innerHTML = `
     <section class="transit-selector-shell">
-      <div class="plugin-header">
-        <div>
+      <div class="plugin-header transit-selector-header">
+        <div class="transit-selector-heading">
           <p class="eyebrow">岁运选择</p>
-          <h2>大运 / 流年 / 流月</h2>
-        </div>
+</div>
+        ${startNote
+          ? `<div class="transit-start-tip-wrap"><p class="transit-start-tip">${escapeHtml(startNote)}</p></div>`
+          : `<div class="transit-start-tip-wrap" aria-hidden="true"></div>`}
         <span class="transit-context-pill">${escapeHtml(formatSelectionSummary(currentLuck, yearItem, monthItem))}</span>
       </div>
       ${renderTransitHierarchyPanel({
@@ -57,10 +66,6 @@ export function renderFortuneTransitPanel(root, payload = {}) {
         selectedYear,
         selectedMonth,
       })}
-
-      ${startNote
-        ? `<p class="fine-print transit-start-note">${escapeHtml(startNote)}</p>`
-        : ""}
           </section>
         `;
 
@@ -87,15 +92,11 @@ export function renderFortuneTransitPanel(root, payload = {}) {
   * 用户点击时只定位被点击的一行。
   * 普通重新渲染时不干涉手动滚动位置。
   */
-  if (
-    revealType ||
-    isInitialReveal
-  ) {
-    revealActiveTransitCards(
-      root,
-      revealType,
-    );
-  }
+  settleTransitScrollPositions(root, {
+    previous: previousTransitScroll,
+    revealType,
+    centerAll: isInitialReveal,
+  });
 }
 
 function bindTransitEvents(
@@ -111,8 +112,7 @@ function bindTransitEvents(
         button.addEventListener(
           "click",
           () => {
-            pendingRevealType =
-              "luck";
+            queueTransitReveal("luck");
 
             payload.onSelectLuck?.({
               year:
@@ -141,8 +141,7 @@ function bindTransitEvents(
         button.addEventListener(
           "click",
           () => {
-            pendingRevealType =
-              "year";
+            queueTransitReveal("year");
 
             payload.onSelectYear?.(
               Number(
@@ -164,8 +163,7 @@ function bindTransitEvents(
         button.addEventListener(
           "click",
           () => {
-            pendingRevealType =
-              "month";
+            queueTransitReveal("month");
 
             payload.onSelectMonth?.(
               Number(
@@ -254,78 +252,83 @@ function formatSelectionSummary(currentLuck = {}, yearItem = {}, monthItem = {})
   ].filter(Boolean).join(" · ") || "当前选择待查";
 }
 
-function revealActiveTransitCards(
+function transitRowType(list) {
+  if (!list?.classList) return "";
+  return ["luck", "year", "month"].find(
+    (type) => list.classList.contains(`is-${type}-row`),
+  ) || "";
+}
+
+function captureTransitScrollPositions(root) {
+  const positions = {};
+  if (!root) return positions;
+
+  root.querySelectorAll(".transit-card-list").forEach((list) => {
+    const type = transitRowType(list);
+    if (type) positions[type] = Number(list.scrollLeft) || 0;
+  });
+
+  return positions;
+}
+
+function settleTransitScrollPositions(
   root,
-  revealType = "",
+  {
+    previous = {},
+    revealType = "",
+    centerAll = false,
+  } = {},
 ) {
-  if (!root) {
+  if (!root) return;
+
+  /*
+   * root.innerHTML 会重建三行 DOM，并把三行 scrollLeft 都重置为 0。
+   * 在本次浏览器绘制前同步恢复未操作行，只对用户实际点击的行重新居中，
+   * 因而点击流年不会带动大运，点击流月也不会带动大运和流年。
+   */
+  root.querySelectorAll(".transit-card-list").forEach((list) => {
+    const type = transitRowType(list);
+    const shouldCenter = centerAll || Boolean(revealType && type === revealType);
+
+    if (shouldCenter) {
+      centerActiveTransitCard(list);
+      return;
+    }
+
+    if (type && Number.isFinite(Number(previous[type]))) {
+      const maxLeft = Math.max(0, list.scrollWidth - list.clientWidth);
+      list.scrollLeft = Math.min(
+        maxLeft,
+        Math.max(0, Math.round(Number(previous[type]))),
+      );
+    }
+  });
+}
+
+function centerActiveTransitCard(list) {
+  if (!list) return;
+
+  const activeCard = list.querySelector(
+    ".transit-select-card.is-active",
+  );
+  if (!activeCard) return;
+
+  if (list.scrollWidth <= list.clientWidth + 1) {
+    list.scrollLeft = 0;
     return;
   }
 
-  requestAnimationFrame(
-    () => {
-      requestAnimationFrame(
-        () => {
-          const selector =
-            revealType
-              ? `.transit-card-list.is-${revealType}-row`
-              : ".transit-card-list";
+  const listRect = list.getBoundingClientRect();
+  const cardRect = activeCard.getBoundingClientRect();
+  const targetLeft =
+    list.scrollLeft +
+    (cardRect.left - listRect.left) -
+    (list.clientWidth - cardRect.width) / 2;
+  const maxLeft = Math.max(0, list.scrollWidth - list.clientWidth);
 
-          const lists =
-            root.querySelectorAll(
-              selector,
-            );
-
-          lists.forEach(
-            (list) => {
-              const activeCard =
-                list.querySelector(
-                  ".transit-select-card.is-active",
-                );
-
-              if (
-                !activeCard ||
-                list.scrollWidth <=
-                  list.clientWidth
-              ) {
-                return;
-              }
-
-              const targetLeft =
-                activeCard.offsetLeft -
-                (
-                  list.clientWidth -
-                  activeCard.offsetWidth
-                ) /
-                  2;
-
-              const maxLeft =
-                Math.max(
-                  0,
-                  list.scrollWidth -
-                    list.clientWidth,
-                );
-
-              const safeLeft =
-                Math.min(
-                  maxLeft,
-                  Math.max(
-                    0,
-                    targetLeft,
-                  ),
-                );
-
-              list.scrollTo({
-                left:
-                  safeLeft,
-
-                behavior:
-                  "auto",
-              });
-            },
-          );
-        },
-      );
-    },
+  list.scrollLeft = Math.min(
+    maxLeft,
+    Math.max(0, Math.round(targetLeft)),
   );
 }
+

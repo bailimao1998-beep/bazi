@@ -1,0 +1,251 @@
+/*
+ * 顶部工作台控件与起运提示优化 v8.10.8
+ * 作为 top-workbench.css / top-workbench-alignment.css 之后的最终覆盖层。
+ */
+
+.birth-control-field,
+.birth-option-field,
+.birth-pre-ai-field {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto minmax(42px, auto);
+  gap: 6px;
+  align-self: stretch;
+}
+
+.birth-control-label {
+  display: block;
+  margin: 0;
+  color: #59636b;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 900;
+}
+
+/* 公历 / 农历补齐字段标题，并消除内部 span 被通用表单规则拉偏的问题。 */
+.birth-field-calendar .calendar-tabs {
+  width: 100%;
+  max-width: none;
+  min-height: 42px;
+  align-self: end;
+}
+
+.birth-field-calendar .calendar-tabs label {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  margin: 0;
+}
+
+.birth-field-calendar .calendar-tabs label > span {
+  display: inline;
+  margin: 0 !important;
+  color: inherit;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+/* 真太阳时与其他字段保持“标题 + 控件”两层基线。 */
+.birth-option-field .compact-switch-row,
+.birth-pre-ai-options .compact-switch-row {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  margin: 0;
+  padding: 0 12px;
+  justify-content: center;
+  border: 1px solid #d8cdbd;
+  border-radius: 10px;
+  background: #fffefa;
+  color: #4f5b63;
+  font-size: 13px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.birth-option-field .compact-switch-row > span,
+.birth-pre-ai-options .compact-switch-row > span {
+  display: inline;
+  margin: 0 !important;
+  color: inherit;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 850;
+}
+
+.birth-option-field .compact-switch-row input,
+.birth-pre-ai-options .compact-switch-row input {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  margin: 0;
+  accent-color: #2f6f73;
+}
+
+.birth-option-field .compact-switch-row:hover,
+.birth-pre-ai-options .compact-switch-row:hover {
+  border-color: #a9bfb9;
+  background: #f7fbf9;
+}
+
+.birth-pre-ai-options {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.birth-pre-ai-options .compact-switch-row:has(input:checked) {
+  border-color: rgba(47, 111, 115, 0.58);
+  background: linear-gradient(180deg, #eef7f4, #e8f2ef);
+  color: #245f62;
+  box-shadow: inset 0 0 0 1px rgba(47, 111, 115, 0.08);
+}
+
+/* 在 1440px 工作区内保持六列、五列稳定，不再挤压历法和开关。 */
+.birth-toolbar-main {
+  grid-template-columns:
+    minmax(170px, 1.08fr)
+    minmax(120px, 0.72fr)
+    minmax(180px, 0.88fr)
+    minmax(320px, 1.72fr)
+    minmax(245px, 1.26fr)
+    minmax(150px, 0.72fr);
+  align-items: end;
+}
+
+.birth-toolbar-secondary {
+  grid-template-columns:
+    minmax(190px, 1fr)
+    minmax(250px, 1.3fr)
+    minmax(150px, 0.74fr)
+    minmax(300px, 1.18fr)
+    minmax(160px, 0.72fr);
+  align-items: end;
+}
+
+.birth-toolbar-main > *,
+.birth-toolbar-secondary > *,
+.birth-toolbar-main label,
+.birth-toolbar-secondary label,
+.birth-form-main-grid .field-date,
+.birth-form-main-grid .field-time,
+.birth-field-calendar,
+.birth-option-field,
+.birth-pre-ai-field {
+  width: 100%;
+  min-width: 0;
+}
+
+/* 开始排盘：与页面青绿色主视觉一致，避免原深蓝按钮突兀。 */
+.field-submit.is-start-chart,
+.birth-toolbar-secondary .field-submit.is-start-chart {
+  position: relative;
+  width: 100%;
+  min-height: 42px;
+  align-self: end;
+  padding: 0 20px;
+  border: 1px solid #26666a;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #367f7c 0%, #28656b 58%, #245763 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  box-shadow: 0 7px 16px rgba(36, 94, 99, 0.17);
+}
+
+.field-submit.is-start-chart:hover:not(:disabled) {
+  filter: brightness(1.045);
+  transform: translateY(-1px);
+  box-shadow: 0 9px 19px rgba(36, 94, 99, 0.21);
+}
+
+.field-submit.is-start-chart:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(36, 94, 99, 0.16);
+}
+
+/* 起运说明从底部移到岁运标题下方中央，作为轻量提示胶囊。 */
+.transit-start-tip-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: -2px 0 1px;
+}
+
+.transit-start-tip {
+  max-width: min(920px, 96%);
+  margin: 0;
+  padding: 8px 18px;
+  border: 1px solid rgba(47, 111, 115, 0.28);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(225, 241, 236, 0.95), rgba(236, 246, 242, 0.92));
+  color: #2b6667;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.5;
+  text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+@media (max-width: 1280px) {
+  .birth-toolbar-main,
+  .birth-toolbar-secondary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .birth-toolbar-main .field-date,
+  .birth-toolbar-main .field-time {
+    grid-column: span 2;
+  }
+
+  .birth-pre-ai-field {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 900px) {
+  .birth-toolbar-main,
+  .birth-toolbar-secondary,
+  .birth-toolbar-tips {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .birth-toolbar-main .field-date,
+  .birth-toolbar-main .field-time,
+  .birth-pre-ai-field,
+  .birth-toolbar-tips {
+    grid-column: span 2;
+  }
+
+  .transit-start-tip {
+    max-width: 100%;
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .birth-toolbar-main,
+  .birth-toolbar-secondary,
+  .birth-toolbar-tips {
+    grid-template-columns: 1fr;
+  }
+
+  .birth-toolbar-main .field-date,
+  .birth-toolbar-main .field-time,
+  .birth-pre-ai-field,
+  .birth-toolbar-tips {
+    grid-column: span 1;
+  }
+
+  .birth-pre-ai-options {
+    grid-template-columns: 1fr;
+  }
+
+  .transit-start-tip {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}

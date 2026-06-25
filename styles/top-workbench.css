@@ -1,0 +1,671 @@
+/*
+ * 顶部工作台统一视觉层
+ * 仅调整：系统标题、出生信息、岁运选择。
+ * 不修改任何表单字段、事件绑定、排盘或岁运数据。
+ */
+
+.hero,
+.input-section,
+.transit-selector-section,
+.hero *,
+.input-section *,
+.transit-selector-section * {
+  box-sizing: border-box;
+}
+
+/* ===== 顶部系统标题 ===== */
+.hero {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  overflow: hidden;
+  padding: 24px 28px;
+  border: 1px solid #e6d9c8;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(47, 111, 115, 0.10), transparent 240px),
+    linear-gradient(135deg, #fffdf9 0%, #fbf7ef 100%);
+  box-shadow: 0 10px 28px rgba(78, 58, 33, 0.055);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, #2f6f73, rgba(47, 111, 115, 0.18));
+}
+
+.hero h1 {
+  margin: 0;
+  color: #202a31;
+  font-size: clamp(25px, 2.1vw, 32px);
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+}
+
+.hero p {
+  margin: 0;
+  color: #5c6871;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.hero #status {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  margin-top: 2px;
+  padding: 4px 11px;
+  border: 1px solid rgba(47, 111, 115, 0.18);
+  border-radius: 999px;
+  background: rgba(232, 241, 238, 0.78);
+  color: #245f62;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+/* ===== 出生信息 ===== */
+.input-section {
+  position: relative;
+  padding: 22px;
+  overflow: visible;
+  border: 1px solid #e5d8c7;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(47, 111, 115, 0.055), transparent 260px),
+    linear-gradient(180deg, #fffdf9, #fffaf2);
+  box-shadow: 0 9px 26px rgba(78, 58, 33, 0.045);
+}
+
+.birth-form-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(221, 211, 196, 0.82);
+}
+
+.birth-form-heading .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  min-height: 25px;
+  margin: 0;
+  padding: 2px 9px;
+  border: 1px solid rgba(47, 111, 115, 0.16);
+  border-radius: 999px;
+  background: rgba(232, 241, 238, 0.72);
+  color: #2f6f73;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 950;
+}
+
+.birth-form-heading h2 {
+  margin: 0;
+  color: #222c33;
+  font-size: 23px;
+  line-height: 1.25;
+  font-weight: 950;
+}
+
+.birth-form-main-grid {
+  gap: 12px;
+}
+
+.birth-toolbar-row {
+  min-width: 0;
+}
+
+.birth-toolbar-main,
+.birth-toolbar-secondary {
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #e4d8c8;
+  border-radius: 12px;
+  background: rgba(255, 253, 249, 0.88);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.birth-toolbar-main {
+  grid-template-columns:
+    minmax(170px, 1.1fr)
+    minmax(112px, 0.7fr)
+    minmax(154px, 0.82fr)
+    minmax(300px, 1.75fr)
+    minmax(230px, 1.25fr)
+    auto;
+}
+
+.birth-toolbar-secondary {
+  grid-template-columns:
+    minmax(190px, 1fr)
+    minmax(230px, 1.25fr)
+    minmax(150px, 0.75fr)
+    auto
+    minmax(140px, auto);
+}
+
+.birth-form-main-grid label > span,
+.birth-form-main-grid .field-date label > span {
+  display: block;
+  margin-bottom: 6px;
+  color: #59636b;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 900;
+}
+
+.birth-form-main-grid input,
+.birth-form-main-grid select {
+  min-height: 42px;
+  padding: 0 11px;
+  border-color: #d7ccbd;
+  border-radius: 9px;
+  background: #fffefa;
+  color: #27313a;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: inset 0 1px 2px rgba(80, 60, 36, 0.035);
+}
+
+.birth-form-main-grid input:hover,
+.birth-form-main-grid select:hover,
+.birth-time-control:hover {
+  border-color: #bcae98;
+  background: #fffdf8;
+}
+
+.birth-form-main-grid input:focus,
+.birth-form-main-grid select:focus,
+.birth-time-control:focus-within {
+  border-color: #2f6f73;
+  outline: 3px solid rgba(47, 111, 115, 0.11);
+  box-shadow: none;
+}
+
+.calendar-tabs {
+  max-width: none;
+  gap: 7px;
+}
+
+.calendar-tabs label {
+  min-height: 42px;
+  border-color: #d7ccbd;
+  border-radius: 9px;
+  background: #fffefa;
+  color: #667078;
+  font-size: 14px;
+}
+
+.calendar-tabs label.is-active {
+  border-color: rgba(47, 111, 115, 0.72);
+  background: linear-gradient(180deg, #eef6f3, #e7f1ee);
+  color: #23666a;
+  box-shadow: inset 0 0 0 1px rgba(47, 111, 115, 0.12);
+}
+
+.date-inline-fields {
+  gap: 8px;
+}
+
+.birth-time-control,
+.time-inline-fields {
+  min-height: 42px;
+  max-width: none;
+}
+
+.birth-time-control {
+  padding: 0 7px;
+  border-color: #d7ccbd;
+  border-radius: 9px;
+  background: #fffefa;
+}
+
+.birth-time-control select {
+  min-height: 34px;
+  font-size: 14px;
+}
+
+.time-hour-label {
+  min-height: 25px;
+  padding: 0 9px;
+  background: #eaf3f0;
+  color: #2f6f73;
+  font-size: 12px;
+}
+
+.compact-switch-row {
+  align-self: end;
+  min-height: 42px;
+  padding: 0 9px;
+  border: 1px solid #e0d6c7;
+  border-radius: 9px;
+  background: rgba(255, 253, 249, 0.78);
+  color: #59636b;
+  font-size: 13px;
+}
+
+.compact-switch-row input {
+  width: 16px;
+  min-height: 16px;
+}
+
+.field-submit,
+.birth-toolbar-secondary .field-submit {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid #255f63;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #315f77, #294f67);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 950;
+  box-shadow: 0 5px 12px rgba(36, 59, 83, 0.14);
+}
+
+.field-submit:hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+}
+
+.birth-toolbar-tips {
+  gap: 10px;
+}
+
+.birth-toolbar-tips .calendar-preview,
+.birth-toolbar-tips .location-preview {
+  min-height: 38px;
+  max-height: none;
+  padding: 9px 11px;
+  border-color: #e5d8c7;
+  border-radius: 10px;
+  background: rgba(255, 250, 241, 0.76);
+  color: #626c74;
+  font-size: 12.5px;
+  line-height: 1.5;
+  -webkit-line-clamp: 3;
+}
+
+.input-section .fine-print {
+  margin: 10px 2px 0;
+  color: #727a80;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* ===== 大运 / 流年 / 流月选择工作台 ===== */
+.transit-selector-section {
+  padding: 22px;
+  overflow: hidden;
+  border: 1px solid #e5d8c7;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(47, 111, 115, 0.055), transparent 260px),
+    linear-gradient(180deg, #fffdf9, #fffaf2);
+  box-shadow: 0 9px 26px rgba(78, 58, 33, 0.045);
+}
+
+.transit-selector-shell {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.transit-selector-shell > .plugin-header {
+  align-items: center;
+  margin: 0;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(221, 211, 196, 0.82);
+}
+
+.transit-selector-shell > .plugin-header .eyebrow {
+  margin: 0 0 5px;
+  color: #2f6f73;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.transit-selector-shell > .plugin-header h2 {
+  margin: 0;
+  color: #222c33;
+  font-size: 25px;
+  line-height: 1.25;
+  font-weight: 950;
+}
+
+.transit-context-pill {
+  flex: 0 1 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  max-width: min(52%, 720px);
+  padding: 7px 13px;
+  border: 1px solid #dccfbd;
+  border-radius: 999px;
+  background: #fffaf2;
+  color: #5c625f;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.transit-selector-board {
+  display: grid;
+  gap: 11px;
+  min-width: 0;
+}
+
+.transit-selector-row {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #e5d9c9;
+  border-radius: 13px;
+  background: rgba(255, 253, 249, 0.78);
+}
+
+.transit-selector-row-header {
+  position: relative;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  min-height: 98px;
+  padding: 12px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #eef5f2, #f6faf8);
+}
+
+.transit-selector-row-header::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: #5b908c;
+}
+
+.transit-selector-row.is-year .transit-selector-row-header {
+  background: linear-gradient(180deg, #f3f0fa, #faf9fd);
+}
+
+.transit-selector-row.is-year .transit-selector-row-header::before {
+  background: #8b83b4;
+}
+
+.transit-selector-row.is-month .transit-selector-row-header {
+  background: linear-gradient(180deg, #fff6e8, #fffaf2);
+}
+
+.transit-selector-row.is-month .transit-selector-row-header::before {
+  background: #b48645;
+}
+
+.transit-selector-row-header h3 {
+  margin: 0;
+  color: #245f62;
+  font-size: 19px;
+  line-height: 1.25;
+  font-weight: 950;
+}
+
+.transit-selector-row.is-year .transit-selector-row-header h3 {
+  color: #625a8d;
+}
+
+.transit-selector-row.is-month .transit-selector-row-header h3 {
+  color: #8b6427;
+}
+
+.transit-selector-row-header span {
+  color: #667078;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 750;
+}
+
+.transit-card-list {
+  display: flex !important;
+  gap: 10px;
+  align-items: stretch;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 2px 8px;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #cdbfa9 transparent;
+}
+
+.transit-card-list::-webkit-scrollbar {
+  height: 7px;
+}
+
+.transit-card-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #cdbfa9;
+}
+
+.transit-card-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.transit-select-card {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 164px;
+  min-height: 98px;
+  padding: 13px 14px;
+  overflow: hidden;
+  border: 1px solid #ded3c4;
+  border-radius: 11px;
+  background: linear-gradient(180deg, #fffefa, #fffaf3);
+  color: #2a343c;
+  text-align: left;
+  box-shadow: 0 3px 10px rgba(77, 58, 34, 0.035);
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.transit-select-card.is-luck-card {
+  min-width: 190px;
+}
+
+.transit-select-card.is-month-card {
+  min-width: 218px;
+}
+
+.transit-select-card:hover {
+  border-color: #af9f87;
+  background: #fffdf8;
+  transform: translateY(-1px);
+}
+
+.transit-select-card.is-active {
+  border-color: #2f6f73;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(47, 111, 115, 0.10), transparent 90px),
+    linear-gradient(180deg, #f0f8f5, #fffdf8);
+  box-shadow: 0 0 0 2px rgba(47, 111, 115, 0.10), 0 7px 15px rgba(47, 111, 115, 0.08);
+}
+
+.transit-card-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+  color: #222c33;
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 950;
+}
+
+.transit-card-ganzhi {
+  color: #2f6f73;
+  font-size: 18px;
+}
+
+.transit-card-dot {
+  color: #a79d8e;
+}
+
+.transit-card-meta,
+.transit-card-support {
+  display: block;
+  color: #68727a;
+  font-size: 12.5px;
+  line-height: 1.45;
+  font-style: normal;
+  font-weight: 750;
+}
+
+.transit-card-signal {
+  display: block;
+  margin-top: auto;
+  color: #2f6f73;
+  font-size: 12px;
+  line-height: 1.45;
+  font-style: normal;
+  font-weight: 900;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.transit-select-card.is-active .transit-card-title,
+.transit-select-card.is-active .transit-card-ganzhi,
+.transit-select-card.is-active .transit-card-signal {
+  color: #245f62;
+}
+
+.transit-start-note {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px dashed #d8cbb9;
+  border-radius: 10px;
+  background: rgba(255, 250, 241, 0.62);
+  color: #646d74;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+/* ===== 中等屏幕 ===== */
+@media (max-width: 1240px) {
+  .birth-toolbar-main,
+  .birth-toolbar-secondary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .birth-toolbar-main .field-date,
+  .birth-toolbar-main .field-time {
+    grid-column: span 1;
+  }
+
+  .birth-toolbar-main .field-true-solar,
+  .birth-toolbar-secondary .field-pre-ai,
+  .birth-toolbar-secondary .field-submit {
+    align-self: stretch;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero,
+  .input-section,
+  .transit-selector-section {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .birth-toolbar-main,
+  .birth-toolbar-secondary,
+  .birth-toolbar-tips {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .birth-toolbar-main .field-date,
+  .birth-toolbar-main .field-time,
+  .birth-toolbar-tips {
+    grid-column: span 2;
+  }
+
+  .transit-selector-shell > .plugin-header {
+    display: grid;
+    gap: 10px;
+  }
+
+  .transit-context-pill {
+    max-width: 100%;
+    justify-self: start;
+    text-align: left;
+  }
+
+  .transit-selector-row {
+    grid-template-columns: 1fr;
+  }
+
+  .transit-selector-row-header {
+    min-height: 0;
+    padding: 10px 12px 10px 16px;
+  }
+}
+
+@media (max-width: 620px) {
+  .app {
+    padding-inline: 10px;
+  }
+
+  .hero,
+  .input-section,
+  .transit-selector-section {
+    padding: 15px;
+  }
+
+  .birth-form-heading {
+    display: grid;
+    gap: 7px;
+  }
+
+  .birth-toolbar-main,
+  .birth-toolbar-secondary,
+  .birth-toolbar-tips {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .birth-toolbar-main .field-date,
+  .birth-toolbar-main .field-time,
+  .birth-toolbar-tips {
+    grid-column: span 1;
+  }
+
+  .date-inline-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .time-inline-fields {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+
+  .transit-selector-shell > .plugin-header h2 {
+    font-size: 22px;
+  }
+
+  .transit-select-card,
+  .transit-select-card.is-luck-card {
+    min-width: 172px;
+  }
+
+  .transit-select-card.is-month-card {
+    min-width: 205px;
+  }
+}

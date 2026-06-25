@@ -25,7 +25,7 @@ export function renderYearFlowReport(report = {}) {
   return `
     <div class="year-month-flow-report year-flow-report">
       <section class="year-month-flow-banner is-year">
-        <span>流年（每1年一换）</span>
+        <span>流年</span>
         <strong>事件触发层</strong>
         <p>${escapeHtml(value.overallJudgment || "本年触发主线待生成。")}</p>
       </section>
@@ -79,7 +79,7 @@ export function renderMonthFlowReport(report = {}) {
   return `
     <div class="year-month-flow-report month-flow-report">
       <section class="year-month-flow-banner is-month">
-        <span>流月（每月一换）</span>
+        <span>流月</span>
         <strong>节奏细化层</strong>
         <p>${escapeHtml(value.overallJudgment || "本月节奏主线待生成。")}</p>
       </section>

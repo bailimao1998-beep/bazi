@@ -12,7 +12,7 @@ import { renderBaseBaziPanel } from "../components/baseBaziPanel.js";
 import { renderBirthForm } from "../components/birthForm.js";
 import { renderChartSummary } from "../components/chartSummary.js";
 import { renderFloatingAssistPanel } from "../components/floatingAssistPanel.js";
-import { renderFortuneTransitPanel } from "../components/fortuneTransitPanel.js";
+import { queueTransitReveal, renderFortuneTransitPanel } from "../components/fortuneTransitPanel.js";
 import { renderNatalAiNarrativePanel } from "../components/natalAiNarrativePanel.js";
 import { renderNatalImagePanel } from "../components/natalImagePanel.js";
 import { renderStageAnalysisPanel } from "../components/stageAnalysisPanel.js";
@@ -110,7 +110,7 @@ export function createAppController({ roots, initialInput }) {
       resetGeneratedStates(store);
       renderBaseOnly();
       if (roots.status) roots.status.textContent = "基础排盘已完成。";
-      aiActions.maybeGeneratePreInterpretYearAi();
+      aiActions.maybeGeneratePreInterpretAi();
     } catch (error) {
       store.state = { input: store.currentInput, error: error.message };
       renderBaseError(error, { roots, state: store.state });
@@ -215,7 +215,7 @@ export function createAppController({ roots, initialInput }) {
       aiTitle: "AI 大运分析",
       aiButton: "生成大运 AI 分析",
       onGenerateAi: aiActions.generateLuckAiNarrative,
-      onSelectStageValue: selectTargetYear,
+      onSelectStageValue: selectTargetMonthFromSelector,
     });
     renderStageAnalysisPanel(roots.yearStageAnalysis, {
       title: "流年分析",
@@ -231,7 +231,7 @@ export function createAppController({ roots, initialInput }) {
       aiTitle: "AI 流年分析",
       aiButton: "生成流年 AI 分析",
       onGenerateAi: aiActions.generateYearAiNarrative,
-      onSelectStageValue: selectTargetYear,
+      onSelectStageValue: selectTargetYearFromSelector,
     });
     renderStageAnalysisPanel(roots.monthStageAnalysis, {
       title: "流月分析",
@@ -248,7 +248,7 @@ export function createAppController({ roots, initialInput }) {
       aiTitle: "AI 流月分析",
       aiButton: "生成流月 AI 分析",
       onGenerateAi: aiActions.generateMonthAiNarrative,
-      onSelectStageValue: selectTargetMonth,
+      onSelectStageValue: selectTargetMonthFromSelector,
     });
     renderAiChatPanel(roots.aiChatPanel, {
       state: store.chatState,
@@ -259,6 +259,29 @@ export function createAppController({ roots, initialInput }) {
     setAiChatOpen(store.aiChatOpen);
     bindShenshaPopupEvents();
     renderFloatingAssistPanel(roots.floatingAssist, { state: store.state });
+  }
+
+  function selectTargetLuckFromSelector(value) {
+    const [yearValue, monthValue] = String(value ?? "").split("|");
+    const year = Number(yearValue);
+    const month = Number(monthValue);
+    if (!Number.isFinite(year)) return;
+
+    queueTransitReveal("luck");
+    selectTargetLuck({
+      year,
+      month: Number.isFinite(month) ? month : 1,
+    });
+  }
+
+  function selectTargetYearFromSelector(value) {
+    queueTransitReveal("year");
+    selectTargetYear(value);
+  }
+
+  function selectTargetMonthFromSelector(value) {
+    queueTransitReveal("month");
+    selectTargetMonth(value);
   }
 
   function selectTargetLuck({ year, month } = {}) {
@@ -456,7 +479,7 @@ export function createAppController({ roots, initialInput }) {
           aiActions.generateLuckAiNarrative,
 
         onSelectStageValue:
-          selectTargetYear,
+          selectTargetLuckFromSelector,
       },
     );
 
@@ -487,7 +510,7 @@ export function createAppController({ roots, initialInput }) {
           aiActions.generateYearAiNarrative,
 
         onSelectStageValue:
-          selectTargetYear,
+          selectTargetYearFromSelector,
       },
     );
 
@@ -521,7 +544,7 @@ export function createAppController({ roots, initialInput }) {
           aiActions.generateMonthAiNarrative,
 
         onSelectStageValue:
-          selectTargetMonth,
+          selectTargetMonthFromSelector,
       },
     );
 
@@ -665,58 +688,54 @@ function findLuckItemForYear(
   );
 }
 
+function encodeLuckSelectorValue(item = {}) {
+  const year = Number(item.selectionYear);
+  const month = Number(item.selectionMonth);
+
+  if (Number.isFinite(year)) {
+    return `${Math.trunc(year)}|${
+      Number.isFinite(month)
+        ? Math.min(12, Math.max(1, Math.trunc(month)))
+        : 1
+    }`;
+  }
+
+  const fallbackYear = firstYearOfRange(item.yearRange);
+  return fallbackYear === ""
+    ? ""
+    : `${fallbackYear}|1`;
+}
+
 function buildLuckStageSelector(state = {}) {
-  const luckItems =
-    Array.isArray(
-      state.luckImageReport?.luckItems,
-    )
-      ? state.luckImageReport.luckItems
-      : [];
+  const luckItems = Array.isArray(
+    state.luckImageReport?.luckItems,
+  )
+    ? state.luckImageReport.luckItems
+    : [];
 
   const currentLuck =
+    luckItems.find((item) => item?.isCurrent) ??
     findLuckItemForYear(
       luckItems,
       state.input?.targetYear,
-    ) ??
-    luckItems.find(
-      (item) =>
-        item?.isCurrent,
     ) ??
     luckItems[0] ??
     {};
 
   return {
     label: "切换大运",
-    value:
-      firstYearOfRange(
-        currentLuck.yearRange,
-      ),
-
+    value: encodeLuckSelectorValue(currentLuck),
     options: luckItems
-      .map((item) => {
-        const value =
-          firstYearOfRange(
-            item.yearRange,
-          );
-
-        return {
-          value,
-
-          label:
-            [
-              item.ageRange,
-              item.ganZhi,
-            ]
-              .filter(Boolean)
-              .join(" · ") ||
-            item.yearRange ||
-            "待查",
-        };
-      })
-      .filter(
-        (option) =>
-          option.value !== "",
-      ),
+      .map((item) => ({
+        value: encodeLuckSelectorValue(item),
+        label:
+          [item.ageRange, item.ganZhi]
+            .filter(Boolean)
+            .join(" · ") ||
+          item.yearRange ||
+          "待查",
+      }))
+      .filter((option) => option.value !== ""),
   };
 }
 
@@ -780,13 +799,13 @@ function buildYearImageReportsForCurrentLuck({
       : [];
 
   const currentLuck =
-    findLuckItemForYear(
-      luckItems,
-      targetYear,
-    ) ??
     luckItems.find(
       (item) =>
         item?.isCurrent,
+    ) ??
+    findLuckItemForYear(
+      luckItems,
+      targetYear,
     ) ??
     luckItems[0];
 

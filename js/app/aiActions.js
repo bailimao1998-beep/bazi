@@ -244,13 +244,45 @@ async function generateLuckAiNarrative() {
     renderBaseOnly();
   }
 
-  function maybeGeneratePreInterpretYearAi() {
-    if (!store.currentInput.preInterpretAi || !store.state?.yearImageReport?.yearItem) return;
+  function maybeGeneratePreInterpretAi() {
     const scheduledState = store.state;
-    queueMicrotask(() => {
-      if (store.state !== scheduledState || !store.currentInput.preInterpretAi) return;
-      generateYearAiNarrative();
+    const shouldGenerateNatal = Boolean(
+      store.currentInput.preInterpretNatalAi,
+    );
+    const shouldGenerateYear = Boolean(
+      store.currentInput.preInterpretYearAi ??
+      store.currentInput.preInterpretAi,
+    );
+
+    if (!shouldGenerateNatal && !shouldGenerateYear) return;
+
+    queueMicrotask(async () => {
+      if (store.state !== scheduledState) return;
+
+      if (
+        shouldGenerateNatal &&
+        store.currentInput.preInterpretNatalAi
+      ) {
+        await generateNatalAiNarrative();
+      }
+
+      if (store.state !== scheduledState) return;
+
+      if (
+        shouldGenerateYear &&
+        Boolean(
+          store.currentInput.preInterpretYearAi ??
+          store.currentInput.preInterpretAi,
+        ) &&
+        store.state?.yearImageReport?.yearItem
+      ) {
+        await generateYearAiNarrative();
+      }
     });
+  }
+
+  function maybeGeneratePreInterpretYearAi() {
+    maybeGeneratePreInterpretAi();
   }
 
   async function generateMonthAiNarrative() {
@@ -289,6 +321,7 @@ async function generateLuckAiNarrative() {
     generateNatalAiNarrative,
     generateLuckAiNarrative,
     generateYearAiNarrative,
+    maybeGeneratePreInterpretAi,
     maybeGeneratePreInterpretYearAi,
     generateMonthAiNarrative,
   };

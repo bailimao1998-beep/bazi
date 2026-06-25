@@ -1,0 +1,73 @@
+/*
+ * 顶部区块大标题精简 v8.10.10
+ * 只保留“命盘设置 / 岁运选择 / 核心命盘”等小标签，移除重复的大标题后收紧留白。
+ */
+
+/* 出生信息：移除大标题后，小标签独立成行。 */
+.input-section .birth-form-heading {
+  display: flex;
+  align-items: center;
+  min-height: 0;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+
+.input-section .birth-form-heading .eyebrow {
+  margin: 0;
+}
+
+/* 岁运选择：左侧只剩小标签，中央起运提示获得更多空间。 */
+.transit-selector-shell > .plugin-header.transit-selector-header {
+  grid-template-columns: max-content minmax(380px, 1fr) auto;
+  gap: 18px;
+  margin-bottom: 12px;
+}
+
+.transit-selector-heading {
+  display: flex;
+  align-items: center;
+}
+
+.transit-selector-heading .eyebrow {
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* 基础排盘：移除大标题后压缩顶部空白。 */
+.core-chart-matrix > .plugin-header {
+  min-height: 0;
+  margin-bottom: 8px;
+}
+
+.core-chart-matrix > .plugin-header .eyebrow {
+  margin: 0;
+}
+
+/* 兜底：即使旧模板仍残留文字，也不再显示。 */
+.input-section .birth-form-heading h2,
+.transit-selector-shell .transit-selector-heading h2,
+.core-chart-matrix > .plugin-header h2 {
+  display: none !important;
+}
+
+@media (max-width: 1180px) {
+  .transit-selector-shell > .plugin-header.transit-selector-header {
+    grid-template-columns: max-content minmax(300px, 1fr);
+  }
+
+  .transit-selector-header .transit-context-pill {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .transit-selector-shell > .plugin-header.transit-selector-header {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .transit-selector-heading {
+    justify-content: flex-start;
+  }
+}

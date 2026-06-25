@@ -1,0 +1,87 @@
+/*
+ * 岁运起运提示定位 v8.10.9
+ * 将起运说明放入“岁运选择”标题栏中部，不再另占标题下方一整行。
+ */
+
+.transit-selector-shell > .plugin-header.transit-selector-header {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(380px, 1.45fr) auto;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 14px;
+}
+
+.transit-selector-heading {
+  min-width: 0;
+}
+
+.transit-selector-heading .eyebrow {
+  margin-bottom: 5px;
+}
+
+.transit-selector-heading h2 {
+  margin: 0;
+}
+
+.transit-selector-header .transit-start-tip-wrap {
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.transit-selector-header .transit-start-tip {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 7px 18px;
+  border: 1px solid rgba(47, 111, 115, 0.3);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(224, 241, 236, 0.96), rgba(236, 246, 242, 0.94));
+  color: #2b6667;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.45;
+  text-align: center;
+  white-space: normal;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+}
+
+.transit-selector-header .transit-context-pill {
+  justify-self: end;
+  max-width: min(100%, 360px);
+  text-align: center;
+}
+
+@media (max-width: 1180px) {
+  .transit-selector-shell > .plugin-header.transit-selector-header {
+    grid-template-columns: minmax(220px, 0.85fr) minmax(320px, 1.2fr);
+  }
+
+  .transit-selector-header .transit-context-pill {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .transit-selector-shell > .plugin-header.transit-selector-header {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .transit-selector-header .transit-start-tip-wrap,
+  .transit-selector-header .transit-context-pill {
+    grid-column: auto;
+    justify-self: stretch;
+  }
+
+  .transit-selector-header .transit-start-tip,
+  .transit-selector-header .transit-context-pill {
+    width: 100%;
+    max-width: none;
+  }
+}

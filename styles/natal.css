@@ -3066,3 +3066,116 @@ summary small {
     padding: 12px;
   }
 }
+
+/* natal-domain-collapse-v8.10.5 */
+.natal-domain-details {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #eadfce;
+  border-radius: 12px;
+  background: rgba(255, 253, 248, 0.78);
+}
+
+.natal-domain-details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.natal-domain-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.natal-domain-details .natal-domain-subhead {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.96), rgba(255, 250, 241, 0.78));
+  transition: background .16s ease;
+}
+
+.natal-domain-details .natal-domain-subhead:hover {
+  background: #fffaf1;
+}
+
+.natal-domain-details .natal-domain-subhead h4 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.35;
+  font-weight: 950;
+}
+
+.natal-domain-details .natal-domain-subhead p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.natal-domain-summary-meta {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.natal-domain-summary-meta > span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.natal-domain-toggle {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid rgba(47, 111, 115, 0.24);
+  border-radius: 999px;
+  background: rgba(232, 241, 238, 0.72);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.natal-domain-toggle .is-open,
+.natal-domain-details[open] .natal-domain-toggle .is-closed {
+  display: none;
+}
+
+.natal-domain-details[open] .natal-domain-toggle .is-open {
+  display: inline;
+}
+
+.natal-domain-details[open] > .natal-domain-subhead {
+  border-bottom: 1px solid rgba(226, 215, 200, 0.78);
+}
+
+.natal-domain-details-body {
+  padding: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.96), rgba(255, 250, 241, 0.72));
+}
+
+@media (max-width: 720px) {
+  .natal-domain-details .natal-domain-subhead {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .natal-domain-summary-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .natal-domain-details-body {
+    padding: 12px;
+  }
+}

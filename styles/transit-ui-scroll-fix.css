@@ -1,0 +1,90 @@
+/*
+ * 岁运下拉框与横向滚动稳定层 v8.10.12
+ * 只调整阶段选择框布局与三行横向滚动状态，不改变命盘和岁运计算。
+ */
+
+/* 大运 / 流年 / 流月分析区：标题在左，切换框固定在右上角。 */
+.stage-analysis-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, min(46%, 680px)) !important;
+  align-items: start !important;
+  column-gap: 24px !important;
+  row-gap: 10px !important;
+}
+
+.stage-analysis-header > div:first-child {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  min-width: 0;
+}
+
+.stage-analysis-tools {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  align-self: start !important;
+  justify-self: end !important;
+  width: 100% !important;
+  max-width: 680px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.stage-local-selector {
+  display: grid !important;
+  grid-template-columns: max-content minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+.stage-local-selector > span {
+  white-space: nowrap;
+}
+
+.stage-local-selector select {
+  display: block;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+/* 三行卡片仍允许横向滚动，但由程序单独维护各行位置。 */
+.transit-card-list {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: none !important;
+  scroll-behavior: auto !important;
+  scroll-padding-inline: 0 !important;
+}
+
+.transit-select-card {
+  scroll-snap-align: none !important;
+  scroll-snap-stop: normal !important;
+}
+
+@media (max-width: 980px) {
+  .stage-analysis-header {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stage-analysis-header > div:first-child,
+  .stage-analysis-tools {
+    grid-column: 1 !important;
+  }
+
+  .stage-analysis-tools {
+    grid-row: 2 !important;
+    justify-self: stretch !important;
+    max-width: none !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .stage-local-selector {
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+  }
+}

@@ -1,6 +1,7 @@
 import { branchMainStem, getTenGod } from "../bazi/tenGods.js";
 import { buildTransitStructureAnalysis } from "../transit/transitStructureAnalyzer.js";
 import { buildTransitTriggeredImages } from "../transit/transitImageComposer.js";
+import { buildStageFixedReportModel } from "../transit/buildStageFixedReportModel.js";
 
 const tenGodThemes = {
   比肩: "同辈、竞争、合作、自主",
@@ -126,9 +127,22 @@ export function buildLuckImageReport({
     usefulHint: pickUsefulHint(chart, natalImageReport),
   };
 
-  const luckItems = luckPillars.map((pillar, index) =>
+  const baseLuckItems = luckPillars.map((pillar, index) =>
     buildLuckItem(pillar, index, context),
   );
+
+  const luckItems = baseLuckItems.map((item) => ({
+    ...item,
+    fixedReport: buildStageFixedReportModel({
+      stage: "luck",
+      item,
+      baseBaziViewModel,
+      natalImageReport,
+      luckImageReport: {
+        luckItems: baseLuckItems,
+      },
+    }),
+  }));
 
   return {
     summary: buildSummary(luckItems, context),

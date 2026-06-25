@@ -4,6 +4,7 @@ import { buildMonthAiPrompt } from "../core/ai/buildMonthAiPrompt.js";
 import { buildNatalAiPrompt } from "../core/ai/buildNatalAiPrompt.js";
 import { buildYearAiPrompt } from "../core/ai/buildYearAiPrompt.js";
 import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260613b";
+import { generateStageFixedNarrative } from "../core/ai/stageFixedNarrativeService.js";
 import {
   guardNatalAiContent,
 } from "../core/ai/natalAiContentGuard.js";
@@ -167,8 +168,20 @@ async function generateLuckAiNarrative() {
         natalImageReport: store.state.natalImageReport,
         luckImageReport: store.state.luckImageReport,
       });
-      const result = await generateWithDeepSeek({ settings, prompt });
-      store.luckAiState = { loading: false, text: result.text, error: "" };
+      const outcome = await generateStageFixedNarrative({
+        settings,
+        prompt,
+        stage: "luck",
+        generate: generateWithDeepSeek,
+      });
+      globalThis.__lastStageAiDebug = {
+        stage: "luck",
+        fallbackUsed: outcome.fallbackUsed,
+        attempts: outcome.attempts,
+        fixedReportModel: prompt.fixedReportModel,
+        stageRulePack: prompt.stageRulePack,
+      };
+      store.luckAiState = { loading: false, text: outcome.text, error: "" };
     } catch (error) {
       store.luckAiState = { loading: false, text: "", error: error.message };
     }
@@ -188,9 +201,21 @@ async function generateLuckAiNarrative() {
         luckImageReport: store.state.luckImageReport,
         yearImageReport: store.state.yearImageReport,
       });
-      const result = await generateWithDeepSeek({ settings, prompt });
+      const outcome = await generateStageFixedNarrative({
+        settings,
+        prompt,
+        stage: "year",
+        generate: generateWithDeepSeek,
+      });
       if (generationId !== store.yearAiGenerationId || targetYear !== store.state?.yearImageReport?.yearItem?.year) return;
-      store.yearAiState = { loading: false, text: result.text, error: "" };
+      globalThis.__lastStageAiDebug = {
+        stage: "year",
+        fallbackUsed: outcome.fallbackUsed,
+        attempts: outcome.attempts,
+        fixedReportModel: prompt.fixedReportModel,
+        stageRulePack: prompt.stageRulePack,
+      };
+      store.yearAiState = { loading: false, text: outcome.text, error: "" };
     } catch (error) {
       if (generationId !== store.yearAiGenerationId || targetYear !== store.state?.yearImageReport?.yearItem?.year) return;
       store.yearAiState = { loading: false, text: "", error: error.message };
@@ -219,8 +244,20 @@ async function generateLuckAiNarrative() {
         yearImageReport: store.state.yearImageReport,
         monthImageReport: store.state.monthImageReport,
       });
-      const result = await generateWithDeepSeek({ settings, prompt });
-      store.monthAiState = { loading: false, text: result.text, error: "" };
+      const outcome = await generateStageFixedNarrative({
+        settings,
+        prompt,
+        stage: "month",
+        generate: generateWithDeepSeek,
+      });
+      globalThis.__lastStageAiDebug = {
+        stage: "month",
+        fallbackUsed: outcome.fallbackUsed,
+        attempts: outcome.attempts,
+        fixedReportModel: prompt.fixedReportModel,
+        stageRulePack: prompt.stageRulePack,
+      };
+      store.monthAiState = { loading: false, text: outcome.text, error: "" };
     } catch (error) {
       store.monthAiState = { loading: false, text: "", error: error.message };
     }

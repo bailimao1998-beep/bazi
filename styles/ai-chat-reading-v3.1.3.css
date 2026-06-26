@@ -1,0 +1,24 @@
+/* AI_CHAT_REFINEMENT_V313
+ * 修复正文滚动区底边裁掉半行文字的问题。
+ * 原因：历史区在与“追加提问”相邻的边界使用 overflow 裁切，
+ * 当最后一行刚好落在边界上时，看起来像被下方区域挡住。
+ */
+
+.ai-chat-reading-v3 .ai-chat-history {
+  box-sizing: border-box;
+  padding-bottom: 44px !important;
+  scroll-padding-bottom: 44px;
+}
+
+/* 给最后一轮回答额外留出呼吸空间，确保最后一行能完整滚到可视区内。 */
+.ai-chat-reading-v3 .ai-chat-history > :last-child,
+.ai-chat-reading-v3 .ai-chat-message:last-child,
+.ai-chat-reading-v3 .chat-style-message:last-child {
+  margin-bottom: 18px;
+}
+
+/* 防止最后一个正文区块紧贴历史区底边。 */
+.ai-chat-reading-v3 .ai-chat-answer-output > :last-child,
+.ai-chat-reading-v3 .ai-chat-answer-output .ai-output-section:last-child {
+  margin-bottom: 12px;
+}

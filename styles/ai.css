@@ -4080,3 +4080,36 @@ li:last-child {
   }
 }
 
+/* === AI chat promoted summary v8.10.24 === */
+.ai-chat-answer-output .ai-output-section.is-summary {
+  margin: 0 0 14px;
+  padding: 14px 15px;
+  border: 1px solid rgba(47, 111, 115, 0.28);
+  border-radius: 10px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(237, 246, 243, 0.98),
+      rgba(249, 252, 250, 0.96)
+    );
+  box-shadow:
+    inset 4px 0 0 rgba(47, 111, 115, 0.72),
+    0 5px 14px rgba(47, 111, 115, 0.06);
+}
+
+.ai-chat-answer-output .ai-output-section.is-summary h4 {
+  margin: 0 0 9px;
+  color: #245f62;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.ai-chat-answer-output .ai-output-section.is-summary p,
+.ai-chat-answer-output .ai-output-section.is-summary li {
+  color: var(--ink);
+  line-height: 1.72;
+}
+
+.ai-chat-answer-output .ai-output-section.is-summary > :last-child {
+  margin-bottom: 0;
+}

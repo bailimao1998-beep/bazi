@@ -150,7 +150,7 @@ function renderMessage(message = {}) {
           <b>AI 分析</b>
           <span>答</span>
         </div>
-        ${renderAiText(message.answer || "", { className: "ai-chat-answer-output" })}
+        ${renderAiText(message.answer || "", { className: "ai-chat-answer-output", promoteSummary: true })}
       </div>
     </article>
   `;

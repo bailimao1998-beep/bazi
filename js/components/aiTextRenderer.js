@@ -1,15 +1,43 @@
-export function renderAiText(text, { className = "" } = {}) {
+export function renderAiText(text, { className = "", promoteSummary = false } = {}) {
   const blocks = parseAiBlocks(text);
   if (!blocks.length) return "";
+
+  const visibleBlocks = promoteSummary
+    ? moveSummaryToFront(blocks)
+    : blocks;
+
   return `
     <article class="ai-narrative-output ai-readable-output ${escapeHtml(className)}">
-      ${blocks.map(renderBlock).join("")}
+      ${visibleBlocks.map(renderBlock).join("")}
     </article>
   `;
 }
 
+function normalizeAiMarkdown(text = "") {
+  let value = String(text ?? "")
+    .replaceAll("\r\n", "\n")
+    .replaceAll("\r", "\n")
+    .trim();
+
+  value = value
+    // 修复“上一句话。## 标题”粘连，使总结和各章节可被识别。
+    .replace(/([^\n])[\t ]*(?=#{1,6}[\t ]+)/g, "$1\n\n")
+    // 修复模型偶尔省略 # 的独立章节标题。
+    .replace(
+      /^(直接回答|核心取象|命理依据|展开分析|可能表现|时间节奏|行动建议|现实验证|注意边界|总结)[：:]?[\t ]*$/gm,
+      "## $1",
+    )
+    // 修复“第一项。 2. 第二项”粘在同一段的问题。
+    .replace(/([。！？；])[\t ]+(?=\d{1,2}[.、][\t ]+)/g, "$1\n")
+    // 修复项目符号偶尔粘在上一句后的问题。
+    .replace(/([。！？；])[\t ]+(?=[-*][\t ]+)/g, "$1\n")
+    .replace(/\n{3,}/g, "\n\n");
+
+  return value;
+}
+
 function parseAiBlocks(text = "") {
-  const lines = String(text ?? "").replaceAll("\r\n", "\n").split("\n");
+  const lines = normalizeAiMarkdown(text).split("\n");
   const blocks = [];
   let current = null;
 
@@ -49,12 +77,33 @@ function ensureSection(blocks) {
   return section;
 }
 
+function moveSummaryToFront(blocks = []) {
+  const summaryIndex = blocks.findIndex((block) =>
+    isSummaryTitle(block?.title),
+  );
+
+  if (summaryIndex <= 0) {
+    return blocks;
+  }
+
+  const result = [...blocks];
+  const [summary] = result.splice(summaryIndex, 1);
+  result.unshift(summary);
+  return result;
+}
+
+function isSummaryTitle(title = "") {
+  return /^(总结|综合总结|整体总结|最终总结|答案总结)$/
+    .test(String(title || "").trim());
+}
+
 function renderBlock(block = {}) {
   const grouped = groupListItems(block.items);
-  const isHighlight = block.title && /核心|结论|重点|总览|一句话/.test(block.title);
+  const isSummary = isSummaryTitle(block.title);
+  const isHighlight = block.title && /核心|结论|重点|总览|一句话|总结/.test(block.title);
 
   return `
-    <section class="ai-output-section${isHighlight ? " is-highlight" : ""}">
+    <section class="ai-output-section${isHighlight ? " is-highlight" : ""}${isSummary ? " is-summary" : ""}">
       ${block.title ? `<h4>${escapeHtml(block.title)}</h4>` : ""}
       ${grouped.map((item) => {
         if (item.type === "listGroup") {

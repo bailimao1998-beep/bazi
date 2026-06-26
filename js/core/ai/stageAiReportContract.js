@@ -18,7 +18,25 @@ const LUCK_DIRECTION_LABELS = {
   healthState: "健康 / 状态",
 };
 
-const INSUFFICIENT_TEXT = "本运在该方向暂未形成独立强象，先看原局底色，并等待流年进一步触发。";
+const YEAR_DIRECTION_KEYS = [
+  "careerDirection",
+  "relationship",
+  "healthState",
+];
+
+const YEAR_DIRECTION_LABELS = {
+  careerDirection: "事业 / 方向",
+  relationship: "感情 / 关系",
+  healthState: "身心 / 状态",
+};
+
+const DIRECTION_FALLBACKS = {
+  careerDirection: "这一方向当前不是最强主线，现实发展更多承接原局底色与当前阶段背景，具体变化仍看后续触发。",
+  relationship: "这一方向当前不是最强主线，关系层面以原有模式的延续和调整为主，具体变化仍看后续触发。",
+  healthState: "这一方向当前更多体现为压力承受、精力恢复和生活节奏的变化，重点是及时休息并留意长期紧绷。",
+};
+
+const INSUFFICIENT_TEXT = "这一方向不是本运最强主线，当前更多承接原局底色，具体变化更看后续流年触发。";
 const INSUFFICIENT_PATTERN = /证据不足|未形成独立强象|主要承接原局|暂不下结论|等待流年/;
 
 const SOFT_SEMANTIC_PATTERNS = [
@@ -156,6 +174,32 @@ export function getStageAiOutputContract(stage = "luck") {
         risks: ["0至3条"],
         advice: ["0至3条"],
       },
+      directions: {
+        careerDirection: {
+          summary: "本年事业、学业、岗位、技术、项目或输出方面的现实表现；不突出时自然说明相对平稳",
+          evidenceIds: ["可为空"],
+          ruleIds: ["可为空"],
+          positive: ["0至2条"],
+          risks: ["0至2条"],
+          advice: ["0至2条"],
+        },
+        relationship: {
+          summary: "本年感情、合作与人际关系方面的现实表现；不突出时自然说明主要延续原有模式",
+          evidenceIds: ["可为空"],
+          ruleIds: ["可为空"],
+          positive: ["0至2条"],
+          risks: ["0至2条"],
+          advice: ["0至2条"],
+        },
+        healthState: {
+          summary: "本年压力、精力、恢复、作息、寒暖燥湿与生活节奏；不得诊断疾病",
+          evidenceIds: ["可为空"],
+          ruleIds: ["可为空"],
+          positive: ["0至2条"],
+          risks: ["0至2条"],
+          advice: ["0至2条"],
+        },
+      },
       selectedImages: [],
       finalAdvice: ["0至5条"],
       verificationQuestions: ["0至5条"],
@@ -238,6 +282,9 @@ export function validateStageAiReport({
 
     validateLuckCore(normalized, refs, fatalIssues, warnings);
   } else if (normalizedStage === "year") {
+    const repaired = repairYearReport(normalized, candidatePack);
+    normalized = repaired.report;
+    warnings.push(...repaired.warnings);
     if (normalized.overallJudgment.length < 16) warnings.push("年度总断较短，报告仍照常展示");
     validateYearFlowReport(normalized, refs, warnings);
   } else {
@@ -342,6 +389,16 @@ export function renderStageAiReportMarkdown(report, stage = "luck") {
       value.eventOutline.summary,
       ...value.eventOutline.advice.map((item) => `- ${item}`),
       "",
+      "### 本年三个方向",
+      ...YEAR_DIRECTION_KEYS.flatMap((key) => {
+        const entry = value.directions[key];
+        return [
+          `#### ${YEAR_DIRECTION_LABELS[key]}`,
+          entry.summary,
+          ...renderCompactLists(entry),
+          "",
+        ];
+      }),
       "### 本年建议",
       ...value.finalAdvice.map((item) => `- ${item}`),
     ].join("\n").trim();
@@ -435,7 +492,7 @@ function repairLuckReport(report, refs, rawFactPack, candidatePack) {
     const insufficient = INSUFFICIENT_PATTERN.test(sanitized.summary);
 
     if (!pair && !insufficient) {
-      repaired.directions[key] = emptyDirection();
+      repaired.directions[key] = emptyDirection(key);
       warnings.push(`${LUCK_DIRECTION_LABELS[key]}缺少独立规则证据，已降级为“等待流年触发”，不再阻断整篇报告`);
       return;
     }
@@ -463,7 +520,7 @@ function repairLuckReport(report, refs, rawFactPack, candidatePack) {
     repaired.actionAdvice.control = ["控制分散投入，重要决定保留复核和调整空间"];
   }
   if (!repaired.actionAdvice.avoidForNow.length) {
-    repaired.actionAdvice.avoidForNow = ["证据不足的领域不急于下长期结论，等待流年进一步触发"];
+    repaired.actionAdvice.avoidForNow = ["当前不突出的领域先保持观察，把精力放在本运已经显现的主线上"];
   }
 
   if (!repaired.transition.summary) {
@@ -471,6 +528,55 @@ function repairLuckReport(report, refs, rawFactPack, candidatePack) {
   }
 
   return { report: repaired, warnings: unique(warnings) };
+}
+
+function repairYearReport(report, candidatePack) {
+  const repaired = clone(report);
+  const warnings = [];
+
+  YEAR_DIRECTION_KEYS.forEach((key) => {
+    const entry = repaired.directions?.[key] ?? normalizeDirection({});
+    let summary = naturalizePublicDirectionText(entry.summary, key);
+    let positive = entry.positive.map((item) =>
+      naturalizePublicDirectionText(item, key),
+    );
+    let risks = entry.risks.map((item) =>
+      naturalizePublicDirectionText(item, key),
+    );
+    let advice = entry.advice.map((item) =>
+      naturalizePublicDirectionText(item, key),
+    );
+
+    if (key === "healthState") {
+      summary = removeUnsupportedHealthTerms(summary, candidatePack);
+      positive = positive.map((item) =>
+        removeUnsupportedHealthTerms(item, candidatePack),
+      );
+      risks = risks.map((item) =>
+        removeUnsupportedHealthTerms(item, candidatePack),
+      );
+      advice = advice.map((item) =>
+        removeUnsupportedHealthTerms(item, candidatePack),
+      );
+    }
+
+    repaired.directions[key] = {
+      ...entry,
+      summary: summary || DIRECTION_FALLBACKS[key],
+      positive: unique(positive),
+      risks: unique(risks),
+      advice: unique(advice),
+    };
+
+    if (!entry.summary) {
+      warnings.push(`${YEAR_DIRECTION_LABELS[key]}未形成集中主线，已使用自然保守表达`);
+    }
+  });
+
+  return {
+    report: repaired,
+    warnings: unique(warnings),
+  };
 }
 
 function sanitizeEvidenceSection(section, candidatePack) {
@@ -496,7 +602,7 @@ function sanitizeDirection(entry, key, rawFactPack, candidatePack) {
   if (key === "relationship") {
     const wrongGender = (gender === "male" && /(女命|官杀为夫星|夫星合身|女命以官杀)/.test(combined))
       || (gender === "female" && /(男命|财星为妻星|妻星合身|男命以财星)/.test(combined));
-    if (wrongGender) return emptyDirection();
+    if (wrongGender) return emptyDirection(key);
   }
 
   if (key === "healthState") {
@@ -508,10 +614,16 @@ function sanitizeDirection(entry, key, rawFactPack, candidatePack) {
 
   return {
     ...entry,
-    summary: summary || INSUFFICIENT_TEXT,
-    positive: unique(positive),
-    risks: unique(risks),
-    advice: unique(advice),
+    summary: naturalizePublicDirectionText(summary || INSUFFICIENT_TEXT, key),
+    positive: unique(
+      positive.map((item) => naturalizePublicDirectionText(item, key)),
+    ),
+    risks: unique(
+      risks.map((item) => naturalizePublicDirectionText(item, key)),
+    ),
+    advice: unique(
+      advice.map((item) => naturalizePublicDirectionText(item, key)),
+    ),
   };
 }
 
@@ -558,9 +670,51 @@ function removeUnsupportedHealthTerms(value, candidatePack) {
   return output;
 }
 
-function emptyDirection() {
+function naturalizePublicDirectionText(value, key = "") {
+  let output = text(value);
+
+  if (!output) {
+    return DIRECTION_FALLBACKS[key] || INSUFFICIENT_TEXT;
+  }
+
+  output = output
+    .replace(
+      /原局只支持寒暖燥湿、压力和生活节奏层面的提醒[，,]?\s*不足以判断具体器官或疾病[。.]?/g,
+      "这一方面更多体现为寒暖燥湿、压力承受和生活节奏的变化，重点观察恢复力与长期紧绷感。",
+    )
+    .replace(
+      /不足以判断具体器官或疾病/g,
+      "更适合观察压力、恢复力与生活节奏的变化",
+    )
+    .replace(
+      /没有专门(?:健康)?规则支持时?[，,：:]?/g,
+      "",
+    )
+    .replace(
+      /证据不足[，,。]?/g,
+      "这一方向当前不算突出，",
+    )
+    .replace(
+      /(?:本运在该方向)?暂未形成独立强象[，,。]?\s*(?:先看原局底色[，,。]?)?\s*(?:并)?等待流年进一步触发[。.]?/g,
+      DIRECTION_FALLBACKS[key] || INSUFFICIENT_TEXT,
+    )
+    .replace(
+      /未形成独立强象[，,。]?/g,
+      "当前不是最强主线，",
+    )
+    .replace(
+      /等待流年进一步触发/g,
+      "具体变化更看后续流年触发",
+    )
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return output || DIRECTION_FALLBACKS[key] || INSUFFICIENT_TEXT;
+}
+
+function emptyDirection(key = "") {
   return {
-    summary: INSUFFICIENT_TEXT,
+    summary: DIRECTION_FALLBACKS[key] || INSUFFICIENT_TEXT,
     evidenceIds: [],
     ruleIds: [],
     positive: [],
@@ -703,6 +857,12 @@ function normalizeYearFlowReport(report) {
       risks: unique(array(report?.eventOutline?.risks)).slice(0, 3),
       advice: unique(array(report?.eventOutline?.advice)).slice(0, 3),
     },
+    directions: Object.fromEntries(
+      YEAR_DIRECTION_KEYS.map((key) => [
+        key,
+        normalizeDirection(report?.directions?.[key]),
+      ]),
+    ),
     selectedImages: legacyImages,
     finalAdvice: unique(array(report?.finalAdvice)).slice(0, 5),
     verificationQuestions: unique(array(report?.verificationQuestions)).slice(0, 5),
@@ -760,6 +920,13 @@ function validateYearFlowReport(report, refs, warnings) {
     validateReferences(entry, label, refs, warnings, { required: false });
   });
   if (!report.eventOutline?.summary) warnings.push("事件轮廓缺失，报告仍照常展示");
+
+  YEAR_DIRECTION_KEYS.forEach((key) => {
+    const entry = report.directions?.[key];
+    const label = YEAR_DIRECTION_LABELS[key];
+    if (!entry?.summary) warnings.push(`${label}简断缺失，已显示自然保守表达`);
+    validateReferences(entry, label, refs, warnings, { required: false });
+  });
 }
 
 function validateMonthFlowReport(report, refs, warnings) {

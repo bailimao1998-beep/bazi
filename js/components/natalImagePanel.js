@@ -4168,8 +4168,46 @@ function safe(value) {
     .replaceAll("'", "&#039;");
 }
 
+function naturalizePublicNatalText(value = "") {
+  return String(value ?? "")
+    .replace(
+      /原局只支持寒暖燥湿、压力和生活节奏层面的提醒[，,]?\s*不足以判断具体器官或疾病[。.]?/g,
+      "这一方面更多体现为寒暖燥湿、压力承受和生活节奏的变化，重点观察恢复力与长期紧绷感。",
+    )
+    .replace(
+      /不足以判断具体器官或疾病/g,
+      "更适合观察压力、恢复力与生活节奏的变化",
+    )
+    .replace(
+      /没有专门(?:健康)?规则支持时?[，,：:]?/g,
+      "",
+    )
+    .replace(
+      /证据不足[，,。]?/g,
+      "当前主线不算突出，",
+    )
+    .replace(
+      /未形成独立强象[，,。]?\s*(?:等待|需等)流年进一步触发[。.]?/g,
+      "当前不是最强主线，具体变化更看后续岁运触发。",
+    )
+    .replace(
+      /未形成独立强象/g,
+      "当前不是最强主线",
+    )
+    .replace(
+      /等待流年进一步触发/g,
+      "具体变化更看后续岁运触发",
+    )
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function display(value) {
-  return safe(humanizeText(value));
+  return safe(
+    naturalizePublicNatalText(
+      humanizeText(value),
+    ),
+  );
 }
 
 function confidenceLabel(value) {

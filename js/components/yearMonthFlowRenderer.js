@@ -39,8 +39,21 @@ export function renderYearFlowReport(report = {}) {
 
       <section class="year-month-flow-note is-year">
         <b>本年重点领域</b>
-        <p>${escapeHtml(value.eventOutline.summary || "可以说事件轮廓、作用方向与需要注意的领域，但不把结果写死。")}</p>
+        <p>${escapeHtml(value.eventOutline.summary || "本年事件轮廓以当前大运背景和流年触发为主。")}</p>
         ${renderThreePartAdvice(value.eventOutline)}
+      </section>
+
+      <section class="year-flow-directions-wrap">
+        <div class="year-flow-directions-head">
+          <span>现实落点</span>
+          <h4>本年三个方向</h4>
+          <p>四步推导之后，再分别看事业、关系和身心节奏如何落到现实。</p>
+        </div>
+        <div class="year-flow-directions">
+          ${renderYearDirectionCard("事业 / 方向", value.directions.careerDirection, "career")}
+          ${renderYearDirectionCard("感情 / 关系", value.directions.relationship, "relationship")}
+          ${renderYearDirectionCard("身心 / 状态", value.directions.healthState, "health")}
+        </div>
       </section>
 
       <section class="year-force-matrix">
@@ -104,6 +117,32 @@ export function renderMonthFlowReport(report = {}) {
           <article><b>流月</b><p>决定这件事在哪个月前后有动静，为行动节奏提供参考。</p></article>
         </div>
       </section>
+    </div>
+  `;
+}
+
+function renderYearDirectionCard(title, entry = {}, tone = "career") {
+  return `
+    <article class="year-flow-direction is-${escapeHtml(tone)}">
+      <h5>${escapeHtml(title)}</h5>
+      <p>${escapeHtml(
+        entry.summary ||
+        "这一方向当前不是本年最强主线，主要承接原局与大运背景。",
+      )}</p>
+      ${renderDirectionDetail("有利面", entry.positive)}
+      ${renderDirectionDetail("压力点", entry.risks)}
+      ${renderDirectionDetail("建议", entry.advice)}
+    </article>
+  `;
+}
+
+function renderDirectionDetail(title, items) {
+  const values = array(items);
+  if (!values.length) return "";
+  return `
+    <div class="year-flow-direction-detail">
+      <b>${escapeHtml(title)}</b>
+      <p>${escapeHtml(values.join("；"))}</p>
     </div>
   `;
 }
@@ -216,6 +255,11 @@ function normalizeYear(report) {
       risks: array(value.eventOutline?.risks),
       advice: array(value.eventOutline?.advice),
     },
+    directions: {
+      careerDirection: normalizeDirection(value.directions?.careerDirection),
+      relationship: normalizeDirection(value.directions?.relationship),
+      healthState: normalizeDirection(value.directions?.healthState),
+    },
     finalAdvice: array(value.finalAdvice),
     verificationQuestions: array(value.verificationQuestions),
   };
@@ -238,6 +282,16 @@ function normalizeMonth(report) {
       pace: array(value.actionAdvice?.pace),
     },
     rhythmSummary: text(value.rhythmSummary),
+  };
+}
+
+function normalizeDirection(value) {
+  const entry = object(value);
+  return {
+    summary: text(entry.summary),
+    positive: array(entry.positive),
+    risks: array(entry.risks),
+    advice: array(entry.advice),
   };
 }
 

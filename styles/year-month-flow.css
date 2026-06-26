@@ -401,3 +401,112 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* === Year three-domain cards v8.10.26 === */
+.year-flow-directions-wrap {
+  min-width: 0;
+  width: 100%;
+  padding: 20px 22px;
+  border: 1px solid #d4dfda;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #f5faf8, #fffdf9);
+  box-shadow: 0 7px 18px rgba(69, 54, 36, 0.045);
+}
+
+.year-flow-directions-head {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.year-flow-directions-head span {
+  display: inline-block;
+  margin-bottom: 5px;
+  color: #1f6f6a;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.year-flow-directions-head h4 {
+  margin: 0;
+  color: #222c33;
+  font-size: 20px;
+}
+
+.year-flow-directions-head p {
+  margin: 7px 0 0;
+  color: #58636d;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.year-flow-directions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.year-flow-direction {
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid #dcd4c8;
+  border-top: 4px solid #7ba99d;
+  border-radius: 12px;
+  background: rgba(255, 253, 249, 0.96);
+}
+
+.year-flow-direction.is-career {
+  border-top-color: #7470b2;
+  background: linear-gradient(180deg, #f7f5ff, #fffdf9 48%);
+}
+
+.year-flow-direction.is-relationship {
+  border-top-color: #4f9a7e;
+  background: linear-gradient(180deg, #f1faf6, #fffdf9 48%);
+}
+
+.year-flow-direction.is-health {
+  border-top-color: #bd795e;
+  background: linear-gradient(180deg, #fff6f1, #fffdf9 48%);
+}
+
+.year-flow-direction h5 {
+  margin: 0 0 10px;
+  color: #253139;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.year-flow-direction > p,
+.year-flow-direction-detail p {
+  margin: 0;
+  color: #35414a;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.year-flow-direction-detail {
+  margin-top: 11px;
+  padding: 10px 11px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.year-flow-direction-detail b {
+  display: block;
+  margin-bottom: 4px;
+  color: #1f6f6a;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+@media (max-width: 1050px) {
+  .year-flow-directions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .year-flow-directions-wrap {
+    padding: 17px;
+  }
+}

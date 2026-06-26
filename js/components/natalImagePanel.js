@@ -146,7 +146,6 @@ export function renderNatalImagePanel(
     root.innerHTML = `
       <div class="plugin-header">
         <p class="eyebrow">原局取象</p>
-        <h2>原局整体取象</h2>
       </div>
       <p class="muted">
         等待基础排盘完成后生成原局取象。
@@ -179,7 +178,6 @@ export function renderNatalImagePanel(
   root.innerHTML = `
     <div class="plugin-header">
       <p class="eyebrow">原局取象</p>
-      <h2>原局整体取象</h2>
       ${
         showDebug && report.engineVersion
           ? `

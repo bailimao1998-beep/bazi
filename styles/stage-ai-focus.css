@@ -1,0 +1,422 @@
+/* BAZI_STAGE_AI_FOCUS_V1
+ * Make the stage AI action/result the primary visual entry without changing AI logic.
+ */
+
+.stage-ai-primary {
+  position: relative;
+  z-index: 2;
+  margin: 16px 0 18px;
+}
+
+.ai-feature-card,
+.ai-feature-result {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #9fc9c5;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(47, 111, 115, 0.13), transparent 28%),
+    linear-gradient(135deg, #f4fbf9 0%, #fffdf8 58%, #fbf4e7 100%);
+  box-shadow: 0 14px 34px rgba(47, 111, 115, 0.10);
+}
+
+.ai-feature-card::before,
+.ai-feature-result::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, #2f6f73 0%, #5d9b96 48%, #c9a86a 100%);
+}
+
+.ai-feature-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  min-height: 126px;
+  padding: 22px 24px 20px;
+}
+
+.ai-feature-copy {
+  min-width: 0;
+}
+
+.ai-feature-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.ai-feature-mark {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid rgba(47, 111, 115, 0.28);
+  border-radius: 15px;
+  background: linear-gradient(145deg, #2f6f73, #4f8e89);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(47, 111, 115, 0.20);
+  font-size: 16px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+}
+
+.ai-feature-kicker {
+  display: block;
+  margin-bottom: 3px;
+  color: #2f6f73;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+.ai-feature-heading h3 {
+  margin: 0;
+  color: #21383a;
+  font-size: clamp(18px, 1.35vw, 23px);
+  line-height: 1.32;
+}
+
+.ai-feature-copy > p {
+  max-width: 880px;
+  margin: 12px 0 0 61px;
+  color: #536568;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.ai-feature-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 12px 0 0 61px;
+}
+
+.ai-feature-meta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 27px;
+  padding: 0 9px;
+  border: 1px solid rgba(47, 111, 115, 0.17);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #557276;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.ai-feature-meta span::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 999px;
+  background: #5d9b96;
+}
+
+.ai-feature-action {
+  display: grid;
+  justify-items: stretch;
+  gap: 7px;
+  width: min(270px, 25vw);
+}
+
+.ai-feature-button {
+  position: relative;
+  display: grid;
+  min-height: 62px;
+  align-content: center;
+  justify-items: center;
+  padding: 10px 22px;
+  border: 1px solid #2f6f73;
+  border-radius: 11px;
+  background: linear-gradient(145deg, #2f6f73, #3f8581);
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(47, 111, 115, 0.22);
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.ai-feature-button:hover:not(:disabled),
+.ai-feature-button:focus-visible:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(47, 111, 115, 0.28);
+  filter: saturate(1.08);
+}
+
+.ai-feature-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.ai-feature-button > span {
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.ai-feature-button > small {
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.ai-feature-button.is-loading {
+  padding-right: 48px;
+}
+
+.ai-feature-button.is-loading::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  width: 17px;
+  height: 17px;
+  border: 2px solid rgba(255, 255, 255, 0.42);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ai-feature-spin 0.8s linear infinite;
+}
+
+@keyframes ai-feature-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ai-feature-hint {
+  color: #708083;
+  font-size: 10px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.ai-feature-feedback {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ai-feature-feedback .form-error,
+.ai-feature-feedback .ai-validation-notice {
+  margin: 0;
+}
+
+.ai-feature-result {
+  margin: 0;
+  background: #fffdf9;
+}
+
+.ai-feature-result > summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 86px;
+  padding: 18px 22px;
+  cursor: pointer;
+  list-style: none;
+  background:
+    radial-gradient(circle at 88% 10%, rgba(47, 111, 115, 0.12), transparent 32%),
+    linear-gradient(135deg, #f4fbf9 0%, #fffdf8 100%);
+}
+
+.ai-feature-result > summary::-webkit-details-marker {
+  display: none;
+}
+
+.ai-result-summary-main {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 13px;
+}
+
+.ai-result-summary-main > span:last-child {
+  min-width: 0;
+}
+
+.ai-result-summary-main small {
+  display: block;
+  margin-bottom: 3px;
+  color: #2f6f73;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+}
+
+.ai-result-summary-main strong {
+  display: block;
+  overflow: hidden;
+  color: #21383a;
+  font-size: 20px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-result-summary-action {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid rgba(47, 111, 115, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #496a6d;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.ai-result-summary-action::after {
+  content: "⌄";
+  font-size: 15px;
+  line-height: 1;
+  transition: transform 160ms ease;
+}
+
+.ai-feature-result[open] .ai-result-summary-action::after {
+  transform: rotate(180deg);
+}
+
+.ai-feature-result .ai-collapse-body {
+  padding: 0 22px 22px;
+  border-top: 1px solid rgba(47, 111, 115, 0.12);
+}
+
+.ai-feature-result-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px 0 12px;
+}
+
+.ai-feature-result-toolbar .ai-collapse-status {
+  display: grid;
+  gap: 3px;
+}
+
+.ai-feature-result-toolbar .ai-collapse-status b {
+  color: #2f6f73;
+  font-size: 13px;
+}
+
+.ai-feature-result-toolbar .ai-collapse-status small {
+  color: #68797c;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.ai-feature-result-toolbar .ai-collapse-button {
+  flex: 0 0 auto;
+  min-height: 37px;
+  padding: 0 14px;
+  border: 1px solid #8bb9b5;
+  border-radius: 8px;
+  background: #eef7f5;
+  color: #2f6f73;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.ai-feature-result .ai-collapse-output {
+  padding-top: 4px;
+}
+
+.stage-analysis-section:has(.ai-feature-card) .stage-analysis-header,
+.stage-analysis-section:has(.ai-feature-result) .stage-analysis-header {
+  margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .ai-feature-card {
+    grid-template-columns: 1fr;
+    gap: 17px;
+  }
+
+  .ai-feature-action {
+    width: 100%;
+  }
+
+  .ai-feature-copy > p,
+  .ai-feature-meta {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .stage-ai-primary {
+    margin-top: 12px;
+  }
+
+  .ai-feature-card {
+    min-height: 0;
+    padding: 18px 16px 16px;
+    border-radius: 11px;
+  }
+
+  .ai-feature-heading {
+    align-items: flex-start;
+  }
+
+  .ai-feature-mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  .ai-feature-meta {
+    gap: 5px;
+  }
+
+  .ai-feature-meta span {
+    min-height: 25px;
+    font-size: 10px;
+  }
+
+  .ai-feature-result > summary {
+    min-height: 76px;
+    padding: 15px 14px;
+  }
+
+  .ai-result-summary-main {
+    gap: 10px;
+  }
+
+  .ai-result-summary-main strong {
+    max-width: 48vw;
+    font-size: 16px;
+  }
+
+  .ai-result-summary-action {
+    padding: 6px 8px;
+  }
+
+  .ai-feature-result .ai-collapse-body {
+    padding: 0 14px 16px;
+  }
+
+  .ai-feature-result-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ai-feature-result-toolbar .ai-collapse-button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-feature-button,
+  .ai-result-summary-action::after {
+    transition: none;
+  }
+
+  .ai-feature-button.is-loading::after {
+    animation-duration: 1.5s;
+  }
+}

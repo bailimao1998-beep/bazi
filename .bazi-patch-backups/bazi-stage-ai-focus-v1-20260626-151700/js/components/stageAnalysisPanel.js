@@ -37,7 +37,10 @@ export function renderStageAnalysisPanel(root, {
       </div>
       ${selectorHtml ? `<div class="stage-analysis-tools">${selectorHtml}</div>` : ""}
     </div>
-    <section class="stage-ai-collapse stage-ai-primary" aria-label="${escapeHtml(title || "阶段分析")} AI 解读">
+    <section class="stage-image-content">
+      ${hasReport ? renderStageImageCards(report, item, stage, evidenceContext) : `<p class="muted">等待基础排盘后生成取象内容。</p>`}
+    </section>
+    <section class="stage-ai-collapse stage-ai-below">
       ${renderAiCollapse({
         stage,
         title: aiTitle,
@@ -45,9 +48,6 @@ export function renderStageAnalysisPanel(root, {
         state: aiState,
         hasReport,
       })}
-    </section>
-    <section class="stage-image-content">
-      ${hasReport ? renderStageImageCards(report, item, stage, evidenceContext) : `<p class="muted">等待基础排盘后生成取象内容。</p>`}
     </section>
   `;
 
@@ -95,11 +95,6 @@ export function renderAiCollapse({
     ? "正在生成 AI 分析..."
     : (helper || "基础数据与结构事实由前端确定，AI只能从规则库候选象中选择和分析。");
   const statusLabel = state.loading ? "生成中" : hasReport ? "AI 辅助" : "等待排盘";
-  const stageLabel = {
-    luck: "大运",
-    year: "流年",
-    month: "流月",
-  }[stage] || "阶段";
   const hasStructured = state.structured
     && typeof state.structured === "object";
   const structuredLuck = stage === "luck" && hasStructured;
@@ -109,31 +104,16 @@ export function renderAiCollapse({
 
   if (!hasOutput) {
     return `
-      <article class="ai-feature-card ai-feature-empty ai-feature-${escapeHtml(stage)}" aria-busy="${state.loading ? "true" : "false"}">
-        <div class="ai-feature-copy">
-          <div class="ai-feature-heading">
-            <span class="ai-feature-mark" aria-hidden="true">AI</span>
-            <div>
-              <span class="ai-feature-kicker">${escapeHtml(stageLabel)} · AI 解读中心</span>
-              <h3>${escapeHtml(title || `${stageLabel} AI 分析`)}</h3>
-            </div>
-          </div>
-          <p>${escapeHtml(helperText)}</p>
-          <div class="ai-feature-meta" aria-label="AI 分析特点">
-            <span>${hasReport ? `${escapeHtml(stageLabel)}数据已就绪` : "等待基础排盘"}</span>
-            <span>规则事实先确定</span>
-            <span>生成结果可折叠</span>
-          </div>
-        </div>
-        <div class="ai-feature-action">
-          <button type="button" class="primary ai-feature-button ${state.loading ? "is-loading" : ""}" data-stage-ai-generate ${disabled ? "disabled" : ""}>
-            <span>${buttonText}</span>
-            <small>${state.loading ? "正在组织阶段叙事" : "基于当前阶段数据"}</small>
+      <div class="ai-collapse-card ai-collapse-action-only">
+        <div class="ai-collapse-toolbar">
+          <span class="ai-collapse-status">
+            <b>${escapeHtml(statusLabel)}</b>
+            <small>${escapeHtml(helperText)}</small>
+          </span>
+          <button type="button" class="secondary ai-collapse-button" data-stage-ai-generate ${disabled ? "disabled" : ""}>
+            ${buttonText}
           </button>
-          <small class="ai-feature-hint">先看结构，再让 AI 串联成可复核的现实情节。</small>
         </div>
-      </article>
-      <div class="ai-feature-feedback">
         ${state.error ? `<p class="form-error">${escapeHtml(state.error)}</p>` : ""}
         ${renderAiWarnings(state.warnings)}
       </div>
@@ -149,25 +129,22 @@ export function renderAiCollapse({
         : renderAiText(state.text);
 
   return `
-    <details class="ai-collapse-card stage-ai-result-details stage-ai-result-${escapeHtml(stage)} ai-feature-result" open>
+    <details class="ai-collapse-card stage-ai-result-details stage-ai-result-${escapeHtml(stage)}" open>
       <summary class="stage-ai-result-summary">
-        <span class="ai-result-summary-main">
-          <span class="ai-feature-mark" aria-hidden="true">AI</span>
-          <span>
-            <small>${escapeHtml(stageLabel)} · AI 解读已生成</small>
-            <strong>${escapeHtml(aiResultTitle(title))}</strong>
-          </span>
+        <span>
+          <strong>${escapeHtml(aiResultTitle(title))}</strong>
+          <small>点击标题可展开或收起完整分析</small>
         </span>
-        <b class="ai-result-summary-action">展开 / 收起</b>
+        <b>展开 / 收起</b>
       </summary>
       <div class="ai-collapse-body">
-        <div class="ai-feature-result-toolbar">
+        <div class="ai-collapse-toolbar stage-ai-result-toolbar">
           <span class="ai-collapse-status">
             <b>${escapeHtml(statusLabel)}</b>
             <small>${escapeHtml(helperText)}</small>
           </span>
           <button type="button" class="secondary ai-collapse-button" data-stage-ai-generate ${disabled ? "disabled" : ""}>
-            ${state.loading ? "重新生成中..." : `重新生成${escapeHtml(stageLabel)}分析`}
+            ${buttonText}
           </button>
         </div>
         ${state.loading ? `<p class="muted">正在生成 AI 分析...</p>` : ""}
@@ -178,6 +155,8 @@ export function renderAiCollapse({
     </details>
   `;
 }
+
+
 function renderAiWarnings(values = []) {
   const warnings = [...new Set(
     (Array.isArray(values) ? values : [])

@@ -1,0 +1,46 @@
+/* AI_CHAT_VIEWPORT_FIX_V322
+ * 修正 V3.2.1：不再拉高 article.ai-conversation-turn 制造空白。
+ * 真正放大的应该是外层问答滚动视窗。
+ */
+
+/* 让中间问答区域吃满头部、追加提问、输入框之外的所有剩余高度。 */
+.ai-chat-reading-v3 .ai-chat-history-section {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  overflow: hidden;
+}
+
+/* 只有这一层负责滚动。 */
+.ai-chat-reading-v3 .ai-chat-history {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  align-content: start;
+}
+
+/* 撤销 V3.2.1 对单轮问答卡的强制拉高。 */
+.ai-chat-reading-v3.is-follow-up-closed
+.ai-chat-history > .ai-conversation-turn:last-child,
+.ai-chat-reading-v3.is-follow-up-closed
+.ai-chat-history > .ai-conversation-turn:only-child,
+.ai-chat-reading-v3.is-follow-up-open
+.ai-chat-history > .ai-conversation-turn:last-child {
+  min-height: auto !important;
+}
+
+/* 追加提问收起时保持紧凑，把释放出的高度交给 history-section。 */
+.ai-chat-reading-v3.is-follow-up-closed
+.ai-chat-question-shelf.is-follow-up.is-collapsible {
+  flex: 0 0 auto;
+}
+
+.ai-chat-reading-v3.is-follow-up-closed
+.ai-chat-question-shelf.is-follow-up.is-collapsible > summary {
+  min-height: 50px;
+}
+
+/* 展开时按实际内容占高，history-section 自动缩小。 */
+.ai-chat-reading-v3.is-follow-up-open
+.ai-chat-question-shelf.is-follow-up.is-collapsible {
+  flex: 0 0 auto;
+}

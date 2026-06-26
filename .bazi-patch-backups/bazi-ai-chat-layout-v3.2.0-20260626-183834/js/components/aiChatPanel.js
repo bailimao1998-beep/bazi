@@ -7,7 +7,6 @@ import {
 const AI_CHAT_READING_V3 = true;
 const AI_CHAT_REFINEMENT_V31 = true;
 const AI_CHAT_REFINEMENT_V311 = true;
-const AI_CHAT_LAYOUT_V320 = true;
 const aiChatDismissBoundRoots = new WeakSet();
 
 export function renderAiChatPanel(root, payload = {}, actions = {}) {
@@ -111,11 +110,11 @@ export function renderAiChatPanel(root, payload = {}, actions = {}) {
 
     // 空输入框保持紧凑，把更多高度留给中间的 AI 解读正文。
     if (!textarea.value.trim()) {
-      textarea.style.height = "96px";
+      textarea.style.height = "52px";
       return;
     }
 
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 220)}px`;
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 144)}px`;
   };
 
   form?.addEventListener("submit", (event) => {
@@ -131,22 +130,6 @@ export function renderAiChatPanel(root, payload = {}, actions = {}) {
     form?.requestSubmit?.();
   });
   resizeTextarea();
-
-  const followUpDetails = root.querySelector?.(
-    ".ai-chat-question-shelf.is-follow-up.is-collapsible",
-  );
-
-  const syncFollowUpLayout = () => {
-    const shell = root.querySelector?.(".ai-chat-reading-v3");
-    if (!shell) return;
-
-    const isOpen = Boolean(followUpDetails?.open);
-    shell.classList.toggle("is-follow-up-open", isOpen);
-    shell.classList.toggle("is-follow-up-closed", !isOpen);
-  };
-
-  followUpDetails?.addEventListener("toggle", syncFollowUpLayout);
-  syncFollowUpLayout();
 
   root.querySelectorAll?.("[data-ai-chat-suggestion]").forEach((button) => {
     button.addEventListener("click", () => {

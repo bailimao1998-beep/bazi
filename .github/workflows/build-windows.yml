@@ -24,19 +24,49 @@ jobs:
 
       - name: Create AI config
         shell: pwsh
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
-          New-Item -ItemType Directory -Force -Path config
-          @"
-          {
-            "provider": "deepseek",
-            "enabled": true,
-            "deepseek": {
-              "apiKey": "${{ secrets.DEEPSEEK_API_KEY }}",
-              "endpoint": "https://api.deepseek.com/chat/completions",
-              "model": "deepseek-chat"
-            }
+          if ([string]::IsNullOrWhiteSpace($env:DEEPSEEK_API_KEY)) {
+            throw "Repository secret DEEPSEEK_API_KEY is empty or unavailable."
           }
-          "@ | Set-Content -Encoding UTF8 config/ai-config.json
+
+          New-Item -ItemType Directory -Force -Path config | Out-Null
+
+          $config = @{
+            provider = "deepseek"
+            enabled = $true
+            deepseek = @{
+              apiKey = $env:DEEPSEEK_API_KEY
+              endpoint = "https://api.deepseek.com/chat/completions"
+              model = "deepseek-chat"
+            }
+          } | ConvertTo-Json -Depth 4
+
+          [System.IO.File]::WriteAllText(
+            (Join-Path $PWD "config/ai-config.json"),
+            $config,
+            [System.Text.UTF8Encoding]::new($false)
+          )
+
+      - name: Verify AI config packaging
+        shell: pwsh
+        run: |
+          $package = Get-Content package.json -Raw | ConvertFrom-Json
+          if ($package.build.files -notcontains "config/ai-config.json") {
+            throw "package.json does not include config/ai-config.json in build.files."
+          }
+
+          if (-not (Test-Path "config/ai-config.json")) {
+            throw "config/ai-config.json was not created."
+          }
+
+          $config = Get-Content "config/ai-config.json" -Raw | ConvertFrom-Json
+          if ([string]::IsNullOrWhiteSpace($config.deepseek.apiKey)) {
+            throw "The generated AI config does not contain a DeepSeek API key."
+          }
+
+          Write-Host "DeepSeek config is present and included in the Electron package."
 
       - name: Build Windows exe
         run: npm run dist:win-portable

@@ -27,6 +27,7 @@
       "styles/**/*",
       "js/**/*",
       "config/ai-config.example.json",
+      "config/ai-config.json",
       "electron/**/*",
       "data/**/*"
     ],

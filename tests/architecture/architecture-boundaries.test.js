@@ -63,18 +63,20 @@ test("UI modules do not fetch rule databases directly", () => {
   assert.deepEqual(violations, []);
 });
 
-test("Beta compatibility modules stay as thin re-exports", () => {
-  const compatibilityFiles = [
-    ...walkJs(path.join(root, "js", "core")),
-    ...walkJs(path.join(root, "js", "components")),
+test("sealed source tree has no legacy compatibility entrypoints", () => {
+  const removedCompatibilityPaths = [
+    path.join(root, "js", "core"),
+    path.join(root, "js", "components"),
+    path.join(root, "js", "utils"),
+    path.join(root, "js", "data"),
     path.join(root, "js", "lunarCalendar.js"),
-    path.join(root, "js", "data", "shenshaMeaningDatabase.js"),
-    path.join(root, "js", "utils", "html.js"),
+    path.join(root, "js", "locationData.js"),
+    path.join(root, "legacy"),
   ];
-  const violations = compatibilityFiles
-    .filter((file) => !/^export \* from ["'][^"']+["'];\s*$/.test(readFileSync(file, "utf8")))
-    .map((file) => path.relative(root, file));
-  assert.deepEqual(violations, []);
+
+  for (const removedPath of removedCompatibilityPaths) {
+    assert.equal(existsSync(removedPath), false, `${path.relative(root, removedPath)} should stay removed`);
+  }
 });
 
 function walkJs(directory) {

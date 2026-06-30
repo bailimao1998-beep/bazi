@@ -7,17 +7,17 @@
 正式运行链路为：
 
 ```text
-electron/main.js -> index.html -> js/app.js -> js/core/*
+electron/main.js -> index.html -> js/app.js
 ```
 
 - `electron/main.js`：Electron 静态壳，只负责本地静态加载 `index.html`。
 - `index.html` / `js/app.js`：前端主入口。
-- `js/core/bazi`：前端本地排盘。
-- `js/core/blind-bazi`：前端本地取象报告。
-- `js/core/ai`：前端读取本机 AI 配置，并直接调用 DeepSeek；如 endpoint 指向兼容 OpenAI/DeepSeek chat completions 格式的接口，也可作为本地个人用途接入。当前前端设置层默认只内置 mock/deepseek 两类 provider，不做后端 provider 路由。
+- `js/domain/bazi`：前端本地排盘。
+- `js/domain/natal` / `js/domain/transit`：前端本地取象与大运流年流月分析。
+- `js/services/ai`：前端读取本机 AI 配置，并直接调用 DeepSeek；如 endpoint 指向兼容 OpenAI/DeepSeek chat completions 格式的接口，也可作为本地个人用途接入。当前前端设置层默认只内置 mock/deepseek 两类 provider，不做后端 provider 路由。
 - `data/rules`：本地 JSON 规则库。
 
-本项目不使用后端 server 作为主链路；`/api/narrative`、`/api/chat` 等旧后端接口已作为历史备份移到 `legacy/server/`。
+本项目不使用后端 server 作为主链路；封版后不保留旧后端、旧桌面入口和旧路径兼容层。
 
 ## AI 配置
 
@@ -73,21 +73,9 @@ npm test
 - `js/services`：AI、地区和外部数据服务。
 - `js/generated`：由权威 JSON 生成的运行时数据。
 - `js/shared`：不依赖业务层的通用纯函数。
-- `js/core`、`js/components`：Beta 兼容入口，只允许转导出。
 - `tests`：按 `architecture`、`domain`、`services`、`ui`、`integration` 分类。
 
 依赖方向由架构测试约束：`app -> ui/services/domain/shared`、`ui -> domain/shared`、`services -> domain/shared/generated`、`domain -> shared/generated`。
-
-## Legacy
-
-旧版离线演示和旧 server/desktop 实验链路已移动到 `legacy/`：
-
-- `legacy/index.offline.html`
-- `legacy/app.bundle.js`
-- `legacy/desktop/`
-- `legacy/server/`
-
-这些文件只作历史备份，不参与当前正式运行和打包。
 
 ## 边界
 

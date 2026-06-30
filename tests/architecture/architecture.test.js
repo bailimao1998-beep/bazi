@@ -36,7 +36,6 @@ const requiredPaths = [
   "js/app/yearQuestionUtils.js",
   "js/app/renderBaseError.js",
   "js/app/shenshaPopup.js",
-  "js/locationData.js",
   "js/generated/locationCatalog.js",
   "js/services/ai/client/deepseekClient.js",
   "js/services/ai/client/aiSettingsClient.js",
@@ -98,10 +97,11 @@ test("required static Electron frontend paths exist", () => {
   assert.equal(existsSync("data/mock"), false);
   assert.equal(existsSync("index.offline.html"), false);
   assert.equal(existsSync("js/app.bundle.js"), false);
-  assert.ok(existsSync("legacy/desktop"));
-  assert.ok(existsSync("legacy/server"));
-  assert.ok(existsSync("legacy/index.offline.html"));
-  assert.ok(existsSync("legacy/app.bundle.js"));
+  assert.equal(existsSync("legacy"), false);
+  assert.equal(existsSync("js/core"), false);
+  assert.equal(existsSync("js/components"), false);
+  assert.equal(existsSync("js/locationData.js"), false);
+  assert.equal(existsSync("js/lunarCalendar.js"), false);
 });
 
 test("package metadata points at the static Electron shell", () => {
@@ -1168,13 +1168,12 @@ function createRenderRoot() {
   };
 }
 
-test("legacy backups are documented and excluded from package files", () => {
-  const legacyReadme = readFileSync("legacy/README.md", "utf8");
-  const legacyIndex = readFileSync("legacy/index.offline.html", "utf8");
+test("sealed package excludes removed legacy and compatibility files", () => {
   const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 
-  assert.match(legacyReadme, /不参与当前主链路/);
-  assert.match(legacyReadme, /不进入正式打包/);
-  assert.match(legacyIndex, /js\/app\.bundle\.js|app\.bundle\.js/);
+  assert.equal(existsSync("legacy"), false);
+  assert.equal(existsSync("js/core"), false);
+  assert.equal(existsSync("js/components"), false);
+  assert.equal(existsSync("js/locationData.js"), false);
   assert.equal(packageJson.build.files.some((item) => item.startsWith("legacy")), false);
 });

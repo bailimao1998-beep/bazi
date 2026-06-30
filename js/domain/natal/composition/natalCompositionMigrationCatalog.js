@@ -7,8 +7,8 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "branch-main-month-七杀",
     legacyTitle: "月令七杀",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
-      "js/core/natal/composition/compareNatalCompositionShadow.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/composition/compareNatalCompositionShadow.js",
     ],
     classification: "composition_natal",
     targetRuleId: "month_command_official",
@@ -27,8 +27,8 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "branch-main-month-正官",
     legacyTitle: "月令正官",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
-      "js/core/natal/composition/compareNatalCompositionShadow.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/composition/compareNatalCompositionShadow.js",
     ],
     classification: "composition_natal",
     targetRuleId: "month_command_official",
@@ -47,7 +47,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "branch-main-*",
     legacyTitle: "地支主气十神",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -64,7 +64,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "day-master-root",
     legacyTitle: "日主根气",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -82,7 +82,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "day-master-season",
     legacyTitle: "日主得令",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -100,7 +100,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "day-branch-clashed",
     legacyTitle: "日支受冲",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "spouse_palace_relation_tension",
@@ -121,7 +121,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "day-branch-combined",
     legacyTitle: "日支逢合",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "day_branch_combined",
@@ -142,7 +142,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "day-branch-tension",
     legacyTitle: "日支刑害破牵动",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "spouse_palace_relation_tension",
@@ -163,8 +163,8 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "day-pillar-fuyin",
     legacyTitle: "日柱参与伏吟",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "composition_natal",
     targetRuleId: "day_pillar_repetition",
@@ -186,7 +186,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "element-weak",
     legacyTitle: "五行弱象",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -204,7 +204,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "element-flow",
     legacyTitle: "五行流通链",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -222,7 +222,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "element-metal-water-present",
     legacyTitle: "金水同见",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -239,7 +239,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "element-bias-clear",
     legacyTitle: "五行偏性明显",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "element_bias_visible",
@@ -259,7 +259,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "hurting-officer-officer",
     legacyTitle: "伤官见官线索",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "hurting_officer_meets_officer",
@@ -278,7 +278,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "hurting-officer-resource",
     legacyTitle: "伤官配印线索",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "hurting_officer_resource_balance",
@@ -297,7 +297,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "metal-water-fire-weak",
     legacyTitle: "金水偏重、火气不足线索",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "metal_water_fire_weak",
@@ -316,7 +316,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "month-layer",
     legacyTitle: "流月取象",
     sourceFiles: [
-      "js/core/monthly",
+      "js/domain/transit/monthly",
     ],
     classification: "time_layer",
     targetRuleId: "",
@@ -334,7 +334,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "officer-weak-absent",
     legacyTitle: "官杀弱象",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -351,7 +351,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "officer-killing-mixed",
     legacyTitle: "官杀混杂线索",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "officer_killing_mixed",
@@ -370,8 +370,8 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "officer-resource-chain",
     legacyTitle: "官印承接",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "official_resource_support",
@@ -392,7 +392,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "output-weak-absent",
     legacyTitle: "食伤弱象",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -409,7 +409,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "output-wealth-chain",
     legacyTitle: "食伤生财线索",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "output_wealth_chain",
@@ -428,7 +428,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "peer-weak-absent",
     legacyTitle: "比劫弱象",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -445,7 +445,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "peer-wealth-tension",
     legacyTitle: "比劫牵财",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "peer_wealth_competition",
@@ -464,7 +464,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "relation",
     legacyTitle: "干支关系",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -482,7 +482,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "repetition-branch",
     legacyTitle: "地支重复",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -499,7 +499,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "repetition-pillar",
     legacyTitle: "整柱重复",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -516,7 +516,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "resource-weak-absent",
     legacyTitle: "印星弱象",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -533,7 +533,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "resource-heavy-output-weak",
     legacyTitle: "印重食伤弱",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "resource_heavy_output_weak",
@@ -552,7 +552,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "shensha",
     legacyTitle: "神煞辅助",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "auxiliary",
     targetRuleId: "",
@@ -570,7 +570,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "stem-visible",
     legacyTitle: "天干十神透出",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -588,7 +588,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "wealth-weak-absent",
     legacyTitle: "财星弱象",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "atomic_fact",
     targetRuleId: "",
@@ -605,7 +605,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "wealth-heavy-body-weak",
     legacyTitle: "财多身弱线索",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "wealth_heavy_body_weak",
@@ -624,7 +624,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "wealth-officer-resource-chain",
     legacyTitle: "财官印承接线索",
     sourceFiles: [
-      "js/core/natal/atomicNatalRuleDatabase.js",
+      "js/domain/natal/atomicNatalRuleDatabase.js",
     ],
     classification: "composition_natal",
     targetRuleId: "wealth_official_resource_trace",
@@ -643,7 +643,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "wealth-officer-resource-trace",
     legacyTitle: "年月财官印有承接线索",
     sourceFiles: [
-      "js/core/natal/atomicNatalFactEngine.js",
+      "js/domain/natal/atomicNatalFactEngine.js",
     ],
     classification: "duplicate_or_deprecated",
     targetRuleId: "wealth_official_resource_trace",
@@ -661,7 +661,7 @@ const natalCompositionMigrationCatalogItems = [
     legacySemanticGroup: "annual-layer",
     legacyTitle: "流年取象",
     sourceFiles: [
-      "js/core/yearly",
+      "js/domain/transit/yearly",
     ],
     classification: "time_layer",
     targetRuleId: "",

@@ -63,7 +63,20 @@ node scripts/validate-bazi-data.mjs
 npm test
 ```
 
-测试样例数据位于 `tests/fixtures/`，不参与正式打包；正式运行数据只保留在 `data/rules` 和 `data/story-templates`。
+测试样例数据位于 `tests/fixtures/`，不参与正式打包；正式运行数据按规则、知识与内容分别归档在 `data/rules`、`data/knowledge` 和 `data/content`。
+
+## 项目结构
+
+- `js/app`：页面状态和流程编排。
+- `js/ui`：按原局、岁运、问答和共享组件组织的渲染层。
+- `js/domain`：八字、原局、岁运及共享证据逻辑。
+- `js/services`：AI、地区和外部数据服务。
+- `js/generated`：由权威 JSON 生成的运行时数据。
+- `js/shared`：不依赖业务层的通用纯函数。
+- `js/core`、`js/components`：Beta 兼容入口，只允许转导出。
+- `tests`：按 `architecture`、`domain`、`services`、`ui`、`integration` 分类。
+
+依赖方向由架构测试约束：`app -> ui/services/domain/shared`、`ui -> domain/shared`、`services -> domain/shared/generated`、`domain -> shared/generated`。
 
 ## Legacy
 

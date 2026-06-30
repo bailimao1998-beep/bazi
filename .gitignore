@@ -12,3 +12,5 @@ npm-debug.log*
 __pycache__/
 *.pyc
 .tmp-natal-ai-backup/
+.bazi-patch-backups/
+.bazi-patch-state/

@@ -2,19 +2,19 @@ import assert from "node:assert/strict";
 
 import {
   aggregateDomainProfessionalImages,
-} from "../js/core/natal/professional/domainProfessionalAggregation.js";
+} from "../js/domain/natal/professional/domainProfessionalAggregation.js";
 
 import {
   arbitrateProfessionalControlImages,
-} from "../js/core/natal/professional/professionalControlArbitration.js";
+} from "../js/domain/natal/professional/professionalControlArbitration.js";
 
 import {
   buildFactDrivenDomainReport,
-} from "../js/core/domain/domainPortraitEngineV2.js";
+} from "../js/domain/natal/domains/domainPortraitEngineV2.js";
 
 import {
   buildNatalMasterSummary,
-} from "../js/core/natal/natalMasterSummaryEngine.js";
+} from "../js/domain/natal/natalMasterSummaryEngine.js";
 
 const regressionResults = [];
 

@@ -2,19 +2,19 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 const required = [
-  "data/rules/bazi/base-personality.json",
-  "data/rules/bazi/relationship.json",
-  "data/rules/bazi/career.json",
-  "data/rules/bazi/wealth.json",
-  "data/rules/bazi/liunian.json",
-  "data/rules/bazi/liuyue.json",
-  "data/rules/bazi/shensha.json",
-  "data/rules/bazi/master-summary.json",
-  "data/story-templates/year-themes.json",
-  "data/story-templates/month-roles.json",
-  "data/story-templates/relationship-stories.json",
-  "data/story-templates/career-stories.json",
-  "data/story-templates/wealth-stories.json",
+  "data/rules/natal/base-personality.json",
+  "data/rules/natal/relationship.json",
+  "data/rules/natal/career.json",
+  "data/rules/natal/wealth.json",
+  "data/rules/transit/liunian.json",
+  "data/rules/transit/liuyue.json",
+  "data/rules/natal/shensha.json",
+  "data/rules/natal/master-summary.json",
+  "data/content/stories/year-themes.json",
+  "data/content/stories/month-roles.json",
+  "data/content/stories/relationship-stories.json",
+  "data/content/stories/career-stories.json",
+  "data/content/stories/wealth-stories.json",
   "config/ai-config.example.json",
 ];
 
@@ -43,7 +43,7 @@ for (const filePath of listJsonFiles("data")) {
 
 for (const filePath of [
   ...listJsonFiles("data/rules"),
-  ...listJsonFiles("data/story-templates"),
+  ...listJsonFiles("data/content"),
 ]) {
   const content = readFileSync(filePath, "utf8");
   if (forbidden.test(content)) {

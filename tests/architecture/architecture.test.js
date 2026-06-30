@@ -1,0 +1,1180 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import path from "node:path";
+import { calculateBazi } from "../../js/domain/bazi/calculateBazi.js";
+import { buildBaseBaziViewModel } from "../../js/domain/bazi/buildBaseBaziViewModel.js";
+import { buildNatalImageReport } from "../../js/domain/natal/reports/buildNatalImageReport.js";
+import { buildLuckImageReport } from "../../js/domain/transit/reports/buildLuckImageReport.js";
+import { buildYearImageReport } from "../../js/domain/transit/reports/buildYearImageReport.js";
+import { buildMonthImageReport } from "../../js/domain/transit/reports/buildMonthImageReport.js";
+import { buildStageAdvice } from "../../js/domain/transit/advice/stageAdviceEngine.js";
+import {
+  buildLuckEvidencePack,
+  buildMonthEvidencePack,
+  buildNatalEvidencePack,
+  buildYearEvidencePack,
+} from "../../js/domain/shared/evidence/evidencePackBuilder.js";
+import { buildLocalNarrative } from "../../js/domain/shared/evidence/narrativeBuilder.js";
+import {
+  buildNatalMasterSummary,
+  defaultMasterSummaryDatabase,
+} from "../../js/domain/natal/summary/masterSummaryEngine.js";
+import { buildNatalFeatureVector } from "../../js/domain/natal/natalFeatureVector.js";
+import { buildAtomicNatalFacts } from "../../js/domain/natal/atomicNatalFactEngine.js";
+import { renderNatalImagePanel } from "../../js/ui/natal/natalImagePanel.js";
+import { renderStageAnalysisPanel } from "../../js/ui/transit/stageAnalysisPanel.js";
+
+const requiredPaths = [
+  "electron/main.js",
+  "index.html",
+  "js/app.js",
+  "js/app/appState.js",
+  "js/app/appController.js",
+  "js/app/aiActions.js",
+  "js/app/chatActions.js",
+  "js/app/yearQuestionUtils.js",
+  "js/app/renderBaseError.js",
+  "js/app/shenshaPopup.js",
+  "js/locationData.js",
+  "js/generated/locationCatalog.js",
+  "js/services/ai/client/deepseekClient.js",
+  "js/services/ai/client/aiSettingsClient.js",
+  "js/services/ai/chat/buildChatPrompt.js",
+  "js/services/ai/transit/buildLuckAiPrompt.js",
+  "js/services/ai/transit/buildMonthAiPrompt.js",
+  "js/services/ai/natal/buildNatalAiPrompt.js",
+  "js/services/ai/transit/buildYearAiPrompt.js",
+  "js/domain/bazi/calculateBazi.js",
+  "js/domain/bazi/buildBaseBaziViewModel.js",
+  "js/domain/natal/reports/buildNatalImageReport.js",
+  "js/domain/transit/reports/buildLuckImageReport.js",
+  "js/domain/transit/reports/buildYearImageReport.js",
+  "js/domain/transit/reports/buildMonthImageReport.js",
+  "js/domain/natal/domains/domainRuleDatabase.js",
+  "js/domain/natal/domains/combinationRuleDatabase.js",
+  "js/domain/natal/domains/domainEvidenceEngine.js",
+  "js/domain/natal/domains/domainNarrativeEngine.js",
+  "js/domain/natal/domains/domainPortraitEngineV2.js",
+  "js/domain/natal/natalFeatureVector.js",
+  "js/domain/natal/atomicNatalRuleDatabase.js",
+  "js/domain/natal/atomicNatalFactEngine.js",
+  "js/domain/natal/summary/masterSummaryEngine.js",
+  "js/domain/transit/advice/stageAdviceData.js",
+  "js/domain/transit/advice/stageAdviceEngine.js",
+  "js/domain/shared/evidence/knowledgeBase.js",
+  "js/domain/shared/evidence/evidencePackBuilder.js",
+  "js/domain/shared/evidence/narrativeBuilder.js",
+  "data/content/advice/stageAdvice.json",
+  "data/knowledge/location/location-catalog.json",
+  "data/rules/natal/master-summary.json",
+  "js/ui/shared/birthForm.js",
+  "js/ui/transit/fortuneTransitPanel.js",
+  "js/ui/transit/transitHierarchyPanel.js",
+  "js/ui/transit/stageAnalysisPanel.js",
+  "js/ui/shared/floatingAssistPanel.js",
+  "js/ui/chat/aiChatPanel.js",
+  "js/ui/shared/chartSummary.js",
+  "js/ui/shared/auxiliaryObservation.js",
+  "js/shared/html.js",
+  "styles/main.css",
+  "config/ai-config.example.json",
+  "tests/fixtures/mock-chart.json",
+  "tests/fixtures/mock-year-story-tags.json",
+  "tests/fixtures/mock-ai-response.json",
+  ...readdirSync("data/rules/natal")
+    .filter((name) => name.endsWith(".json"))
+    .sort()
+    .map((name) => path.join("data/rules/natal", name)),
+];
+
+test("required static Electron frontend paths exist", () => {
+  for (const filePath of requiredPaths) {
+    assert.ok(existsSync(filePath), `${filePath} should exist`);
+  }
+
+  assert.equal(existsSync("desktop"), false);
+  assert.equal(existsSync("server"), false);
+  assert.equal(existsSync("data/mock"), false);
+  assert.equal(existsSync("index.offline.html"), false);
+  assert.equal(existsSync("js/app.bundle.js"), false);
+  assert.ok(existsSync("legacy/desktop"));
+  assert.ok(existsSync("legacy/server"));
+  assert.ok(existsSync("legacy/index.offline.html"));
+  assert.ok(existsSync("legacy/app.bundle.js"));
+});
+
+test("package metadata points at the static Electron shell", () => {
+  const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+
+  assert.equal(packageJson.main, "electron/main.js");
+  assert.equal(packageJson.scripts.start, "electron .");
+  assert.equal(packageJson.scripts.test, "node --test tests/**/*.test.js");
+  assert.equal(packageJson.scripts["dist:win"], "electron-builder --win nsis --publish never");
+  assert.equal(packageJson.scripts["dist:win-portable"], "electron-builder --win portable --publish never");
+  assert.deepEqual(packageJson.build.files, [
+    "index.html",
+    "styles/**/*",
+    "js/**/*",
+    "config/ai-config.example.json",
+    "config/ai-config.json",
+    "electron/**/*",
+    "data/**/*",
+  ]);
+  assert.equal(packageJson.build.files.some((item) => item.startsWith("server")), false);
+  assert.equal(packageJson.build.files.some((item) => item.startsWith("desktop")), false);
+  assert.equal(packageJson.build.files.some((item) => item.startsWith("tests")), false);
+  assert.equal(packageJson.build.files.some((item) => item.startsWith("legacy")), false);
+});
+
+test("index and app use only the current frontend panels", () => {
+  const index = readFileSync("index.html", "utf8");
+  const appSource = readFileSync("js/app.js", "utf8");
+  const appControllerSource = readFileSync("js/app/appController.js", "utf8");
+  const aiActionsSource = readFileSync("js/app/aiActions.js", "utf8");
+  const chatActionsSource = readFileSync("js/app/chatActions.js", "utf8");
+  const chartSummarySource = readFileSync("js/ui/shared/chartSummary.js", "utf8");
+  const fortuneTransitSource = readFileSync("js/ui/transit/fortuneTransitPanel.js", "utf8");
+  const transitHierarchySource = readFileSync("js/ui/transit/transitHierarchyPanel.js", "utf8");
+  const stageAnalysisSource = readFileSync("js/ui/transit/stageAnalysisPanel.js", "utf8");
+  const birthFormSource = readFileSync("js/ui/shared/birthForm.js", "utf8");
+  const floatingAssistSource = readFileSync("js/ui/shared/floatingAssistPanel.js", "utf8");
+  const natalAiPanelSource = readFileSync("js/ui/natal/natalAiNarrativePanel.js", "utf8");
+  const stageAdviceDataSource = readFileSync("js/domain/transit/advice/stageAdviceData.js", "utf8");
+  const stageAdviceEngineSource = readFileSync("js/domain/transit/advice/stageAdviceEngine.js", "utf8");
+  const knowledgeBaseSource = readFileSync("js/domain/shared/evidence/knowledgeBase.js", "utf8");
+  const evidencePackSource = readFileSync("js/domain/shared/evidence/evidencePackBuilder.js", "utf8");
+  const narrativeBuilderSource = readFileSync("js/domain/shared/evidence/narrativeBuilder.js", "utf8");
+  const natalReportSource = readFileSync("js/domain/natal/reports/buildNatalImageReport.js", "utf8");
+  const domainRuleSource = readFileSync("js/domain/natal/domains/domainRuleDatabase.js", "utf8");
+  const combinationRuleSource = readFileSync("js/domain/natal/domains/combinationRuleDatabase.js", "utf8");
+  const domainEvidenceSource = readFileSync("js/domain/natal/domains/domainEvidenceEngine.js", "utf8");
+  const domainNarrativeSource = readFileSync("js/domain/natal/domains/domainNarrativeEngine.js", "utf8");
+  const domainPortraitV2Source = readFileSync("js/domain/natal/domains/domainPortraitEngineV2.js", "utf8");
+  const natalFeatureVectorSource = readFileSync("js/domain/natal/natalFeatureVector.js", "utf8");
+  const atomicNatalRuleSource = readFileSync("js/domain/natal/atomicNatalRuleDatabase.js", "utf8");
+  const atomicNatalFactSource = readFileSync("js/domain/natal/atomicNatalFactEngine.js", "utf8");
+  const masterSummaryEngineSource = readFileSync("js/domain/natal/summary/masterSummaryEngine.js", "utf8");
+  const masterSummaryJson = JSON.parse(readFileSync("data/rules/natal/master-summary.json", "utf8"));
+  const natalImagePanelSource = readFileSync("js/ui/natal/natalImagePanel.js", "utf8");
+  const styles = readFileSync("styles/layout/layout.css", "utf8")
+    + readFileSync("styles/layout/form.css", "utf8")
+    + readFileSync("styles/transit/fortune.css", "utf8")
+    + readFileSync("styles/natal/bazi-chart.css", "utf8")
+    + readFileSync("styles/natal/natal.css", "utf8")
+    + readFileSync("styles/chat/ai.css", "utf8")
+    + readFileSync("styles/layout/responsive.css", "utf8");
+
+  assert.match(index, /<script src="js\/generated\/locationCatalog\.js\?v=20260612b"><\/script>/);
+  assert.match(index, /<script type="module" src="js\/app\.js\?v=20260613c"><\/script>/);
+  assert.match(index, /id="birthForm"/);
+  assert.match(index, /id="fortuneTransitPanel"/);
+  assert.match(index, /id="coreChartSection"/);
+  assert.match(index, /id="chartSummary"/);
+  assert.match(index, /id="floatingAssist"/);
+  assert.match(index, /id="natalImagePanel"/);
+  assert.match(index, /id="natalAiNarrative"/);
+  assert.match(index, /<section class="stage-image-content" id="natalImagePanel"><\/section>\s*<section class="stage-ai-collapse stage-ai-below" id="natalAiNarrative"><\/section>/);
+  assert.doesNotMatch(index, /<div class="stage-analysis-header">\s*<div>[\s\S]*?<\/div>\s*<section class="stage-ai-collapse" id="natalAiNarrative"><\/section>\s*<\/div>/);
+  assert.match(index, /id="luckStageAnalysis"/);
+  assert.match(index, /id="yearStageAnalysis"/);
+  assert.match(index, /id="monthStageAnalysis"/);
+  assert.match(index, /id="baseBaziPanel"/);
+  assert.match(index, /id="aiChatFloat"/);
+  assert.match(index, /id="aiChatPanel"/);
+  assert.match(index, /class="panel input-section"/);
+  assert.match(index, /class="panel transit-selector-section"/);
+  assert.match(index, /class="panel core-seven-chart-section"/);
+  assert.doesNotMatch(index, /birthDock|birthSummary|coreWorkbench|transitAnalysisSection|transitStageAnalysisPanel|legacy-stage-panels|data-fortune-tab|data-fortune-panel|id="luckImagePanel"|id="yearImagePanel"|id="monthImagePanel"|js\/app\.bundle\.js|index\.offline/);
+
+  assert.match(appSource, /createAppController/);
+  assert.match(appSource, /document\.querySelector\("#birthForm"\)/);
+  assert.match(appSource, /document\.querySelector\("#fortuneTransitPanel"\)/);
+  assert.match(appSource, /document\.querySelector\("#floatingAssist"\)/);
+  assert.match(appSource, /document\.querySelector\("#luckStageAnalysis"\)/);
+  assert.match(appSource, /document\.querySelector\("#yearStageAnalysis"\)/);
+  assert.match(appSource, /document\.querySelector\("#monthStageAnalysis"\)/);
+  assert.doesNotMatch(appSource, /function renderChartSummary|function renderBaziMatrix|function renderBirthInfoStrip|function bindShenshaPopupEvents|function askAiQuestion|function generateNatalAiNarrative|function detectChatIntent|function escapeHtml|generateWithDeepSeek|readAiSettings/);
+  assert.doesNotMatch(appSource, /birthDock|birthSummary/);
+
+  assert.match(appControllerSource, /calculateBazi\(.*locations: .*locationCatalog/s);
+  assert.match(appControllerSource, /buildBaseBaziViewModel\(chart\)/);
+  assert.match(appControllerSource, /buildNatalImageReport\(\{ chart, baseBaziViewModel \}\)/);
+  assert.match(appControllerSource, /renderNatalImagePanel\(roots\.natalImagePanel, store\.state\.natalImageReport, \{/);
+  assert.match(appControllerSource, /buildLuckImageReport/);
+  assert.match(appControllerSource, /buildYearImageReport/);
+  assert.match(appControllerSource, /buildMonthImageReport/);
+  assert.match(appControllerSource, /renderFortuneTransitPanel\(roots\.fortuneTransitPanel/);
+  assert.match(appControllerSource, /renderStageAnalysisPanel\(roots\.luckStageAnalysis/);
+  assert.match(appControllerSource, /renderStageAnalysisPanel\(roots\.yearStageAnalysis/);
+  assert.match(appControllerSource, /renderStageAnalysisPanel\(roots\.monthStageAnalysis/);
+  assert.match(appControllerSource, /buildLuckStageSelector/);
+  assert.match(appControllerSource, /buildYearStageSelector/);
+  assert.match(appControllerSource, /buildMonthStageSelector/);
+  assert.match(appControllerSource, /renderFloatingAssistPanel\(roots\.floatingAssist/);
+  assert.match(appControllerSource, /renderAiChatPanel\(roots\.aiChatPanel/);
+  assert.match(chartSummarySource, /export function renderChartSummary/);
+  assert.match(chartSummarySource + styles, /core-chart-matrix/);
+  assert.match(chartSummarySource + styles, /core-matrix-scroll/);
+  assert.match(chartSummarySource + styles, /core-matrix-grid/);
+  assert.match(chartSummarySource + styles, /matrix-row-label/);
+  assert.match(chartSummarySource + styles, /matrix-col-head/);
+  assert.match(chartSummarySource + styles, /matrix-symbol/);
+  assert.match(chartSummarySource + styles, /matrix-hidden-stems/);
+  assert.match(chartSummarySource + styles, /core-chart-assist/);
+  assert.match(chartSummarySource, /chart-topline/);
+  assert.match(chartSummarySource, /bazi-matrix/);
+  assert.match(chartSummarySource, /main-symbol-row/);
+  assert.match(chartSummarySource, /bazi-symbol/);
+  assert.match(chartSummarySource, /hidden-row/);
+  assert.match(chartSummarySource, /polarityLabels/);
+  assert.match(chartSummarySource, /symbolAttributeLabel/);
+  assert.match(chartSummarySource, /elementClassForSymbol/);
+  assert.match(chartSummarySource + styles, /matrix-symbol\.is-wood/);
+  assert.match(styles, /minmax\(96px,\s*0\.78fr\)/);
+  assert.match(styles, /minmax\(144px,\s*1\.08fr\)/);
+  assert.doesNotMatch(chartSummarySource, /"神煞"|matrix-shensha|pillar-shensha|renderShenshaCell|relation-row|renderRelationCell/);
+  assert.doesNotMatch(chartSummarySource, /matrix-shensha|matrix-relation|is-shensha|is-relation/);
+  assert.doesNotMatch(chartSummarySource, /core-seven-column|core-seven-grid/);
+  assert.match(fortuneTransitSource, /renderTransitHierarchyPanel/);
+  assert.match(fortuneTransitSource, /export function renderFortuneTransitPanel/);
+  assert.match(fortuneTransitSource, /transit-context-pill/);
+  assert.match(transitHierarchySource, /transit-card-ganzhi/);
+  assert.match(transitHierarchySource, /transit-card-signal/);
+  assert.match(transitHierarchySource + styles, /transit-selector-board/);
+  assert.match(transitHierarchySource + styles, /transit-selector-row/);
+  assert.match(transitHierarchySource + styles, /transit-select-card/);
+  assert.match(styles, /grid-template-columns:\s*72px minmax\(0,\s*1fr\)/);
+  assert.match(styles, /transit-select-card::before/);
+  assert.match(styles, /transit-card-list::before/);
+  assert.match(styles, /transit-select-card\.is-active \.transit-card-ganzhi/);
+  assert.match(birthFormSource + styles, /birth-form-compact/);
+  assert.match(birthFormSource + styles, /birth-form-main-grid/);
+  assert.match(birthFormSource + styles, /birth-form-inline-row/);
+  assert.match(birthFormSource + styles, /birth-form-action-row/);
+  assert.match(birthFormSource + styles, /birth-form-hint-row/);
+  assert.match(birthFormSource + styles, /birth-field-date/);
+  assert.match(birthFormSource + styles, /birth-form-heading/);
+  assert.match(birthFormSource + styles, /birth-time-control/);
+  assert.match(birthFormSource, /name="birthHour"/);
+  assert.match(birthFormSource, /name="birthMinute"/);
+  assert.match(birthFormSource, /formatBirthTime/);
+  assert.match(birthFormSource, /getChineseHourLabel/);
+  assert.match(styles, /@media \(max-width: 900px\)/);
+  assert.match(styles, /@media \(max-width: 600px\)/);
+  assert.match(stageAnalysisSource + styles, /stage-analysis-section/);
+  assert.match(stageAnalysisSource, /buildLuckEvidencePack/);
+  assert.match(stageAnalysisSource, /buildLocalNarrative/);
+  assert.match(stageAnalysisSource + styles, /stage-local-narrative-card/);
+  assert.match(stageAnalysisSource + styles, /stage-local-narrative-main/);
+  assert.match(stageAnalysisSource + styles, /stage-local-evidence-chain/);
+  assert.match(stageAnalysisSource + styles, /stage-local-review-details/);
+  assert.match(stageAnalysisSource, /命理师讲盘/);
+  assert.match(natalImagePanelSource, /buildNatalEvidencePack/);
+  assert.match(natalImagePanelSource, /buildNatalMasterSummary/);
+  assert.doesNotMatch(natalImagePanelSource, /buildLocalNarrative/);
+  assert.match(natalImagePanelSource + styles, /natal-master-summary/);
+  assert.match(natalImagePanelSource + styles, /natal-integrated-report/);
+  assert.match(natalImagePanelSource + styles, /natal-domain-section/);
+  assert.match(natalImagePanelSource + styles, /natal-domain-card/);
+  assert.match(natalImagePanelSource + styles, /natal-domain-grid/);
+  assert.match(natalImagePanelSource + styles, /natal-domain-pressure/);
+  assert.match(natalImagePanelSource + styles, /natal-hit-index/);
+  assert.match(natalImagePanelSource + styles, /natal-hit-summary-chips/);
+  assert.match(natalImagePanelSource + styles, /natal-hit-details/);
+  assert.match(natalImagePanelSource + styles, /natal-hit-compact-list/);
+  assert.match(natalImagePanelSource + styles, /natal-hit-row/);
+  assert.match(natalImagePanelSource, /renderNatalIntegratedReport/);
+  assert.match(natalImagePanelSource, /renderNatalHitListSection/);
+  assert.match(natalImagePanelSource, /buildNatalHitList/);
+  assert.match(natalImagePanelSource, /buildNatalAiEvidencePack/);
+  assert.match(natalImagePanelSource, /buildNatalMasterSummary/);
+  assert.match(natalImagePanelSource, /cleanCardText/);
+  assert.doesNotMatch(natalImagePanelSource, /firstSentence\(domain\.judgement/);
+  assert.doesNotMatch(natalImagePanelSource, /firstSentence\(domain\.manifestation/);
+  assert.doesNotMatch(natalImagePanelSource, /function buildNatalMasterSummaryText/);
+  assert.doesNotMatch(natalImagePanelSource, /function buildNatalRealityCompareText/);
+  assert.match(natalImagePanelSource, /renderDomainEvidenceDetail/);
+  assert.doesNotMatch(natalImagePanelSource, /renderProfessionalReviewPanel/);
+  assert.doesNotMatch(natalImagePanelSource + styles, /natal-professional-review/);
+  assert.match(natalImagePanelSource, /原局综合报告/);
+  assert.match(natalAiPanelSource, /AI 原局综合分析/);
+  assert.match(natalAiPanelSource, /AI会读取四柱、十神、藏干、位置和明确干支关系/);
+  assert.match(natalAiPanelSource, /生成原局 AI 分析/);
+  assert.match(natalReportSource, /buildFactDrivenDomainReport/);
+  assert.match(natalReportSource, /const domainResult\s*=\s*buildFactDrivenDomainReport/);
+  assert.match(natalReportSource, /featureVector/);
+  assert.match(natalReportSource, /atomicFacts/);
+  assert.match(natalReportSource, /domainResult\.domainEvidence/);
+  assert.match(natalReportSource, /domainResult\.twelveDomains/);
+  assert.match(natalReportSource, /CONTRACT_DOMAIN_ENGINE_VERSION/);
+  assert.match(natalReportSource, /contractFacts:\s*atomicFacts\.contractFacts/);
+  assert.doesNotMatch(natalReportSource, /function buildTwelveDomainCards/);
+  assert.match(domainRuleSource, /export const domainRules/);
+  assert.match(domainRuleSource, /key:\s*"self"/);
+  assert.match(domainRuleSource, /key:\s*"fortune"/);
+  assert.match(domainRuleSource, /命主自身/);
+  assert.match(domainRuleSource, /福德精神/);
+  assert.match(combinationRuleSource, /export const combinationRules/);
+  assert.ok((combinationRuleSource.match(/id:\s*"/g) || []).length >= 20);
+  for (const label of [
+    "比劫重而财星不显",
+    "比劫重而财星有迹",
+    "印星明显而食伤弱",
+    "印星明显而食伤明显",
+    "官杀明显而印星承接",
+    "官杀明显而伤官明显",
+    "财星明显而比劫明显",
+    "食伤明显而财星有迹",
+    "食伤明显而官杀有压力",
+    "日支被冲",
+    "日支被合",
+    "日支被刑害破",
+    "年月被冲合刑害",
+    "时柱食伤明显",
+    "时柱被冲",
+    "土气明显而财印有迹",
+    "水气明显而寒湿感较重",
+    "火弱或火受制",
+    "五行流通较好",
+    "五行偏颇明显",
+  ]) {
+    assert.match(combinationRuleSource, new RegExp(label));
+  }
+  assert.match(domainEvidenceSource, /export function buildDomainEvidence/);
+  assert.match(domainEvidenceSource, /domainRules/);
+  assert.match(domainEvidenceSource, /combinationRules/);
+  assert.match(domainEvidenceSource, /atomicFacts/);
+  assert.match(domainEvidenceSource, /primaryFact/);
+  assert.match(domainEvidenceSource, /secondaryFacts/);
+  assert.match(domainEvidenceSource, /tensionFact/);
+  assert.match(domainPortraitV2Source, /export function buildFactDrivenDomainReport/);
+  assert.match(domainPortraitV2Source, /atomicFacts\.contractFacts/);
+  assert.match(domainPortraitV2Source, /for \(const rule of domainRules\)/);
+  assert.match(domainPortraitV2Source, /selectDomainEvidence/);
+  assert.match(domainPortraitV2Source, /domainEvidence/);
+  assert.match(domainPortraitV2Source, /twelveDomains/);
+  assert.match(domainPortraitV2Source, /CONTRACT_DOMAIN_ENGINE_VERSION/);
+  assert.match(domainPortraitV2Source, /contractFacts/);
+  assert.match(natalFeatureVectorSource, /export function buildNatalFeatureVector/);
+  assert.match(natalFeatureVectorSource, /dayMaster/);
+  assert.match(natalFeatureVectorSource, /tenGods/);
+  assert.match(natalFeatureVectorSource, /relations/);
+  assert.match(atomicNatalRuleSource, /export const atomicNatalRules/);
+  assert.match(atomicNatalRuleSource, /officer_resource_chain/);
+  assert.match(atomicNatalRuleSource, /day_branch_clashed/);
+  assert.match(atomicNatalFactSource, /export function buildAtomicNatalFacts/);
+  assert.match(atomicNatalFactSource, /byDomain/);
+  assert.match(atomicNatalFactSource, /byCategory/);
+  assert.match(domainNarrativeSource, /export function buildTwelveDomainPortrait/);
+  assert.match(domainNarrativeSource, /function buildDomainHumanTitle/);
+  assert.match(domainNarrativeSource, /function buildDomainFrontText/);
+  assert.match(domainNarrativeSource, /function composeDomainNarrative/);
+  assert.match(domainNarrativeSource, /function pickPrimaryCombinationForDomain/);
+  assert.match(domainNarrativeSource, /pressure/);
+  assert.match(domainNarrativeSource, /buildDomainEvidence/);
+  assert.match(domainNarrativeSource, /domainRules/);
+  assert.match(masterSummaryEngineSource, /export function buildNatalMasterSummary/);
+  assert.match(masterSummaryEngineSource, /export async function loadMasterSummaryDatabase/);
+  assert.match(masterSummaryEngineSource, /atomicFacts/);
+  assert.match(masterSummaryEngineSource, /domainEvidence/);
+  assert.match(masterSummaryEngineSource, /function filterNatalOnlyHits/);
+  assert.match(masterSummaryEngineSource, /function filterNatalOnlyEvidence/);
+  assert.match(masterSummaryEngineSource, /function isStrongRelationshipMovement/);
+  assert.match(masterSummaryEngineSource, /function weightMasterRulePriority/);
+  assert.match(masterSummaryEngineSource, /function buildMasterSections/);
+  assert.match(masterSummaryEngineSource, /function composeMasterHeadline/);
+  assert.match(masterSummaryEngineSource, /defaultMasterSummaryDatabase/);
+  assert.match(domainNarrativeSource, /主见和理解系统较强，做事讲自己的节奏/);
+  assert.match(domainNarrativeSource, /财星有迹，但更偏长期承载和现实责任/);
+  assert.match(domainNarrativeSource, /原局输出不算最外放，后天引动后成果感更明显/);
+  assert.match(domainNarrativeSource, /环境适应和信息流动感较明显/);
+  assert.ok(Array.isArray(masterSummaryJson.rules));
+  assert.ok(masterSummaryJson.rules.length >= 7);
+  for (const rule of masterSummaryJson.rules) {
+    assert.ok(rule.id);
+    assert.ok(rule.label);
+    assert.ok(Array.isArray(rule.hitKeywords));
+    assert.ok(Array.isArray(rule.domains));
+    assert.ok(Number.isFinite(rule.priority));
+    assert.ok(rule.headline);
+    assert.ok(rule.paragraph);
+    assert.ok(rule.reality);
+    assert.ok(rule.boundary);
+    assert.doesNotMatch(JSON.stringify(rule), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
+  }
+  assert.match(knowledgeBaseSource, /比劫重/);
+  assert.match(knowledgeBaseSource, /印星透/);
+  assert.match(knowledgeBaseSource, /财星弱/);
+  assert.match(knowledgeBaseSource, /clientTalk/);
+  assert.match(evidencePackSource, /命中取象/);
+  assert.match(evidencePackSource, /资料解释/);
+  assert.match(evidencePackSource, /成立条件/);
+  assert.match(evidencePackSource, /反证/);
+  assert.match(evidencePackSource, /现实取象/);
+  assert.match(narrativeBuilderSource, /资料解释/);
+  assert.match(narrativeBuilderSource, /成立条件/);
+  assert.match(narrativeBuilderSource, /反证边界/);
+  assert.match(narrativeBuilderSource, /师傅复核点/);
+  assert.match(stageAnalysisSource, /stageAdviceEngine/);
+  assert.match(stageAnalysisSource + styles, /stage-analysis-header/);
+  assert.match(stageAnalysisSource + styles, /ai-collapse-card/);
+  assert.match(stageAnalysisSource, /AI 原局分析结果|AI 大运分析结果|AI 流年分析结果|AI 流月分析结果/);
+  assert.match(stageAnalysisSource, /stage-evidence-list/);
+  assert.match(stageAnalysisSource, /stage-advice-card/);
+  assert.match(stageAnalysisSource, /stage-advice-list/);
+  assert.match(stageAnalysisSource, /buildStageAdvice/);
+  assert.doesNotMatch(stageAnalysisSource, /function stageMainAdvice|function stageRealityAdvice/);
+  assert.match(stageAdviceDataSource, /stageRules/);
+  assert.match(stageAdviceDataSource, /tenGodRules/);
+  assert.match(stageAdviceDataSource, /relationRules/);
+  assert.match(stageAdviceDataSource, /confidenceRules/);
+  assert.match(stageAdviceEngineSource, /export function buildStageAdvice/);
+  assert.match(stageAdviceEngineSource, /function detectRelationType/);
+  assert.match(stageAdviceEngineSource, /function joinSentence/);
+  assert.match(stageAnalysisSource, /stage-quick-summary/);
+  assert.match(stageAnalysisSource, /stage-card-grid/);
+  assert.match(stageAnalysisSource, /stage-compact-context/);
+  assert.match(stageAnalysisSource, /renderStageLocalSelector/);
+  assert.match(stageAnalysisSource, /stage-local-selector/);
+  assert.match(stageAnalysisSource, /data-stage-selector/);
+  assert.match(stageAnalysisSource, /onSelectStageValue/);
+  assert.match(stageAnalysisSource, /<section class="stage-ai-collapse stage-ai-primary"/);
+  assert.doesNotMatch(stageAnalysisSource, /<div class="stage-analysis-tools">[\s\S]*?renderAiCollapse\(\{[\s\S]*?<\/div>\s*<\/div>\s*<section class="stage-image-content">/);
+  assert.match(styles, /\.stage-ai-below/);
+  assert.match(styles, /\.stage-analysis-header\s*\{\s*display:\s*block/);
+  assert.match(stageAnalysisSource + styles, /transit-evidence-mini-grid/);
+  assert.match(styles, /\.stage-card-grid/);
+  assert.match(styles, /\.stage-compact-context/);
+  assert.match(styles, /\.stage-local-selector/);
+  assert.match(styles, /\.stage-advice-card/);
+  assert.match(stageAnalysisSource + styles, /transit-detail-chips/);
+  assert.match(stageAnalysisSource + styles, /transit-signal-pills/);
+  assert.match(stageAnalysisSource, /formatRelationEvidence/);
+  assert.match(stageAnalysisSource, /ai-feature-result-toolbar/);
+  assert.match(stageAnalysisSource, /ai-collapse-status/);
+  assert.match(stageAnalysisSource, /ai-result-summary-action/);
+  assert.match(styles, /\.ai-collapse-action-only/);
+  assert.match(styles, /min-height:\s*44px/);
+  assert.match(styles, /\.ai-collapse-card > summary/);
+  assert.match(styles, /\.stage-ai-below \.ai-collapse-output/);
+  assert.match(floatingAssistSource + styles, /floating-assist/);
+  assert.match(floatingAssistSource, /getShenshaMeaning/);
+  assert.match(floatingAssistSource, /relationImageByTags/);
+  assert.match(floatingAssistSource, /data-shensha-name/);
+  assert.match(floatingAssistSource, /data-pillar-name/);
+  assert.match(floatingAssistSource, /data-pillar-value/);
+  assert.match(floatingAssistSource, /assist-detail-card/);
+  assert.match(floatingAssistSource, /data-assist-detail-close/);
+  assert.match(floatingAssistSource, /handleEscape/);
+  assert.match(floatingAssistSource, /handleOutsideClick/);
+  assert.match(floatingAssistSource, /document\.addEventListener\("keydown", handleEscape\)/);
+  assert.match(floatingAssistSource, /document\.addEventListener\("pointerdown", handleOutsideClick\)/);
+  assert.match(floatingAssistSource, /state\.luckImageReport|state\.yearImageReport|state\.monthImageReport/);
+  assert.match(floatingAssistSource, /assist-relation-panel/);
+  assert.match(floatingAssistSource, /renderRelationSummary/);
+  assert.match(floatingAssistSource, /renderRelationFocus/);
+  assert.match(floatingAssistSource, /dedupeRelations/);
+  assert.match(floatingAssistSource, /detectRelationTags/);
+  assert.match(floatingAssistSource, /relationImageByTags/);
+  assert.match(floatingAssistSource, /assist-empty-compact/);
+  assert.doesNotMatch(floatingAssistSource, /function renderRelationList/);
+  assert.match(styles, /\.assist-relation-summary/);
+  assert.match(styles, /\.assist-relation-card/);
+  assert.match(styles, /\.assist-empty-compact/);
+  assert.match(styles, /\.core-chart-assist \.floating-assist-drawer\s*\{[\s\S]*position:\s*fixed/);
+  assert.match(styles, /\.core-chart-assist \.floating-assist-drawer\[hidden\]\s*\{[\s\S]*display:\s*none/);
+  assert.match(styles, /\.core-chart-assist \.floating-assist-drawer\.is-open\s*\{[\s\S]*display:\s*grid/);
+  assert.match(styles, /top:\s*72px/);
+  assert.match(styles, /bottom:\s*24px/);
+  assert.match(styles, /\.floating-assist-head\s*\{[\s\S]*position:\s*sticky/);
+  assert.match(styles, /\.floating-assist-body\s*\{[\s\S]*overflow-y:\s*auto/);
+  assert.match(styles, /\.assist-chip\.is-clickable/);
+  assert.match(styles, /\.assist-detail-card/);
+  assert.match(styles, /@media \(max-width:\s*700px\)[\s\S]*\.core-chart-assist \.floating-assist-drawer/);
+  assert.match(aiActionsSource, /generateWithDeepSeek/);
+  assert.match(aiActionsSource, /readAiSettings\(\{ includeSecret: true \}\)/);
+  assert.match(chatActionsSource, /buildChatPrompt/);
+  assert.match(chatActionsSource, /generateWithDeepSeek/);
+  assert.doesNotMatch(appSource, /renderLuckImagePanel|renderYearImagePanel|renderMonthImagePanel|luckImagePanel|yearImagePanel|monthImagePanel|bindFortuneTabs|setActiveFortuneTab|activeFortuneTab|\/api\/|createAppServer/);
+  assert.doesNotMatch(appControllerSource + aiActionsSource + chatActionsSource + chartSummarySource + fortuneTransitSource + transitHierarchySource + floatingAssistSource + stageAnalysisSource, /\/api\/chat|\/api\/narrative|createAppServer/);
+
+  assert.doesNotMatch(styles, /\.section-tabs|\.fortune-tab-panel/);
+  assert.doesNotMatch(styles, /workbench-layout|core-sticky-panel|birth-dock-summary|core-workbench|transit-control-panel|core-chart-panel|transit-hierarchy|transit-column|transit-node|fortune-transit-grid|fortune-transit-card|inline-details/);
+});
+
+test("electron main serves index.html statically without desktop/server imports", () => {
+  const electronMain = readFileSync("electron/main.js", "utf8");
+
+  assert.match(electronMain, /BrowserWindow/);
+  assert.match(electronMain, /createStaticServer/);
+  assert.match(electronMain, /\/index\.html/);
+  assert.match(electronMain, /loadURL\(url\)/);
+  assert.match(electronMain, /path\.relative\(rootDir, filePath\)/);
+  assert.match(electronMain, /path\.isAbsolute\(relativePath\)/);
+  assert.doesNotMatch(electronMain, /filePath\.startsWith\(rootDir\)/);
+  assert.match(electronMain, /nodeIntegration:\s*false/);
+  assert.match(electronMain, /contextIsolation:\s*true/);
+  assert.doesNotMatch(electronMain, /createAppServer|desktop|preload|server\/server|\/api\//);
+});
+
+test("frontend AI config and direct DeepSeek call stay in js/services/ai", () => {
+  const settingsClient = readFileSync("js/services/ai/client/aiSettingsClient.js", "utf8");
+  const deepseekClient = readFileSync("js/services/ai/client/deepseekClient.js", "utf8");
+  const gitignore = readFileSync(".gitignore", "utf8");
+  const exampleConfig = readFileSync("config/ai-config.example.json", "utf8");
+  const exampleJson = JSON.parse(exampleConfig);
+
+  assert.match(settingsClient, /fetch\("\/config\/ai-config\.json", \{ cache: "no-store" \}\)/);
+  assert.match(settingsClient, /localStorage/);
+  assert.match(settingsClient, /readAiSettings/);
+  assert.match(settingsClient, /includeSecret/);
+  assert.match(deepseekClient, /fetch\(\s*endpoint/);
+  assert.match(deepseekClient, /Authorization:\s*`Bearer \$\{deepseek\.apiKey\}`/);
+  assert.doesNotMatch(settingsClient + deepseekClient, /\/api\/chat|\/api\/narrative|server\/core|createAiProvider/);
+  assert.match(gitignore, /config\/ai-config\.json/);
+  assert.match(gitignore, /\.env/);
+  assert.match(gitignore, /dist\//);
+  assert.match(gitignore, /node_modules\//);
+  assert.equal(exampleJson.deepseek.apiKey, "");
+  assert.doesNotMatch(exampleConfig, /sk-/);
+});
+
+test("frontend bazi and blind-bazi chain calculates reports locally", () => {
+  global.window = createTestWindow();
+  Function(readFileSync("js/generated/locationCatalog.js", "utf8"))();
+  assert.equal(global.window.FortuneLocationData.cities.length, 3337);
+
+  const chart = calculateBazi({
+    birthDate: "1992-08-18",
+    birthTime: "14:30",
+    birthProvince: "北京市",
+    birthplace: "北京",
+    gender: "female",
+    targetYear: 2026,
+    selectedMonth: 6,
+    trueSolarTime: true,
+  }, {
+    locations: global.window.FortuneLocationData,
+  });
+  const baseBaziViewModel = buildBaseBaziViewModel(chart);
+  const natalImageReport = buildNatalImageReport({ chart, baseBaziViewModel });
+  assert.equal(natalImageReport.twelveDomains.length, 12);
+  assert.deepEqual(natalImageReport.twelveDomains.map((domain) => domain.label), [
+    "命主自身",
+    "父母家庭",
+    "兄弟同辈",
+    "夫妻感情",
+    "子女结果",
+    "财帛财富",
+    "疾厄健康",
+    "迁移环境",
+    "交友人脉",
+    "官禄事业",
+    "田宅资产",
+    "福德精神",
+  ]);
+  for (const domain of natalImageReport.twelveDomains) {
+    assert.ok(domain.key);
+    assert.ok(domain.title);
+    assert.ok(domain.judgement);
+    assert.ok(domain.manifestation);
+    assert.ok(Array.isArray(domain.keywords));
+    assert.ok(Array.isArray(domain.evidence));
+    assert.ok(Array.isArray(domain.matchedCombinations));
+    assert.ok(Array.isArray(domain.condition));
+    assert.ok(domain.bookExplanation);
+    assert.ok(Array.isArray(domain.counterEvidence));
+    assert.match(domain.confidence, /^(high|medium|low)$/);
+    assert.doesNotMatch(
+      `${domain.judgement} ${domain.manifestation}`,
+      /现实中可观察|需观察|需要观察|需复核|需要复核|需要结合|先看|再看|待查|不宜直接|资料取象中|成立条件|反证方式|命中来源|命中依据/,
+    );
+    assert.doesNotMatch(
+      domain.title,
+      /日支被冲|日支被合|比劫重而财星不显|印星明显而食伤明显|官杀明显而印星承接|食伤明显而财星有迹|五行偏颇明显/,
+    );
+    assert.ok(sentenceCount(domain.judgement) <= 2);
+    assert.ok(sentenceCount(domain.manifestation) <= 2);
+  }
+  const selfDomain = natalImageReport.twelveDomains.find((domain) => domain.key === "self");
+  const selfFrontText = `${selfDomain?.title ?? ""}${selfDomain?.judgement ?? ""}${selfDomain?.manifestation ?? ""}`;
+  assert.ok(
+    countMatchedTerms(selfFrontText, ["性格", "主见", "脾气", "节奏", "边界"]) >= 3,
+    "命主自身正面文案要聚焦性格、主见、脾气、做事节奏和边界感",
+  );
+  const uniqueFrontTexts = new Set(natalImageReport.twelveDomains.map((domain) => `${domain.judgement} ${domain.manifestation}`));
+  assert.ok(uniqueFrontTexts.size >= 10, "十二维卡片正面文案不应大面积复用同一套关系牵动话术");
+  const masterSummary = buildNatalMasterSummary({
+    summary: natalImageReport.summary,
+    twelveDomains: natalImageReport.twelveDomains,
+    hitList: [
+      {
+        name: "比劫重而财星不显",
+        category: "组合象",
+        brief: "自我、同辈、竞争合作和财务资源分配之间有牵连。",
+        domains: ["命主自身", "兄弟同辈", "交友人脉", "财帛财富"],
+        importance: "high",
+      },
+      {
+        name: "日支被冲",
+        category: "关系象",
+        brief: "感情、环境和现实责任容易互相牵动。",
+        domains: ["夫妻感情", "迁移环境", "疾厄健康"],
+        importance: "medium",
+      },
+    ],
+    database: defaultMasterSummaryDatabase,
+  });
+  assert.ok(masterSummary.headline);
+  assert.ok(masterSummary.paragraph);
+  assert.ok(masterSummary.realityLine);
+  assert.deepEqual(masterSummary.sections.map((section) => section.key), [
+    "main",
+    "personality",
+    "reality",
+    "future",
+  ]);
+  assert.deepEqual(masterSummary.sections.map((section) => section.title), [
+    "命局主线",
+    "性格与能力",
+    "现实牵动",
+    "后续重点",
+  ]);
+  assert.ok(masterSummary.mainLines.length >= 2);
+  assert.ok(masterSummary.mainLines.length <= 3);
+  assert.ok(masterSummary.tags.length >= 2);
+  assert.ok(masterSummary.evidence.length > 0);
+  assert.match(masterSummary.paragraph, /这个盘|这个人|原局/);
+  assert.match(masterSummary.realityLine, /现实/);
+  assert.doesNotMatch(
+    JSON.stringify(masterSummary),
+    /观察入口|开盘先看|先看|再看|资料取象|命中依据|需复核|可观察/,
+  );
+  assert.ok(masterSummary.headline.length <= 28);
+  assert.doesNotMatch(masterSummary.headline, /。$/);
+  assert.notEqual(
+    masterSummary.paragraph,
+    natalImageReport.twelveDomains.slice(0, 3).map((domain) => domain.title).join(""),
+  );
+  assert.doesNotMatch(JSON.stringify(masterSummary), /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/);
+
+  const foundingChart = calculateBazi({
+    birthDate: "1949-10-01",
+    birthTime: "00:30",
+    birthProvince: "北京市",
+    birthplace: "北京",
+    gender: "male",
+    targetYear: 2026,
+    selectedMonth: 6,
+    trueSolarTime: false,
+  }, {
+    locations: global.window.FortuneLocationData,
+  });
+  assert.deepEqual([
+    foundingChart.pillars.year.label,
+    foundingChart.pillars.month.label,
+    foundingChart.pillars.day.label,
+    foundingChart.pillars.hour.label,
+  ], ["己丑", "癸酉", "甲子", "甲子"]);
+  const foundingViewModel = buildBaseBaziViewModel(foundingChart);
+  const foundingNatalReport = buildNatalImageReport({
+    chart: foundingChart,
+    baseBaziViewModel: foundingViewModel,
+  });
+  const foundingDomains = Object.fromEntries(foundingNatalReport.twelveDomains.map((domain) => [domain.key, domain]));
+  assert.equal(foundingNatalReport.twelveDomains.length, 12);
+  const foundingFactIds = new Set(
+    foundingNatalReport.atomicFacts.contractFacts.map(
+      (fact) => fact.id,
+    ),
+  );
+  for (const [key, label, terms, minimum] of [
+    ["self", "命主自身", ["性格", "判断方式", "做事节奏", "边界感"], 3],
+    ["wealth", "财帛财富", ["收入方式", "资源调度", "变现能力", "财务承载", "财务"], 2],
+    ["children", "子女结果", ["子女议题", "作品", "项目成果", "表达输出", "长期规划", "成果"], 2],
+    ["movement", "迁移环境", ["居住", "出行", "异地", "岗位环境", "生活节奏", "环境"], 2],
+  ]) {
+    const domain = foundingDomains[key];
+    assertDomainPortrait(domain, { key, label });
+    assertMatchedFactsExist(domain, foundingFactIds);
+    assert.ok(
+      countMatchedTerms(domainText(domain), terms) >= minimum,
+      `${label} should retain stable domain-v2 semantics`,
+    );
+  }
+  const foundingSelfText = `${foundingDomains.self.title}${foundingDomains.self.judgement}${foundingDomains.self.manifestation}`;
+  const foundingWealthText = `${foundingDomains.wealth.title}${foundingDomains.wealth.judgement}${foundingDomains.wealth.manifestation}`;
+  assert.doesNotMatch(foundingDomains.wealth.title, /合作|人情|分配牵动/);
+  const foundingChildrenText = `${foundingDomains.children.title}${foundingDomains.children.judgement}${foundingDomains.children.manifestation}`;
+  const foundingMovementText = `${foundingDomains.movement.title}${foundingDomains.movement.judgement}${foundingDomains.movement.manifestation}`;
+  assert.doesNotMatch(
+    `${foundingSelfText}${foundingWealthText}${foundingChildrenText}${foundingMovementText}`,
+    /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/,
+  );
+
+  const foundingMasterSummary = buildNatalMasterSummary({
+    summary: foundingNatalReport.summary,
+    twelveDomains: foundingNatalReport.twelveDomains,
+    hitList: [
+      {
+        name: "流年伤官引动",
+        type: "流年",
+        source: "当前流年",
+        evidence: ["当前流年食伤带出输出"],
+        domains: ["子女结果"],
+        importance: "high",
+      },
+      {
+        name: "大运冲日支",
+        type: "大运",
+        source: "当前步运",
+        evidence: ["当前步运带动关系环境"],
+        domains: ["迁移环境", "夫妻感情"],
+        importance: "high",
+      },
+      {
+        name: "官印承接",
+        type: "原局十神",
+        source: "原局十神统计",
+        evidence: ["癸印透月", "酉月正官"],
+        domains: ["官禄事业", "福德精神"],
+        supports: ["career", "fortune"],
+        importance: "high",
+      },
+      {
+        name: "财星固定承载有迹",
+        type: "原局四柱",
+        source: "原局四柱",
+        evidence: ["己丑财星与土气承载"],
+        domains: ["财帛财富", "田宅资产", "父母家庭"],
+        supports: ["wealth", "property", "parents"],
+        importance: "high",
+      },
+      {
+        name: "子酉破",
+        type: "原局关系",
+        source: "原局关系",
+        evidence: ["子酉破带来细碎关系和节奏压力"],
+        domains: ["夫妻感情", "迁移环境"],
+        supports: ["spouse", "movement"],
+        importance: "medium",
+      },
+    ],
+    database: defaultMasterSummaryDatabase,
+  });
+  assert.doesNotMatch(JSON.stringify(foundingMasterSummary), /流年|大运|流月|当前步运|岁运|流日/);
+  assert.ok(foundingMasterSummary.headline);
+  assert.match(
+    `${foundingMasterSummary.headline}${foundingMasterSummary.paragraph}`,
+    /官印|规则|印气|家庭|承载|自我节奏|主见/,
+  );
+
+  const variedInputs = [
+    { birthDate: "1949-10-01", birthTime: "00:30", gender: "male" },
+    { birthDate: "1992-08-18", birthTime: "14:30", gender: "female" },
+    { birthDate: "1988-03-12", birthTime: "09:20", gender: "male" },
+    { birthDate: "2001-11-05", birthTime: "22:10", gender: "female" },
+  ];
+  const variedReports = variedInputs.map((input) => {
+    const itemChart = calculateBazi({
+      ...input,
+      birthProvince: "北京市",
+      birthplace: "北京",
+      targetYear: 2026,
+      selectedMonth: 6,
+      trueSolarTime: false,
+    }, {
+      locations: global.window.FortuneLocationData,
+    });
+    const itemViewModel = buildBaseBaziViewModel(itemChart);
+    const itemReport = buildNatalImageReport({ chart: itemChart, baseBaziViewModel: itemViewModel });
+    const featureVector = buildNatalFeatureVector({ chart: itemChart, baseBaziViewModel: itemViewModel });
+    const atomicFacts = buildAtomicNatalFacts(featureVector);
+    const itemSummary = buildNatalMasterSummary({
+      summary: itemReport.summary,
+      twelveDomains: itemReport.twelveDomains,
+      hitList: [],
+      featureVector: itemReport.featureVector,
+      atomicFacts: itemReport.atomicFacts,
+      domainEvidence: itemReport.domainEvidence,
+      database: defaultMasterSummaryDatabase,
+    });
+    return {
+      headline: itemSummary.headline,
+      selectedFactIds: itemSummary.selectedFactIds ?? [],
+      factIds: atomicFacts.facts.map((fact) => fact.id),
+      reportFactIds: itemReport.atomicFacts?.facts?.map((fact) => fact.id) ?? [],
+      hitIds: itemReport.hitList?.all?.map((hit) => hit.id) ?? [],
+      domainSignature: itemReport.twelveDomains
+        .filter((domain) => ["self", "wealth", "children", "movement", "career", "spouse"].includes(domain.key))
+        .map((domain) => `${domain.key}:${domain.judgement}`)
+        .join("|"),
+    };
+  });
+  assert.ok(variedReports.every((item) => item.reportFactIds.length >= 6));
+  assert.ok(variedReports.every((item) => item.hitIds.length > 0));
+  assert.ok(variedReports.every((item) => item.headline.length > 0));
+  assert.ok(
+    new Set(variedReports.map((item) => item.domainSignature)).size >= 3,
+    "不同八字的十二维卡片正面标题组合不应像固定模板",
+  );
+  assert.ok(
+    jaccardDistance(variedReports[0].factIds, variedReports[2].factIds) >= 0.3,
+    "不同 fixture 的原子事实集合应有明显差异",
+  );
+  assert.ok(
+    jaccardDistance(variedReports[0].hitIds, variedReports[2].hitIds) >= 0.25,
+    "不同 fixture 的重点取象不应完全相同",
+  );
+  assert.notDeepEqual(variedReports[0].selectedFactIds, variedReports[2].selectedFactIds);
+
+  const repeatChart = calculateBazi({
+    birthDate: "1988-03-12",
+    birthTime: "09:20",
+    birthProvince: "北京市",
+    birthplace: "北京",
+    gender: "male",
+    targetYear: 2026,
+    selectedMonth: 6,
+    trueSolarTime: false,
+  }, {
+    locations: global.window.FortuneLocationData,
+  });
+  const repeatViewModel = buildBaseBaziViewModel(repeatChart);
+  const repeatA = buildNatalImageReport({ chart: repeatChart, baseBaziViewModel: repeatViewModel });
+  const repeatB = buildNatalImageReport({ chart: repeatChart, baseBaziViewModel: repeatViewModel });
+  assert.deepEqual(repeatA.atomicFacts.facts.map((fact) => fact.id), repeatB.atomicFacts.facts.map((fact) => fact.id));
+  assert.deepEqual(repeatA.twelveDomains.map((domain) => domain.title), repeatB.twelveDomains.map((domain) => domain.title));
+  assert.doesNotMatch(JSON.stringify(repeatA.atomicFacts), /大运|流年|流月|当前步运|岁运|流日/);
+
+  const luckImageReport = buildLuckImageReport({ chart, baseBaziViewModel, natalImageReport, targetYear: 2026 });
+  const yearImageReport = buildYearImageReport({ chart, baseBaziViewModel, natalImageReport, luckImageReport, targetYear: 2026 });
+  const monthImageReport = buildMonthImageReport({
+    chart,
+    baseBaziViewModel,
+    natalImageReport,
+    luckImageReport,
+    yearImageReport,
+    targetYear: 2026,
+    selectedMonth: 6,
+  });
+
+  assert.ok(chart.pillars.year.label);
+  assert.ok(baseBaziViewModel.pillars.length >= 4);
+  assert.ok(natalImageReport.imageCards.length > 0);
+  assert.ok(luckImageReport.luckItems.length > 0);
+  assert.equal(yearImageReport.yearItem.year, 2026);
+  assert.equal(monthImageReport.monthItem.month, 6);
+});
+
+test("stage analysis panels render calculated report data without breaking refresh", () => {
+  global.window = createTestWindow();
+  Function(readFileSync("js/generated/locationCatalog.js", "utf8"))();
+
+  const chart = calculateBazi({
+    birthDate: "1992-08-18",
+    birthTime: "14:30",
+    birthProvince: "北京市",
+    birthplace: "北京",
+    gender: "female",
+    targetYear: 2026,
+    selectedMonth: 6,
+    trueSolarTime: true,
+  }, {
+    locations: global.window.FortuneLocationData,
+  });
+  const baseBaziViewModel = buildBaseBaziViewModel(chart);
+  const natalImageReport = buildNatalImageReport({ chart, baseBaziViewModel });
+  const luckImageReport = buildLuckImageReport({ chart, baseBaziViewModel, natalImageReport, targetYear: 2026 });
+  const yearImageReport = buildYearImageReport({ chart, baseBaziViewModel, natalImageReport, luckImageReport, targetYear: 2026 });
+  const monthImageReport = buildMonthImageReport({
+    chart,
+    baseBaziViewModel,
+    natalImageReport,
+    luckImageReport,
+    yearImageReport,
+    targetYear: 2026,
+    selectedMonth: 6,
+  });
+  const root = createRenderRoot();
+
+  assert.doesNotThrow(() => renderStageAnalysisPanel(root, { report: luckImageReport, stage: "luck" }));
+  assert.match(root.innerHTML, /阶段速断/);
+  assert.match(root.innerHTML, /stage-quick-summary/);
+  assert.match(root.innerHTML, /stage-evidence-details/);
+  assert.match(root.innerHTML, /详细证据与复核/);
+  assert.match(root.innerHTML, /<section class="stage-ai-collapse stage-ai-primary"[\s\S]*<section class="stage-image-content">/);
+  assert.doesNotMatch(headerHtml(root.innerHTML), /stage-ai-collapse|ai-collapse-card|data-stage-ai-generate/);
+  assert.doesNotThrow(() => renderStageAnalysisPanel(root, { report: yearImageReport, stage: "year" }));
+  assert.match(root.innerHTML, /阶段速断/);
+  assert.match(root.innerHTML, /stage-evidence-details/);
+  assert.match(root.innerHTML, /<section class="stage-ai-collapse stage-ai-primary"[\s\S]*<section class="stage-image-content">/);
+  assert.doesNotMatch(headerHtml(root.innerHTML), /stage-ai-collapse|ai-collapse-card|data-stage-ai-generate/);
+  assert.doesNotThrow(() => renderStageAnalysisPanel(root, { report: monthImageReport, stage: "month" }));
+  assert.match(root.innerHTML, /阶段速断/);
+  assert.match(root.innerHTML, /stage-evidence-details/);
+  assert.match(root.innerHTML, /<section class="stage-ai-collapse stage-ai-primary"[\s\S]*<section class="stage-image-content">/);
+  assert.doesNotMatch(headerHtml(root.innerHTML), /stage-ai-collapse|ai-collapse-card|data-stage-ai-generate/);
+
+  assert.doesNotThrow(() => renderNatalImagePanel(root, natalImageReport, { chart, baseBaziViewModel }));
+  assert.match(root.innerHTML, /原局总纲/);
+  assert.match(root.innerHTML, /原局综合报告/);
+  assert.match(root.innerHTML, /natal-master-summary/);
+  assert.match(root.innerHTML, /这个原局|这个人|现实中|容易|倾向/);
+  const masterSummaryStart =
+    root.innerHTML.search(
+      /<section\s+class="[^"]*natal-master-summary[^"]*"[^>]*>/,
+    );
+  const masterSummaryHtml =
+    masterSummaryStart >= 0
+      ? root.innerHTML.slice(masterSummaryStart)
+      : "";
+  assert.match(root.innerHTML, /natal-integrated-report/);
+  assert.match(root.innerHTML, /基本象义/);
+  assert.match(root.innerHTML, /事业|财务/);
+  assert.match(root.innerHTML, /有利一面|需要注意/);
+  assert.match(root.innerHTML, /natal-hit-index/);
+  assert.doesNotMatch(masterSummaryHtml, /同时[^。]+现实中容易带出|整体来看，|观察入口|开盘先看|先看|再看|资料取象|命中依据/);
+  assert.match(masterSummaryHtml, /现实/);
+  assert.match(root.innerHTML, /十二领域详解/);
+  assert.match(root.innerHTML, /分领域查看/);
+  assert.match(root.innerHTML, /natal-domain-section/);
+  assert.match(root.innerHTML, /natal-domain-grid/);
+  assert.match(root.innerHTML, /natal-domain-card/);
+  assert.match(root.innerHTML, /natal-domain-index/);
+  assert.match(root.innerHTML, /natal-domain-summary-block/);
+  assert.match(root.innerHTML, /is-manifestation/);
+  assert.match(root.innerHTML, /is-pressure/);
+  assert.ok(
+    natalImageReport.twelveDomains.every(
+      (domain) =>
+        Array.isArray(domain.keywords),
+    ),
+  );
+  assert.equal(
+    (
+      root.innerHTML.match(
+        /<article\s+class="natal-domain-card/g,
+      ) || []
+    ).length,
+    12,
+  );
+  for (const label of natalImageReport.twelveDomains.map((domain) => domain.label)) {
+    assert.match(root.innerHTML, new RegExp(label));
+  }
+  assert.match(root.innerHTML, /取象索引/);
+  assert.match(root.innerHTML, /系统从四柱、十神、藏干、五行、关系和结构中提取出/);
+  assert.match(root.innerHTML, /natal-hit-index/);
+  assert.match(root.innerHTML, /natal-hit-row/);
+  assert.match(root.innerHTML, /natal-hit-detail/);
+  assert.match(root.innerHTML, /natal-hit-details/);
+  assert.match(root.innerHTML, /展开全部/);
+  assert.doesNotMatch(root.innerHTML, /<details class="natal-hit-details" open/);
+  assert.doesNotMatch(root.innerHTML, /重点取象|查看更多取象|natal-hit-more/);
+  assert.match(root.innerHTML, /natal-hit-domains/);
+  assert.match(root.innerHTML, /依据/);
+  assert.match(root.innerHTML, /natal-hit-evidence-button/);
+  assert.doesNotMatch(root.innerHTML, /查看更多取象 <span>0 个<\/span>/);
+  assert.equal((root.innerHTML.match(/<details class="natal-hit-details">/g) || []).length, 0);
+  assert.doesNotMatch(root.innerHTML, /对应方面/);
+  assert.match(root.innerHTML, /命盘依据/);
+  assert.match(root.innerHTML, /命中组合/);
+  assert.match(root.innerHTML, /成立条件/);
+  assert.match(root.innerHTML, /资料解释/);
+  assert.match(root.innerHTML, /现实对应/);
+  assert.match(root.innerHTML, /反证与边界/);
+  assert.ok(root.innerHTML.indexOf("natal-master-summary") < root.innerHTML.indexOf("natal-domain-section"));
+  assert.ok(root.innerHTML.indexOf("natal-domain-section") < root.innerHTML.indexOf("natal-hit-index"));
+  const domainSectionHtml = root.innerHTML.slice(
+    root.innerHTML.indexOf("natal-domain-section"),
+    root.innerHTML.indexOf("natal-hit-index"),
+  );
+  assert.ok(domainSectionHtml.includes("命盘依据"));
+  assert.ok(domainSectionHtml.includes("资料解释"));
+  assert.ok(domainSectionHtml.includes("成立条件"));
+  assert.ok(domainSectionHtml.includes("现实对应"));
+  assert.ok(domainSectionHtml.includes("反证与边界"));
+  assert.doesNotMatch(root.innerHTML, /专业复核资料|natal-professional-review|专业推理链|完整取象依据|原局九项取象明细|natal-evidence-sequence-card|natal-image-evidence-card|natal-image-card-evidence-grid|重点提醒|natal-focus-summary|<details class="natal-full-evidence"|原局总论|关键取象摘要|natal-overview-hero|natal-keyword-section/);
+});
+
+test("evidence packs drive local narratives without AI or recalculation", () => {
+  global.window = createTestWindow();
+  Function(readFileSync("js/generated/locationCatalog.js", "utf8"))();
+
+  const chart = calculateBazi({
+    birthDate: "1992-08-18",
+    birthTime: "14:30",
+    birthProvince: "北京市",
+    birthplace: "北京",
+    gender: "female",
+    targetYear: 2026,
+    selectedMonth: 6,
+    trueSolarTime: true,
+  }, {
+    locations: global.window.FortuneLocationData,
+  });
+  const baseBaziViewModel = buildBaseBaziViewModel(chart);
+  const natalImageReport = buildNatalImageReport({ chart, baseBaziViewModel });
+  const luckImageReport = buildLuckImageReport({ chart, baseBaziViewModel, natalImageReport, targetYear: 2026 });
+  const yearImageReport = buildYearImageReport({ chart, baseBaziViewModel, natalImageReport, luckImageReport, targetYear: 2026 });
+  const monthImageReport = buildMonthImageReport({
+    chart,
+    baseBaziViewModel,
+    natalImageReport,
+    luckImageReport,
+    yearImageReport,
+    targetYear: 2026,
+    selectedMonth: 6,
+  });
+
+  const packs = [
+    buildNatalEvidencePack({ chart, baseBaziViewModel, natalImageReport }),
+    buildLuckEvidencePack({ baseBaziViewModel, luckImageReport }),
+    buildYearEvidencePack({ baseBaziViewModel, luckImageReport, yearImageReport }),
+    buildMonthEvidencePack({ baseBaziViewModel, luckImageReport, yearImageReport, monthImageReport }),
+  ];
+
+  for (const pack of packs) {
+    assert.ok(pack.stage);
+    assert.ok(pack.title);
+    assert.ok(Array.isArray(pack.hits));
+    assert.ok(Array.isArray(pack.relations));
+    assert.ok(Array.isArray(pack.aiContext["命中取象"]));
+    assert.ok(Array.isArray(pack.aiContext["资料解释"]));
+    assert.ok(Array.isArray(pack.aiContext["成立条件"]));
+    assert.ok(Array.isArray(pack.aiContext["反证"]));
+    assert.ok(Array.isArray(pack.aiContext["现实取象"]));
+    assert.match(pack.aiContext.instruction, /不能重新排盘/);
+    const narrative = buildLocalNarrative(pack);
+    assert.deepEqual(narrative.sections.map((section) => section.title), [
+      "命理师讲盘",
+      "现实画面",
+      "资料解释",
+      "成立条件",
+      "反证边界",
+      "师傅复核点",
+    ]);
+    assert.match(narrative.sections[0].text, /呈现|这步大运|这个流年|这个流月|原局/);
+    assert.doesNotMatch(narrative.sections[0].text, /主线先看|怎么验证|要看它在现实环境里怎么承接|资料解释：|成立条件：/);
+    assert.match(narrative.sections.find((section) => section.title === "资料解释")?.text ?? "", /资料解释/);
+    assert.match(narrative.sections.find((section) => section.title === "成立条件")?.text ?? "", /成立条件/);
+    assert.match(narrative.sections.find((section) => section.title === "反证边界")?.text ?? "", /若|不直接|未必|反证|边界/);
+    assert.match(narrative.sections.find((section) => section.title === "师傅复核点")?.text ?? "", /复核|验证|观察|现实反馈/);
+    assert.doesNotMatch(JSON.stringify({ pack, narrative }), /\/api\/|generateWithDeepSeek|readAiSettings/);
+  }
+
+  const noRelationPack = buildLuckEvidencePack({
+    luckImageReport: {
+      luckItems: [{ ganZhi: "甲子", stemTenGod: "正印", branchTenGod: "比肩", confidence: "low" }],
+    },
+  });
+  const noRelationNarrative = buildLocalNarrative(noRelationPack);
+  assert.equal(noRelationPack.relations.length, 0);
+  assert.match(noRelationNarrative.basis.join("；"), /暂无明显冲合刑害破触发/);
+});
+
+test("stage advice engine combines stage ten-god relation and confidence rules", () => {
+  const advice = buildStageAdvice({
+    stage: "year",
+    item: { stemTenGod: "正官", confidence: "low" },
+    relations: [{ description: "流年与原局见相冲，需要看被触发柱位。" }],
+    confidence: "low",
+  });
+
+  assert.equal(advice.title, "当前流年建议");
+  assert.deepEqual(advice.cards.map((card) => card.title), ["先看主线", "现实反馈", "复核边界", "反证提醒"]);
+  assert.match(advice.cards[0].content, /流年用于观察/);
+  assert.match(advice.cards[0].content, /规则、职位、责任/);
+  assert.match(advice.cards[2].content, /冲/);
+  assert.ok(advice.cards.every((card) => card.content.split(/[。！？；]/).filter(Boolean).length <= 2));
+});
+
+function headerHtml(html) {
+  return html.match(/<div class="stage-analysis-header">[\s\S]*?<\/div>\s*<\/div>/)?.[0] ?? "";
+}
+
+function sentenceCount(text = "") {
+  return String(text).split(/[。！？!?]/).filter((item) => item.trim()).length;
+}
+
+function countMatchedTerms(text = "", terms = []) {
+  return terms.filter((term) => String(text).includes(term)).length;
+}
+
+function domainText(domain = {}) {
+  return `${domain.title ?? ""}${domain.judgement ?? ""}${domain.manifestation ?? ""}`;
+}
+
+function assertDomainPortrait(domain, { key, label }) {
+  assert.ok(domain, `${key} domain should exist`);
+  assert.equal(domain.key, key);
+  assert.equal(domain.label, label);
+  assert.ok(domain.judgement);
+  assert.ok(domain.manifestation);
+  assert.match(domain.confidence, /^(high|medium|low)$/);
+  assert.ok(Array.isArray(domain.evidence));
+  assert.ok(Array.isArray(domain.matchedFactIds));
+  assert.ok(domain.primaryFact || domain.confidence === "low");
+  assert.doesNotMatch(
+    domainText(domain),
+    /一定|必定|绝对|必然|必离婚|必发财|必有灾|必坐牢|必死亡/,
+  );
+}
+
+function assertMatchedFactsExist(domain, factIds) {
+  assert.ok(domain.matchedFactIds.length > 0);
+  for (const id of domain.matchedFactIds) {
+    assert.ok(
+      factIds.has(id),
+      `missing domain fact ${id}`,
+    );
+  }
+}
+
+function jaccardDistance(left = [], right = []) {
+  const a = new Set(left);
+  const b = new Set(right);
+  const union = new Set([...a, ...b]);
+  if (!union.size) return 0;
+  const intersection = [...a].filter((item) => b.has(item)).length;
+  return 1 - intersection / union.size;
+}
+
+function createTestWindow() {
+  return {
+    location: {
+      search: "",
+    },
+    localStorage: {
+      getItem() {
+        return null;
+      },
+      setItem() {},
+      removeItem() {},
+    },
+  };
+}
+
+function createRenderRoot() {
+  return {
+    innerHTML: "",
+    querySelectorAll() {
+      return [];
+    },
+    querySelector() {
+      return { addEventListener() {} };
+    },
+  };
+}
+
+test("legacy backups are documented and excluded from package files", () => {
+  const legacyReadme = readFileSync("legacy/README.md", "utf8");
+  const legacyIndex = readFileSync("legacy/index.offline.html", "utf8");
+  const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+
+  assert.match(legacyReadme, /不参与当前主链路/);
+  assert.match(legacyReadme, /不进入正式打包/);
+  assert.match(legacyIndex, /js\/app\.bundle\.js|app\.bundle\.js/);
+  assert.equal(packageJson.build.files.some((item) => item.startsWith("legacy")), false);
+});

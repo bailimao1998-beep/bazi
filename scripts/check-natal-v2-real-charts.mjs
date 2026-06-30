@@ -2,20 +2,24 @@ import assert from "node:assert/strict";
 
 import {
   calculateBazi,
-} from "../js/core/bazi/calculateBazi.js";
+} from "../js/domain/bazi/calculateBazi.js";
 
 import {
   buildBaseBaziViewModel,
-} from "../js/core/bazi/buildBaseBaziViewModel.js";
+} from "../js/domain/bazi/buildBaseBaziViewModel.js";
 
 import {
   buildNatalImageReport,
-} from "../js/core/blind-bazi/buildNatalImageReport.js";
+} from "../js/domain/natal/reports/buildNatalImageReport.js";
 
 import {
   compareProfessionalEvidenceImages,
   isSupportedProfessionalImage,
-} from "../js/core/natal/professional/domainProfessionalAggregation.js";
+} from "../js/domain/natal/professional/domainProfessionalAggregation.js";
+import {
+  compareNatalMasterNarrativeImages,
+  isNatalMasterAnchorCandidate,
+} from "../js/domain/natal/professional/professionalImageRanking.js";
 
 const expectedDomainKeys = [
   "self",
@@ -768,13 +772,20 @@ function validateMasterSummary({
         compareProfessionalEvidenceImages,
       );
 
-  const expectedPrimary =
-    supportedImages[0] ??
+  const masterAnchorCandidates =
     images
+      .filter(
+        isNatalMasterAnchorCandidate,
+      )
       .slice()
       .sort(
-        compareProfessionalEvidenceImages,
-      )[0] ??
+        compareNatalMasterNarrativeImages,
+      );
+
+  const expectedPrimary =
+    masterAnchorCandidates[0] ??
+    supportedImages[0] ??
+    images[0] ??
     null;
 
   const actualPrimaryRuleId =
@@ -787,7 +798,7 @@ function validateMasterSummary({
     assert.equal(
       actualPrimaryRuleId,
       expectedPrimary.ruleId,
-      `${chartCase.label}总批主象没有选择当前最强证据结构`,
+      `${chartCase.label}总批主象没有选择当前最高阶叙事锚点`,
     );
   }
 }

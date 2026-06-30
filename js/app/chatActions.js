@@ -1,24 +1,24 @@
 
-import { readAiSettings } from "../core/ai/aiSettingsClient.js?v=20260613c";
-import { buildChatPrompt } from "../core/ai/buildChatPrompt.js";
+import { readAiSettings } from "../services/ai/client/aiSettingsClient.js?v=20260613c";
+import { buildChatPrompt } from "../services/ai/chat/buildChatPrompt.js";
 import {
   buildChatRepairPrompt,
   sanitizeChatResponse,
   validateChatResponse,
-} from "../core/ai/chatResponseGuard.js";
+} from "../services/ai/guards/chatResponseGuard.js";
 import {
   buildChatContextPlan,
-} from "../core/ai/buildChatContextPlan.js";
+} from "../services/ai/chat/buildChatContextPlan.js";
 import {
   selectChatImagery,
-} from "../core/ai/selectChatImagery.js";
+} from "../services/ai/chat/selectChatImagery.js";
 import {
   buildImageryRulePack,
-} from "../core/imagery-rules/buildImageryRulePack.js";
-import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260613b";
-import { buildLuckImageReport } from "../core/blind-bazi/buildLuckImageReport.js";
-import { buildYearImageReport } from "../core/blind-bazi/buildYearImageReport.js";
-import { buildMonthImageReport } from "../core/blind-bazi/buildMonthImageReport.js";
+} from "../domain/shared/imagery/buildImageryRulePack.js";
+import { generateWithDeepSeek } from "../services/ai/client/deepseekClient.js?v=20260613b";
+import { buildLuckImageReport } from "../domain/transit/reports/buildLuckImageReport.js";
+import { buildYearImageReport } from "../domain/transit/reports/buildYearImageReport.js";
+import { buildMonthImageReport } from "../domain/transit/reports/buildMonthImageReport.js";
 import {
   buildRequestedYearReports,
   buildYearSearchPlan,

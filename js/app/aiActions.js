@@ -1,17 +1,17 @@
-import { readAiSettings } from "../core/ai/aiSettingsClient.js?v=20260613c";
-import { buildLuckAiPrompt } from "../core/ai/buildLuckAiPrompt.js";
-import { buildMonthAiPrompt } from "../core/ai/buildMonthAiPrompt.js";
-import { buildNatalAiPrompt } from "../core/ai/buildNatalAiPrompt.js";
-import { buildYearAiPrompt } from "../core/ai/buildYearAiPrompt.js";
-import { generateWithDeepSeek } from "../core/ai/deepseekClient.js?v=20260613b";
-import { generateStageAiReport } from "../core/ai/stageAiReportService.js";
+import { readAiSettings } from "../services/ai/client/aiSettingsClient.js?v=20260613c";
+import { buildLuckAiPrompt } from "../services/ai/transit/buildLuckAiPrompt.js";
+import { buildMonthAiPrompt } from "../services/ai/transit/buildMonthAiPrompt.js";
+import { buildNatalAiPrompt } from "../services/ai/natal/buildNatalAiPrompt.js";
+import { buildYearAiPrompt } from "../services/ai/transit/buildYearAiPrompt.js";
+import { generateWithDeepSeek } from "../services/ai/client/deepseekClient.js?v=20260613b";
+import { generateStageAiReport } from "../services/ai/transit/stageAiReportService.js";
 import {
   guardNatalAiContent,
-} from "../core/ai/natalAiContentGuard.js";
+} from "../services/ai/natal/natalAiContentGuard.js";
 import {
   normalizeNatalAiReport,
   validateNatalAiReport,
-} from "../core/ai/natalAiReportContract.js";
+} from "../services/ai/natal/natalAiReportContract.js";
 
 export function createAiActions({ store, renderBaseOnly }) {
   async function generateNatalAiNarrative() {

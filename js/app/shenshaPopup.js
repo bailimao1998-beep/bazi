@@ -1,8 +1,8 @@
-import { escapeHtml } from "../utils/html.js";
+import { escapeHtml } from "../shared/html.js";
 import {
   getShenshaMeaning,
   inferPillarKey,
-} from "../data/shenshaMeaningDatabase.js";
+} from "../domain/bazi/shensha/shenshaMeaningDatabase.js";
 
 export function bindShenshaPopupEvents() {
   document

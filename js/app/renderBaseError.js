@@ -1,6 +1,6 @@
-import { renderBaseBaziPanel } from "../components/baseBaziPanel.js";
-import { renderFortuneTransitPanel } from "../components/fortuneTransitPanel.js";
-import { escapeHtml } from "../utils/html.js";
+import { renderBaseBaziPanel } from "../ui/natal/baseBaziPanel.js";
+import { renderFortuneTransitPanel } from "../ui/transit/fortuneTransitPanel.js";
+import { escapeHtml } from "../shared/html.js";
 
 export function renderBaseError(error, { roots, state }) {
   if (roots.chartSummary) {

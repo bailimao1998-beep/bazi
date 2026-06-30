@@ -4,8 +4,9 @@ import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
-const dataDir = path.join(root, "data", "imagery-rules");
-const output = path.join(root, "js", "core", "imagery-rules", "imageryRuleBundle.js");
+const dataDir = path.join(root, "data", "knowledge", "imagery");
+const output = path.join(root, "js", "generated", "imageryRuleBundle.js");
+const checkOnly = process.argv.includes("--check");
 
 function readJson(name) {
   return JSON.parse(fs.readFileSync(path.join(dataDir, name), "utf8"));
@@ -68,9 +69,19 @@ const payload = [
   "",
 ].join("\n\n");
 
-fs.mkdirSync(path.dirname(output), { recursive: true });
-fs.writeFileSync(output, payload, "utf8");
-console.log(
-  `已生成 ${path.relative(root, output)}：${rules.length}条正式规则，` +
-  `${methodology.rules.length}条总纲，${modulePayloads.length}个模块。`,
-);
+if (checkOnly) {
+  const current = fs.readFileSync(output, "utf8");
+  if (current !== payload) {
+    throw new Error(
+      `${path.relative(root, output)} 与权威 JSON 不一致，请运行 node scripts/build-imagery-rule-bundle.mjs`,
+    );
+  }
+  console.log(`生成数据漂移检查通过：${path.relative(root, output)}`);
+} else {
+  fs.mkdirSync(path.dirname(output), { recursive: true });
+  fs.writeFileSync(output, payload, "utf8");
+  console.log(
+    `已生成 ${path.relative(root, output)}：${rules.length}条正式规则，` +
+    `${methodology.rules.length}条总纲，${modulePayloads.length}个模块。`,
+  );
+}

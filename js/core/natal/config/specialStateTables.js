@@ -1,1 +1,1 @@
-export * from "../../bazi/specialStateTables.js";
+export * from "../../../domain/natal/config/specialStateTables.js";
